@@ -1,3 +1,13 @@
+function escapeRegex(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function parseLimit(value) {
+  const parsed = Number.parseInt(value, 10);
+  if (Number.isNaN(parsed)) return 50;
+  return Math.min(Math.max(parsed, 1), 100);
+}
+
 export function makeCrudController(Model, defaultPopulate = []) {
   const applyPopulate = (query) => defaultPopulate.reduce((current, path) => current.populate(path), query);
 
@@ -8,15 +18,23 @@ export function makeCrudController(Model, defaultPopulate = []) {
         const filter = {};
         if (status) filter.status = status;
         if (q) {
+          const safeQuery = escapeRegex(String(q).trim().slice(0, 80));
+          const expression = new RegExp(safeQuery, "i");
           filter.$or = [
-            { fullName: new RegExp(q, "i") },
-            { name: new RegExp(q, "i") },
-            { patientName: new RegExp(q, "i") },
-            { sourceName: new RegExp(q, "i") },
-            { title: new RegExp(q, "i") }
+            { fullName: expression },
+            { mrn: expression },
+            { phone: expression },
+            { name: expression },
+            { patientName: expression },
+            { sourceName: expression },
+            { invoiceNo: expression },
+            { category: expression },
+            { department: expression },
+            { service: expression },
+            { title: expression }
           ];
         }
-        const docs = await applyPopulate(Model.find(filter)).sort({ createdAt: -1 }).limit(Number(limit));
+        const docs = await applyPopulate(Model.find(filter)).sort({ createdAt: -1 }).limit(parseLimit(limit));
         res.json(docs);
       } catch (error) {
         next(error);
@@ -49,7 +67,8 @@ export function makeCrudController(Model, defaultPopulate = []) {
       try {
         const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
           new: true,
-          runValidators: true
+          runValidators: true,
+          context: "query"
         });
         if (!doc) {
           res.status(404);

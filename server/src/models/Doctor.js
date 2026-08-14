@@ -13,4 +13,7 @@ const doctorSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+doctorSchema.index({ status: 1, discipline: 1 });
+doctorSchema.index({ name: "text", discipline: "text", phone: "text" });
+
 export const Doctor = mongoose.model("Doctor", doctorSchema);

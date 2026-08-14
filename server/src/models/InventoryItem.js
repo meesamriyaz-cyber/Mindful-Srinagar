@@ -13,4 +13,7 @@ const inventoryItemSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+inventoryItemSchema.index({ category: 1, name: 1 });
+inventoryItemSchema.index({ quantity: 1, reorderLevel: 1 });
+
 export const InventoryItem = mongoose.model("InventoryItem", inventoryItemSchema);

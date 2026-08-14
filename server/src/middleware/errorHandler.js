@@ -5,9 +5,22 @@ export function notFound(req, res, next) {
 }
 
 export function errorHandler(error, req, res, _next) {
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  let message = error.message || "Server error";
+
+  if (error.name === "ValidationError") {
+    statusCode = 400;
+    message = Object.values(error.errors).map((issue) => issue.message).join(". ");
+  }
+
+  if (error.code === 11000) {
+    statusCode = 409;
+    const field = Object.keys(error.keyPattern || {})[0] || "record";
+    message = `A ${field} with this value already exists`;
+  }
+
   res.status(statusCode).json({
-    message: error.message,
+    message,
     stack: process.env.NODE_ENV === "production" ? undefined : error.stack
   });
 }

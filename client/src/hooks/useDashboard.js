@@ -2,29 +2,59 @@ import { useEffect, useState } from "react";
 import { apiRequest } from "../lib/api.js";
 
 export function useDashboard(token) {
-  const [state, setState] = useState({ data: null, loading: Boolean(token), error: "" });
+  const [refreshIndex, setRefreshIndex] = useState(0);
+  const [state, setState] = useState({
+    data: null,
+    loading: Boolean(token),
+    refreshing: false,
+    error: "",
+    updatedAt: null
+  });
 
   useEffect(() => {
     if (!token) {
-      setState({ data: null, loading: false, error: "" });
+      setState({ data: null, loading: false, refreshing: false, error: "", updatedAt: null });
       return;
     }
 
     let active = true;
-    setState((current) => ({ ...current, loading: true, error: "" }));
+    setState((current) => ({
+      ...current,
+      loading: !current.data,
+      refreshing: Boolean(current.data),
+      error: ""
+    }));
 
     apiRequest("/dashboard", { token })
       .then((data) => {
-        if (active) setState({ data, loading: false, error: "" });
+        if (active) {
+          setState({
+            data,
+            loading: false,
+            refreshing: false,
+            error: "",
+            updatedAt: new Date().toISOString()
+          });
+        }
       })
       .catch((error) => {
-        if (active) setState({ data: null, loading: false, error: error.message });
+        if (active) {
+          setState((current) => ({
+            ...current,
+            loading: false,
+            refreshing: false,
+            error: error.message
+          }));
+        }
       });
 
     return () => {
       active = false;
     };
-  }, [token]);
+  }, [token, refreshIndex]);
 
-  return state;
+  return {
+    ...state,
+    refresh: () => setRefreshIndex((value) => value + 1)
+  };
 }

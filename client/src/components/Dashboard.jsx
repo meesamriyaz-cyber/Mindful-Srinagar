@@ -2,43 +2,98 @@ import {
   AlertTriangle,
   BarChart3,
   CalendarClock,
+  CheckCircle2,
   ClipboardCheck,
+  FileText,
   IndianRupee,
+  LayoutDashboard,
+  ListChecks,
   LogOut,
+  PackageOpen,
+  RefreshCw,
   Search,
   ShieldCheck,
   TrendingUp,
-  UsersRound
+  UserRoundPlus,
+  UsersRound,
+  WalletCards
 } from "lucide-react";
-import React, { useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDashboard } from "../hooks/useDashboard.js";
-import { clearSession, getStoredSession, loginStaff, storeSession } from "../lib/api.js";
+import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord } from "../lib/api.js";
 
 const INR = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
+
+const viewItems = [
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "patients", label: "Patients", resource: "patients", icon: UsersRound },
+  { id: "referrals", label: "Referrals", resource: "referrals", icon: TrendingUp },
+  { id: "appointments", label: "Appointments", resource: "appointments", icon: CalendarClock },
+  { id: "billing", label: "Billing", resource: "invoices", icon: WalletCards },
+  { id: "inventory", label: "Inventory", resource: "inventory", icon: PackageOpen },
+  { id: "tasks", label: "Tasks", resource: "tasks", icon: ListChecks },
+  { id: "reports", label: "Reports", icon: FileText }
+];
+
+function getViewConfig(id) {
+  return viewItems.find((item) => item.id === id) || viewItems[0];
+}
 
 function formatTime(value) {
   if (!value) return "--";
   return new Intl.DateTimeFormat("en-IN", { hour: "2-digit", minute: "2-digit" }).format(new Date(value));
 }
 
+function formatDate(value) {
+  if (!value) return "Not set";
+  return new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value));
+}
+
+function formatDateTime(value) {
+  if (!value) return "Not scheduled";
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(value));
+}
+
 function formatPatient(appointment) {
-  return appointment.patient?.fullName || "Patient";
+  return appointment.patient?.fullName || appointment.patientName || "Patient";
 }
 
 function formatPractitioner(appointment) {
-  return appointment.practitioner?.name || appointment.service;
+  return appointment.practitioner?.name || appointment.service || "Practitioner";
 }
 
-function StatCard({ label, value, trend, icon: Icon }) {
+function invoiceTotal(invoice) {
+  const gross = (invoice.items || []).reduce((sum, item) => sum + (item.quantity || 0) * (item.rate || 0), 0);
+  return Math.max(gross - (invoice.discount || 0), 0);
+}
+
+function statusClass(status = "") {
+  if (["urgent", "high", "overdue", "partial", "draft", "no-show", "low stock"].includes(status)) return "risk";
+  if (["paid", "completed", "converted", "done", "active", "ready"].includes(status)) return "good";
+  return "";
+}
+
+function StatCard({ label, value, trend, icon: Icon, tone = "" }) {
   return (
-    <article className="stat-card">
+    <motion.article
+      className={`stat-card ${tone ? `stat-${tone}` : ""}`}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.22 }}
+    >
       <div className="stat-topline">
         <span>{label}</span>
         <Icon size={18} />
       </div>
       <strong>{value}</strong>
       <small>{trend}</small>
-    </article>
+    </motion.article>
   );
 }
 
@@ -106,8 +161,40 @@ function LoginPanel({ onLogin }) {
   );
 }
 
+function useResourceRecords({ activeView, token, query, refreshSignal }) {
+  const config = getViewConfig(activeView);
+  const resource = config.resource;
+  const [state, setState] = useState({ records: [], loading: false, error: "" });
+
+  useEffect(() => {
+    if (!token || !resource) {
+      setState({ records: [], loading: false, error: "" });
+      return undefined;
+    }
+
+    let active = true;
+    setState({ records: [], loading: true, error: "" });
+    const timeoutId = window.setTimeout(() => {
+      listRecords(resource, { token, q: query, limit: 40 })
+        .then((records) => {
+          if (active) setState({ records, loading: false, error: "" });
+        })
+        .catch((error) => {
+          if (active) setState({ records: [], loading: false, error: error.message });
+        });
+    }, 220);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timeoutId);
+    };
+  }, [resource, token, query, refreshSignal]);
+
+  return state;
+}
+
 function DirectorView({ data }) {
-  const metrics = data.metrics;
+  const metrics = data.metrics || {};
   const serviceDemand = data.analytics?.serviceDemand || [];
   const referralMix = Object.entries(data.analytics?.referralMix || {});
   const patientStatus = Object.entries(data.analytics?.patientStatus || {});
@@ -115,7 +202,7 @@ function DirectorView({ data }) {
 
   return (
     <div className="director-view">
-      <article className="action-panel">
+      <article className="action-panel director-panel">
         <div className="panel-title">
           <TrendingUp size={21} />
           <h3>Director business view</h3>
@@ -134,14 +221,14 @@ function DirectorView({ data }) {
             <strong>{INR.format(metrics.outstanding || 0)}</strong>
           </div>
           <div>
-            <span>Referral conversion</span>
+            <span>Monthly conversion</span>
             <strong>{metrics.conversionRate || 0}%</strong>
           </div>
         </div>
         <div className="insight-list">
-          <p>Focus collections on partial and draft invoices before month close.</p>
-          <p>Protect high-demand services with staffing and room availability.</p>
-          <p>Track hospital and school referral sources weekly for growth partnerships.</p>
+          {(data.businessInsights || []).map((insight) => (
+            <p key={insight}>{insight}</p>
+          ))}
         </div>
       </article>
 
@@ -154,7 +241,7 @@ function DirectorView({ data }) {
           {serviceDemand.length ? (
             serviceDemand.map((item) => (
               <div className="bar-row" key={item.service}>
-                <span>{item.service}</span>
+                <span>{item.service || "Unspecified"}</span>
                 <div><i style={{ width: `${(item.count / maxDemand) * 100}%` }} /></div>
                 <b>{item.count}</b>
               </div>
@@ -171,9 +258,9 @@ function DirectorView({ data }) {
           <h3>Patient mix</h3>
         </div>
         <div className="mix-list">
-          {patientStatus.map(([status, count]) => (
+          {patientStatus.length ? patientStatus.map(([status, count]) => (
             <span key={status}>{status}: <strong>{count}</strong></span>
-          ))}
+          )) : <p className="empty-state">No patient records yet.</p>}
         </div>
       </article>
 
@@ -192,44 +279,398 @@ function DirectorView({ data }) {
   );
 }
 
+function AppointmentList({ appointments = [] }) {
+  return (
+    <div className="appointment-list">
+      {appointments.length ? appointments.map((appointment) => (
+        <div className="appointment-row" key={appointment._id}>
+          <time>{formatTime(appointment.startsAt)}</time>
+          <div>
+            <strong>{formatPatient(appointment)}</strong>
+            <span>{appointment.service} - {formatPractitioner(appointment)}</span>
+          </div>
+          <mark className={statusClass(appointment.status)}>{appointment.status}</mark>
+        </div>
+      )) : <p className="empty-state">No appointments scheduled today.</p>}
+    </div>
+  );
+}
+
+function PriorityWork({ data }) {
+  const openTasks = data.openTasks || [];
+  const urgentReferrals = data.urgentReferrals || [];
+  const lowStock = data.lowStock || [];
+
+  return (
+    <article className="action-panel">
+      <div className="panel-title">
+        <ClipboardCheck size={21} />
+        <h3>Priority work</h3>
+      </div>
+      <ul className="priority-list">
+        {urgentReferrals.slice(0, 3).map((referral) => (
+          <li key={referral._id}>
+            <strong>{referral.patientName}</strong>
+            <span>Urgent {referral.sourceType} referral</span>
+          </li>
+        ))}
+        {openTasks.slice(0, 4).map((task) => (
+          <li key={task._id}>
+            <strong>{task.title}</strong>
+            <span>{task.department} - {task.priority}</span>
+          </li>
+        ))}
+        {!urgentReferrals.length && !openTasks.length && <li>No open tasks.</li>}
+      </ul>
+      <div className="warning">
+        <AlertTriangle size={20} />
+        {lowStock.length
+          ? `${lowStock.length} inventory item(s) need reorder.`
+          : "No low-stock alerts right now."}
+      </div>
+    </article>
+  );
+}
+
+function CashWatch({ data }) {
+  const invoices = data.unpaidInvoices || [];
+
+  return (
+    <article className="table-panel">
+      <div className="panel-title">
+        <IndianRupee size={21} />
+        <h3>Cash watch</h3>
+      </div>
+      <div className="compact-record-list">
+        {invoices.length ? invoices.map((invoice) => {
+          const total = invoiceTotal(invoice);
+          const due = Math.max(total - (invoice.paidAmount || 0), 0);
+          return (
+            <div className="compact-record" key={invoice._id}>
+              <div>
+                <strong>{invoice.patient?.fullName || invoice.invoiceNo || "Invoice"}</strong>
+                <span>{invoice.status} - due {INR.format(due)}</span>
+              </div>
+              <mark className={statusClass(invoice.status)}>{invoice.status}</mark>
+            </div>
+          );
+        }) : <p className="empty-state">No draft or partial invoices.</p>}
+      </div>
+    </article>
+  );
+}
+
+function OverviewWorkspace({ data, isDirector }) {
+  return (
+    <>
+      <div className="stats-grid">
+        <StatCard
+          label="Active patients"
+          value={data.metrics.activePatients ?? "--"}
+          trend={`${data.metrics.newPatientsThisMonth ?? 0} new this month`}
+          icon={UsersRound}
+        />
+        <StatCard
+          label="Appointments today"
+          value={data.metrics.appointmentsToday ?? "--"}
+          trend={`${data.metrics.checkedInToday ?? 0} checked in, ${data.metrics.noShowsToday ?? 0} no-show`}
+          icon={CalendarClock}
+        />
+        <StatCard
+          label="Open referrals"
+          value={data.metrics.referrals ?? "--"}
+          trend={`${data.metrics.urgentReferrals ?? 0} urgent, ${data.metrics.conversionRate ?? 0}% conversion`}
+          icon={TrendingUp}
+          tone={data.metrics.urgentReferrals ? "risk" : ""}
+        />
+        <StatCard
+          label="Collections"
+          value={INR.format(data.metrics.revenueThisMonth || 0)}
+          trend={`${INR.format(data.metrics.outstanding || 0)} outstanding`}
+          icon={IndianRupee}
+          tone={data.metrics.outstanding ? "risk" : ""}
+        />
+      </div>
+
+      {isDirector && <DirectorView data={data} />}
+
+      <div className="console-grid">
+        <article className="table-panel">
+          <div className="panel-title">
+            <CalendarClock size={21} />
+            <h3>Today's appointments</h3>
+          </div>
+          <AppointmentList appointments={data.todaysAppointments || []} />
+        </article>
+        <PriorityWork data={data} />
+      </div>
+
+      <div className="console-grid lower-console-grid">
+        <CashWatch data={data} />
+        <article className="action-panel">
+          <div className="panel-title">
+            <AlertTriangle size={21} />
+            <h3>Operational risks</h3>
+          </div>
+          <div className="risk-stack">
+            <span><strong>{data.metrics.lowStockCount || 0}</strong> low-stock items</span>
+            <span><strong>{data.metrics.overdueTasks || 0}</strong> overdue tasks</span>
+            <span><strong>{data.metrics.unpaidInvoiceCount || 0}</strong> invoices pending</span>
+          </div>
+        </article>
+      </div>
+    </>
+  );
+}
+
+function describeRecord(viewId, record) {
+  if (viewId === "patients") {
+    return {
+      title: record.fullName,
+      meta: `${record.mrn || "No MRN"} - ${record.phone || "No phone"}`,
+      detail: `${record.guardianName || "Guardian not listed"} - ${(record.services || []).join(", ") || record.primaryConcern}`,
+      status: record.status
+    };
+  }
+
+  if (viewId === "referrals") {
+    return {
+      title: record.patientName,
+      meta: `${record.sourceName || record.sourceType} - ${record.phone || "No phone"}`,
+      detail: `${record.concern || "No concern noted"} - preferred ${record.preferredContact || "phone"}`,
+      status: record.urgency === "urgent" ? "urgent" : record.status
+    };
+  }
+
+  if (viewId === "appointments") {
+    return {
+      title: formatPatient(record),
+      meta: `${formatDateTime(record.startsAt)} - ${record.room || "Room not set"}`,
+      detail: `${record.service} with ${formatPractitioner(record)}`,
+      status: record.status
+    };
+  }
+
+  if (viewId === "billing") {
+    const total = invoiceTotal(record);
+    const due = Math.max(total - (record.paidAmount || 0), 0);
+    return {
+      title: record.invoiceNo,
+      meta: `${record.patient?.fullName || "Patient"} - ${INR.format(total)} total`,
+      detail: `${INR.format(record.paidAmount || 0)} paid - ${INR.format(due)} due`,
+      status: record.status
+    };
+  }
+
+  if (viewId === "inventory") {
+    return {
+      title: record.name,
+      meta: `${record.category} - ${record.quantity} ${record.unit || "pcs"} available`,
+      detail: `Reorder at ${record.reorderLevel}; ${record.vendor || "vendor not listed"}`,
+      status: record.quantity <= record.reorderLevel ? "low stock" : "ready"
+    };
+  }
+
+  return {
+    title: record.title,
+    meta: `${record.department} - due ${formatDate(record.dueDate)}`,
+    detail: `Priority: ${record.priority}`,
+    status: record.status === "todo" && record.dueDate && new Date(record.dueDate) < new Date() ? "overdue" : record.status
+  };
+}
+
+function recordActions(viewId, record) {
+  if (viewId === "referrals") {
+    if (record.status === "new") return [{ label: "Contacted", updates: { status: "contacted" } }];
+    if (record.status === "contacted") return [{ label: "Scheduled", updates: { status: "scheduled" } }];
+    if (record.status === "scheduled") return [{ label: "Converted", updates: { status: "converted" } }];
+  }
+
+  if (viewId === "appointments") {
+    if (record.status === "scheduled") return [{ label: "Check in", updates: { status: "checked-in" } }];
+    if (record.status === "checked-in") return [{ label: "Complete", updates: { status: "completed" } }];
+  }
+
+  if (viewId === "billing" && ["draft", "partial"].includes(record.status)) {
+    return [{ label: "Mark paid", updates: { status: "paid", paidAmount: invoiceTotal(record) } }];
+  }
+
+  if (viewId === "tasks" && record.status !== "done") {
+    return [{ label: "Done", updates: { status: "done" } }];
+  }
+
+  return [];
+}
+
+function ReportsView({ data }) {
+  const serviceMix = Object.entries(data?.analytics?.serviceMix || {}).slice(0, 8);
+  const referralStatus = Object.entries(data?.analytics?.referralStatus || {});
+  const appointmentStatus = Object.entries(data?.analytics?.appointmentStatusToday || {});
+
+  return (
+    <div className="reports-grid">
+      <article className="action-panel director-panel">
+        <div className="panel-title">
+          <FileText size={21} />
+          <h3>Business diagnosis</h3>
+        </div>
+        <div className="insight-list">
+          {(data?.businessInsights || []).map((insight) => <p key={insight}>{insight}</p>)}
+        </div>
+      </article>
+      <article className="table-panel">
+        <div className="panel-title">
+          <TrendingUp size={21} />
+          <h3>Referral funnel</h3>
+        </div>
+        <div className="mix-list">
+          {referralStatus.length ? referralStatus.map(([status, count]) => (
+            <span key={status}>{status}: <strong>{count}</strong></span>
+          )) : <p className="empty-state">No monthly referral activity yet.</p>}
+        </div>
+      </article>
+      <article className="table-panel">
+        <div className="panel-title">
+          <CalendarClock size={21} />
+          <h3>Today by status</h3>
+        </div>
+        <div className="mix-list">
+          {appointmentStatus.length ? appointmentStatus.map(([status, count]) => (
+            <span key={status}>{status}: <strong>{count}</strong></span>
+          )) : <p className="empty-state">No appointments today.</p>}
+        </div>
+      </article>
+      <article className="table-panel">
+        <div className="panel-title">
+          <BarChart3 size={21} />
+          <h3>Service mix</h3>
+        </div>
+        <div className="mix-list">
+          {serviceMix.length ? serviceMix.map(([service, count]) => (
+            <span key={service}>{service}: <strong>{count}</strong></span>
+          )) : <p className="empty-state">No service mix recorded.</p>}
+        </div>
+      </article>
+    </div>
+  );
+}
+
+function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError }) {
+  const config = getViewConfig(activeView);
+  const Icon = config.icon;
+
+  if (activeView === "reports") {
+    return <ReportsView data={data} />;
+  }
+
+  const records = state.records || [];
+
+  return (
+    <article className="table-panel resource-panel">
+      <div className="panel-title resource-title">
+        <Icon size={21} />
+        <div>
+          <h3>{config.label}</h3>
+          <span>{records.length} record(s) loaded</span>
+        </div>
+      </div>
+      {state.loading && <p className="empty-state">Loading {config.label.toLowerCase()}...</p>}
+      {state.error && <p className="form-status error-status">{state.error}</p>}
+      {actionError && <p className="form-status error-status">{actionError}</p>}
+      {!state.loading && !state.error && (
+        <AnimatePresence mode="popLayout">
+          {records.length ? (
+            <div className="record-grid">
+              {records.map((record) => {
+                const summary = describeRecord(activeView, record);
+                const actions = recordActions(activeView, record);
+                return (
+                  <motion.div
+                    className="record-card"
+                    key={record._id}
+                    layout
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="record-main">
+                      <div>
+                        <strong>{summary.title || "Untitled record"}</strong>
+                        <span>{summary.meta}</span>
+                      </div>
+                      <mark className={statusClass(summary.status)}>{summary.status || "open"}</mark>
+                    </div>
+                    <p>{summary.detail}</p>
+                    {actions.length > 0 && (
+                      <div className="record-actions">
+                        {actions.map((action) => (
+                          <button
+                            className="secondary-button compact-button"
+                            type="button"
+                            key={action.label}
+                            disabled={actionId === record._id}
+                            onClick={() => onRecordAction(config.resource, record._id, action.updates)}
+                          >
+                            {actionId === record._id ? "Saving..." : action.label}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="empty-state">No records match the current filters.</p>
+          )}
+        </AnimatePresence>
+      )}
+    </article>
+  );
+}
+
 export function Dashboard() {
   const [session, setSession] = useState(getStoredSession);
-  const { data, loading, error } = useDashboard(session.token);
+  const [activeView, setActiveView] = useState("overview");
+  const [query, setQuery] = useState("");
+  const [resourceRefresh, setResourceRefresh] = useState(0);
+  const [actionId, setActionId] = useState("");
+  const [actionError, setActionError] = useState("");
+  const { data, loading, refreshing, error, updatedAt, refresh } = useDashboard(session.token);
+  const resourceState = useResourceRecords({ activeView, token: session.token, query, refreshSignal: resourceRefresh });
   const isDirector = ["director", "admin"].includes(session.user?.role);
+  const activeConfig = getViewConfig(activeView);
 
-  const stats = useMemo(() => {
-    const metrics = data?.metrics || {};
-    return [
-      {
-        label: "Active patients",
-        value: metrics.activePatients ?? "--",
-        trend: `${metrics.newPatientsThisMonth ?? 0} new this month`,
-        icon: UsersRound
-      },
-      {
-        label: "Appointments today",
-        value: metrics.appointmentsToday ?? "--",
-        trend: `${metrics.completedAppointmentsThisMonth ?? 0} completed this month`,
-        icon: CalendarClock
-      },
-      {
-        label: "Open referrals",
-        value: metrics.referrals ?? "--",
-        trend: `${metrics.conversionRate ?? 0}% conversion`,
-        icon: TrendingUp
-      },
-      {
-        label: "Collections",
-        value: INR.format(metrics.revenueThisMonth || 0),
-        trend: `${INR.format(metrics.outstanding || 0)} outstanding`,
-        icon: IndianRupee
-      }
-    ];
-  }, [data]);
+  const syncLabel = useMemo(() => {
+    if (refreshing) return "Syncing";
+    if (error) return "Needs attention";
+    if (updatedAt) return `Live ${formatTime(updatedAt)}`;
+    return "Waiting";
+  }, [error, refreshing, updatedAt]);
 
   function handleLogout() {
     clearSession();
     setSession({ token: null, user: null });
+  }
+
+  function handleRefresh() {
+    refresh();
+    setResourceRefresh((value) => value + 1);
+  }
+
+  async function handleRecordAction(resource, id, updates) {
+    setActionId(id);
+    setActionError("");
+    try {
+      await updateRecord(resource, id, updates, { token: session.token });
+      setResourceRefresh((value) => value + 1);
+      refresh();
+    } catch (err) {
+      setActionError(err.message);
+    } finally {
+      setActionId("");
+    }
   }
 
   if (!session.token) {
@@ -247,24 +688,48 @@ export function Dashboard() {
               <small>{isDirector ? "Director console" : "Staff console"}</small>
             </span>
           </div>
-          {["Overview", "Patients", "Referrals", "Appointments", "Billing", "Inventory", "Reports"].map((item) => (
-            <button className={item === "Overview" ? "side-link active" : "side-link"} type="button" key={item}>
-              {item}
-            </button>
-          ))}
+          {viewItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <button
+                className={item.id === activeView ? "side-link active" : "side-link"}
+                type="button"
+                key={item.id}
+                onClick={() => {
+                  setActiveView(item.id);
+                  setQuery("");
+                  setActionError("");
+                }}
+              >
+                <Icon size={17} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
         </aside>
         <div className="console">
           <div className="console-header">
             <div>
               <p className="eyebrow">{isDirector ? "Director command centre" : "Operations dashboard"}</p>
-              <h2>{isDirector ? "Whole-centre performance and business view" : "Today's centre command view"}</h2>
+              <h2>{activeView === "overview" ? "Whole-centre operating view" : activeConfig.label}</h2>
               <p className="console-user">Signed in as {session.user?.name} ({session.user?.role})</p>
             </div>
             <div className="console-tools">
+              <span className={`sync-pill ${error ? "sync-error" : ""} ${refreshing ? "is-syncing" : ""}`}>
+                {syncLabel}
+              </span>
               <label className="search-box">
                 <Search size={18} />
-                <input placeholder="Search patient, MRN, referral source" />
+                <input
+                  placeholder={activeConfig.resource ? `Search ${activeConfig.label.toLowerCase()}` : "Board search"}
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  disabled={!activeConfig.resource}
+                />
               </label>
+              <button className="icon-button" type="button" onClick={handleRefresh} aria-label="Refresh dashboard">
+                <RefreshCw size={18} />
+              </button>
               <button className="icon-button" type="button" onClick={handleLogout} aria-label="Sign out">
                 <LogOut size={18} />
               </button>
@@ -275,52 +740,29 @@ export function Dashboard() {
           {error && <p className="form-status error-status">{error}</p>}
 
           {data && (
-            <>
-              <div className="stats-grid">
-                {stats.map((stat) => <StatCard key={stat.label} {...stat} />)}
-              </div>
-
-              {isDirector && <DirectorView data={data} />}
-
-              <div className="console-grid">
-                <article className="table-panel">
-                  <div className="panel-title">
-                    <CalendarClock size={21} />
-                    <h3>Appointments</h3>
-                  </div>
-                  <div className="appointment-list">
-                    {data.todaysAppointments.length ? data.todaysAppointments.map((appointment) => (
-                      <div className="appointment-row" key={appointment._id}>
-                        <time>{formatTime(appointment.startsAt)}</time>
-                        <div>
-                          <strong>{formatPatient(appointment)}</strong>
-                          <span>{appointment.service} - {formatPractitioner(appointment)}</span>
-                        </div>
-                        <mark>{appointment.status}</mark>
-                      </div>
-                    )) : <p className="empty-state">No appointments scheduled today.</p>}
-                  </div>
-                </article>
-
-                <article className="action-panel">
-                  <div className="panel-title">
-                    <ClipboardCheck size={21} />
-                    <h3>Priority work</h3>
-                  </div>
-                  <ul>
-                    {data.openTasks.length ? data.openTasks.map((task) => (
-                      <li key={task._id}>{task.title}</li>
-                    )) : <li>No open tasks.</li>}
-                  </ul>
-                  <div className="warning">
-                    <AlertTriangle size={20} />
-                    {data.lowStock.length
-                      ? `${data.lowStock.length} inventory item(s) need reorder.`
-                      : "No low-stock alerts right now."}
-                  </div>
-                </article>
-              </div>
-            </>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeView}
+                className="workspace-view"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.22 }}
+              >
+                {activeView === "overview" ? (
+                  <OverviewWorkspace data={data} isDirector={isDirector} />
+                ) : (
+                  <ResourceBoard
+                    activeView={activeView}
+                    data={data}
+                    state={resourceState}
+                    onRecordAction={handleRecordAction}
+                    actionId={actionId}
+                    actionError={actionError}
+                  />
+                )}
+              </motion.div>
+            </AnimatePresence>
           )}
         </div>
       </div>

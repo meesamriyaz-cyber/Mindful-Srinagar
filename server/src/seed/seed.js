@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
 import mongoose from "mongoose";
+import { loadEnv } from "../config/env.js";
 import { connectDb } from "../config/db.js";
 import { Appointment } from "../models/Appointment.js";
 import { Doctor } from "../models/Doctor.js";
@@ -9,7 +9,7 @@ import { Referral } from "../models/Referral.js";
 import { Task } from "../models/Task.js";
 import { User } from "../models/User.js";
 
-dotenv.config();
+loadEnv();
 
 async function seed() {
   await connectDb(process.env.MONGO_URI);

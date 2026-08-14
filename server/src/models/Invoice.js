@@ -23,4 +23,7 @@ invoiceSchema.virtual("total").get(function getTotal() {
   return this.items.reduce((sum, item) => sum + item.quantity * item.rate, 0) - this.discount;
 });
 
+invoiceSchema.index({ status: 1, createdAt: -1 });
+invoiceSchema.index({ patient: 1, createdAt: -1 });
+
 export const Invoice = mongoose.model("Invoice", invoiceSchema);

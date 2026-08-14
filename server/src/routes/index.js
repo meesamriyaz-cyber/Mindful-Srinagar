@@ -1,6 +1,7 @@
 import express from "express";
 import { getDashboard } from "../controllers/dashboardController.js";
 import { makeCrudController } from "../controllers/crudController.js";
+import { createEnquiry } from "../controllers/enquiryController.js";
 import { protect } from "../middleware/auth.js";
 import { Appointment } from "../models/Appointment.js";
 import { Doctor } from "../models/Doctor.js";
@@ -16,29 +17,7 @@ const router = express.Router();
 
 router.get("/health", (_req, res) => res.json({ status: "ok", service: "mindful-api" }));
 router.use("/auth", authRoutes);
-router.post("/enquiries", async (req, res, next) => {
-  try {
-    const { name, phone, source, concern } = req.body;
-
-    if (!name || !phone || !source || !concern) {
-      res.status(400);
-      throw new Error("Name, phone, referral source and concern are required");
-    }
-
-    const referral = await Referral.create({
-      sourceType: source,
-      sourceName: source === "walk-in" ? "Walk-in enquiry" : `${source} enquiry`,
-      phone,
-      patientName: name,
-      concern,
-      status: "new"
-    });
-
-    res.status(201).json({ id: referral._id, message: "Enquiry received" });
-  } catch (error) {
-    next(error);
-  }
-});
+router.post("/enquiries", createEnquiry);
 
 router.use(protect);
 router.get("/dashboard", getDashboard);

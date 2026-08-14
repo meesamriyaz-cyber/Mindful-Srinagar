@@ -1,10 +1,44 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000/api" : "/api");
 const TOKEN_KEY = "mindful_staff_token";
 const USER_KEY = "mindful_staff_user";
 
+function readStorage(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStorage(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // A blocked storage write should not break the staff workflow after login.
+  }
+}
+
+function removeStorage(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // Ignore storage cleanup failures from restricted browser modes.
+  }
+}
+
+function buildApiUrl(path, params) {
+  const url = new URL(`${API_BASE_URL}${path}`, window.location.origin);
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      url.searchParams.set(key, value);
+    }
+  });
+  return url.toString();
+}
+
 export function getStoredSession() {
-  const token = localStorage.getItem(TOKEN_KEY);
-  const rawUser = localStorage.getItem(USER_KEY);
+  const token = readStorage(TOKEN_KEY);
+  const rawUser = readStorage(USER_KEY);
   try {
     return {
       token,
@@ -17,24 +51,39 @@ export function getStoredSession() {
 }
 
 export function storeSession({ token, user }) {
-  localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  writeStorage(TOKEN_KEY, token);
+  writeStorage(USER_KEY, JSON.stringify(user));
 }
 
 export function clearSession() {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(USER_KEY);
+  removeStorage(TOKEN_KEY);
+  removeStorage(USER_KEY);
 }
 
-export async function apiRequest(path, { token, ...options } = {}) {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers
+export async function apiRequest(path, { token, params, timeoutMs = 12000, ...options } = {}) {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+  const url = buildApiUrl(path, params);
+
+  let response;
+  try {
+    response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers
+      }
+    });
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("The centre system took too long to respond. Please call the centre directly.");
     }
-  });
+    throw new Error("Could not reach the centre system. Please check the connection and try again.");
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
 
   const data = await response.json().catch(() => ({}));
 
@@ -56,5 +105,20 @@ export function createEnquiry(enquiry) {
   return apiRequest("/enquiries", {
     method: "POST",
     body: JSON.stringify(enquiry)
+  });
+}
+
+export function listRecords(resource, { token, q, status, limit = 30 } = {}) {
+  return apiRequest(`/${resource}`, {
+    token,
+    params: { q, status, limit }
+  });
+}
+
+export function updateRecord(resource, id, updates, { token } = {}) {
+  return apiRequest(`/${resource}/${id}`, {
+    token,
+    method: "PUT",
+    body: JSON.stringify(updates)
   });
 }

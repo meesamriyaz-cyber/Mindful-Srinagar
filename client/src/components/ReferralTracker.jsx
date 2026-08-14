@@ -1,40 +1,42 @@
-import { Building2, PhoneForwarded } from "lucide-react";
+import { ArrowRight, Building2, GraduationCap, HeartHandshake, PhoneForwarded, Stethoscope } from "lucide-react";
 import React from "react";
-import { referralPipeline } from "../data/centreData.js";
+
+const audiences = [
+  { label: "Families", icon: HeartHandshake },
+  { label: "Hospitals and doctors", icon: Stethoscope },
+  { label: "Schools and NGOs", icon: GraduationCap }
+];
 
 export function ReferralTracker() {
-  const total = referralPipeline.reduce((sum, item) => sum + item.count, 0);
-
   return (
     <section className="section referral-section" id="referrals">
       <div className="referral-copy">
-        <p className="eyebrow">Referral tracking</p>
-        <h2>Know exactly which hospital, school, NGO or doctor sent each patient.</h2>
+        <p className="eyebrow">Referrals and partnerships</p>
+        <h2>One clear referral route for families and care partners.</h2>
         <p>
-          The system keeps referral source, contact person, patient concern, assigned coordinator, follow-up date and
-          conversion status in one place.
+          Share the concern once. Mindful will help identify the right assessment, service and next step.
         </p>
         <div className="callout">
           <Building2 size={22} />
-          <span>{total} open referral records across outreach channels</span>
+          <span>Referrals are welcome from hospitals, schools, NGOs, doctors and families.</span>
         </div>
       </div>
-      <div className="pipeline">
-        {referralPipeline.map((item) => (
-          <article className="pipeline-row" key={item.source}>
-            <div>
-              <strong>{item.source}</strong>
-              <span>{item.stage}</span>
+      <div className="referral-action">
+        <div className="referral-audience">
+          {audiences.map((audience) => {
+            const Icon = audience.icon;
+          return (
+            <div className="referral-partner-card" key={audience.label}>
+              <Icon size={22} />
+              <strong>{audience.label}</strong>
             </div>
-            <div className="pipeline-meter" aria-label={`${item.source} referral volume`}>
-              <span style={{ width: `${(item.count / total) * 100}%`, background: item.color }} />
-            </div>
-            <b>{item.count}</b>
-          </article>
-        ))}
-        <a className="primary-button full" href="#contact">
+          );
+          })}
+        </div>
+        <a className="primary-button" href="#contact">
           <PhoneForwarded size={18} />
-          Add referral enquiry
+          Send a referral enquiry
+          <ArrowRight size={17} />
         </a>
       </div>
     </section>

@@ -1,23 +1,30 @@
 import { ArrowRight, MapPin, ShieldCheck } from "lucide-react";
-import React from "react";
+import React, { lazy, Suspense } from "react";
+import { useDeferredMount } from "../hooks/useDeferredMount.js";
+
+const ThreeOperationsScene = lazy(() =>
+  import("./ThreeOperationsScene.jsx").then((module) => ({ default: module.ThreeOperationsScene }))
+);
 
 export function Hero() {
+  const showScene = useDeferredMount({ delay: 450 });
+
   return (
     <section className="hero" id="home">
       <div className="hero-copy">
-        <p className="eyebrow">Srinagar multidisciplinary rehabilitation centre</p>
-        <h1>Mindful Centre for Rehabilitation Research & Trainings</h1>
+        <p className="eyebrow">Mindful Centre for Rehabilitation Research & Trainings, Srinagar</p>
+        <h1>Rehabilitation care that helps people participate with confidence.</h1>
         <p className="hero-lede">
-          Integrated, therapeutic and rehabilitative care for children, adolescents and adults with developmental,
-          communicative and physical challenges.
+          One coordinated team for assessment, therapy, learning support and life skills for children, adolescents and
+          adults with disabilities.
         </p>
         <div className="hero-actions">
           <a className="primary-button large" href="#contact">
-            Start a patient file
+            Book an assessment
             <ArrowRight size={19} />
           </a>
           <a className="secondary-button large" href="#operations">
-            View centre workflow
+            See our care process
           </a>
         </div>
         <div className="trust-row">
@@ -31,31 +38,22 @@ export function Hero() {
           </span>
         </div>
       </div>
-      <div className="hero-panel" aria-label="Centre operations summary">
-        <div className="panel-topline">
-          <span>Today at Mindful</span>
-          <strong>Live operations</strong>
+      <div className="hero-visual" aria-label="Centre operations summary">
+        <div className={showScene ? "hero-visual-fallback is-hidden" : "hero-visual-fallback"}>
+          <span>Psychology</span>
+          <span>Speech therapy</span>
+          <span>Physical therapy</span>
+          <span>Special education</span>
         </div>
-        <div className="flow-card checked">
-          <span>01</span>
-          <div>
-            <strong>Register or import referral</strong>
-            <p>Capture patient profile, guardian, source hospital, concern and documents.</p>
-          </div>
-        </div>
-        <div className="flow-card">
-          <span>02</span>
-          <div>
-            <strong>Schedule multidisciplinary care</strong>
-            <p>Assign assessments, therapy rooms, clinicians and reminders.</p>
-          </div>
-        </div>
-        <div className="flow-card">
-          <span>03</span>
-          <div>
-            <strong>Track progress and billing</strong>
-            <p>Record session notes, invoices, dues, inventory and management reports.</p>
-          </div>
+        {showScene && (
+          <Suspense fallback={<div className="three-scene three-scene-fallback" />}>
+            <ThreeOperationsScene />
+          </Suspense>
+        )}
+        <div className="hero-metrics">
+          <span><strong>9</strong> care services</span>
+          <span><strong>1</strong> coordinated plan</span>
+          <span><strong>Srinagar</strong> multidisciplinary team</span>
         </div>
       </div>
     </section>

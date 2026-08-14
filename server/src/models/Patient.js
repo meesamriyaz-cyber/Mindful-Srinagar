@@ -22,4 +22,7 @@ const patientSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+patientSchema.index({ status: 1, createdAt: -1 });
+patientSchema.index({ fullName: "text", guardianName: "text", phone: "text" });
+
 export const Patient = mongoose.model("Patient", patientSchema);

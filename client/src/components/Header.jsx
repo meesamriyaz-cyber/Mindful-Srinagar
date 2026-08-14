@@ -1,10 +1,16 @@
-import { CalendarCheck, LayoutDashboard, Menu, Phone, X } from "lucide-react";
+import { CalendarCheck, LockKeyhole, Menu, Phone, X } from "lucide-react";
 import React, { useState } from "react";
 
-const navItems = ["Services", "Operations", "Referrals", "Dashboard", "Contact"];
+const publicNavItems = [
+  { label: "Services", href: "#services" },
+  { label: "Care Process", href: "#operations" },
+  { label: "Referrals", href: "#referrals" },
+  { label: "Contact", href: "#contact" }
+];
 
-export function Header() {
+export function Header({ staffMode = false }) {
   const [open, setOpen] = useState(false);
+  const navItems = staffMode ? [{ label: "Public website", href: "#home" }] : publicNavItems;
 
   return (
     <header className="site-header">
@@ -29,24 +35,32 @@ export function Header() {
 
       <nav className={open ? "nav nav-open" : "nav"} aria-label="Primary navigation" id="primary-navigation">
         {navItems.map((item) => (
-          <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setOpen(false)}>
-            {item}
+          <a key={item.href} href={item.href} onClick={() => setOpen(false)}>
+            {item.label}
           </a>
         ))}
+        {!staffMode && (
+          <a className="nav-staff-link" href="#staff" onClick={() => setOpen(false)}>
+            <LockKeyhole size={15} />
+            Staff console
+          </a>
+        )}
       </nav>
 
       <div className="header-actions">
-        <a className="icon-button" href="tel:+919906897822" aria-label="Call centre">
-          <Phone size={20} />
-        </a>
-        <a className="primary-button" href="#dashboard">
-          <LayoutDashboard size={18} />
-          Staff Console
-        </a>
-        <a className="secondary-button" href="#contact">
-          <CalendarCheck size={18} />
-          Book Visit
-        </a>
+        {staffMode ? (
+          <a className="secondary-button" href="#home">Back to public site</a>
+        ) : (
+          <>
+            <a className="icon-button" href="tel:+919906897822" aria-label="Call centre">
+              <Phone size={20} />
+            </a>
+            <a className="primary-button" href="#contact">
+              <CalendarCheck size={18} />
+              Book assessment
+            </a>
+          </>
+        )}
       </div>
     </header>
   );
