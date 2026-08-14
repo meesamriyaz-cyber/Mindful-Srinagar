@@ -4,7 +4,9 @@ import {
   CalendarClock,
   CheckCircle2,
   ClipboardCheck,
+  ClipboardList,
   FileText,
+  HeartPulse,
   IndianRupee,
   LayoutDashboard,
   ListChecks,
@@ -22,18 +24,24 @@ import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDashboard } from "../hooks/useDashboard.js";
 import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord } from "../lib/api.js";
+import { ClinicalBoard } from "./ClinicalBoard.jsx";
+import { PatientJourney } from "./PatientJourney.jsx";
 
 const INR = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
 const viewItems = [
-  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "overview", label: "Overview", resource: null, icon: LayoutDashboard },
   { id: "patients", label: "Patients", resource: "patients", icon: UsersRound },
   { id: "referrals", label: "Referrals", resource: "referrals", icon: TrendingUp },
   { id: "appointments", label: "Appointments", resource: "appointments", icon: CalendarClock },
+  { id: "assessments", label: "Assessments", resource: "assessments", icon: ClipboardCheck },
+  { id: "treatment-plans", label: "Treatment Plans", resource: "treatment-plans", icon: FileText },
+  { id: "progress-notes", label: "Progress Notes", resource: "progress-notes", icon: ClipboardList },
+  { id: "prescriptions", label: "Prescriptions", resource: "prescriptions", icon: HeartPulse },
   { id: "billing", label: "Billing", resource: "invoices", icon: WalletCards },
   { id: "inventory", label: "Inventory", resource: "inventory", icon: PackageOpen },
   { id: "tasks", label: "Tasks", resource: "tasks", icon: ListChecks },
-  { id: "reports", label: "Reports", icon: FileText }
+  { id: "reports", label: "Reports", resource: null, icon: BarChart3 }
 ];
 
 function getViewConfig(id) {
@@ -471,6 +479,42 @@ function describeRecord(viewId, record) {
     };
   }
 
+  if (viewId === "assessments") {
+    return {
+      title: `Assessment - ${(record.domains || []).join(", ") || "General"}`,
+      meta: `Findings: ${(record.findings || "").slice(0, 80)}...`,
+      detail: `Status: ${record.status || "pending"}`,
+      status: record.status
+    };
+  }
+
+  if (viewId === "treatment-plans") {
+    return {
+      title: `Plan - ${(record.goals || "").slice(0, 50) || "Untitled"}`,
+      meta: `Frequency: ${record.frequency || "Not set"} | ${record.duration || ""}`,
+      detail: `Status: ${record.status || "pending"}`,
+      status: record.status
+    };
+  }
+
+  if (viewId === "progress-notes") {
+    return {
+      title: `Note - ${record.noteType || "General"} (${new Date(record.notedAt).toLocaleDateString("en-IN")})`,
+      meta: `Objective: ${(record.objective || "").slice(0, 60)}...`,
+      detail: `Assessment: ${(record.assessment || "").slice(0, 60)}...`,
+      status: "completed"
+    };
+  }
+
+  if (viewId === "prescriptions") {
+    return {
+      title: `Rx - ${(record.medications || []).map(m => m.name).join(", ") || "No medications"}`,
+      meta: `Prescribed: ${new Date(record.prescribedAt).toLocaleDateString("en-IN")}`,
+      detail: `Notes: ${(record.notes || "").slice(0, 80)}...`,
+      status: record.status
+    };
+  }
+
   return {
     title: record.title,
     meta: `${record.department} - due ${formatDate(record.dueDate)}`,
@@ -480,6 +524,10 @@ function describeRecord(viewId, record) {
 }
 
 function recordActions(viewId, record) {
+  if (viewId === "patients") {
+    return [{ label: "View Journey", action: "journey" }];
+  }
+
   if (viewId === "referrals") {
     if (record.status === "new") return [{ label: "Contacted", updates: { status: "contacted" } }];
     if (record.status === "contacted") return [{ label: "Scheduled", updates: { status: "scheduled" } }];
@@ -610,7 +658,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                             type="button"
                             key={action.label}
                             disabled={actionId === record._id}
-                            onClick={() => onRecordAction(config.resource, record._id, action.updates)}
+                            onClick={() => onRecordAction(config.resource, record._id, action.updates, action)}
                           >
                             {actionId === record._id ? "Saving..." : action.label}
                           </button>
@@ -637,6 +685,7 @@ export function Dashboard() {
   const [resourceRefresh, setResourceRefresh] = useState(0);
   const [actionId, setActionId] = useState("");
   const [actionError, setActionError] = useState("");
+  const [journeyPatientId, setJourneyPatientId] = useState(null);
   const { data, loading, refreshing, error, updatedAt, refresh } = useDashboard(session.token);
   const resourceState = useResourceRecords({ activeView, token: session.token, query, refreshSignal: resourceRefresh });
   const isDirector = ["director", "admin"].includes(session.user?.role);
@@ -659,7 +708,11 @@ export function Dashboard() {
     setResourceRefresh((value) => value + 1);
   }
 
-  async function handleRecordAction(resource, id, updates) {
+  async function handleRecordAction(resource, id, updates, extra) {
+    if (extra?.action === "journey") {
+      setJourneyPatientId(id);
+      return;
+    }
     setActionId(id);
     setActionError("");
     try {
@@ -749,23 +802,38 @@ export function Dashboard() {
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.22 }}
               >
-                {activeView === "overview" ? (
-                  <OverviewWorkspace data={data} isDirector={isDirector} />
-                ) : (
-                  <ResourceBoard
-                    activeView={activeView}
-                    data={data}
-                    state={resourceState}
-                    onRecordAction={handleRecordAction}
-                    actionId={actionId}
-                    actionError={actionError}
-                  />
-                )}
+              {activeView === "overview" ? (
+                <OverviewWorkspace data={data} isDirector={isDirector} />
+              ) : ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeView) ? (
+                <ClinicalBoard
+                  activeView={activeView}
+                  token={session.token}
+                  query={query}
+                  refreshSignal={resourceRefresh}
+                />
+              ) : (
+                <ResourceBoard
+                  activeView={activeView}
+                  data={data}
+                  state={resourceState}
+                  onRecordAction={handleRecordAction}
+                  actionId={actionId}
+                  actionError={actionError}
+                />
+              )}
               </motion.div>
             </AnimatePresence>
           )}
         </div>
       </div>
+
+      {journeyPatientId && (
+        <PatientJourney
+          patientId={journeyPatientId}
+          token={session.token}
+          onClose={() => setJourneyPatientId(null)}
+        />
+      )}
     </section>
   );
 }

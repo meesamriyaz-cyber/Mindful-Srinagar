@@ -12,6 +12,10 @@ import { Referral } from "../models/Referral.js";
 import { Task } from "../models/Task.js";
 import authRoutes from "./authRoutes.js";
 import { crudRoutes } from "./crudRoutes.js";
+import assessmentRoutes from "./assessmentRoutes.js";
+import treatmentPlanRoutes from "./treatmentPlanRoutes.js";
+import progressNoteRoutes from "./progressNoteRoutes.js";
+import prescriptionRoutes from "./prescriptionRoutes.js";
 
 const router = express.Router();
 
@@ -28,5 +32,9 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
 router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient"])));
 router.use("/inventory", crudRoutes(makeCrudController(InventoryItem)));
 router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo"])));
+router.use("/assessments", assessmentRoutes);
+router.use("/treatment-plans", treatmentPlanRoutes);
+router.use("/progress-notes", progressNoteRoutes);
+router.use("/prescriptions", prescriptionRoutes);
 
 export default router;

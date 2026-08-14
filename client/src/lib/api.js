@@ -122,3 +122,111 @@ export function updateRecord(resource, id, updates, { token } = {}) {
     body: JSON.stringify(updates)
   });
 }
+
+export function listAssessments({ token, patientId, q, status, limit = 30 } = {}) {
+  return apiRequest("/assessments", {
+    token,
+    params: { patientId, q, status, limit }
+  });
+}
+
+export function createAssessment(data, { token } = {}) {
+  return apiRequest("/assessments", {
+    token,
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+export function getAssessment(id, { token } = {}) {
+  return apiRequest(`/assessments/${id}`, { token });
+}
+
+export function updateAssessment(id, updates, { token } = {}) {
+  return apiRequest(`/assessments/${id}`, {
+    token,
+    method: "PUT",
+    body: JSON.stringify(updates)
+  });
+}
+
+export function listTreatmentPlans({ token, patientId, q, status, limit = 30 } = {}) {
+  return apiRequest("/treatment-plans", {
+    token,
+    params: { patientId, q, status, limit }
+  });
+}
+
+export function createTreatmentPlan(data, { token } = {}) {
+  return apiRequest("/treatment-plans", {
+    token,
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+export function getTreatmentPlan(id, { token } = {}) {
+  return apiRequest(`/treatment-plans/${id}`, { token });
+}
+
+export function updateTreatmentPlan(id, updates, { token } = {}) {
+  return apiRequest(`/treatment-plans/${id}`, {
+    token,
+    method: "PUT",
+    body: JSON.stringify(updates)
+  });
+}
+
+export function listProgressNotes({ token, patientId, appointmentId, q, limit = 30 } = {}) {
+  return apiRequest("/progress-notes", {
+    token,
+    params: { patientId, appointmentId, q, limit }
+  });
+}
+
+export function createProgressNote(data, { token } = {}) {
+  return apiRequest("/progress-notes", {
+    token,
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+export function getProgressNote(id, { token } = {}) {
+  return apiRequest(`/progress-notes/${id}`, { token });
+}
+
+export function updateProgressNote(id, updates, { token } = {}) {
+  return apiRequest(`/progress-notes/${id}`, {
+    token,
+    method: "PUT",
+    body: JSON.stringify(updates)
+  });
+}
+
+export function listPrescriptions({ token, patientId, q, status, limit = 30 } = {}) {
+  return apiRequest("/prescriptions", {
+    token,
+    params: { patientId, q, status, limit }
+  });
+}
+
+export function createPrescription(data, { token } = {}) {
+  return apiRequest("/prescriptions", {
+    token,
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+export function getPrescription(id, { token } = {}) {
+  return apiRequest(`/prescriptions/${id}`, { token });
+}
+
+export function updatePrescription(id, updates, { token } = {}) {
+  return apiRequest(`/prescriptions/${id}`, {
+    token,
+    method: "PUT",
+    body: JSON.stringify(updates)
+  });
+}
