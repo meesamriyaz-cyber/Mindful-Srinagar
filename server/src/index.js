@@ -13,19 +13,28 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(helmet());
-const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173").split(",").map((origin) => origin.trim()).filter(Boolean);
+const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173")
+  .split(",")
+  .map((origin) => origin.trim().replace(/\/+$/, ""))
+  .filter(Boolean);
+
+const normalizeOrigin = (origin) => (origin || "").trim().replace(/\/+$/, "");
 
 const corsOptions = {
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    const normalized = normalizeOrigin(origin);
+    if (!normalized || allowedOrigins.includes(normalized)) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(new Error(`Not allowed by CORS: ${normalized}`));
     }
-  }
+  },
+  optionsSuccessStatus: 204
 };
 
 app.use(cors(corsOptions));
+
+app.options("*", cors(corsOptions));
 app.use(express.json({ limit: "1mb" }));
 app.use(morgan("dev"));
 
