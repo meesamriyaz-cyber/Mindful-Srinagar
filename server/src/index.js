@@ -13,10 +13,15 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(helmet());
-const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173")
-  .split(",")
-  .map((origin) => origin.trim().replace(/\/+$/, ""))
-  .filter(Boolean);
+const allowedOrigins = [
+  "https://clientdemo.cuttingedge-enterprises.in",
+  "http://localhost:5173",
+  "http://localhost:3000",
+  ...(process.env.CLIENT_ORIGIN || "")
+    .split(",")
+    .map((origin) => origin.trim().replace(/\/+$/, ""))
+    .filter(Boolean)
+];
 
 app.use(cors({
   origin: allowedOrigins,
