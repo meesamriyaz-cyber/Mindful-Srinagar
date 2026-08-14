@@ -18,23 +18,10 @@ const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173")
   .map((origin) => origin.trim().replace(/\/+$/, ""))
   .filter(Boolean);
 
-const normalizeOrigin = (origin) => (origin || "").trim().replace(/\/+$/, "");
-
-const corsOptions = {
-  origin(origin, callback) {
-    const normalized = normalizeOrigin(origin);
-    if (!normalized || allowedOrigins.includes(normalized)) {
-      callback(null, true);
-    } else {
-      callback(new Error(`Not allowed by CORS: ${normalized}`));
-    }
-  },
+app.use(cors({
+  origin: allowedOrigins,
   optionsSuccessStatus: 204
-};
-
-app.use(cors(corsOptions));
-
-app.options("*", cors(corsOptions));
+}));
 app.use(express.json({ limit: "1mb" }));
 app.use(morgan("dev"));
 
