@@ -10,6 +10,18 @@ export const services = [
   "Tailored Vocational Training & Job Placement"
 ];
 
+export const serviceCharges = [
+  { service: "Psychology & Mental Health Support", rate: 1200, unit: "session" },
+  { service: "Special Education & Individualized Learning Plans", rate: 1000, unit: "session" },
+  { service: "Occupational Therapy", rate: 1100, unit: "session" },
+  { service: "Comprehensive Diagnostic Evaluations", rate: 2500, unit: "evaluation" },
+  { service: "Audiology & Hearing Assessments", rate: 1800, unit: "assessment" },
+  { service: "Speech-Language Pathology", rate: 1000, unit: "session" },
+  { service: "Physical Therapy", rate: 1100, unit: "session" },
+  { service: "Advanced Rehabilitation Programs", rate: 1500, unit: "session" },
+  { service: "Tailored Vocational Training & Job Placement", rate: 2000, unit: "session" }
+];
+
 export const departments = [
   { name: "Enquiry", owner: "1 working day", metric: "Share the concern, age, contact details and referral source so the team can guide the next step." },
   { name: "Assessment", owner: "First visit", metric: "Meet the relevant professionals and understand developmental, communication, learning or physical needs." },

@@ -17,31 +17,35 @@ import {
   ShieldCheck,
   TrendingUp,
   UserRoundPlus,
+  Plus,
+  X,
   UsersRound,
   WalletCards
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDashboard } from "../hooks/useDashboard.js";
-import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord } from "../lib/api.js";
+import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, API_BASE_URL } from "../lib/api.js";
 import { ClinicalBoard } from "./ClinicalBoard.jsx";
 import { PatientJourney } from "./PatientJourney.jsx";
+import { ChipInput } from "./ChipInput.jsx";
+import { serviceCharges, services } from "../data/centreData.js";
 
 const INR = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
 const viewItems = [
-  { id: "overview", label: "Overview", resource: null, icon: LayoutDashboard },
-  { id: "patients", label: "Patients", resource: "patients", icon: UsersRound },
-  { id: "referrals", label: "Referrals", resource: "referrals", icon: TrendingUp },
-  { id: "appointments", label: "Appointments", resource: "appointments", icon: CalendarClock },
-  { id: "assessments", label: "Assessments", resource: "assessments", icon: ClipboardCheck },
-  { id: "treatment-plans", label: "Treatment Plans", resource: "treatment-plans", icon: FileText },
-  { id: "progress-notes", label: "Progress Notes", resource: "progress-notes", icon: ClipboardList },
-  { id: "prescriptions", label: "Prescriptions", resource: "prescriptions", icon: HeartPulse },
-  { id: "billing", label: "Billing", resource: "invoices", icon: WalletCards },
-  { id: "inventory", label: "Inventory", resource: "inventory", icon: PackageOpen },
-  { id: "tasks", label: "Tasks", resource: "tasks", icon: ListChecks },
-  { id: "reports", label: "Reports", resource: null, icon: BarChart3 }
+  { id: "overview", label: "Overview", resource: null, icon: LayoutDashboard, section: "General" },
+  { id: "patients", label: "Patients", resource: "patients", icon: UsersRound, section: "Clinical" },
+  { id: "referrals", label: "Referrals", resource: "referrals", icon: TrendingUp, section: "Clinical" },
+  { id: "appointments", label: "Appointments", resource: "appointments", icon: CalendarClock, section: "Clinical" },
+  { id: "assessments", label: "Assessments", resource: "assessments", icon: ClipboardCheck, section: "Clinical" },
+  { id: "treatment-plans", label: "Treatment Plans", resource: "treatment-plans", icon: FileText, section: "Clinical" },
+  { id: "progress-notes", label: "Progress Notes", resource: "progress-notes", icon: ClipboardList, section: "Clinical" },
+  { id: "prescriptions", label: "Prescriptions", resource: "prescriptions", icon: HeartPulse, section: "Clinical" },
+  { id: "billing", label: "Billing", resource: "invoices", icon: WalletCards, section: "Admin" },
+  { id: "inventory", label: "Inventory", resource: "inventory", icon: PackageOpen, section: "Admin" },
+  { id: "tasks", label: "Tasks", resource: "tasks", icon: ListChecks, section: "Admin" },
+  { id: "reports", label: "Reports", resource: null, icon: BarChart3, section: "System" }
 ];
 
 function getViewConfig(id) {
@@ -525,18 +529,32 @@ function describeRecord(viewId, record) {
 
 function recordActions(viewId, record) {
   if (viewId === "patients") {
-    return [{ label: "View Journey", action: "journey" }];
+    const actions = [{ label: "View Journey", action: "journey" }];
+    if (record.status !== "discharged") {
+      actions.push({ label: "Discharge", action: "discharge" });
+    }
+    return actions;
   }
 
   if (viewId === "referrals") {
-    if (record.status === "new") return [{ label: "Contacted", updates: { status: "contacted" } }];
-    if (record.status === "contacted") return [{ label: "Scheduled", updates: { status: "scheduled" } }];
-    if (record.status === "scheduled") return [{ label: "Converted", updates: { status: "converted" } }];
+    const actions = [];
+    if (record.status === "new") actions.push({ label: "Contacted", updates: { status: "contacted" } });
+    if (record.status === "contacted") actions.push({ label: "Scheduled", updates: { status: "scheduled" } });
+    if (record.status === "scheduled") actions.push({ label: "Converted", updates: { status: "converted" } });
+    if (["new", "contacted", "scheduled"].includes(record.status)) {
+      actions.push({ label: "Convert to Patient", action: "convert" });
+    }
+    return actions;
   }
 
   if (viewId === "appointments") {
-    if (record.status === "scheduled") return [{ label: "Check in", updates: { status: "checked-in" } }];
-    if (record.status === "checked-in") return [{ label: "Complete", updates: { status: "completed" } }];
+    const actions = [];
+    if (record.status === "scheduled") actions.push({ label: "Check in", updates: { status: "checked-in" } });
+    if (record.status === "checked-in") actions.push({ label: "Complete", updates: { status: "completed" } });
+    if (["completed", "checked-in"].includes(record.status)) {
+      actions.push({ label: "Generate Bill", action: "bill" });
+    }
+    return actions;
   }
 
   if (viewId === "billing" && ["draft", "partial"].includes(record.status)) {
@@ -686,6 +704,24 @@ export function Dashboard() {
   const [actionId, setActionId] = useState("");
   const [actionError, setActionError] = useState("");
   const [journeyPatientId, setJourneyPatientId] = useState(null);
+  const [showBilling, setShowBilling] = useState(false);
+  const [billingRecord, setBillingRecord] = useState(null);
+  const [billingItems, setBillingItems] = useState([]);
+  const [billingSaving, setBillingSaving] = useState(false);
+  const [billingError, setBillingError] = useState("");
+  const [patientsList, setPatientsList] = useState([]);
+  const [convertReferral, setConvertReferral] = useState(null);
+  const [convertForm, setConvertForm] = useState({});
+  const [convertSaving, setConvertSaving] = useState(false);
+
+  useEffect(() => {
+    if (!session.token) return;
+    let active = true;
+    listRecords("patients", { token: session.token, limit: 100 }).then((patients) => {
+      if (active) setPatientsList(patients || []);
+    }).catch(() => {});
+    return () => { active = false; };
+  }, [session.token, resourceRefresh]);
   const { data, loading, refreshing, error, updatedAt, refresh } = useDashboard(session.token);
   const resourceState = useResourceRecords({ activeView, token: session.token, query, refreshSignal: resourceRefresh });
   const isDirector = ["director", "admin"].includes(session.user?.role);
@@ -713,6 +749,47 @@ export function Dashboard() {
       setJourneyPatientId(id);
       return;
     }
+    if (extra?.action === "discharge") {
+      const patient = resourceState.records.find(r => r._id === id);
+      if (patient) {
+        setJourneyPatientId(id);
+      }
+      return;
+    }
+    if (extra?.action === "bill") {
+      const appointment = resourceState.records.find(r => r._id === id);
+      if (appointment) {
+        setBillingRecord(appointment);
+        const defaultService = serviceCharges.find(s => s.service === appointment.service);
+        setBillingItems([{
+          description: appointment.service || "Service",
+          quantity: 1,
+          rate: defaultService?.rate || 0
+        }]);
+        setBillingError("");
+        setShowBilling(true);
+      }
+      return;
+    }
+    if (extra?.action === "convert") {
+      const referral = resourceState.records.find(r => r._id === id);
+      if (referral) {
+        setConvertForm({
+          fullName: referral.patientName || "",
+          phone: referral.phone || "",
+          guardianName: "",
+          age: "",
+          gender: "",
+          address: "",
+          primaryConcern: referral.concern || "",
+          services: [],
+          referral: referral._id,
+          status: "assessment"
+        });
+        setConvertReferral(referral);
+      }
+      return;
+    }
     setActionId(id);
     setActionError("");
     try {
@@ -723,6 +800,38 @@ export function Dashboard() {
       setActionError(err.message);
     } finally {
       setActionId("");
+    }
+  }
+
+  async function handleConvertSubmit(e) {
+    e.preventDefault();
+    setConvertSaving(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/patients`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.token}`
+        },
+        body: JSON.stringify({
+          ...convertForm,
+          age: convertForm.age ? Number(convertForm.age) : undefined,
+          services: Array.isArray(convertForm.services) ? convertForm.services : (convertForm.services ? convertForm.services.split(",").map(s => s.trim()).filter(Boolean) : [])
+        })
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || "Failed to create patient");
+      }
+      await updateRecord("referrals", convertReferral._id, { status: "converted" }, { token: session.token });
+      setConvertReferral(null);
+      setConvertForm({});
+      setResourceRefresh((value) => value + 1);
+      refresh();
+    } catch (err) {
+      setActionError(err.message);
+    } finally {
+      setConvertSaving(false);
     }
   }
 
@@ -741,24 +850,36 @@ export function Dashboard() {
               <small>{isDirector ? "Director console" : "Staff console"}</small>
             </span>
           </div>
-          {viewItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <button
-                className={item.id === activeView ? "side-link active" : "side-link"}
-                type="button"
-                key={item.id}
-                onClick={() => {
-                  setActiveView(item.id);
-                  setQuery("");
-                  setActionError("");
-                }}
-              >
-                <Icon size={17} />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
+          {Object.entries(
+            viewItems.reduce((acc, item) => {
+              const section = item.section || "Other";
+              if (!acc[section]) acc[section] = [];
+              acc[section].push(item);
+              return acc;
+            }, {})
+          ).map(([section, items]) => (
+            <div className="sidebar-section" key={section}>
+              <div className="sidebar-section-title">{section}</div>
+              {items.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    className={item.id === activeView ? "side-link active" : "side-link"}
+                    type="button"
+                    key={item.id}
+                    onClick={() => {
+                      setActiveView(item.id);
+                      setQuery("");
+                      setActionError("");
+                    }}
+                  >
+                    <Icon size={17} />
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </aside>
         <div className="console">
           <div className="console-header">
@@ -810,6 +931,8 @@ export function Dashboard() {
                   token={session.token}
                   query={query}
                   refreshSignal={resourceRefresh}
+                  patients={patientsList}
+                  patientId={journeyPatientId}
                 />
               ) : (
                 <ResourceBoard
@@ -829,10 +952,192 @@ export function Dashboard() {
 
       {journeyPatientId && (
         <PatientJourney
-          patientId={journeyPatientId}
+          patient={resourceState.records.find(r => r._id === journeyPatientId) || { _id: journeyPatientId }}
           token={session.token}
           onClose={() => setJourneyPatientId(null)}
+          onDischarge={async (updates) => {
+            await updateRecord("patients", journeyPatientId, updates, { token: session.token });
+            setResourceRefresh((v) => v + 1);
+            refresh();
+          }}
         />
+      )}
+
+      {convertReferral && (
+        <motion.div
+          className="modal-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setConvertReferral(null)}
+        >
+          <motion.div
+            className="modal"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h3>Convert Enquiry to Patient</h3>
+              <button className="icon-button" type="button" onClick={() => setConvertReferral(null)}>✕</button>
+            </div>
+            <form onSubmit={handleConvertSubmit} className="clinical-form">
+              <label>
+                Full Name
+                <input type="text" value={convertForm.fullName || ""} onChange={(e) => setConvertForm({ ...convertForm, fullName: e.target.value })} required />
+              </label>
+              <label>
+                Phone
+                <input type="text" value={convertForm.phone || ""} onChange={(e) => setConvertForm({ ...convertForm, phone: e.target.value })} required />
+              </label>
+              <label>
+                Guardian Name
+                <input type="text" value={convertForm.guardianName || ""} onChange={(e) => setConvertForm({ ...convertForm, guardianName: e.target.value })} />
+              </label>
+              <div className="form-row">
+                <label>
+                  Age
+                  <input type="number" min="0" value={convertForm.age || ""} onChange={(e) => setConvertForm({ ...convertForm, age: e.target.value })} />
+                </label>
+                <label>
+                  Gender
+                  <select value={convertForm.gender || ""} onChange={(e) => setConvertForm({ ...convertForm, gender: e.target.value })}>
+                    <option value="">Select...</option>
+                    <option value="female">Female</option>
+                    <option value="male">Male</option>
+                    <option value="other">Other</option>
+                    <option value="prefer-not-to-say">Prefer not to say</option>
+                  </select>
+                </label>
+              </div>
+              <label>
+                Address
+                <input type="text" value={convertForm.address || ""} onChange={(e) => setConvertForm({ ...convertForm, address: e.target.value })} />
+              </label>
+              <label>
+                Primary Concern
+                <textarea rows={3} value={convertForm.primaryConcern || ""} onChange={(e) => setConvertForm({ ...convertForm, primaryConcern: e.target.value })} required />
+              </label>
+              <label>
+                Services
+                <ChipInput
+                  value={convertForm.services ? convertForm.services.split(",").map(s => s.trim()).filter(Boolean) : []}
+                  onChange={(val) => setConvertForm({ ...convertForm, services: val.join(", ") })}
+                  placeholder="Speech Therapy, OT..."
+                  suggestions={services}
+                />
+              </label>
+              <div className="modal-actions">
+                <button className="primary-button" type="submit" disabled={convertSaving}>
+                  {convertSaving ? "Creating..." : "Create Patient"}
+                </button>
+                <button className="secondary-button" type="button" onClick={() => setConvertReferral(null)}>Cancel</button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {showBilling && (
+        <motion.div
+          className="modal-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setShowBilling(false)}
+        >
+          <motion.div
+            className="modal"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h3>Generate Invoice</h3>
+              <button className="icon-button" type="button" onClick={() => setShowBilling(false)}>✕</button>
+            </div>
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              setBillingSaving(true);
+              setBillingError("");
+              try {
+                const patientId = billingRecord?.patient?._id || billingRecord?.patient;
+                const response = await fetch(`${API_BASE_URL}/invoices`, {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${session.token}`
+                  },
+                  body: JSON.stringify({
+                    patient: patientId,
+                    items: billingItems.filter(i => i.description && i.rate),
+                    status: "draft"
+                  })
+                });
+                if (!response.ok) {
+                  const data = await response.json().catch(() => ({}));
+                  throw new Error(data.message || "Failed to create invoice");
+                }
+                setShowBilling(false);
+                setBillingRecord(null);
+                setBillingItems([]);
+                setResourceRefresh((v) => v + 1);
+                refresh();
+              } catch (err) {
+                setBillingError(err.message);
+              } finally {
+                setBillingSaving(false);
+              }
+            }} className="clinical-form">
+              {billingError && <p className="form-status error-status">{billingError}</p>}
+              <div className="billing-items">
+                {billingItems.map((item, idx) => (
+                  <div key={idx} className="billing-item-row">
+                    <input
+                      type="text"
+                      value={item.description}
+                      onChange={(e) => setBillingItems(billingItems.map((i, iidx) => iidx === idx ? { ...i, description: e.target.value } : i))}
+                      placeholder="Description"
+                      required
+                    />
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) => setBillingItems(billingItems.map((i, iidx) => iidx === idx ? { ...i, quantity: Number(e.target.value) } : i))}
+                      required
+                    />
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={item.rate}
+                      onChange={(e) => setBillingItems(billingItems.map((i, iidx) => iidx === idx ? { ...i, rate: Number(e.target.value) } : i))}
+                      placeholder="Rate"
+                      required
+                    />
+                    {billingItems.length > 1 && (
+                      <button type="button" className="icon-button" onClick={() => setBillingItems(billingItems.filter((_, iidx) => iidx !== idx))}>
+                        <X size={16} />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <button type="button" className="secondary-button compact-button" onClick={() => setBillingItems([...billingItems, { description: "", quantity: 1, rate: 0 }])}>
+                <Plus size={14} /> Add Item
+              </button>
+              <div className="modal-actions">
+                <button className="primary-button" type="submit" disabled={billingSaving}>
+                  {billingSaving ? "Creating..." : "Create Invoice"}
+                </button>
+                <button className="secondary-button" type="button" onClick={() => setShowBilling(false)}>Cancel</button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
       )}
     </section>
   );

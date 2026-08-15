@@ -14,9 +14,14 @@ export function makeCrudController(Model, defaultPopulate = []) {
   return {
     async list(req, res, next) {
       try {
-        const { status, q, limit = 50 } = req.query;
+        const { status, q, limit = 50, ...extraFilters } = req.query;
         const filter = {};
         if (status) filter.status = status;
+        Object.entries(extraFilters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== "") {
+            filter[key] = value;
+          }
+        });
         if (q) {
           const safeQuery = escapeRegex(String(q).trim().slice(0, 80));
           const expression = new RegExp(safeQuery, "i");

@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000/api" : "/api");
+export const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5000/api" : "/api");
 const TOKEN_KEY = "mindful_staff_token";
 const USER_KEY = "mindful_staff_user";
 
@@ -108,10 +108,10 @@ export function createEnquiry(enquiry) {
   });
 }
 
-export function listRecords(resource, { token, q, status, limit = 30 } = {}) {
+export function listRecords(resource, { token, q, status, limit = 30, ...extraParams } = {}) {
   return apiRequest(`/${resource}`, {
     token,
-    params: { q, status, limit }
+    params: { q, status, limit, ...extraParams }
   });
 }
 
@@ -228,5 +228,40 @@ export function updatePrescription(id, updates, { token } = {}) {
     token,
     method: "PUT",
     body: JSON.stringify(updates)
+  });
+}
+
+export function listInvoices({ token, patientId, q, status, limit = 30 } = {}) {
+  return apiRequest("/invoices", {
+    token,
+    params: { patientId, q, status, limit }
+  });
+}
+
+export function createInvoice(data, { token } = {}) {
+  return apiRequest("/invoices", {
+    token,
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+}
+
+export function getInvoice(id, { token } = {}) {
+  return apiRequest(`/invoices/${id}`, { token });
+}
+
+export function updateInvoice(id, updates, { token } = {}) {
+  return apiRequest(`/invoices/${id}`, {
+    token,
+    method: "PUT",
+    body: JSON.stringify(updates)
+  });
+}
+
+export function generateInvoiceFromAppointment(appointmentId, items, { token } = {}) {
+  return apiRequest(`/invoices/generate-from-appointment/${appointmentId}`, {
+    token,
+    method: "POST",
+    body: JSON.stringify({ items })
   });
 }

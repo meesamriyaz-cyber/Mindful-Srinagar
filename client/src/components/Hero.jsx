@@ -12,7 +12,7 @@ export function Hero() {
   return (
     <section className="hero" id="home">
       <div className="hero-copy">
-        <p className="eyebrow">Mindful Centre for Rehabilitation Research & Trainings, Srinagar</p>
+        <p className="eyebrow">Mindful Centre for Rehabilitation Research & Training Foundation for Persons with Disabilities, Srinagar</p>
         <h1>Rehabilitation care that helps people participate with confidence.</h1>
         <p className="hero-lede">
           One coordinated team for assessment, therapy, learning support and life skills for children, adolescents and

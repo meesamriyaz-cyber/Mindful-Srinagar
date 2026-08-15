@@ -18,7 +18,7 @@ export function Header({ staffMode = false }) {
         <span className="brand-mark">M</span>
         <span>
           <strong>Mindful</strong>
-          <small>Rehabilitation Research & Trainings</small>
+          <small>Rehabilitation Research & Training Foundation</small>
         </span>
       </a>
 

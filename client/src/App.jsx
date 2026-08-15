@@ -41,7 +41,7 @@ export default function App() {
         <Contact />
       </main>
       <footer>
-        <strong>Mindful Centre for Rehabilitation Research & Trainings</strong>
+        <strong>Mindful Centre for Rehabilitation Research & Training Foundation for Persons with Disabilities</strong>
         <span>Integrated rehabilitation care in Srinagar for persons with disabilities.</span>
       </footer>
     </>

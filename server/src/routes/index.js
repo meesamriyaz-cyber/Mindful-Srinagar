@@ -16,6 +16,7 @@ import assessmentRoutes from "./assessmentRoutes.js";
 import treatmentPlanRoutes from "./treatmentPlanRoutes.js";
 import progressNoteRoutes from "./progressNoteRoutes.js";
 import prescriptionRoutes from "./prescriptionRoutes.js";
+import { generateInvoiceFromAppointment } from "../controllers/invoiceController.js";
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.use("/doctors", crudRoutes(makeCrudController(Doctor)));
 router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo"])));
 router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient", "practitioner"])));
 router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient"])));
+router.post("/invoices/generate-from-appointment/:appointmentId", generateInvoiceFromAppointment);
 router.use("/inventory", crudRoutes(makeCrudController(InventoryItem)));
 router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo"])));
 router.use("/assessments", assessmentRoutes);
