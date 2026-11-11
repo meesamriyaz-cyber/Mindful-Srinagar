@@ -18,6 +18,7 @@ import treatmentPlanRoutes from "./treatmentPlanRoutes.js";
 import progressNoteRoutes from "./progressNoteRoutes.js";
 import prescriptionRoutes from "./prescriptionRoutes.js";
 import { createInvoice, generateInvoiceFromAppointment } from "../controllers/invoiceController.js";
+import { taskManagers, taskScope } from "../security/taskAccess.js";
 const router = express.Router();
 const management = ["director", "admin"];
 const reception = ["director", "admin", "reception", "coordinator"];
@@ -26,7 +27,7 @@ const patientReaders = ["director", "admin", "reception", "coordinator", "doctor
 const appointmentStaff = ["director", "admin", "reception", "coordinator", "doctor", "therapist"];
 const billing = ["director", "admin", "accounts"];
 const invoiceReaders = [...billing, "reception"];
-import { taskManagers, taskScope } from "../security/taskAccess.js";
+
 router.get("/health", (_req, res) => res.json({ status: "ok", service: "mindful-api" }));
 router.use("/auth", authRoutes);
 router.post("/enquiries", createRateLimiter({ windowMs: 900000, max: 8, message: "Too many enquiries from this connection. Please try again later." }), createEnquiry);
@@ -52,7 +53,6 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
   updateFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status","clinicalNotes"],
   filterFields: ["status","patient","practitioner"], searchableFields: ["service","room"]
 }), { read: appointmentStaff, write: appointmentStaff, remove: management }));
-router.post("/invoices", permit(...billing), createInvoice);
 router.post("/invoices", permit(...billing), createInvoice);
 router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient"], {
   createFields: ["patient","invoiceNo","items","discount","paidAmount","paymentMode","status"],
