@@ -680,8 +680,6 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
           <button className="primary-button compact-button" type="button" onClick={onCreateAppointment}><Plus size={15} /> New appointment</button>
         )}
       </div>
-        </div>
-      </div>
       {state.loading && <p className="empty-state">Loading {config.label.toLowerCase()}...</p>}
       {state.error && <p className="form-status error-status">{state.error}</p>}
       {actionError && <p className="form-status error-status">{actionError}</p>}
