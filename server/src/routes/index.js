@@ -33,7 +33,7 @@ router.get("/health", (_req, res) => res.json({ status: "ok", service: "mindful-
 router.use("/auth", authRoutes);
 router.post("/enquiries", createRateLimiter({ windowMs: 900000, max: 8, message: "Too many enquiries from this connection. Please try again later." }), createEnquiry);
 router.use(protect);
-router.get("/dashboard", permit("director", "admin", "coordinator", "reception", "accounts"), getDashboard);
+router.get("/dashboard", permit("director", "admin", "coordinator", "reception"), getDashboard);
 router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
   createFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes"],
   updateFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes","dischargeDate","dischargeSummary","dischargeReason"],
