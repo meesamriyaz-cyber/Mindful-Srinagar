@@ -22,6 +22,7 @@ import prescriptionRoutes from "./prescriptionRoutes.js";
 import { createInvoice, generateInvoiceFromAppointment } from "../controllers/invoiceController.js";
 import { taskManagers, taskScope } from "../security/taskAccess.js";
 import { calculateOutstandingBalance } from "../utils/invoiceBalance.js";
+import { escapeRegex } from "../utils/query.js";
 import { validateAppointmentShape, canTransitionAppointment, findAppointmentConflict } from "../security/appointmentRules.js";
 const router = express.Router();
 const management = ["director", "admin"];
@@ -48,7 +49,7 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
       if (await Patient.exists({ referral: payload.referral })) return { statusCode: 409, message: "This referral is already linked to a patient" };
     }
     const duplicate = await Patient.findOne({
-      fullName: new RegExp("^" + String(payload.fullName || "").trim().replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&") + "$", "i"),
+      fullName: new RegExp("^" + escapeRegex(String(payload.fullName || "").trim()) + "$", "i"),
       phone: String(payload.phone || "").trim()
     }).select("_id").lean();
     if (duplicate) return { statusCode: 409, message: "A patient with this name and phone number already exists" };
