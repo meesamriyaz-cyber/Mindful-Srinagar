@@ -860,9 +860,7 @@ export function Dashboard() {
           gender: "",
           address: "",
           primaryConcern: referral.concern || "",
-          services: [],
-          referral: referral._id,
-          status: "assessment"
+          services: []
         });
         setConvertReferral(referral);
       }
@@ -909,8 +907,13 @@ export function Dashboard() {
           Authorization: `Bearer ${session.token}`
         },
         body: JSON.stringify({
-          ...convertForm,
+          fullName: convertForm.fullName,
+          phone: convertForm.phone,
+          guardianName: convertForm.guardianName || undefined,
           age: convertForm.age ? Number(convertForm.age) : undefined,
+          gender: convertForm.gender || undefined,
+          address: convertForm.address || undefined,
+          primaryConcern: convertForm.primaryConcern,
           services: Array.isArray(convertForm.services) ? convertForm.services : (convertForm.services ? convertForm.services.split(",").map(s => s.trim()).filter(Boolean) : [])
         })
       });
