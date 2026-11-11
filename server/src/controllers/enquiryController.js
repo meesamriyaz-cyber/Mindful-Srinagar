@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { Referral } from "../models/Referral.js";
+import { Patient } from "../models/Patient.js";
+import mongoose from "mongoose";
 
 const enquirySchema = z.object({
   name: z.string().trim().min(2, "Please enter the patient or guardian name").max(90),
@@ -63,5 +65,54 @@ export async function createEnquiry(req, res, next) {
     });
   } catch (error) {
     next(error);
+  }
+}
+
+
+export async function convertReferralToPatient(req, res, next) {
+  let claimedReferral;
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid referral ID is required" });
+    const referral = await Referral.findById(req.params.id);
+    if (!referral) return res.status(404).json({ message: "Referral not found" });
+    if (referral.status === "converted" || await Patient.exists({ referral: referral._id })) {
+      return res.status(409).json({ message: "This referral has already been converted to a patient" });
+    }
+    const payload = req.body && typeof req.body === "object" && !Array.isArray(req.body) ? req.body : {};
+    const allowed = ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status"];
+    const unexpected = Object.keys(payload).filter((key) => !allowed.includes(key));
+    if (unexpected.length) return res.status(400).json({ message: "Unsupported field: " + unexpected[0] });
+    const fullName = String(payload.fullName || referral.patientName || "").trim();
+    const phone = String(payload.phone || referral.phone || "").trim();
+    const primaryConcern = String(payload.primaryConcern || referral.concern || "").trim();
+    if (fullName.length < 2 || fullName.length > 120 || phone.length < 7 || phone.length > 32 || primaryConcern.length < 3) {
+      return res.status(400).json({ message: "Patient name, valid phone and primary concern are required" });
+    }
+    const claim = await Referral.findOneAndUpdate(
+      { _id: referral._id, status: { $ne: "converted" } },
+      { $set: { status: "converted" } },
+      { new: true }
+    );
+    if (!claim) return res.status(409).json({ message: "This referral is already being converted or has been converted" });
+    claimedReferral = referral;
+    const patient = await Patient.create({
+      fullName, phone, primaryConcern,
+      guardianName: payload.guardianName,
+      age: payload.age === "" || payload.age == null ? undefined : Number(payload.age),
+      gender: payload.gender || undefined,
+      address: payload.address,
+      services: Array.isArray(payload.services) ? payload.services : [],
+      status: "assessment",
+      referral: referral._id
+    });
+    return res.status(201).json(patient);
+  } catch (error) {
+    if (claimedReferral) {
+      await Referral.updateOne(
+        { _id: claimedReferral._id, status: "converted" },
+        { $set: { status: claimedReferral.status } }
+      ).catch(() => {});
+    }
+    return next(error);
   }
 }
