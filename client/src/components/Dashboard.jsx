@@ -1042,6 +1042,7 @@ export function Dashboard() {
                   actionId={actionId}
                   actionError={actionError}
                   userRole={session.user?.role}
+                  onCreateAppointment={() => { setAppointmentError(""); setShowAppointmentForm(true); }}
                 />
               )}
               </motion.div>
