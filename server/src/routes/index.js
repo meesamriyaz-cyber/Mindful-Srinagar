@@ -17,7 +17,7 @@ import assessmentRoutes from "./assessmentRoutes.js";
 import treatmentPlanRoutes from "./treatmentPlanRoutes.js";
 import progressNoteRoutes from "./progressNoteRoutes.js";
 import prescriptionRoutes from "./prescriptionRoutes.js";
-import { generateInvoiceFromAppointment } from "../controllers/invoiceController.js";
+import { createInvoice, generateInvoiceFromAppointment } from "../controllers/invoiceController.js";
 const router = express.Router();
 const management = ["director", "admin"];
 const reception = ["director", "admin", "reception", "coordinator"];
@@ -53,11 +53,12 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
   updateFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status","clinicalNotes"],
   filterFields: ["status","patient","practitioner"], searchableFields: ["service","room"]
 }), { read: appointmentStaff, write: appointmentStaff, remove: management }));
+router.post("/invoices", permit(...billing), createInvoice);
 router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient"], {
   createFields: ["patient","invoiceNo","items","discount","paidAmount","paymentMode","status"],
   updateFields: ["items","discount","paidAmount","paymentMode","status"],
   filterFields: ["status","patient"], searchableFields: ["invoiceNo"]
-}), { read: invoiceReaders, write: billing, remove: management }));
+}), { read: invoiceReaders, write: billing, create: [], remove: management }));
 router.post("/invoices/generate-from-appointment/:appointmentId", permit(...billing), generateInvoiceFromAppointment);
 router.use("/inventory", crudRoutes(makeCrudController(InventoryItem, [], {
   createFields: ["name","category","quantity","reorderLevel","unit","vendor","notes"],
