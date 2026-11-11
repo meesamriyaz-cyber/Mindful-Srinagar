@@ -71,6 +71,7 @@ export async function getPractitionerDashboard(req, res, next) {
 
     return res.json({
       practitioner,
+      role: req.user.role,
       metrics: {
         patientsUnderCare: patientCount,
         appointmentsToday: todaysAppointments.length,
