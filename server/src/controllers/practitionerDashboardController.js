@@ -6,6 +6,7 @@ import { ProgressNote } from "../models/ProgressNote.js";
 import { Prescription } from "../models/Prescription.js";
 import { Task } from "../models/Task.js";
 import { TreatmentPlan } from "../models/TreatmentPlan.js";
+import { getCentreDayBounds } from "../security/centreTime.js";
 
 export async function getPractitionerDashboard(req, res, next) {
   try {
@@ -20,14 +21,10 @@ export async function getPractitionerDashboard(req, res, next) {
       });
     }
 
-    const now = new Date();
-    const todayStart = new Date(now);
-    todayStart.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(todayStart);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const monthStart = new Date(todayStart.getFullYear(), todayStart.getMonth(), 1);
+    const { start: todayStart, end: tomorrow, monthStart } = getCentreDayBounds(new Date());
 
     const appointmentScope = { practitioner: practitioner._id };
+    const patientAssignmentScope = { ...appointmentScope, status: { $nin: ["cancelled", "no-show"] } };
     const [
       todaysAppointments,
       upcomingAppointments,
@@ -49,7 +46,7 @@ export async function getPractitionerDashboard(req, res, next) {
         .sort({ startsAt: 1 })
         .limit(8)
         .lean(),
-      Appointment.distinct("patient", appointmentScope),
+      Appointment.distinct("patient", patientAssignmentScope),
       Appointment.countDocuments({ ...appointmentScope, status: "completed", startsAt: { $gte: monthStart } }),
       Assessment.countDocuments({ assessedBy: req.user._id, status: "draft" }),
       TreatmentPlan.countDocuments({ createdBy: req.user._id, status: { $in: ["planned", "active"] } }),
