@@ -6,6 +6,7 @@ const progressNoteSchema = new mongoose.Schema(
     appointment: { type: mongoose.Schema.Types.ObjectId, ref: "Appointment" },
     author: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     notedAt: { type: Date, required: true, default: Date.now },
+    status: { type: String, enum: ["completed"], default: "completed", immutable: true },
     noteType: {
       type: String,
       enum: ["session", "review", "incident"],
