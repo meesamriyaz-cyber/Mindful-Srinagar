@@ -2,7 +2,8 @@ import express from "express";
 import { getDashboard } from "../controllers/dashboardController.js";
 import { makeCrudController } from "../controllers/crudController.js";
 import { createEnquiry } from "../controllers/enquiryController.js";
-import { protect } from "../middleware/auth.js";
+import { permit, protect } from "../middleware/auth.js";
+import { createRateLimiter } from "../middleware/rateLimiter.js";
 import { Appointment } from "../models/Appointment.js";
 import { Doctor } from "../models/Doctor.js";
 import { InventoryItem } from "../models/InventoryItem.js";
@@ -17,26 +18,64 @@ import treatmentPlanRoutes from "./treatmentPlanRoutes.js";
 import progressNoteRoutes from "./progressNoteRoutes.js";
 import prescriptionRoutes from "./prescriptionRoutes.js";
 import { generateInvoiceFromAppointment } from "../controllers/invoiceController.js";
-
 const router = express.Router();
-
+const management = ["director", "admin"];
+const reception = ["director", "admin", "reception", "coordinator"];
+const clinical = ["director", "admin", "doctor", "therapist"];
+const patientReaders = ["director", "admin", "reception", "coordinator", "doctor", "therapist"];
+const appointmentStaff = ["director", "admin", "reception", "coordinator", "doctor", "therapist"];
+const billing = ["director", "admin", "accounts"];
+const invoiceReaders = [...billing, "reception"];
+const taskManagers = ["director", "admin", "coordinator", "reception"];
+const taskScope = (req) => taskManagers.includes(req.user.role) ? {} : { assignedTo: req.user._id };
 router.get("/health", (_req, res) => res.json({ status: "ok", service: "mindful-api" }));
 router.use("/auth", authRoutes);
-router.post("/enquiries", createEnquiry);
-
+router.post("/enquiries", createRateLimiter({ windowMs: 900000, max: 8, message: "Too many enquiries from this connection. Please try again later." }), createEnquiry);
 router.use(protect);
-router.get("/dashboard", getDashboard);
-router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"])));
-router.use("/doctors", crudRoutes(makeCrudController(Doctor)));
-router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo"])));
-router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient", "practitioner"])));
-router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient"])));
-router.post("/invoices/generate-from-appointment/:appointmentId", generateInvoiceFromAppointment);
-router.use("/inventory", crudRoutes(makeCrudController(InventoryItem)));
-router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo"])));
-router.use("/assessments", assessmentRoutes);
-router.use("/treatment-plans", treatmentPlanRoutes);
-router.use("/progress-notes", progressNoteRoutes);
-router.use("/prescriptions", prescriptionRoutes);
-
+router.get("/dashboard", permit("director", "admin", "coordinator", "reception", "accounts"), getDashboard);
+router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
+  createFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes"],
+  updateFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes","dischargeDate","dischargeSummary","dischargeReason"],
+  filterFields: ["status","referral"], searchableFields: ["fullName","mrn","phone","guardianName","primaryConcern"]
+}), { read: patientReaders, write: reception, remove: management }));
+router.use("/doctors", crudRoutes(makeCrudController(Doctor, [], {
+  createFields: ["name","discipline","registrationNo","phone","email","availability","status"],
+  updateFields: ["name","discipline","registrationNo","phone","email","availability","status"],
+  filterFields: ["status","discipline"], searchableFields: ["name","discipline","phone","email"]
+}), { read: patientReaders, write: management, remove: management }));
+router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo"], {
+  createFields: ["sourceType","sourceName","contactPerson","phone","email","patientName","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
+  updateFields: ["sourceType","sourceName","contactPerson","phone","email","patientName","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
+  filterFields: ["status","sourceType","urgency","assignedTo"], searchableFields: ["patientName","sourceName","phone","concern"]
+}), { read: reception, write: reception, remove: management }));
+router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient","practitioner"], {
+  createFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status","clinicalNotes"],
+  updateFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status","clinicalNotes"],
+  filterFields: ["status","patient","practitioner"], searchableFields: ["service","room"]
+}), { read: appointmentStaff, write: appointmentStaff, remove: management }));
+router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient"], {
+  createFields: ["patient","invoiceNo","items","discount","paidAmount","paymentMode","status"],
+  updateFields: ["items","discount","paidAmount","paymentMode","status"],
+  filterFields: ["status","patient"], searchableFields: ["invoiceNo"]
+}), { read: invoiceReaders, write: billing, remove: management }));
+router.post("/invoices/generate-from-appointment/:appointmentId", permit(...billing), generateInvoiceFromAppointment);
+router.use("/inventory", crudRoutes(makeCrudController(InventoryItem, [], {
+  createFields: ["name","category","quantity","reorderLevel","unit","vendor","notes"],
+  updateFields: ["name","category","quantity","reorderLevel","unit","vendor","notes"],
+  filterFields: ["category"], searchableFields: ["name","category","vendor"]
+}), { read: ["director","admin","coordinator"], write: ["director","admin","coordinator"], remove: management }));
+router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo"], {
+  createFields: ["title","department","assignedTo","dueDate","priority","status"],
+  updateFields: ["title","department","assignedTo","dueDate","priority","status"],
+  updateFieldsByRole: { doctor: ["status"], therapist: ["status"], accounts: ["status"] },
+  filterFields: ["status","department","assignedTo"], searchableFields: ["title","department"],
+  listScope: taskScope, recordScope: taskScope
+}), {
+  read: ["director","admin","reception","doctor","therapist","accounts","coordinator"],
+  create: taskManagers, update: [...taskManagers,"doctor","therapist","accounts"], remove: management
+}));
+router.use("/assessments", permit(...clinical), assessmentRoutes);
+router.use("/treatment-plans", permit(...clinical), treatmentPlanRoutes);
+router.use("/progress-notes", permit(...clinical), progressNoteRoutes);
+router.use("/prescriptions", permit("director","admin","doctor"), prescriptionRoutes);
 export default router;
