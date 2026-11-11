@@ -632,6 +632,32 @@ function ReportsView({ data }) {
   );
 }
 
+function ReferralNotesEditor({ record, onSave, saving }) {
+  const [notes, setNotes] = useState(record.notes || "");
+  useEffect(() => setNotes(record.notes || ""), [record._id, record.notes]);
+  return (
+    <div className="referral-notes-editor">
+      <label>
+        Staff call / conversation notes
+        <textarea
+          rows={3}
+          value={notes}
+          onChange={(event) => setNotes(event.target.value)}
+          placeholder="Record the discussion, needs, agreed next step and follow-up..."
+        />
+      </label>
+      <button
+        className="secondary-button compact-button"
+        type="button"
+        disabled={saving || notes.trim() === (record.notes || "").trim()}
+        onClick={() => onSave(notes)}
+      >
+        {saving ? "Saving notes..." : "Save conversation notes"}
+      </button>
+    </div>
+  );
+}
+
 function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError, userRole }) {
   const config = getViewConfig(activeView);
   const Icon = config.icon;
@@ -679,6 +705,13 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                       <mark className={statusClass(summary.status)}>{summary.status || "open"}</mark>
                     </div>
                     <p>{summary.detail}</p>
+                    {activeView === "referrals" && (
+                      <ReferralNotesEditor
+                        record={record}
+                        saving={actionId === record._id}
+                        onSave={(notes) => onRecordAction(config.resource, record._id, { notes }, { action: "save-notes" })}
+                      />
+                    )}
                     {actions.length > 0 && (
                       <div className="record-actions">
                         {actions.map((action) => (
@@ -763,6 +796,19 @@ export function Dashboard() {
   }
 
   async function handleRecordAction(resource, id, updates, extra) {
+    if (extra?.action === "save-notes") {
+      setActionId(id);
+      setActionError("");
+      try {
+        await updateRecord(resource, id, updates, { token: session.token });
+        setResourceRefresh((value) => value + 1);
+      } catch (err) {
+        setActionError(err.message);
+      } finally {
+        setActionId("");
+      }
+      return;
+    }
     if (extra?.action === "journey") {
       setJourneyPatientId(id);
       return;
@@ -1046,7 +1092,7 @@ export function Dashboard() {
               <label>
                 Services
                 <ChipInput
-                  value={convertForm.services ? convertForm.services.split(",").map(s => s.trim()).filter(Boolean) : []}
+                  value={Array.isArray(convertForm.services) ? convertForm.services : (typeof convertForm.services === "string" ? convertForm.services.split(",").map(s => s.trim()).filter(Boolean) : [])}
                   onChange={(val) => setConvertForm({ ...convertForm, services: val.join(", ") })}
                   placeholder="Speech Therapy, OT..."
                   suggestions={services}
