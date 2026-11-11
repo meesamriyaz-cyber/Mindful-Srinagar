@@ -8,6 +8,13 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
   const filterAliases = policy.filterAliases || {};
   const listScope = policy.listScope || (() => ({}));
   const recordScope = policy.recordScope || (() => ({}));
+  const redact = (doc, req) => {
+    const fields = policy.redactFieldsByRole?.[req.user.role] || [];
+    if (!doc || !fields.length) return doc;
+    const value = doc.toObject ? doc.toObject() : { ...doc };
+    fields.forEach((field) => delete value[field]);
+    return value;
+  };
   return {
     async list(req, res, next) {
       try {
@@ -23,11 +30,12 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
           const expression = new RegExp(escapeRegex(String(q).trim().slice(0, 80)), "i");
           filter.$or = searchableFields.map((field) => ({ [field]: expression }));
         }
-        return res.json(await applyPopulate(Model.find(filter)).sort({ createdAt: -1 }).limit(parseLimit(limit)));
+        const docs = await applyPopulate(Model.find(filter)).sort({ createdAt: -1 }).limit(parseLimit(limit));
+        return res.json(docs.map((doc) => redact(doc, req)));
       } catch (error) { return next(error); }
     },
     async create(req, res, next) {
-      try { return res.status(201).json(await Model.create(sanitizePayload(req.body, createFields))); }
+      try { const doc = await Model.create(sanitizePayload(req.body, createFields)); return res.status(201).json(redact(doc, req)); }
       catch (error) { return next(error); }
     },
     async get(req, res, next) {
@@ -35,7 +43,7 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
         if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid record ID is required" });
         const doc = await applyPopulate(Model.findOne({ _id: req.params.id, ...recordScope(req) }));
         if (!doc) return res.status(404).json({ message: "Record not found" });
-        return res.json(doc);
+        return res.json(redact(doc, req));
       } catch (error) { return next(error); }
     },
     async update(req, res, next) {
@@ -47,7 +55,7 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
           new: true, runValidators: true, context: "query"
         });
         if (!doc) return res.status(404).json({ message: "Record not found" });
-        return res.json(doc);
+        return res.json(redact(doc, req));
       } catch (error) { return next(error); }
     },
     async remove(req, res, next) {
