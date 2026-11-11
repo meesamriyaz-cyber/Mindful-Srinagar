@@ -5,6 +5,7 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
   const updateFields = policy.updateFields || createFields;
   const filterFields = policy.filterFields || ["status"];
   const searchableFields = policy.searchableFields || [];
+  const filterAliases = policy.filterAliases || {};
   const listScope = policy.listScope || (() => ({}));
   const recordScope = policy.recordScope || (() => ({}));
   return {
@@ -14,8 +15,9 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
         const filter = { ...listScope(req) };
         if (status && filterFields.includes("status")) filter.status = status;
         for (const [key, value] of Object.entries(extraFilters)) {
-          if (!filterFields.includes(key)) return res.status(400).json({ message: "Unsupported filter: " + key });
-          if (value !== undefined && value !== null && value !== "") filter[key] = value;
+          const field = filterAliases[key] || key;
+          if (!filterFields.includes(field)) return res.status(400).json({ message: "Unsupported filter: " + key });
+          if (value !== undefined && value !== null && value !== "") filter[field] = value;
         }
         if (q && searchableFields.length) {
           const expression = new RegExp(escapeRegex(String(q).trim().slice(0, 80)), "i");
