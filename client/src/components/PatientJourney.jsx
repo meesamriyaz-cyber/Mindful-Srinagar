@@ -476,7 +476,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                             <pre>{JSON.stringify({ before: item.before, after: item.after }, null, 2)}</pre>
                           </div>
                         )) : <p>No amendments recorded.</p>}
-                        {["director", "admin"].includes(userRole) && record.status === "completed" && (
+                        {["director", "admin"].includes(userRole) && (record.status === "completed" || activeStep === "progress-notes") && (
                           <form className="clinical-form" onSubmit={event => { event.preventDefault(); submitClinicalAmendment(record); }}>
                             <strong>Authorised amendment</strong>
                             <label>Reason<textarea rows={3} minLength={10} maxLength={1000} required value={amendmentReason} onChange={event => setAmendmentReason(event.target.value)} /></label>
