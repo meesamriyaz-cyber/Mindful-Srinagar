@@ -19,6 +19,7 @@ import progressNoteRoutes from "./progressNoteRoutes.js";
 import prescriptionRoutes from "./prescriptionRoutes.js";
 import { createInvoice, generateInvoiceFromAppointment } from "../controllers/invoiceController.js";
 import { taskManagers, taskScope } from "../security/taskAccess.js";
+import { calculateOutstandingBalance } from "../utils/invoiceBalance.js";
 const router = express.Router();
 const management = ["director", "admin"];
 const reception = ["director", "admin", "reception", "coordinator"];
@@ -47,12 +48,7 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
     const invoices = await Invoice.find({ patient: req.params.id, status: { $ne: "void" } })
       .select("items discount paidAmount")
       .lean();
-    const outstanding = invoices.reduce((sum, invoice) => {
-      const subtotal = (invoice.items || []).reduce(
-        (itemSum, item) => itemSum + Number(item.quantity || 0) * Number(item.rate || 0), 0
-      );
-      return sum + Math.max(subtotal - Number(invoice.discount || 0) - Number(invoice.paidAmount || 0), 0);
-    }, 0);
+    const outstanding = calculateOutstandingBalance(invoices);
     if (outstanding > 0.009) {
       return {
         statusCode: 409,
