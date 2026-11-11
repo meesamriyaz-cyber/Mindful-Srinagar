@@ -22,7 +22,7 @@ const invoiceSchema = new mongoose.Schema({
   }},
   discount: { type: Number, default: 0, min: 0 },
   paidAmount: { type: Number, default: 0, min: 0 },
-  openingPaidAmount: { type: Number, default: 0, min: 0 },
+  openingPaidAmount: { type: Number, min: 0 },
   payments: { type: [paymentSchema], default: [] },
   paymentMode: { type: String, enum: ["cash","upi","card","bank","mixed"], default: "cash" },
   status: { type: String, enum: ["draft","paid","partial","void"], default: "draft" }
@@ -36,7 +36,7 @@ invoiceSchema.pre("validate", function validateInvoice(next) {
   const paid = Math.round(Number(this.paidAmount || 0) * 100) / 100;
   if (this.discount > gross) this.invalidate("discount", "Discount cannot exceed the invoice subtotal");
   if (paid > total) this.invalidate("paidAmount", "Payment cannot exceed the invoice total");
-  const openingPaid = Math.round(Number(this.openingPaidAmount || 0) * 100) / 100;
+  const openingPaid = Math.round(Number(this.openingPaidAmount ?? ((this.payments || []).length ? 0 : paid)) * 100) / 100;
   const ledgerTotal = Math.round((this.payments || []).reduce((sum, payment) => sum + Number(payment.amount || 0), 0) * 100) / 100;
   if (openingPaid > paid || Math.abs(openingPaid + ledgerTotal - paid) > 0.009) {
     this.invalidate("payments", "Opening paid amount plus payment ledger must match the paid amount");
@@ -67,7 +67,7 @@ invoiceSchema.pre("findOneAndUpdate", async function validateInvoiceUpdate() {
   if (patch.paidAmount !== undefined && Number(patch.paidAmount) !== Number(current.paidAmount || 0) && !addingPayment) {
     fail("Payments must be recorded through the payment endpoint");
   }
-  if ((patch.items !== undefined || patch.discount !== undefined) && (current.payments || []).length > 0) {
+  if ((patch.items !== undefined || patch.discount !== undefined) && (Number(current.paidAmount || 0) > 0 || (current.payments || []).length > 0)) {
     fail("Invoice items and discounts cannot be changed after a payment has been recorded");
   }
   const items = patch.items ?? current.items ?? [];
