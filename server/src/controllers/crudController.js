@@ -8,6 +8,7 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
   const filterAliases = policy.filterAliases || {};
   const listScope = policy.listScope || (() => ({}));
   const recordScope = policy.recordScope || (() => ({}));
+  const updateScope = policy.updateScope || recordScope;
   const redact = (doc, req) => {
     const fields = policy.redactFieldsByRole?.[req.user.role] || [];
     if (!doc || !fields.length) return doc;
@@ -51,7 +52,7 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
         if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid record ID is required" });
         const allowed = policy.updateFieldsByRole?.[req.user.role] || updateFields;
         const payload = sanitizePayload(req.body, allowed);
-        const doc = await Model.findOneAndUpdate({ _id: req.params.id, ...recordScope(req) }, { $set: payload }, {
+        const doc = await Model.findOneAndUpdate({ _id: req.params.id, ...updateScope(req) }, { $set: payload }, {
           new: true, runValidators: true, context: "query"
         });
         if (!doc) return res.status(404).json({ message: "Record not found" });
