@@ -60,7 +60,7 @@ invoiceSchema.pre("findOneAndUpdate", async function validateInvoiceUpdate() {
     for (const field of protectedFields) {
       if (values[field] !== undefined && !(addingPayment && operator === "$set" && field === "paidAmount")) {
         if (field !== "paidAmount" || !addingPayment) fail("Payment history can only be changed through the payment endpoint");
-        if (field === "openingPaidAmount" || field === "payments") fail("Payment history can only be changed through the payment endpoint");
+        if ((field === "openingPaidAmount" && !(addingPayment && operator === "$set")) || field === "payments") fail("Payment history can only be changed through the payment endpoint");
       }
     }
   }
