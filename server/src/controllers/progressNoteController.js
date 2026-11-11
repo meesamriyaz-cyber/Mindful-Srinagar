@@ -25,7 +25,7 @@ const validateRelations = async (payload, req) => {
   }
 };
 const controller = makeClinicalRecordController({
-  Model: ProgressNote, ownerField: "author",
+  Model: ProgressNote, recordType: "progress-note", ownerField: "author",
   createFields: ["patient","appointment","notedAt","noteType","subjective","objective","assessment","plan"],
   updateFields: ["appointment","notedAt","noteType","subjective","objective","assessment","plan"],
   populate: [["patient","fullName mrn"],["appointment","startsAt service status"],["author","name email"]],
@@ -35,3 +35,5 @@ export const listProgressNotes = controller.list;
 export const createProgressNote = controller.create;
 export const getProgressNote = controller.get;
 export const updateProgressNote = controller.update;
+export const listProgressNoteAmendments = controller.amendments;
+export const amendProgressNote = controller.amend;
