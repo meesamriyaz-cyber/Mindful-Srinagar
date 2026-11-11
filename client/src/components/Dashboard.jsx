@@ -574,12 +574,14 @@ function recordActions(viewId, record, userRole) {
     return actions;
   }
 
-  if (viewId === "billing" && ["director", "admin", "accounts"].includes(userRole) && ["draft", "partial"].includes(record.status)) {
-    return [{ label: "Record payment", action: "payment" }];
+  if (viewId === "billing" && ["director", "admin", "accounts"].includes(userRole)) {
+    const actions = [{ label: "Payment history", action: "history" }];
+    if (["draft", "partial"].includes(record.status)) actions.unshift({ label: "Record payment", action: "payment" });
+    return actions;
   }
 
   if (viewId === "inventory" && ["director", "admin", "coordinator"].includes(userRole)) {
-    return [{ label: "Stock movement", action: "stock" }];
+    return [{ label: "Stock movement", action: "stock" }, { label: "Movement history", action: "history" }];
   }
 
   if (viewId === "tasks" && record.status !== "done") {
@@ -767,6 +769,8 @@ export function Dashboard() {
   const [actionId, setActionId] = useState("");
   const [actionError, setActionError] = useState("");
   const [operationModal, setOperationModal] = useState(null);
+  const [operationHistory, setOperationHistory] = useState(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [operationForm, setOperationForm] = useState({ amount: "", method: "cash", reference: "", type: "receipt", quantity: "", reason: "" });
   const [journeyPatientId, setJourneyPatientId] = useState(null);
   const [showBilling, setShowBilling] = useState(false);
@@ -882,6 +886,26 @@ export function Dashboard() {
       const patient = resourceState.records.find(r => r._id === id);
       if (patient) {
         setJourneyPatientId(id);
+      }
+      return;
+    }
+    if (extra?.action === "history") {
+      const record = resourceState.records.find((item) => item._id === id);
+      if (resource === "invoices") {
+        setOperationHistory({ type: "payment", record, entries: record?.payments || [] });
+      } else {
+        setOperationHistory({ type: "stock", record, entries: [] });
+        setHistoryLoading(true);
+        try {
+          const response = await fetch(`${API_BASE_URL}/inventory/${id}/movements`, { headers: { Authorization: `Bearer ${session.token}` } });
+          const body = await response.json().catch(() => []);
+          if (!response.ok) throw new Error(body.message || "Movement history could not be loaded");
+          setOperationHistory({ type: "stock", record, entries: Array.isArray(body) ? body : [] });
+        } catch (error) {
+          setActionError(error.message);
+        } finally {
+          setHistoryLoading(false);
+        }
       }
       return;
     }
@@ -1304,6 +1328,41 @@ export function Dashboard() {
                 <button className="secondary-button" type="button" onClick={() => setOperationModal(null)}>Cancel</button>
               </div>
             </form>
+          </motion.div>
+        </motion.div>
+      )}
+      {operationHistory && (
+        <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOperationHistory(null)}>
+          <motion.div className="modal" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{operationHistory.type === "payment" ? "Payment history" : "Stock movement history"}</h3>
+              <button className="icon-button" type="button" onClick={() => setOperationHistory(null)} aria-label="Close">✕</button>
+            </div>
+            <p>{operationHistory.record?.invoiceNo || operationHistory.record?.name || "Record"}</p>
+            {historyLoading ? <p className="empty-state">Loading history...</p> : operationHistory.entries.length ? (
+              <div className="insight-list">
+                {operationHistory.entries.map((entry, index) => (
+                  <div className="history-entry" key={entry._id || index}>
+                    {operationHistory.type === "payment" ? (
+                      <>
+                        <strong>{INR.format(Number(entry.amount || 0))} · {entry.method || "Payment"}</strong>
+                        <span>{formatDateTime(entry.receivedAt)} · {entry.receivedBy?.name || "Staff"}</span>
+                        {entry.reference && <span>Reference: {entry.reference}</span>}
+                        {entry.notes && <span>{entry.notes}</span>}
+                      </>
+                    ) : (
+                      <>
+                        <strong>{entry.type} · {entry.quantity} {operationHistory.record?.unit || ""}</strong>
+                        <span>{formatDateTime(entry.createdAt)} · {entry.performedBy?.name || "Staff"}</span>
+                        <span>Stock: {entry.previousQuantity} → {entry.newQuantity}</span>
+                        <span>{entry.reason}</span>
+                        {entry.reference && <span>Reference: {entry.reference}</span>}
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : <p className="empty-state">No history has been recorded for this item yet.</p>}
           </motion.div>
         </motion.div>
       )}
