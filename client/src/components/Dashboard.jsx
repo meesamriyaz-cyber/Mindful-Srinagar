@@ -54,7 +54,7 @@ function getViewConfig(id) {
 function getVisibleViewItems(role) {
   const allowed = {
     reception: ["overview","patients","referrals","appointments","billing","tasks","reports"],
-    coordinator: ["overview","patients","referrals","appointments","inventory","tasks","reports"],
+    coordinator: ["patients","referrals","appointments","inventory","tasks"],
     doctor: ["patients","appointments","assessments","treatment-plans","progress-notes","prescriptions","tasks"],
     therapist: ["patients","appointments","assessments","treatment-plans","progress-notes","tasks"],
     accounts: ["billing","tasks"]
@@ -711,7 +711,7 @@ export function Dashboard() {
   const [session, setSession] = useState(getStoredSession);
   const [activeView, setActiveView] = useState(() => {
     const role = getStoredSession().user?.role;
-    if (["doctor","therapist"].includes(role)) return "patients";
+    if (["doctor","therapist","coordinator"].includes(role)) return "patients";
     if (role === "accounts") return "billing";
     return "overview";
   });
@@ -738,7 +738,7 @@ export function Dashboard() {
     }).catch(() => {});
     return () => { active = false; };
   }, [session.token, resourceRefresh]);
-  const canViewOverview = ["director","admin","reception","coordinator"].includes(session.user?.role);
+  const canViewOverview = ["director","admin","reception"].includes(session.user?.role);
   const visibleViewItems = getVisibleViewItems(session.user?.role);
   const { data, loading, refreshing, error, updatedAt, refresh } = useDashboard(canViewOverview ? session.token : null);
   const resourceState = useResourceRecords({ activeView, token: session.token, query, refreshSignal: resourceRefresh });
@@ -856,7 +856,7 @@ export function Dashboard() {
   if (!session.token) {
     return <LoginPanel onLogin={(nextSession) => {
       setSession(nextSession);
-      setActiveView(["doctor","therapist"].includes(nextSession.user?.role) ? "patients" : nextSession.user?.role === "accounts" ? "billing" : "overview");
+      setActiveView(["doctor","therapist","coordinator"].includes(nextSession.user?.role) ? "patients" : nextSession.user?.role === "accounts" ? "billing" : "overview");
     }} />;
   }
 
