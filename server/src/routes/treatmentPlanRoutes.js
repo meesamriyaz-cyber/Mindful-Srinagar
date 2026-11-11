@@ -1,11 +1,11 @@
 import express from "express";
-import { listTreatmentPlans, createTreatmentPlan, getTreatmentPlan, updateTreatmentPlan } from "../controllers/treatmentPlanController.js";
-
+import { listTreatmentPlans, createTreatmentPlan, getTreatmentPlan, updateTreatmentPlan, listTreatmentPlanAmendments, amendTreatmentPlan } from "../controllers/treatmentPlanController.js";
+import { permit } from "../middleware/auth.js";
 const router = express.Router();
-
 router.get("/", listTreatmentPlans);
 router.post("/", createTreatmentPlan);
+router.get("/:id/amendments", listTreatmentPlanAmendments);
+router.post("/:id/amendments", permit("director","admin"), amendTreatmentPlan);
 router.get("/:id", getTreatmentPlan);
 router.put("/:id", updateTreatmentPlan);
-
 export default router;

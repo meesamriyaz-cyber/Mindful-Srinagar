@@ -3,10 +3,11 @@ name: Mindful CI
 on:
   pull_request:
     branches:
-      - mvp/batch-2-patient-clinical-workflows
+      - mvp/batch-3-billing-operations-inventory
   push:
     branches:
       - mvp/batch-3-billing-operations-inventory
+      - mvp/batch-4-clinical-governance
 
 permissions:
   contents: read

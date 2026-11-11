@@ -23,7 +23,9 @@ import {
   createTreatmentPlan,
   createProgressNote,
   createPrescription,
-  API_BASE_URL
+  API_BASE_URL,
+  listClinicalAmendments,
+  amendClinicalRecord
 } from "../lib/api.js";
 
 const STEP_ICONS = {
@@ -102,6 +104,12 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const [createSaving, setCreateSaving] = useState(false);
   const [createError, setCreateError] = useState("");
   const [journeyKey, setJourneyKey] = useState(0);
+  const [auditRecordId, setAuditRecordId] = useState(null);
+  const [auditHistory, setAuditHistory] = useState([]);
+  const [auditError, setAuditError] = useState("");
+  const [amendmentReason, setAmendmentReason] = useState("");
+  const [amendmentJson, setAmendmentJson] = useState("{}");
+  const [amendmentSaving, setAmendmentSaving] = useState(false);
 
   useEffect(() => {
     if (!patient || !token) return;
@@ -286,6 +294,24 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     return <p>{JSON.stringify(record)}</p>;
   }
 
+  async function submitClinicalAmendment(record) {
+    setAmendmentSaving(true);
+    setAuditError("");
+    try {
+      const changes = JSON.parse(amendmentJson);
+      await amendClinicalRecord(activeStep, record._id, { reason: amendmentReason, changes }, { token });
+      const history = await listClinicalAmendments(activeStep, record._id, { token });
+      setAuditHistory(history || []);
+      setAmendmentReason("");
+      setAmendmentJson("{}");
+      setJourneyKey(value => value + 1);
+    } catch (error) {
+      setAuditError(error.message || "Unable to save the amendment. Check the JSON payload.");
+    } finally {
+      setAmendmentSaving(false);
+    }
+  }
+
   async function handleDischarge(e) {
     e.preventDefault();
     setDischarging(true);
@@ -430,6 +456,38 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                   </div>
                   <div className="journey-card-body">
                     {describeRecord(record)}
+                    {["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeStep) && (
+                      <button className="secondary-button" type="button" onClick={async () => {
+                        try {
+                          setAuditError("");
+                          const history = await listClinicalAmendments(activeStep, record._id, { token });
+                          setAuditHistory(history || []);
+                          setAuditRecordId(record._id);
+                        } catch (error) { setAuditError(error.message); }
+                      }}>View amendment history</button>
+                    )}
+                    {auditRecordId === record._id && (
+                      <div className="journey-audit-history">
+                        <strong>Amendment history</strong>
+                        {auditHistory.length ? auditHistory.map(item => (
+                          <div key={item._id}>
+                            <p>{item.reason}</p>
+                            <small>{item.amendedBy?.name || "Authorised staff"} · {formatDateTime(item.createdAt)} · {item.changedFields.join(", ")}</small>
+                            <pre>{JSON.stringify({ before: item.before, after: item.after }, null, 2)}</pre>
+                          </div>
+                        )) : <p>No amendments recorded.</p>}
+                        {["director", "admin"].includes(userRole) && (record.status === "completed" || activeStep === "progress-notes") && (
+                          <form className="clinical-form" onSubmit={event => { event.preventDefault(); submitClinicalAmendment(record); }}>
+                            <strong>Authorised amendment</strong>
+                            <label>Reason<textarea rows={3} minLength={10} maxLength={1000} required value={amendmentReason} onChange={event => setAmendmentReason(event.target.value)} /></label>
+                            <label>Changed fields (JSON)<textarea rows={5} required value={amendmentJson} onChange={event => setAmendmentJson(event.target.value)} /></label>
+                            <small>Patient linkage and record status cannot be changed. The original values are retained in the audit history.</small>
+                            <button className="primary-button" type="submit" disabled={amendmentSaving}>{amendmentSaving ? "Saving..." : "Record amendment"}</button>
+                          </form>
+                        )}
+                      </div>
+                    )}
+                    {auditError && <p className="form-status error-status">{auditError}</p>}
                   </div>
                 </div>
               ))}

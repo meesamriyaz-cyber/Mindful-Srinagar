@@ -1,11 +1,11 @@
 import express from "express";
-import { listPrescriptions, createPrescription, getPrescription, updatePrescription } from "../controllers/prescriptionController.js";
-
+import { listPrescriptions, createPrescription, getPrescription, updatePrescription, listPrescriptionAmendments, amendPrescription } from "../controllers/prescriptionController.js";
+import { permit } from "../middleware/auth.js";
 const router = express.Router();
-
 router.get("/", listPrescriptions);
 router.post("/", createPrescription);
+router.get("/:id/amendments", listPrescriptionAmendments);
+router.post("/:id/amendments", permit("director","admin"), amendPrescription);
 router.get("/:id", getPrescription);
 router.put("/:id", updatePrescription);
-
 export default router;
