@@ -23,6 +23,7 @@ import { createInvoice, generateInvoiceFromAppointment } from "../controllers/in
 import { taskManagers, taskScope } from "../security/taskAccess.js";
 import { calculateOutstandingBalance } from "../utils/invoiceBalance.js";
 import { escapeRegex } from "../utils/query.js";
+import { canTransitionPatientStatus, validateDischargeDetails } from "../security/patientLifecycle.js";
 import { validateAppointmentShape, canTransitionAppointment, findAppointmentConflict, isWithinPractitionerAvailability } from "../security/appointmentRules.js";
 const router = express.Router();
 const management = ["director", "admin"];
@@ -63,7 +64,9 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
   validateUpdate: async ({ req, payload }) => {
     const current = await Patient.findById(req.params.id).select("status referral");
     if (!current) return { statusCode: 404, message: "Patient not found" };
-    if (current.status === "discharged" && payload.status && payload.status !== "discharged") return { statusCode: 409, message: "A discharged patient cannot be reactivated through a routine edit" };
+    if (payload.status && !canTransitionPatientStatus(current.status, payload.status)) return { statusCode: 409, message: `Patient status cannot move from ${current.status} to ${payload.status}` };
+    const dischargeError = validateDischargeDetails(payload);
+    if (dischargeError) return { statusCode: 400, message: dischargeError };
     if (payload.referral && String(payload.referral) !== String(current.referral || "")) return { statusCode: 400, message: "A patient's referral linkage cannot be changed after registration" };
     if (payload.status !== "discharged") return null;
     const invoices = await Invoice.find({ patient: req.params.id, status: { $ne: "void" } })
