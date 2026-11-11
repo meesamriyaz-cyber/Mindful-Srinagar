@@ -538,7 +538,7 @@ function describeRecord(viewId, record) {
   };
 }
 
-function recordActions(viewId, record) {
+function recordActions(viewId, record, userRole) {
   if (viewId === "patients") {
     const actions = [{ label: "View Journey", action: "journey" }];
     if (record.status !== "discharged") {
@@ -562,13 +562,13 @@ function recordActions(viewId, record) {
     const actions = [];
     if (record.status === "scheduled") actions.push({ label: "Check in", updates: { status: "checked-in" } });
     if (record.status === "checked-in") actions.push({ label: "Complete", updates: { status: "completed" } });
-    if (["completed", "checked-in"].includes(record.status)) {
+    if (["completed", "checked-in"].includes(record.status) && ["director", "admin", "accounts", "reception"].includes(userRole)) {
       actions.push({ label: "Generate Bill", action: "bill" });
     }
     return actions;
   }
 
-  if (viewId === "billing" && ["draft", "partial"].includes(record.status)) {
+  if (viewId === "billing" && ["director", "admin", "accounts"].includes(userRole) && ["draft", "partial"].includes(record.status)) {
     return [{ label: "Mark paid", updates: { status: "paid", paidAmount: invoiceTotal(record) } }];
   }
 
@@ -632,7 +632,7 @@ function ReportsView({ data }) {
   );
 }
 
-function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError }) {
+function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError, userRole }) {
   const config = getViewConfig(activeView);
   const Icon = config.icon;
 
@@ -660,7 +660,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
             <div className="record-grid">
               {records.map((record) => {
                 const summary = describeRecord(activeView, record);
-                const actions = recordActions(activeView, record);
+                const actions = recordActions(activeView, record, userRole);
                 return (
                   <motion.div
                     className="record-card"
@@ -959,6 +959,7 @@ export function Dashboard() {
                   onRecordAction={handleRecordAction}
                   actionId={actionId}
                   actionError={actionError}
+                  userRole={session.user?.role}
                 />
               )}
               </motion.div>
