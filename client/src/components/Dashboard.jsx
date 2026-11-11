@@ -30,6 +30,7 @@ import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, 
 import { ClinicalBoard } from "./ClinicalBoard.jsx";
 import { PatientJourney } from "./PatientJourney.jsx";
 import { PractitionerBoard } from "./PractitionerBoard.jsx";
+import { PractitionerDashboard } from "./PractitionerDashboard.jsx";
 import { ChipInput } from "./ChipInput.jsx";
 import { serviceCharges, services } from "../data/centreData.js";
 
@@ -58,8 +59,8 @@ function getVisibleViewItems(role) {
   const allowed = {
     reception: ["overview","patients","referrals","appointments","billing","tasks","reports"],
     coordinator: ["patients","referrals","appointments","inventory","tasks"],
-    doctor: ["patients","appointments","assessments","treatment-plans","progress-notes","prescriptions","tasks"],
-    therapist: ["patients","appointments","assessments","treatment-plans","progress-notes","tasks"],
+    doctor: ["overview","patients","appointments","assessments","treatment-plans","progress-notes","prescriptions","tasks"],
+    therapist: ["overview","patients","appointments","assessments","treatment-plans","progress-notes","tasks"],
     accounts: ["billing","tasks"]
   };
   if (["director","admin"].includes(role)) return viewItems;
@@ -750,7 +751,8 @@ export function Dashboard() {
   const [session, setSession] = useState(getStoredSession);
   const [activeView, setActiveView] = useState(() => {
     const role = getStoredSession().user?.role;
-    if (["doctor","therapist","coordinator"].includes(role)) return "patients";
+    if (["doctor","therapist"].includes(role)) return "overview";
+    if (role === "coordinator") return "patients";
     if (role === "accounts") return "billing";
     return "overview";
   });
@@ -947,7 +949,7 @@ export function Dashboard() {
   if (!session.token) {
     return <LoginPanel onLogin={(nextSession) => {
       setSession(nextSession);
-      setActiveView(["doctor","therapist","coordinator"].includes(nextSession.user?.role) ? "patients" : nextSession.user?.role === "accounts" ? "billing" : "overview");
+      setActiveView(["doctor","therapist"].includes(nextSession.user?.role) ? "overview" : nextSession.user?.role === "coordinator" ? "patients" : nextSession.user?.role === "accounts" ? "billing" : "overview");
     }} />;
   }
 
@@ -1042,7 +1044,9 @@ export function Dashboard() {
                   onChanged={() => setResourceRefresh((value) => value + 1)}
                 />
               ) : activeView === "overview" ? (
-                <OverviewWorkspace data={data} isDirector={isDirector} />
+                ["doctor", "therapist"].includes(session.user?.role)
+                  ? <PractitionerDashboard token={session.token} />
+                  : <OverviewWorkspace data={data} isDirector={isDirector} />
               ) : ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeView) ? (
                 <ClinicalBoard
                   activeView={activeView}
