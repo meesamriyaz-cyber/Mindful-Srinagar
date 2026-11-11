@@ -4,6 +4,7 @@ import { escapeRegex, parseLimit, sanitizePayload } from "../utils/query.js";
 import { createRateLimiter } from "../middleware/rateLimiter.js";
 import { permit } from "../middleware/auth.js";
 import { Invoice } from "../models/Invoice.js";
+import { calculateOutstandingBalance } from "../utils/invoiceBalance.js";
 
 test("payload sanitizer permits allowlisted fields only", () => {
   assert.deepEqual(sanitizePayload({ fullName: "Sample", phone: "1234567" }, ["fullName", "phone"]), {
@@ -61,4 +62,19 @@ import { taskScope } from "../security/taskAccess.js";
 test("task scope limits non-manager staff to their own assignments", () => {
   assert.deepEqual(taskScope({ user: { role: "therapist", _id: "staff-123" } }), { assignedTo: "staff-123" });
   assert.deepEqual(taskScope({ user: { role: "admin", _id: "admin-123" } }), {});
+});
+
+test("discharge balance includes every non-void invoice balance", () => {
+  const invoices = [
+    { items: [{ quantity: 2, rate: 500 }], discount: 100, paidAmount: 400 },
+    { items: [{ quantity: 1, rate: 300 }], discount: 0, paidAmount: 300 },
+    { items: [{ quantity: 1, rate: 200 }], discount: 0, paidAmount: 0 }
+  ];
+  assert.equal(calculateOutstandingBalance(invoices), 700);
+});
+
+test("discharge balance never becomes negative when invoices are overpaid", () => {
+  assert.equal(calculateOutstandingBalance([
+    { items: [{ quantity: 1, rate: 100 }], discount: 0, paidAmount: 150 }
+  ]), 0);
 });
