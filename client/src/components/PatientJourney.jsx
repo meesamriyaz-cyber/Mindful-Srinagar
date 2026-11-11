@@ -92,7 +92,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     invoices: []
   });
   const [loading, setLoading] = useState(true);
-  const [activeStep, setActiveStep] = useState("referral");
+  const [activeStep, setActiveStep] = useState(() => ["doctor", "therapist"].includes(userRole) ? "appointments" : "referral");
   const [showDischarge, setShowDischarge] = useState(false);
   const [dischargeForm, setDischargeForm] = useState({ summary: "", reason: "" });
   const [discharging, setDischarging] = useState(false);
@@ -109,18 +109,20 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
 
     async function loadJourney() {
       try {
+        const canViewClinical = ["director", "admin", "doctor", "therapist"].includes(userRole);
+        const canViewReferral = ["director", "admin", "reception", "coordinator"].includes(userRole);
+        const canViewPrescriptions = ["director", "admin", "doctor"].includes(userRole);
+        const canViewBilling = ["director", "admin", "accounts", "reception"].includes(userRole);
         const [referral, appointments, assessments, treatmentPlans, progressNotes, prescriptions, invoices] = await Promise.all([
-          patient.referral ? fetch(`${API_BASE_URL}/referrals/${patient.referral}`, {
+          canViewReferral && patient.referral ? fetch(`${API_BASE_URL}/referrals/${patient.referral}`, {
             headers: { Authorization: `Bearer ${token}` }
           }).then(r => r.ok ? r.json() : null).catch(() => null) : Promise.resolve(null),
           listRecords("appointments", { token, patientId: patient._id, limit: 20 }),
-          listAssessments({ token, patientId: patient._id, limit: 20 }),
-          listTreatmentPlans({ token, patientId: patient._id, limit: 20 }),
-          listProgressNotes({ token, patientId: patient._id, limit: 20 }),
-          listPrescriptions({ token, patientId: patient._id, limit: 20 }),
-          ["director", "admin", "accounts", "reception"].includes(userRole)
-            ? listRecords("invoices", { token, patientId: patient._id, limit: 20 })
-            : Promise.resolve([])
+          canViewClinical ? listAssessments({ token, patientId: patient._id, limit: 20 }) : Promise.resolve([]),
+          canViewClinical ? listTreatmentPlans({ token, patientId: patient._id, limit: 20 }) : Promise.resolve([]),
+          canViewClinical ? listProgressNotes({ token, patientId: patient._id, limit: 20 }) : Promise.resolve([]),
+          canViewPrescriptions ? listPrescriptions({ token, patientId: patient._id, limit: 20 }) : Promise.resolve([]),
+          canViewBilling ? listRecords("invoices", { token, patientId: patient._id, limit: 20 }) : Promise.resolve([])
         ]);
         if (active) {
           setData({
@@ -143,9 +145,12 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     return () => { active = false; };
   }, [patient, token, journeyKey, userRole]);
 
+  const canViewClinical = ["director", "admin", "doctor", "therapist"].includes(userRole);
+  const canViewReferral = ["director", "admin", "reception", "coordinator"].includes(userRole);
+  const canViewPrescriptions = ["director", "admin", "doctor"].includes(userRole);
   const canViewBilling = ["director", "admin", "accounts", "reception"].includes(userRole);
   const canDischarge = ["director", "admin", "reception", "coordinator"].includes(userRole);
-  const steps = ["referral", "appointments", "assessments", "treatment-plans", "progress-notes", "prescriptions", ...(canViewBilling ? ["invoices"] : [])];
+  const steps = [...(canViewReferral ? ["referral"] : []), "appointments", ...(canViewClinical ? ["assessments", "treatment-plans", "progress-notes"] : []), ...(canViewPrescriptions ? ["prescriptions"] : []), ...(canViewBilling ? ["invoices"] : [])];
   const activeRecords = data[activeStep] || [];
   const isDischarged = patient?.status === "discharged";
   const canCreate = ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeStep);
