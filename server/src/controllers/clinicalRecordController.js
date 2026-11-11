@@ -40,7 +40,8 @@ export function makeClinicalRecordController({
     },
     async create(req, res, next) {
       try {
-        const payload = { ...defaultValues, ...sanitizePayload(req.body, createFields) };
+        const defaults = typeof defaultValues === "function" ? defaultValues() : defaultValues;
+        const payload = { ...defaults, ...sanitizePayload(req.body, createFields) };
         await validatePatient(payload.patient);
         await validateRelated(payload);
         const record = await Model.create({ ...payload, [ownerField]: req.user._id });
