@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import { getDashboard } from "../controllers/dashboardController.js";
 import { makeCrudController } from "../controllers/crudController.js";
 import { createEnquiry, convertReferralToPatient } from "../controllers/enquiryController.js";
@@ -40,12 +41,27 @@ router.get("/dashboard", permit("director", "admin", "reception"), getDashboard)
 router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
   createFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes"],
   updateFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes","dischargeDate","dischargeSummary","dischargeReason"],
+  validateCreate: async ({ payload }) => {
+    if (payload.status === "discharged" || payload.status === "on-hold") return { statusCode: 400, message: "New patients must begin in new or assessment status" };
+    if (payload.referral) {
+      if (!mongoose.isValidObjectId(payload.referral) || !(await Referral.exists({ _id: payload.referral }))) return { statusCode: 404, message: "Referral not found" };
+      if (await Patient.exists({ referral: payload.referral })) return { statusCode: 409, message: "This referral is already linked to a patient" };
+    }
+    const duplicate = await Patient.findOne({ fullName: new RegExp("^" + String(payload.fullName || "").trim().replace(/[.*+?^${}()|[\]\\]/g, "\\  updateFieldsByRole: {
+    reception:") + "$", "i"), phone: String(payload.phone || "").trim() }).select("_id").lean();
+    if (duplicate) return { statusCode: 409, message: "A patient with this name and phone number already exists" };
+    return null;
+  },
   updateFieldsByRole: {
     reception: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","dischargeDate","dischargeReason"],
     coordinator: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","dischargeDate","dischargeReason"]
   },
   redactFieldsByRole: { reception: ["notes","dischargeSummary"], coordinator: ["notes","dischargeSummary"] },
   validateUpdate: async ({ req, payload }) => {
+    const current = await Patient.findById(req.params.id).select("status referral");
+    if (!current) return { statusCode: 404, message: "Patient not found" };
+    if (current.status === "discharged" && payload.status && payload.status !== "discharged") return { statusCode: 409, message: "A discharged patient cannot be reactivated through a routine edit" };
+    if (payload.referral && String(payload.referral) !== String(current.referral || "")) return { statusCode: 400, message: "A patient's referral linkage cannot be changed after registration" };
     if (payload.status !== "discharged") return null;
     const invoices = await Invoice.find({ patient: req.params.id, status: { $ne: "void" } })
       .select("items discount paidAmount")
