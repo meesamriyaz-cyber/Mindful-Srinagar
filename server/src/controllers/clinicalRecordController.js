@@ -1,5 +1,4 @@
 import { Patient } from "../models/Patient.js";
-import { Appointment } from "../models/Appointment.js";
 import { escapeRegex, isValidObjectId, parseLimit, sanitizePayload } from "../utils/query.js";
 const privilegedRoles = ["director", "admin"];
 function httpError(message, statusCode) {
