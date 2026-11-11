@@ -779,11 +779,19 @@ export function Dashboard() {
     let active = true;
     Promise.all([
       listRecords("patients", { token: session.token, limit: 100 }),
-      listRecords("doctors", { token: session.token, status: "active", limit: 100 })
-    ]).then(([patients, practitioners]) => {
+      listRecords("doctors", { token: session.token, status: "active", limit: 100 }),
+      ["director", "admin"].includes(session.user?.role)
+        ? fetch(`${API_BASE_URL}/staff-accounts`, { headers: { Authorization: `Bearer ${session.token}` } }).then(async (response) => {
+            const body = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(body.message || "Unable to load staff accounts");
+            return body;
+          })
+        : Promise.resolve([])
+    ]).then(([patients, practitioners, staff]) => {
       if (active) {
         setPatientsList(patients || []);
-        setPractitionersList((practitioners || []).filter((item) => item.status !== "inactive"));\n        setStaffAccounts(staff || []);
+        setPractitionersList((practitioners || []).filter((item) => item.status !== "inactive"));
+        setStaffAccounts(staff || []);
       }
     }).catch(() => {});
     return () => { active = false; };
