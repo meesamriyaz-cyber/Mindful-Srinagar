@@ -96,6 +96,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const [showDischarge, setShowDischarge] = useState(false);
   const [dischargeForm, setDischargeForm] = useState({ summary: "", reason: "" });
   const [discharging, setDischarging] = useState(false);
+  const [dischargeError, setDischargeError] = useState("");
   const [createStep, setCreateStep] = useState(null);
   const [createForm, setCreateForm] = useState({});
   const [createSaving, setCreateSaving] = useState(false);
@@ -288,6 +289,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   async function handleDischarge(e) {
     e.preventDefault();
     setDischarging(true);
+    setDischargeError("");
     try {
       await onDischarge({
         dischargeDate: new Date(),
@@ -297,7 +299,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
       });
       setShowDischarge(false);
     } catch (err) {
-      console.error(err);
+      setDischargeError(err.message || "Unable to discharge patient");
     } finally {
       setDischarging(false);
     }
@@ -466,6 +468,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                   </button>
                 </div>
                 <form onSubmit={handleDischarge} className="clinical-form">
+                  {dischargeError && <p className="form-status error-status">{dischargeError}</p>}
                   <label>
                     Discharge Summary
                     <textarea
