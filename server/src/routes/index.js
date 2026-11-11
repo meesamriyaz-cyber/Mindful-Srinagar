@@ -23,7 +23,7 @@ import { createInvoice, generateInvoiceFromAppointment } from "../controllers/in
 import { taskManagers, taskScope } from "../security/taskAccess.js";
 import { calculateOutstandingBalance } from "../utils/invoiceBalance.js";
 import { escapeRegex } from "../utils/query.js";
-import { validateAppointmentShape, canTransitionAppointment, findAppointmentConflict } from "../security/appointmentRules.js";
+import { validateAppointmentShape, canTransitionAppointment, findAppointmentConflict, isWithinPractitionerAvailability } from "../security/appointmentRules.js";
 const router = express.Router();
 const management = ["director", "admin"];
 const reception = ["director", "admin", "reception", "coordinator"];
@@ -131,11 +131,12 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
     if (shapeError) return { statusCode: 400, message: shapeError };
     const [patient, practitioner] = await Promise.all([
       Patient.findById(payload.patient).select("status"),
-      Doctor.findById(payload.practitioner).select("status")
+      Doctor.findById(payload.practitioner).select("status availability")
     ]);
     if (!patient) return { statusCode: 404, message: "Patient not found" };
     if (["on-hold", "discharged"].includes(patient.status)) return { statusCode: 409, message: "Appointments cannot be booked for patients on hold or discharged" };
     if (!practitioner || practitioner.status === "inactive") return { statusCode: 409, message: "Select an active practitioner" };
+    if (!isWithinPractitionerAvailability(payload.startsAt, payload.durationMinutes, practitioner.availability)) return { statusCode: 409, message: "The appointment falls outside this practitioner’s recorded availability" };
     const conflict = await findAppointmentConflict(payload);
     if (conflict) return { statusCode: 409, message: "The practitioner or room already has an overlapping appointment" };
     return null;
@@ -152,11 +153,12 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
     if (payload.patient || payload.practitioner || payload.startsAt || payload.durationMinutes || payload.room) {
       const [patient, practitioner] = await Promise.all([
         Patient.findById(next.patient).select("status"),
-        Doctor.findById(next.practitioner).select("status")
+        Doctor.findById(next.practitioner).select("status availability")
       ]);
       if (!patient) return { statusCode: 404, message: "Patient not found" };
       if (["on-hold", "discharged"].includes(patient.status)) return { statusCode: 409, message: "Appointments cannot be scheduled for patients on hold or discharged" };
       if (!practitioner || practitioner.status === "inactive") return { statusCode: 409, message: "Select an active practitioner" };
+      if (!isWithinPractitionerAvailability(next.startsAt, next.durationMinutes, practitioner.availability)) return { statusCode: 409, message: "The appointment falls outside this practitioner’s recorded availability" };
       const conflict = await findAppointmentConflict(next, existing._id);
       if (conflict) return { statusCode: 409, message: "The practitioner or room already has an overlapping appointment" };
     }
