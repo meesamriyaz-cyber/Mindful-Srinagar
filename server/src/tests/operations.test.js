@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { canTransitionTask, validateTaskPayload } from "../security/taskRules.js";
+import { taskScope } from "../security/taskAccess.js";
 import { Task } from "../models/Task.js";
 import { InventoryItem } from "../models/InventoryItem.js";
 import { InventoryMovement } from "../models/InventoryMovement.js";
@@ -77,4 +78,46 @@ test("invoice ledger rejects payment entries with invalid methods", async () => 
     }]
   });
   await assert.rejects(invoice.validate(), (error) => Boolean(error.errors?.["payments.0.method"]));
+});
+
+test("task access scopes non-manager roles to their own assignments", () => {
+  const userId = "64b000000000000000000003";
+  assert.deepEqual(taskScope({ user: { role: "doctor", _id: userId } }), { assignedTo: userId });
+  assert.deepEqual(taskScope({ user: { role: "accounts", _id: userId } }), { assignedTo: userId });
+  assert.deepEqual(taskScope({ user: { role: "director", _id: userId } }), {});
+  assert.deepEqual(taskScope({ user: { role: "coordinator", _id: userId } }), {});
+});
+
+test("invoice schema rejects a payment ledger that does not reconcile with paidAmount", async () => {
+  const invoice = new Invoice({
+    patient: "64b000000000000000000001",
+    invoiceNo: "B3-LEDGER-MISMATCH",
+    items: [{ description: "Assessment", quantity: 1, rate: 1000 }],
+    paidAmount: 300,
+    status: "partial",
+    payments: [{
+      amount: 250,
+      method: "upi",
+      receivedBy: "64b000000000000000000002",
+      receivedAt: new Date()
+    }]
+  });
+  await assert.rejects(invoice.validate(), (error) => Boolean(error.errors?.payments));
+});
+
+test("invoice schema accepts a reconciled multi-method payment ledger", async () => {
+  const invoice = new Invoice({
+    patient: "64b000000000000000000001",
+    invoiceNo: "B3-LEDGER-MIXED",
+    items: [{ description: "Assessment", quantity: 1, rate: 1000 }],
+    paidAmount: 300,
+    paymentMode: "mixed",
+    status: "partial",
+    payments: [
+      { amount: 200, method: "cash", receivedBy: "64b000000000000000000002" },
+      { amount: 100, method: "upi", receivedBy: "64b000000000000000000002" }
+    ]
+  });
+  await invoice.validate();
+  assert.equal(invoice.payments.reduce((sum, payment) => sum + payment.amount, 0), 300);
 });
