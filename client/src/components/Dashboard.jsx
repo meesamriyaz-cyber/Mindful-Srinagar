@@ -20,6 +20,7 @@ import {
   Plus,
   X,
   UsersRound,
+  Stethoscope,
   WalletCards
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -36,6 +37,7 @@ const INR = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR",
 const viewItems = [
   { id: "overview", label: "Overview", resource: null, icon: LayoutDashboard, section: "General" },
   { id: "patients", label: "Patients", resource: "patients", icon: UsersRound, section: "Clinical" },
+  { id: "practitioners", label: "Practitioners", resource: "doctors", icon: Stethoscope, section: "Clinical" },
   { id: "referrals", label: "Referrals", resource: "referrals", icon: TrendingUp, section: "Clinical" },
   { id: "appointments", label: "Appointments", resource: "appointments", icon: CalendarClock, section: "Clinical" },
   { id: "assessments", label: "Assessments", resource: "assessments", icon: ClipboardCheck, section: "Clinical" },
@@ -762,7 +764,7 @@ export function Dashboard() {
   const [billingSaving, setBillingSaving] = useState(false);
   const [billingError, setBillingError] = useState("");
   const [patientsList, setPatientsList] = useState([]);
-  const [practitionersList, setPractitionersList] = useState([]);
+  const [practitionersList, setPractitionersList] = useState([]);\n  const [staffAccounts, setStaffAccounts] = useState([]);
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
   const [appointmentSaving, setAppointmentSaving] = useState(false);
   const [appointmentError, setAppointmentError] = useState("");
@@ -780,7 +782,7 @@ export function Dashboard() {
     ]).then(([patients, practitioners]) => {
       if (active) {
         setPatientsList(patients || []);
-        setPractitionersList((practitioners || []).filter((item) => item.status !== "inactive"));
+        setPractitionersList((practitioners || []).filter((item) => item.status !== "inactive"));\n        setStaffAccounts(staff || []);
       }
     }).catch(() => {});
     return () => { active = false; };
@@ -1023,7 +1025,7 @@ export function Dashboard() {
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.22 }}
               >
-              {activeView === "overview" ? (
+              {activeView === "practitioners" ? (\n                <PractitionerBoard\n                  token={session.token}\n                  staffAccounts={staffAccounts}\n                  onChanged={() => setResourceRefresh((value) => value + 1)}\n                />\n              ) : activeView === "overview" ? (
                 <OverviewWorkspace data={data} isDirector={isDirector} />
               ) : ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeView) ? (
                 <ClinicalBoard
