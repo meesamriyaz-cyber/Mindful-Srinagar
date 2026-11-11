@@ -765,7 +765,8 @@ export function Dashboard() {
   const [billingSaving, setBillingSaving] = useState(false);
   const [billingError, setBillingError] = useState("");
   const [patientsList, setPatientsList] = useState([]);
-  const [practitionersList, setPractitionersList] = useState([]);\n  const [staffAccounts, setStaffAccounts] = useState([]);
+  const [practitionersList, setPractitionersList] = useState([]);
+  const [staffAccounts, setStaffAccounts] = useState([]);
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
   const [appointmentSaving, setAppointmentSaving] = useState(false);
   const [appointmentError, setAppointmentError] = useState("");
