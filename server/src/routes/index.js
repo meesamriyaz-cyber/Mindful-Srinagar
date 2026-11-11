@@ -1,6 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import { getDashboard } from "../controllers/dashboardController.js";
+import { getPractitionerDashboard } from "../controllers/practitionerDashboardController.js";
 import { makeCrudController } from "../controllers/crudController.js";
 import { createEnquiry, convertReferralToPatient } from "../controllers/enquiryController.js";
 import { permit, protect } from "../middleware/auth.js";
@@ -40,6 +41,7 @@ router.use("/auth", authRoutes);
 router.post("/enquiries", createRateLimiter({ windowMs: 900000, max: 8, message: "Too many enquiries from this connection. Please try again later." }), createEnquiry);
 router.use(protect);
 router.get("/dashboard", permit("director", "admin", "reception"), getDashboard);
+router.get("/dashboard/practitioner", permit("doctor", "therapist"), getPractitionerDashboard);
 router.get("/staff-accounts", permit(...management), async (_req, res, next) => {
   try {
     const staff = await User.find({ isActive: true, role: { $in: ["doctor", "therapist"] } })
