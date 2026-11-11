@@ -20,7 +20,7 @@ import prescriptionRoutes from "./prescriptionRoutes.js";
 import { createInvoice, generateInvoiceFromAppointment } from "../controllers/invoiceController.js";
 import { taskManagers, taskScope } from "../security/taskAccess.js";
 import { calculateOutstandingBalance } from "../utils/invoiceBalance.js";
-import { validateAppointmentShape, canTransitionAppointment } from "../security/appointmentRules.js";
+import { validateAppointmentShape, canTransitionAppointment, findAppointmentConflict } from "../security/appointmentRules.js";
 const router = express.Router();
 const management = ["director", "admin"];
 const reception = ["director", "admin", "reception", "coordinator"];
@@ -80,7 +80,7 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
   },
   redactFieldsByRole: { reception: ["clinicalNotes"], coordinator: ["clinicalNotes"] },
   filterFields: ["status","patient","practitioner"], filterAliases: { patientId: "patient" },
-  searchableFields: ["service","room"]
+  searchableFields: ["service","room"],
   validateCreate: async ({ payload }) => {
     const shapeError = validateAppointmentShape(payload);
     if (shapeError) return { statusCode: 400, message: shapeError };
