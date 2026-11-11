@@ -766,6 +766,8 @@ export function Dashboard() {
   const [resourceRefresh, setResourceRefresh] = useState(0);
   const [actionId, setActionId] = useState("");
   const [actionError, setActionError] = useState("");
+  const [operationModal, setOperationModal] = useState(null);
+  const [operationForm, setOperationForm] = useState({ amount: "", method: "cash", reference: "", type: "receipt", quantity: "", reason: "" });
   const [journeyPatientId, setJourneyPatientId] = useState(null);
   const [showBilling, setShowBilling] = useState(false);
   const [billingRecord, setBillingRecord] = useState(null);
@@ -819,6 +821,35 @@ export function Dashboard() {
     return "Waiting";
   }, [error, refreshing, updatedAt]);
 
+  async function handleOperationSubmit(event) {
+    event.preventDefault();
+    if (!operationModal) return;
+    const { type, id } = operationModal;
+    const isPayment = type === "payment";
+    const payload = isPayment
+      ? { amount: Number(operationForm.amount), method: operationForm.method, reference: operationForm.reference }
+      : { type: operationForm.type, quantity: Number(operationForm.quantity), reason: operationForm.reason, reference: operationForm.reference };
+    setActionId(id);
+    setActionError("");
+    try {
+      const endpoint = isPayment ? "/invoices/" + id + "/payments" : "/inventory/" + id + "/movements";
+      const response = await fetch(API_BASE_URL + endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.token },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.message || (isPayment ? "Payment could not be recorded" : "Stock movement could not be recorded"));
+      setOperationModal(null);
+      setResourceRefresh((value) => value + 1);
+      if (isPayment) refresh();
+    } catch (error) {
+      setActionError(error.message);
+    } finally {
+      setActionId("");
+    }
+  }
+
   function handleLogout() {
     clearSession();
     setSession({ token: null, user: null });
@@ -854,35 +885,10 @@ export function Dashboard() {
       }
       return;
     }
-    if (extra?.action === "payment") {
-      const amount = window.prompt("Payment amount (₹)");
-      if (amount === null) return;
-      const method = window.prompt("Payment method: cash, upi, card, or bank", "cash");
-      if (method === null) return;
-      const reference = window.prompt("Transaction/reference number (optional)", "") || "";
-      setActionId(id); setActionError("");
-      try {
-        const response = await fetch(API_BASE_URL + "/invoices/" + id + "/payments", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.token }, body: JSON.stringify({ amount: Number(amount), method: method.trim().toLowerCase(), reference }) });
-        const result = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(result.message || "Payment could not be recorded");
-        setResourceRefresh((value) => value + 1); refresh();
-      } catch (err) { setActionError(err.message); } finally { setActionId(""); }
-      return;
-    }
-    if (extra?.action === "stock") {
-      const type = window.prompt("Movement type: receipt, issue, or adjustment", "receipt");
-      if (type === null) return;
-      const quantity = window.prompt(type.trim().toLowerCase() === "adjustment" ? "Set new stock quantity" : "Quantity");
-      if (quantity === null) return;
-      const reason = window.prompt("Reason for this stock movement");
-      if (reason === null) return;
-      setActionId(id); setActionError("");
-      try {
-        const response = await fetch(API_BASE_URL + "/inventory/" + id + "/movements", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.token }, body: JSON.stringify({ type: type.trim().toLowerCase(), quantity: Number(quantity), reason }) });
-        const result = await response.json().catch(() => ({}));
-        if (!response.ok) throw new Error(result.message || "Stock movement could not be recorded");
-        setResourceRefresh((value) => value + 1);
-      } catch (err) { setActionError(err.message); } finally { setActionId(""); }
+    if (extra?.action === "payment" || extra?.action === "stock") {
+      setOperationForm({ amount: "", method: "cash", reference: "", type: "receipt", quantity: "", reason: "" });
+      setOperationModal({ type: extra.action, id, record: resourceState.records.find((record) => record._id === id) });
+      setActionError("");
       return;
     }
     if (extra?.action === "bill") {
@@ -1251,6 +1257,56 @@ export function Dashboard() {
         </motion.div>
       )}
 
+      {operationModal && (
+        <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOperationModal(null)}>
+          <motion.div className="modal" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{operationModal.type === "payment" ? "Record invoice payment" : "Record stock movement"}</h3>
+              <button className="icon-button" type="button" onClick={() => setOperationModal(null)} aria-label="Close">✕</button>
+            </div>
+            {actionError && <p className="form-status error-status">{actionError}</p>}
+            <form className="clinical-form" onSubmit={handleOperationSubmit}>
+              {operationModal.type === "payment" ? (
+                <>
+                  <p>{operationModal.record?.invoiceNo || "Invoice"} · Outstanding ₹{Math.max(invoiceTotal(operationModal.record || {}) - Number(operationModal.record?.paidAmount || 0), 0).toFixed(2)}</p>
+                  <label>Amount (₹)
+                    <input type="number" min="0.01" step="0.01" max={Math.max(invoiceTotal(operationModal.record || {}) - Number(operationModal.record?.paidAmount || 0), 0)} required value={operationForm.amount} onChange={(event) => setOperationForm({ ...operationForm, amount: event.target.value })} />
+                  </label>
+                  <label>Payment method
+                    <select required value={operationForm.method} onChange={(event) => setOperationForm({ ...operationForm, method: event.target.value })}>
+                      <option value="cash">Cash</option><option value="upi">UPI</option><option value="card">Card</option><option value="bank">Bank transfer</option>
+                    </select>
+                  </label>
+                  <label>Reference (optional)
+                    <input maxLength="120" value={operationForm.reference} onChange={(event) => setOperationForm({ ...operationForm, reference: event.target.value })} />
+                  </label>
+                </>
+              ) : (
+                <>
+                  <label>Movement type
+                    <select required value={operationForm.type} onChange={(event) => setOperationForm({ ...operationForm, type: event.target.value })}>
+                      <option value="receipt">Stock receipt</option><option value="issue">Stock issue</option><option value="adjustment">Set stock balance</option>
+                    </select>
+                  </label>
+                  <label>{operationForm.type === "adjustment" ? "New stock quantity" : "Quantity"}
+                    <input type="number" min="0.01" step="0.01" required value={operationForm.quantity} onChange={(event) => setOperationForm({ ...operationForm, quantity: event.target.value })} />
+                  </label>
+                  <label>Reason
+                    <textarea rows={3} maxLength="300" required value={operationForm.reason} onChange={(event) => setOperationForm({ ...operationForm, reason: event.target.value })} />
+                  </label>
+                  <label>Reference (optional)
+                    <input maxLength="120" value={operationForm.reference} onChange={(event) => setOperationForm({ ...operationForm, reference: event.target.value })} />
+                  </label>
+                </>
+              )}
+              <div className="modal-actions">
+                <button className="primary-button" type="submit" disabled={actionId === operationModal.id}>{actionId === operationModal.id ? "Saving..." : operationModal.type === "payment" ? "Record payment" : "Save movement"}</button>
+                <button className="secondary-button" type="button" onClick={() => setOperationModal(null)}>Cancel</button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
       {showBilling && (
         <motion.div
           className="modal-overlay"
