@@ -1,101 +1,75 @@
-function escapeRegex(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function parseLimit(value) {
-  const parsed = Number.parseInt(value, 10);
-  if (Number.isNaN(parsed)) return 50;
-  return Math.min(Math.max(parsed, 1), 100);
-}
-
-export function makeCrudController(Model, defaultPopulate = []) {
+import { escapeRegex, isValidObjectId, parseLimit, sanitizePayload } from "../utils/query.js";
+export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
   const applyPopulate = (query) => defaultPopulate.reduce((current, path) => current.populate(path), query);
-
+  const createFields = policy.createFields || [];
+  const updateFields = policy.updateFields || createFields;
+  const filterFields = policy.filterFields || ["status"];
+  const searchableFields = policy.searchableFields || [];
+  const filterAliases = policy.filterAliases || {};
+  const listScope = policy.listScope || (() => ({}));
+  const recordScope = policy.recordScope || (() => ({}));
+  const updateScope = policy.updateScope || recordScope;
+  const redact = (doc, req) => {
+    const fields = policy.redactFieldsByRole?.[req.user.role] || [];
+    if (!doc || !fields.length) return doc;
+    const value = doc.toObject ? doc.toObject() : { ...doc };
+    fields.forEach((field) => delete value[field]);
+    return value;
+  };
   return {
     async list(req, res, next) {
       try {
         const { status, q, limit = 50, ...extraFilters } = req.query;
-        const filter = {};
-        if (status) filter.status = status;
-        Object.entries(extraFilters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== "") {
-            filter[key] = value;
-          }
-        });
-        if (q) {
-          const safeQuery = escapeRegex(String(q).trim().slice(0, 80));
-          const expression = new RegExp(safeQuery, "i");
-          filter.$or = [
-            { fullName: expression },
-            { mrn: expression },
-            { phone: expression },
-            { name: expression },
-            { patientName: expression },
-            { sourceName: expression },
-            { invoiceNo: expression },
-            { category: expression },
-            { department: expression },
-            { service: expression },
-            { title: expression }
-          ];
+        const filter = { ...listScope(req) };
+        if (status && filterFields.includes("status")) filter.status = status;
+        for (const [key, value] of Object.entries(extraFilters)) {
+          const field = filterAliases[key] || key;
+          if (!filterFields.includes(field)) return res.status(400).json({ message: "Unsupported filter: " + key });
+          if (value !== undefined && value !== null && value !== "") filter[field] = value;
+        }
+        if (q && searchableFields.length) {
+          const expression = new RegExp(escapeRegex(String(q).trim().slice(0, 80)), "i");
+          filter.$or = searchableFields.map((field) => ({ [field]: expression }));
         }
         const docs = await applyPopulate(Model.find(filter)).sort({ createdAt: -1 }).limit(parseLimit(limit));
-        res.json(docs);
-      } catch (error) {
-        next(error);
-      }
+        return res.json(docs.map((doc) => redact(doc, req)));
+      } catch (error) { return next(error); }
     },
-
     async create(req, res, next) {
-      try {
-        const doc = await Model.create(req.body);
-        res.status(201).json(doc);
-      } catch (error) {
-        next(error);
-      }
+      try { const doc = await Model.create(sanitizePayload(req.body, createFields)); return res.status(201).json(redact(doc, req)); }
+      catch (error) { return next(error); }
     },
-
     async get(req, res, next) {
       try {
-        const doc = await applyPopulate(Model.findById(req.params.id));
-        if (!doc) {
-          res.status(404);
-          throw new Error("Record not found");
-        }
-        res.json(doc);
-      } catch (error) {
-        next(error);
-      }
+        if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid record ID is required" });
+        const doc = await applyPopulate(Model.findOne({ _id: req.params.id, ...recordScope(req) }));
+        if (!doc) return res.status(404).json({ message: "Record not found" });
+        return res.json(redact(doc, req));
+      } catch (error) { return next(error); }
     },
-
     async update(req, res, next) {
       try {
-        const doc = await Model.findByIdAndUpdate(req.params.id, req.body, {
-          new: true,
-          runValidators: true,
-          context: "query"
-        });
-        if (!doc) {
-          res.status(404);
-          throw new Error("Record not found");
+        if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid record ID is required" });
+        const allowed = policy.updateFieldsByRole?.[req.user.role] || updateFields;
+        const payload = sanitizePayload(req.body, allowed);
+        if (policy.validateUpdate) {
+          const validation = await policy.validateUpdate({ req, payload, Model });
+          if (validation) return res.status(validation.statusCode || 400).json({ message: validation.message || "Update is not allowed" });
         }
-        res.json(doc);
-      } catch (error) {
-        next(error);
-      }
+        const doc = await Model.findOneAndUpdate({ _id: req.params.id, ...updateScope(req) }, { $set: payload }, {
+          new: true, runValidators: true, context: "query"
+        });
+        if (!doc) return res.status(404).json({ message: "Record not found" });
+        return res.json(redact(doc, req));
+      } catch (error) { return next(error); }
     },
-
     async remove(req, res, next) {
       try {
-        const doc = await Model.findByIdAndDelete(req.params.id);
-        if (!doc) {
-          res.status(404);
-          throw new Error("Record not found");
-        }
-        res.json({ message: "Record deleted" });
-      } catch (error) {
-        next(error);
-      }
+        if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid record ID is required" });
+        const doc = await Model.findOneAndDelete({ _id: req.params.id, ...recordScope(req) });
+        if (!doc) return res.status(404).json({ message: "Record not found" });
+        return res.json({ message: "Record deleted" });
+      } catch (error) { return next(error); }
     }
   };
 }

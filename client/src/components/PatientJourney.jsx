@@ -51,7 +51,7 @@ const CREATE_FIELDS = {
     { name: "domains", label: "Domains", type: "text", placeholder: "Speech, Language, Social..." },
     { name: "findings", label: "Findings", type: "textarea" },
     { name: "recommendations", label: "Recommendations", type: "textarea" },
-    { name: "status", label: "Status", type: "select", options: ["completed", "in-progress", "pending"] }
+    { name: "status", label: "Status", type: "select", options: ["draft", "completed"] }
   ],
   "treatment-plans": [
     { name: "goals", label: "Goals", type: "textarea" },
@@ -81,7 +81,7 @@ const CREATE_FNS = {
   prescriptions: createPrescription
 };
 
-export function PatientJourney({ patient, token, onClose, onDischarge, onRefresh }) {
+export function PatientJourney({ patient, token, userRole, onClose, onDischarge, onRefresh }) {
   const [data, setData] = useState({
     referral: null,
     appointments: [],
@@ -92,10 +92,11 @@ export function PatientJourney({ patient, token, onClose, onDischarge, onRefresh
     invoices: []
   });
   const [loading, setLoading] = useState(true);
-  const [activeStep, setActiveStep] = useState("referral");
+  const [activeStep, setActiveStep] = useState(() => ["doctor", "therapist"].includes(userRole) ? "appointments" : "referral");
   const [showDischarge, setShowDischarge] = useState(false);
   const [dischargeForm, setDischargeForm] = useState({ summary: "", reason: "" });
   const [discharging, setDischarging] = useState(false);
+  const [dischargeError, setDischargeError] = useState("");
   const [createStep, setCreateStep] = useState(null);
   const [createForm, setCreateForm] = useState({});
   const [createSaving, setCreateSaving] = useState(false);
@@ -109,16 +110,20 @@ export function PatientJourney({ patient, token, onClose, onDischarge, onRefresh
 
     async function loadJourney() {
       try {
+        const canViewClinical = ["director", "admin", "doctor", "therapist"].includes(userRole);
+        const canViewReferral = ["director", "admin", "reception", "coordinator"].includes(userRole);
+        const canViewPrescriptions = ["director", "admin", "doctor"].includes(userRole);
+        const canViewBilling = ["director", "admin", "accounts", "reception"].includes(userRole);
         const [referral, appointments, assessments, treatmentPlans, progressNotes, prescriptions, invoices] = await Promise.all([
-          patient.referral ? fetch(`${API_BASE_URL}/referrals/${patient.referral}`, {
+          canViewReferral && patient.referral ? fetch(`${API_BASE_URL}/referrals/${patient.referral}`, {
             headers: { Authorization: `Bearer ${token}` }
           }).then(r => r.ok ? r.json() : null).catch(() => null) : Promise.resolve(null),
           listRecords("appointments", { token, patientId: patient._id, limit: 20 }),
-          listAssessments({ token, patientId: patient._id, limit: 20 }),
-          listTreatmentPlans({ token, patientId: patient._id, limit: 20 }),
-          listProgressNotes({ token, patientId: patient._id, limit: 20 }),
-          listPrescriptions({ token, patientId: patient._id, limit: 20 }),
-          listRecords("invoices", { token, patientId: patient._id, limit: 20 })
+          canViewClinical ? listAssessments({ token, patientId: patient._id, limit: 20 }) : Promise.resolve([]),
+          canViewClinical ? listTreatmentPlans({ token, patientId: patient._id, limit: 20 }) : Promise.resolve([]),
+          canViewClinical ? listProgressNotes({ token, patientId: patient._id, limit: 20 }) : Promise.resolve([]),
+          canViewPrescriptions ? listPrescriptions({ token, patientId: patient._id, limit: 20 }) : Promise.resolve([]),
+          canViewBilling ? listRecords("invoices", { token, patientId: patient._id, limit: 20 }) : Promise.resolve([])
         ]);
         if (active) {
           setData({
@@ -139,9 +144,14 @@ export function PatientJourney({ patient, token, onClose, onDischarge, onRefresh
 
     loadJourney();
     return () => { active = false; };
-  }, [patient, token, journeyKey]);
+  }, [patient, token, journeyKey, userRole]);
 
-  const steps = ["referral", "appointments", "assessments", "treatment-plans", "progress-notes", "prescriptions", "invoices"];
+  const canViewClinical = ["director", "admin", "doctor", "therapist"].includes(userRole);
+  const canViewReferral = ["director", "admin", "reception", "coordinator"].includes(userRole);
+  const canViewPrescriptions = ["director", "admin", "doctor"].includes(userRole);
+  const canViewBilling = ["director", "admin", "accounts", "reception"].includes(userRole);
+  const canDischarge = ["director", "admin", "reception", "coordinator"].includes(userRole);
+  const steps = [...(canViewReferral ? ["referral"] : []), "appointments", ...(canViewClinical ? ["assessments", "treatment-plans", "progress-notes"] : []), ...(canViewPrescriptions ? ["prescriptions"] : []), ...(canViewBilling ? ["invoices"] : [])];
   const activeRecords = data[activeStep] || [];
   const isDischarged = patient?.status === "discharged";
   const canCreate = ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeStep);
@@ -262,7 +272,8 @@ export function PatientJourney({ patient, token, onClose, onDischarge, onRefresh
       );
     }
     if (activeStep === "invoices") {
-      const total = (record?.items || []).reduce((sum, item) => sum + (item.quantity || 0) * (item.rate || 0), 0);
+      const subtotal = (record?.items || []).reduce((sum, item) => sum + (item.quantity || 0) * (item.rate || 0), 0);
+      const total = Math.max(subtotal - (record?.discount || 0), 0);
       const due = Math.max(total - (record?.paidAmount || 0), 0);
       return (
         <div>
@@ -278,6 +289,7 @@ export function PatientJourney({ patient, token, onClose, onDischarge, onRefresh
   async function handleDischarge(e) {
     e.preventDefault();
     setDischarging(true);
+    setDischargeError("");
     try {
       await onDischarge({
         dischargeDate: new Date(),
@@ -287,7 +299,7 @@ export function PatientJourney({ patient, token, onClose, onDischarge, onRefresh
       });
       setShowDischarge(false);
     } catch (err) {
-      console.error(err);
+      setDischargeError(err.message || "Unable to discharge patient");
     } finally {
       setDischarging(false);
     }
@@ -425,7 +437,7 @@ export function PatientJourney({ patient, token, onClose, onDischarge, onRefresh
           )}
         </div>
 
-        {!isDischarged && !createStep && (
+        {!isDischarged && !createStep && canDischarge && (
           <div className="journey-footer">
             <button className="primary-button" type="button" onClick={() => setShowDischarge(true)}>
               Discharge Patient
@@ -456,6 +468,7 @@ export function PatientJourney({ patient, token, onClose, onDischarge, onRefresh
                   </button>
                 </div>
                 <form onSubmit={handleDischarge} className="clinical-form">
+                  {dischargeError && <p className="form-status error-status">{dischargeError}</p>}
                   <label>
                     Discharge Summary
                     <textarea

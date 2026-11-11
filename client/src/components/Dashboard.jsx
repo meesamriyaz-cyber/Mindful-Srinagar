@@ -51,6 +51,17 @@ const viewItems = [
 function getViewConfig(id) {
   return viewItems.find((item) => item.id === id) || viewItems[0];
 }
+function getVisibleViewItems(role) {
+  const allowed = {
+    reception: ["overview","patients","referrals","appointments","billing","tasks","reports"],
+    coordinator: ["patients","referrals","appointments","inventory","tasks"],
+    doctor: ["patients","appointments","assessments","treatment-plans","progress-notes","prescriptions","tasks"],
+    therapist: ["patients","appointments","assessments","treatment-plans","progress-notes","tasks"],
+    accounts: ["billing","tasks"]
+  };
+  if (["director","admin"].includes(role)) return viewItems;
+  return viewItems.filter((item) => (allowed[role] || []).includes(item.id));
+}
 
 function formatTime(value) {
   if (!value) return "--";
@@ -527,10 +538,10 @@ function describeRecord(viewId, record) {
   };
 }
 
-function recordActions(viewId, record) {
+function recordActions(viewId, record, userRole) {
   if (viewId === "patients") {
     const actions = [{ label: "View Journey", action: "journey" }];
-    if (record.status !== "discharged") {
+    if (record.status !== "discharged" && ["director", "admin", "reception", "coordinator"].includes(userRole)) {
       actions.push({ label: "Discharge", action: "discharge" });
     }
     return actions;
@@ -551,13 +562,13 @@ function recordActions(viewId, record) {
     const actions = [];
     if (record.status === "scheduled") actions.push({ label: "Check in", updates: { status: "checked-in" } });
     if (record.status === "checked-in") actions.push({ label: "Complete", updates: { status: "completed" } });
-    if (["completed", "checked-in"].includes(record.status)) {
+    if (["completed", "checked-in"].includes(record.status) && ["director", "admin", "accounts", "reception"].includes(userRole)) {
       actions.push({ label: "Generate Bill", action: "bill" });
     }
     return actions;
   }
 
-  if (viewId === "billing" && ["draft", "partial"].includes(record.status)) {
+  if (viewId === "billing" && ["director", "admin", "accounts"].includes(userRole) && ["draft", "partial"].includes(record.status)) {
     return [{ label: "Mark paid", updates: { status: "paid", paidAmount: invoiceTotal(record) } }];
   }
 
@@ -621,7 +632,33 @@ function ReportsView({ data }) {
   );
 }
 
-function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError }) {
+function ReferralNotesEditor({ record, onSave, saving }) {
+  const [notes, setNotes] = useState(record.notes || "");
+  useEffect(() => setNotes(record.notes || ""), [record._id, record.notes]);
+  return (
+    <div className="referral-notes-editor">
+      <label>
+        Staff call / conversation notes
+        <textarea
+          rows={3}
+          value={notes}
+          onChange={(event) => setNotes(event.target.value)}
+          placeholder="Record the discussion, needs, agreed next step and follow-up..."
+        />
+      </label>
+      <button
+        className="secondary-button compact-button"
+        type="button"
+        disabled={saving || notes.trim() === (record.notes || "").trim()}
+        onClick={() => onSave(notes)}
+      >
+        {saving ? "Saving notes..." : "Save conversation notes"}
+      </button>
+    </div>
+  );
+}
+
+function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError, userRole }) {
   const config = getViewConfig(activeView);
   const Icon = config.icon;
 
@@ -649,7 +686,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
             <div className="record-grid">
               {records.map((record) => {
                 const summary = describeRecord(activeView, record);
-                const actions = recordActions(activeView, record);
+                const actions = recordActions(activeView, record, userRole);
                 return (
                   <motion.div
                     className="record-card"
@@ -668,6 +705,13 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                       <mark className={statusClass(summary.status)}>{summary.status || "open"}</mark>
                     </div>
                     <p>{summary.detail}</p>
+                    {activeView === "referrals" && (
+                      <ReferralNotesEditor
+                        record={record}
+                        saving={actionId === record._id}
+                        onSave={(notes) => onRecordAction(config.resource, record._id, { notes }, { action: "save-notes" })}
+                      />
+                    )}
                     {actions.length > 0 && (
                       <div className="record-actions">
                         {actions.map((action) => (
@@ -698,7 +742,12 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
 
 export function Dashboard() {
   const [session, setSession] = useState(getStoredSession);
-  const [activeView, setActiveView] = useState("overview");
+  const [activeView, setActiveView] = useState(() => {
+    const role = getStoredSession().user?.role;
+    if (["doctor","therapist","coordinator"].includes(role)) return "patients";
+    if (role === "accounts") return "billing";
+    return "overview";
+  });
   const [query, setQuery] = useState("");
   const [resourceRefresh, setResourceRefresh] = useState(0);
   const [actionId, setActionId] = useState("");
@@ -722,7 +771,9 @@ export function Dashboard() {
     }).catch(() => {});
     return () => { active = false; };
   }, [session.token, resourceRefresh]);
-  const { data, loading, refreshing, error, updatedAt, refresh } = useDashboard(session.token);
+  const canViewOverview = ["director","admin","reception"].includes(session.user?.role);
+  const visibleViewItems = getVisibleViewItems(session.user?.role);
+  const { data, loading, refreshing, error, updatedAt, refresh } = useDashboard(canViewOverview ? session.token : null);
   const resourceState = useResourceRecords({ activeView, token: session.token, query, refreshSignal: resourceRefresh });
   const isDirector = ["director", "admin"].includes(session.user?.role);
   const activeConfig = getViewConfig(activeView);
@@ -745,6 +796,19 @@ export function Dashboard() {
   }
 
   async function handleRecordAction(resource, id, updates, extra) {
+    if (extra?.action === "save-notes") {
+      setActionId(id);
+      setActionError("");
+      try {
+        await updateRecord(resource, id, updates, { token: session.token });
+        setResourceRefresh((value) => value + 1);
+      } catch (err) {
+        setActionError(err.message);
+      } finally {
+        setActionId("");
+      }
+      return;
+    }
     if (extra?.action === "journey") {
       setJourneyPatientId(id);
       return;
@@ -836,7 +900,10 @@ export function Dashboard() {
   }
 
   if (!session.token) {
-    return <LoginPanel onLogin={setSession} />;
+    return <LoginPanel onLogin={(nextSession) => {
+      setSession(nextSession);
+      setActiveView(["doctor","therapist","coordinator"].includes(nextSession.user?.role) ? "patients" : nextSession.user?.role === "accounts" ? "billing" : "overview");
+    }} />;
   }
 
   return (
@@ -851,7 +918,7 @@ export function Dashboard() {
             </span>
           </div>
           {Object.entries(
-            viewItems.reduce((acc, item) => {
+            visibleViewItems.reduce((acc, item) => {
               const section = item.section || "Other";
               if (!acc[section]) acc[section] = [];
               acc[section].push(item);
@@ -913,7 +980,7 @@ export function Dashboard() {
           {loading && <p className="empty-state">Loading live centre data...</p>}
           {error && <p className="form-status error-status">{error}</p>}
 
-          {data && (
+          {(!canViewOverview || data) && (
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeView}
@@ -933,6 +1000,7 @@ export function Dashboard() {
                   refreshSignal={resourceRefresh}
                   patients={patientsList}
                   patientId={journeyPatientId}
+                  userRole={session.user?.role}
                 />
               ) : (
                 <ResourceBoard
@@ -942,6 +1010,7 @@ export function Dashboard() {
                   onRecordAction={handleRecordAction}
                   actionId={actionId}
                   actionError={actionError}
+                  userRole={session.user?.role}
                 />
               )}
               </motion.div>
@@ -954,6 +1023,7 @@ export function Dashboard() {
         <PatientJourney
           patient={resourceState.records.find(r => r._id === journeyPatientId) || { _id: journeyPatientId }}
           token={session.token}
+          userRole={session.user?.role}
           onClose={() => setJourneyPatientId(null)}
           onDischarge={async (updates) => {
             await updateRecord("patients", journeyPatientId, updates, { token: session.token });
@@ -1022,7 +1092,7 @@ export function Dashboard() {
               <label>
                 Services
                 <ChipInput
-                  value={convertForm.services ? convertForm.services.split(",").map(s => s.trim()).filter(Boolean) : []}
+                  value={Array.isArray(convertForm.services) ? convertForm.services : (typeof convertForm.services === "string" ? convertForm.services.split(",").map(s => s.trim()).filter(Boolean) : [])}
                   onChange={(val) => setConvertForm({ ...convertForm, services: val.join(", ") })}
                   placeholder="Speech Therapy, OT..."
                   suggestions={services}

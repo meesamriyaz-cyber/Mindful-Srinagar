@@ -1,0 +1,26 @@
+name: Core MVP checks
+on:
+  push:
+    branches:
+      - main
+      - "mvp/**"
+  pull_request:
+    branches: [main]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install root dependencies
+        run: npm install
+      - name: Install backend dependencies
+        run: npm install --prefix server
+      - name: Install frontend dependencies
+        run: npm install --prefix client
+      - name: Run backend tests
+        run: npm test --prefix server
+      - name: Build frontend
+        run: npm run build --prefix client
