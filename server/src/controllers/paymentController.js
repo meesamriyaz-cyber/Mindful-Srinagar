@@ -19,7 +19,7 @@ export async function recordInvoicePayment(req, res, next) {
     }
     if (!methods.includes(method)) return res.status(400).json({ message: "Choose a valid payment method" });
 
-    const invoice = await Invoice.findById(id).select("items discount paidAmount status payments");
+    const invoice = await Invoice.findById(id).select("items discount paidAmount openingPaidAmount status payments");
     if (!invoice) return res.status(404).json({ message: "Invoice not found" });
     if (invoice.status === "void") return res.status(409).json({ message: "Payments cannot be recorded against a void invoice" });
     const subtotalCents = invoice.items.reduce((sum, item) => sum + toCents(item.quantity * item.rate), 0);
