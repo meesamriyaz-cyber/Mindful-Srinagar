@@ -64,7 +64,6 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
   },
   redactFieldsByRole: { reception: ["clinicalNotes"], coordinator: ["clinicalNotes"] },
   filterFields: ["status","patient","practitioner"], filterAliases: { patientId: "patient" },
-  updateFieldsByRole: { doctor: ["status","clinicalNotes"], therapist: ["status","clinicalNotes"] },
   searchableFields: ["service","room"]
 }), { read: appointmentStaff, create: reception, update: appointmentStaff, remove: [] }));
 router.post("/invoices", permit(...invoiceCreators), createInvoice);
