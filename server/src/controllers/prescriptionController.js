@@ -17,7 +17,7 @@ const validateRelations = async (payload) => {
   }
 };
 const controller = makeClinicalRecordController({
-  Model: Prescription, ownerField: "prescribedBy",
+  Model: Prescription, recordType: "prescription", ownerField: "prescribedBy",
   createFields: ["patient","prescribedAt","medications","notes","status"],
   updateFields: ["prescribedAt","medications","notes","status"],
   populate: [["patient","fullName mrn"],["prescribedBy","name email"]],
@@ -27,3 +27,5 @@ export const listPrescriptions = controller.list;
 export const createPrescription = controller.create;
 export const getPrescription = controller.get;
 export const updatePrescription = controller.update;
+export const listPrescriptionAmendments = controller.amendments;
+export const amendPrescription = controller.amend;
