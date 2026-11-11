@@ -45,7 +45,7 @@ invoiceSchema.pre("findOneAndUpdate", async function validateInvoiceUpdate() {
   const update = this.getUpdate() || {};
   const patch = update.$set || update;
   const fail = (message) => { const error = new Error(message); error.statusCode = 400; throw error; };
-  if (patch.paidAmount !== undefined && Number(patch.paidAmount) !== Number(current.paidAmount || 0)) {
+  if (patch.paidAmount !== undefined && Number(patch.paidAmount) !== Number(current.paidAmount || 0) && !update.$push?.payments) {
     fail("Payments must be recorded through the payment endpoint");
   }
   const items = patch.items ?? current.items ?? [];
