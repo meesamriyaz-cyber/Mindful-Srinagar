@@ -112,3 +112,18 @@ test("practitioner availability checks local centre day and full appointment dur
   assert.equal(isWithinPractitionerAvailability(mondayMorning, 120, availability), false);
   assert.equal(isWithinPractitionerAvailability(mondayMorning, 45, [{ day: "Tuesday", from: "10:00", to: "12:00" }]), false);
 });
+
+import { canTransitionPatientStatus, validateDischargeDetails } from "../security/patientLifecycle.js";
+
+test("patient lifecycle prevents reactivation after discharge", () => {
+  assert.equal(canTransitionPatientStatus("new", "assessment"), true);
+  assert.equal(canTransitionPatientStatus("active", "on-hold"), true);
+  assert.equal(canTransitionPatientStatus("on-hold", "active"), true);
+  assert.equal(canTransitionPatientStatus("discharged", "active"), false);
+});
+
+test("patient discharge requires a summary and reason", () => {
+  assert.match(validateDischargeDetails({ status: "discharged", dischargeSummary: " " }), /summary/);
+  assert.match(validateDischargeDetails({ status: "discharged", dischargeSummary: "Goals met" }), /reason/);
+  assert.equal(validateDischargeDetails({ status: "active" }), null);
+});
