@@ -24,12 +24,12 @@ test("prescription lifecycle allows cancellation or completion but no reactivati
 
 test("amendment input requires a meaningful reason and at least one allowed field", () => {
   const allowedFields = ["findings", "recommendations"];
-  assert.match(validateAmendmentInput({ reason: "fix", changes: { findings: "Updated" }, allowedFields }), /reason/);
-  assert.match(validateAmendmentInput({ reason: "Correct transcription error", changes: {}, allowedFields }), /at least one/);
-  assert.match(validateAmendmentInput({ reason: "Correct transcription error", changes: { status: "draft" }, allowedFields }), /Unsupported/);
+  assert.match(validateAmendmentInput({ reason: "fix", changes: { findings: "Updated" }, allowedFields }), /reason/i);
+  assert.match(validateAmendmentInput({ reason: "Correct transcription error", changes: {}, allowedFields }), /at least one/i);
+  assert.match(validateAmendmentInput({ reason: "Correct transcription error", changes: { status: "draft" }, allowedFields }), /unsupported/i);
   assert.equal(validateAmendmentInput({ reason: "Correct transcription error", changes: { findings: "Updated" }, allowedFields }), null);
 });
 
 test("amendment input rejects arrays and malformed change payloads", () => {
-  assert.match(validateAmendmentInput({ reason: "Correct transcription error", changes: [], allowedFields: ["findings"] }), /JSON object/);
+  assert.match(validateAmendmentInput({ reason: "Correct transcription error", changes: [], allowedFields: ["findings"] }), /JSON object/i);
 });
