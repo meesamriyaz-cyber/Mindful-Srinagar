@@ -51,7 +51,7 @@ const CREATE_FIELDS = {
     { name: "domains", label: "Domains", type: "text", placeholder: "Speech, Language, Social..." },
     { name: "findings", label: "Findings", type: "textarea" },
     { name: "recommendations", label: "Recommendations", type: "textarea" },
-    { name: "status", label: "Status", type: "select", options: ["completed", "in-progress", "pending"] }
+    { name: "status", label: "Status", type: "select", options: ["draft", "completed"] }
   ],
   "treatment-plans": [
     { name: "goals", label: "Goals", type: "textarea" },
@@ -81,7 +81,7 @@ const CREATE_FNS = {
   prescriptions: createPrescription
 };
 
-export function PatientJourney({ patient, token, onClose, onDischarge, onRefresh }) {
+export function PatientJourney({ patient, token, userRole, onClose, onDischarge, onRefresh }) {
   const [data, setData] = useState({
     referral: null,
     appointments: [],
@@ -118,7 +118,9 @@ export function PatientJourney({ patient, token, onClose, onDischarge, onRefresh
           listTreatmentPlans({ token, patientId: patient._id, limit: 20 }),
           listProgressNotes({ token, patientId: patient._id, limit: 20 }),
           listPrescriptions({ token, patientId: patient._id, limit: 20 }),
-          listRecords("invoices", { token, patientId: patient._id, limit: 20 })
+          ["director", "admin", "accounts", "reception"].includes(userRole)
+            ? listRecords("invoices", { token, patientId: patient._id, limit: 20 })
+            : Promise.resolve([])
         ]);
         if (active) {
           setData({
@@ -139,7 +141,7 @@ export function PatientJourney({ patient, token, onClose, onDischarge, onRefresh
 
     loadJourney();
     return () => { active = false; };
-  }, [patient, token, journeyKey]);
+  }, [patient, token, journeyKey, userRole]);
 
   const steps = ["referral", "appointments", "assessments", "treatment-plans", "progress-notes", "prescriptions", "invoices"];
   const activeRecords = data[activeStep] || [];
