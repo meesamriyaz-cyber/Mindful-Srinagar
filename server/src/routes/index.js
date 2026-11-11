@@ -43,7 +43,7 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
   },
   redactFieldsByRole: { reception: ["notes","dischargeSummary"], coordinator: ["notes","dischargeSummary"] },
   filterFields: ["status","referral"], searchableFields: ["fullName","mrn","phone","guardianName","primaryConcern"]
-}), { read: patientReaders, write: reception, remove: management }));
+}), { read: patientReaders, write: reception, remove: [] }));
 router.use("/doctors", crudRoutes(makeCrudController(Doctor, [], {
   createFields: ["name","discipline","registrationNo","phone","email","availability","status"],
   updateFields: ["name","discipline","registrationNo","phone","email","availability","status"],
@@ -66,13 +66,14 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
   filterFields: ["status","patient","practitioner"], filterAliases: { patientId: "patient" },
   updateFieldsByRole: { doctor: ["status","clinicalNotes"], therapist: ["status","clinicalNotes"] },
   searchableFields: ["service","room"]
-}), { read: appointmentStaff, create: reception, update: appointmentStaff, remove: management }));
+}), { read: appointmentStaff, create: reception, update: appointmentStaff, remove: [] }));
 router.post("/invoices", permit(...invoiceCreators), createInvoice);
 router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient"], {
   createFields: ["patient","invoiceNo","items","discount","paidAmount","paymentMode","status"],
   updateFields: ["items","discount","paidAmount","paymentMode","status"],
-  filterFields: ["status","patient"], filterAliases: { patientId: "patient" }, searchableFields: ["invoiceNo"]
-}), { read: invoiceReaders, write: billing, create: [], remove: management }));
+  filterFields: ["status","patient"], filterAliases: { patientId: "patient" }, searchableFields: ["invoiceNo"],
+  updateScope: (req) => ["director","admin"].includes(req.user.role) ? {} : { status: { $nin: ["paid","void"] } }
+}), { read: invoiceReaders, write: billing, create: [], remove: [] }));
 router.post("/invoices/generate-from-appointment/:appointmentId", permit(...invoiceCreators), generateInvoiceFromAppointment);
 router.use("/inventory", crudRoutes(makeCrudController(InventoryItem, [], {
   createFields: ["name","category","quantity","reorderLevel","unit","vendor","notes"],
