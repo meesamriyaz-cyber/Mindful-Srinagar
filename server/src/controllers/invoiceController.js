@@ -32,7 +32,8 @@ function normalizeItems(items) {
 
 export async function createInvoice(req, res, next) {
   try {
-    const payload = sanitizePayload(req.body, ["patient", "items", "discount", "paymentMode"]);
+    const payload = sanitizePayload(req.body, ["patient", "items", "discount", "paymentMode", "status"]);
+    if (payload.status && payload.status !== "draft") return res.status(400).json({ message: "New invoices must start in draft status" });
     if (!isValidObjectId(payload.patient) || !(await Patient.exists({ _id: payload.patient }))) {
       return res.status(404).json({ message: "Patient not found" });
     }
