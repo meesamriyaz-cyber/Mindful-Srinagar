@@ -102,3 +102,13 @@ test("appointment lifecycle permits only forward operational transitions", () =>
   assert.equal(canTransitionAppointment("completed", "scheduled"), false);
   assert.equal(canTransitionAppointment("cancelled", "checked-in"), false);
 });
+
+import { isWithinPractitionerAvailability } from "../security/appointmentRules.js";
+
+test("practitioner availability checks local centre day and full appointment duration", () => {
+  const mondayMorning = new Date("2026-11-09T05:00:00.000Z"); // 10:30 AM Asia/Kolkata
+  const availability = [{ day: "Monday", from: "10:00", to: "12:00" }];
+  assert.equal(isWithinPractitionerAvailability(mondayMorning, 45, availability), true);
+  assert.equal(isWithinPractitionerAvailability(mondayMorning, 120, availability), false);
+  assert.equal(isWithinPractitionerAvailability(mondayMorning, 45, [{ day: "Tuesday", from: "10:00", to: "12:00" }]), false);
+});
