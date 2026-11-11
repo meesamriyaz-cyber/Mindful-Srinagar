@@ -1,7 +1,7 @@
 import express from "express";
 import { getDashboard } from "../controllers/dashboardController.js";
 import { makeCrudController } from "../controllers/crudController.js";
-import { createEnquiry } from "../controllers/enquiryController.js";
+import { createEnquiry, convertReferralToPatient } from "../controllers/enquiryController.js";
 import { permit, protect } from "../middleware/auth.js";
 import { createRateLimiter } from "../middleware/rateLimiter.js";
 import { Appointment } from "../models/Appointment.js";
@@ -70,6 +70,7 @@ router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo"],
   updateFields: ["sourceType","sourceName","contactPerson","phone","email","patientName","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
   filterFields: ["status","sourceType","urgency","assignedTo"], searchableFields: ["patientName","sourceName","phone","concern"]
 }), { read: reception, write: reception, remove: management }));
+router.post("/referrals/:id/convert", permit(...reception), convertReferralToPatient);
 router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient","practitioner"], {
   createFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status"],
   updateFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status","clinicalNotes"],
