@@ -6,7 +6,7 @@ const controller = makeClinicalRecordController({
   updateFields: ["startDate","endDate","goals","interventions","frequency","duration","status"],
   populate: [["patient","fullName mrn"],["createdBy","name email"]],
   sortField: "startDate", searchFields: ["goals","interventions"],
-  defaultValues: { startDate: new Date() }
+  defaultValues: () => ({ startDate: new Date() })
 });
 export const listTreatmentPlans = controller.list;
 export const createTreatmentPlan = controller.create;
