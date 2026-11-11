@@ -26,6 +26,7 @@ import { calculateOutstandingBalance } from "../utils/invoiceBalance.js";
 import { escapeRegex } from "../utils/query.js";
 import { canTransitionPatientStatus, validateDischargeDetails } from "../security/patientLifecycle.js";
 import { validateAppointmentShape, canTransitionAppointment, findAppointmentConflict, isWithinPractitionerAvailability } from "../security/appointmentRules.js";
+import { createPractitionerPatientScope } from "../security/practitionerPatientScope.js";
 const router = express.Router();
 const management = ["director", "admin"];
 const reception = ["director", "admin", "reception", "coordinator"];
@@ -36,16 +37,7 @@ const billing = ["director", "admin", "accounts"];
 const invoiceReaders = [...billing, "reception"];
 const invoiceCreators = [...billing, "reception"];
 
-async function practitionerPatientScope(req) {
-  if (!["doctor", "therapist"].includes(req.user.role)) return {};
-  const practitioner = await Doctor.findOne({ user: req.user._id, status: { $ne: "inactive" } }).select("_id").lean();
-  if (!practitioner) return { _id: { $in: [] } };
-  const patientIds = await Appointment.distinct("patient", {
-    practitioner: practitioner._id,
-    status: { $nin: ["cancelled", "no-show"] }
-  });
-  return { _id: { $in: patientIds } };
-}
+const practitionerPatientScope = createPractitionerPatientScope({ Doctor, Appointment });
 
 router.get("/health", (_req, res) => res.json({ status: "ok", service: "mindful-api" }));
 router.use("/auth", authRoutes);
