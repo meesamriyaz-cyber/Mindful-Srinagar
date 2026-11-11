@@ -71,7 +71,7 @@ export function makeClinicalRecordController({
         const payload = sanitizePayload(req.body, updateFields);
         const existing = await Model.findOne({ _id: req.params.id, ...ownerFilter(req) });
         if (!existing) return res.status(404).json({ message: "Clinical record not found" });
-        if (existing.status === "completed") return res.status(409).json({ message: "Completed clinical records are immutable. Use the authorised amendment workflow with a reason." });
+        if (existing.status === "completed" || recordType === "progress-note") return res.status(409).json({ message: "Completed clinical records are immutable. Use the authorised amendment workflow with a reason." });
         if (payload.status && !canTransitionClinicalStatus(recordType, existing.status, payload.status)) return res.status(409).json({ message: "Invalid clinical record status transition" });
         if (String(existing[ownerField]) !== String(req.user._id) && !privilegedRoles.includes(req.user.role)) {
           return res.status(403).json({ message: "Only the record author or an administrator can edit this record" });
@@ -105,7 +105,7 @@ export function makeClinicalRecordController({
         const changes = sanitizePayload(body.changes, amendmentFields);
         const existing = await Model.findById(req.params.id);
         if (!existing) return res.status(404).json({ message: "Clinical record not found" });
-        if (existing.status !== "completed") return res.status(409).json({ message: "The amendment workflow is only for completed records" });
+        if (existing.status !== "completed" && recordType !== "progress-note") return res.status(409).json({ message: "The amendment workflow is only for completed records" });
         if (changes.patient && String(changes.patient) !== String(existing.patient)) return res.status(400).json({ message: "A clinical record cannot be reassigned to another patient" });
         await validatePatient(existing.patient);
         await validateRelated({ ...existing.toObject(), ...changes }, req);
@@ -122,7 +122,7 @@ export function makeClinicalRecordController({
             reason, changedFields: Object.keys(changes), before, after
           }], { session });
           const result = await Model.updateOne(
-            { _id: existing._id, status: "completed", __v: existing.__v },
+            { _id: existing._id, ...(recordType === "progress-note" ? {} : { status: "completed" }), __v: existing.__v },
             { $set: changes, $inc: { __v: 1 } },
             { session, runValidators: true }
           );
