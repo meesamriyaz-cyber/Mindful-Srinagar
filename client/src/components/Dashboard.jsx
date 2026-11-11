@@ -575,7 +575,11 @@ function recordActions(viewId, record, userRole) {
   }
 
   if (viewId === "billing" && ["director", "admin", "accounts"].includes(userRole) && ["draft", "partial"].includes(record.status)) {
-    return [{ label: "Mark paid", updates: { status: "paid", paidAmount: invoiceTotal(record) } }];
+    return [{ label: "Record payment", action: "payment" }];
+  }
+
+  if (viewId === "inventory" && ["director", "admin", "coordinator"].includes(userRole)) {
+    return [{ label: "Stock movement", action: "stock" }];
   }
 
   if (viewId === "tasks" && record.status !== "done") {
@@ -848,6 +852,37 @@ export function Dashboard() {
       if (patient) {
         setJourneyPatientId(id);
       }
+      return;
+    }
+    if (extra?.action === "payment") {
+      const amount = window.prompt("Payment amount (₹)");
+      if (amount === null) return;
+      const method = window.prompt("Payment method: cash, upi, card, or bank", "cash");
+      if (method === null) return;
+      const reference = window.prompt("Transaction/reference number (optional)", "") || "";
+      setActionId(id); setActionError("");
+      try {
+        const response = await fetch(API_BASE_URL + "/invoices/" + id + "/payments", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.token }, body: JSON.stringify({ amount: Number(amount), method: method.trim().toLowerCase(), reference }) });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.message || "Payment could not be recorded");
+        setResourceRefresh((value) => value + 1); refresh();
+      } catch (err) { setActionError(err.message); } finally { setActionId(""); }
+      return;
+    }
+    if (extra?.action === "stock") {
+      const type = window.prompt("Movement type: receipt, issue, or adjustment", "receipt");
+      if (type === null) return;
+      const quantity = window.prompt(type.trim().toLowerCase() === "adjustment" ? "Set new stock quantity" : "Quantity");
+      if (quantity === null) return;
+      const reason = window.prompt("Reason for this stock movement");
+      if (reason === null) return;
+      setActionId(id); setActionError("");
+      try {
+        const response = await fetch(API_BASE_URL + "/inventory/" + id + "/movements", { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.token }, body: JSON.stringify({ type: type.trim().toLowerCase(), quantity: Number(quantity), reason }) });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.message || "Stock movement could not be recorded");
+        setResourceRefresh((value) => value + 1);
+      } catch (err) { setActionError(err.message); } finally { setActionId(""); }
       return;
     }
     if (extra?.action === "bill") {
