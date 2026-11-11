@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const doctorSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", unique: true, sparse: true },
     discipline: { type: String, required: true, trim: true },
     registrationNo: { type: String, trim: true },
     phone: { type: String, trim: true },
