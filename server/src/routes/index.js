@@ -52,13 +52,15 @@ router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo"],
 router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient","practitioner"], {
   createFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status","clinicalNotes"],
   updateFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status","clinicalNotes"],
-  filterFields: ["status","patient","practitioner"], searchableFields: ["service","room"]
-}), { read: appointmentStaff, write: appointmentStaff, remove: management }));
+  filterFields: ["status","patient","practitioner"], filterAliases: { patientId: "patient" },
+  updateFieldsByRole: { doctor: ["status","clinicalNotes"], therapist: ["status","clinicalNotes"] },
+  searchableFields: ["service","room"]
+}), { read: appointmentStaff, create: reception, update: appointmentStaff, remove: management }));
 router.post("/invoices", permit(...invoiceCreators), createInvoice);
 router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient"], {
   createFields: ["patient","invoiceNo","items","discount","paidAmount","paymentMode","status"],
   updateFields: ["items","discount","paidAmount","paymentMode","status"],
-  filterFields: ["status","patient"], searchableFields: ["invoiceNo"]
+  filterFields: ["status","patient"], filterAliases: { patientId: "patient" }, searchableFields: ["invoiceNo"]
 }), { read: invoiceReaders, write: billing, create: [], remove: management }));
 router.post("/invoices/generate-from-appointment/:appointmentId", permit(...invoiceCreators), generateInvoiceFromAppointment);
 router.use("/inventory", crudRoutes(makeCrudController(InventoryItem, [], {
