@@ -78,3 +78,27 @@ test("discharge balance never becomes negative when invoices are overpaid", () =
     { items: [{ quantity: 1, rate: 100 }], discount: 0, paidAmount: 150 }
   ]), 0);
 });
+
+import { validateAppointmentShape, canTransitionAppointment } from "../security/appointmentRules.js";
+
+test("appointment validation enforces duration increments and required scheduling fields", () => {
+  const valid = {
+    patient: "64b000000000000000000001",
+    practitioner: "64b000000000000000000002",
+    service: "Speech Therapy",
+    startsAt: new Date(Date.now() + 86400000),
+    durationMinutes: 45,
+    room: "Room 1"
+  };
+  assert.equal(validateAppointmentShape(valid), null);
+  assert.match(validateAppointmentShape({ ...valid, durationMinutes: 17 }), /15-minute increments/);
+  assert.match(validateAppointmentShape({ ...valid, service: " " }), /Service/);
+  assert.match(validateAppointmentShape({ ...valid, startsAt: "invalid" }), /valid appointment date/);
+});
+
+test("appointment lifecycle permits only forward operational transitions", () => {
+  assert.equal(canTransitionAppointment("scheduled", "checked-in"), true);
+  assert.equal(canTransitionAppointment("checked-in", "completed"), true);
+  assert.equal(canTransitionAppointment("completed", "scheduled"), false);
+  assert.equal(canTransitionAppointment("cancelled", "checked-in"), false);
+});
