@@ -43,3 +43,26 @@ export async function findAppointmentConflict(value, excludeId = null) {
   if (excludeId) query._id = { $ne: excludeId };
   return Appointment.findOne(query).select("_id").lean();
 }
+
+export function isWithinPractitionerAvailability(startsAt, durationMinutes, availability = []) {
+  if (!Array.isArray(availability) || availability.length === 0) return true;
+  const start = new Date(startsAt);
+  if (!Number.isFinite(start.getTime())) return false;
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kolkata", weekday: "long", hour: "2-digit", minute: "2-digit", hourCycle: "h23"
+  }).formatToParts(start);
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  const day = values.weekday.toLowerCase();
+  const startMinute = Number(values.hour) * 60 + Number(values.minute);
+  const endMinute = startMinute + Number(durationMinutes ?? 45);
+  return availability.some((slot) => {
+    const slotDay = String(slot.day || "").toLowerCase();
+    const dayMatches = slotDay === day || slotDay === day.slice(0, 3);
+    const parse = (value) => {
+      const match = /^(\\d{1,2}):(\\d{2})$/.exec(String(value || ""));
+      return match ? Number(match[1]) * 60 + Number(match[2]) : NaN;
+    };
+    const from = parse(slot.from), to = parse(slot.to);
+    return dayMatches && Number.isFinite(from) && Number.isFinite(to) && from <= startMinute && endMinute <= to;
+  });
+}
