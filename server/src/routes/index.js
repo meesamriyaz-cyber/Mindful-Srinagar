@@ -36,6 +36,17 @@ const billing = ["director", "admin", "accounts"];
 const invoiceReaders = [...billing, "reception"];
 const invoiceCreators = [...billing, "reception"];
 
+async function practitionerPatientScope(req) {
+  if (!["doctor", "therapist"].includes(req.user.role)) return {};
+  const practitioner = await Doctor.findOne({ user: req.user._id, status: { $ne: "inactive" } }).select("_id").lean();
+  if (!practitioner) return { _id: { $in: [] } };
+  const patientIds = await Appointment.distinct("patient", {
+    practitioner: practitioner._id,
+    status: { $nin: ["cancelled", "no-show"] }
+  });
+  return { _id: { $in: patientIds } };
+}
+
 router.get("/health", (_req, res) => res.json({ status: "ok", service: "mindful-api" }));
 router.use("/auth", authRoutes);
 router.post("/enquiries", createRateLimiter({ windowMs: 900000, max: 8, message: "Too many enquiries from this connection. Please try again later." }), createEnquiry);
@@ -101,6 +112,8 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
     }
     return null;
   },
+  listScope: practitionerPatientScope,
+  recordScope: practitionerPatientScope,
   filterFields: ["status","referral"], searchableFields: ["fullName","mrn","phone","guardianName","primaryConcern"]
 }), { read: patientReaders, write: reception, remove: [] }));
 router.use("/doctors", crudRoutes(makeCrudController(Doctor, [], {
