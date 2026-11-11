@@ -11,6 +11,7 @@ import { Invoice } from "../models/Invoice.js";
 import { Patient } from "../models/Patient.js";
 import { Referral } from "../models/Referral.js";
 import { Task } from "../models/Task.js";
+import { User } from "../models/User.js";
 import authRoutes from "./authRoutes.js";
 import { crudRoutes } from "./crudRoutes.js";
 import assessmentRoutes from "./assessmentRoutes.js";
@@ -61,8 +62,22 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
   filterFields: ["status","referral"], searchableFields: ["fullName","mrn","phone","guardianName","primaryConcern"]
 }), { read: patientReaders, write: reception, remove: [] }));
 router.use("/doctors", crudRoutes(makeCrudController(Doctor, [], {
-  createFields: ["name","discipline","registrationNo","phone","email","availability","status"],
-  updateFields: ["name","discipline","registrationNo","phone","email","availability","status"],
+  createFields: ["name","user","discipline","registrationNo","phone","email","availability","status"],
+  updateFields: ["name","user","discipline","registrationNo","phone","email","availability","status"],
+  validateCreate: async ({ payload }) => {
+    if (!payload.user) return null;
+    const user = await User.findById(payload.user).select("role isActive");
+    if (!user || !user.isActive || !["doctor","therapist"].includes(user.role)) return { statusCode: 400, message: "Link an active doctor or therapist staff account" };
+    if (await Doctor.exists({ user: payload.user })) return { statusCode: 409, message: "This staff account is already linked to a practitioner" };
+    return null;
+  },
+  validateUpdate: async ({ req, payload }) => {
+    if (!payload.user) return null;
+    const user = await User.findById(payload.user).select("role isActive");
+    if (!user || !user.isActive || !["doctor","therapist"].includes(user.role)) return { statusCode: 400, message: "Link an active doctor or therapist staff account" };
+    if (await Doctor.exists({ user: payload.user, _id: { $ne: req.params.id } })) return { statusCode: 409, message: "This staff account is already linked to a practitioner" };
+    return null;
+  },
   filterFields: ["status","discipline"], searchableFields: ["name","discipline","phone","email"]
 }), { read: patientReaders, write: management, remove: management }));
 router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo"], {
@@ -81,6 +96,16 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
   },
   redactFieldsByRole: { reception: ["clinicalNotes"], coordinator: ["clinicalNotes"] },
   filterFields: ["status","patient","practitioner"], filterAliases: { patientId: "patient" },
+  listScope: async (req) => {
+    if (!["doctor","therapist"].includes(req.user.role)) return {};
+    const practitioner = await Doctor.findOne({ user: req.user._id }).select("_id").lean();
+    return practitioner ? { practitioner: practitioner._id } : { _id: { $exists: false } };
+  },
+  recordScope: async (req) => {
+    if (!["doctor","therapist"].includes(req.user.role)) return {};
+    const practitioner = await Doctor.findOne({ user: req.user._id }).select("_id").lean();
+    return practitioner ? { practitioner: practitioner._id } : { _id: { $exists: false } };
+  },
   searchableFields: ["service","room"],
   validateCreate: async ({ payload }) => {
     const shapeError = validateAppointmentShape(payload);
