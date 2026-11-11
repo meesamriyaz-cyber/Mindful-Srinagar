@@ -265,3 +265,11 @@ export function generateInvoiceFromAppointment(appointmentId, items, { token } =
     body: JSON.stringify({ items })
   });
 }
+
+export function createRecord(resource, payload, { token } = {}) {
+  return apiRequest(`/${resource}`, {
+    token,
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}

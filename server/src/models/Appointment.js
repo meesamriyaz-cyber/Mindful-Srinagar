@@ -6,7 +6,7 @@ const appointmentSchema = new mongoose.Schema(
     practitioner: { type: mongoose.Schema.Types.ObjectId, ref: "Doctor", required: true },
     service: { type: String, required: true, trim: true },
     startsAt: { type: Date, required: true },
-    durationMinutes: { type: Number, default: 45 },
+    durationMinutes: { type: Number, default: 45, min: 15, max: 240, validate: { validator: (value) => Number.isInteger(value) && value % 15 === 0, message: "Duration must use 15-minute increments" } },
     room: { type: String, trim: true },
     status: {
       type: String,

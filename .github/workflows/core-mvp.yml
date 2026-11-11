@@ -5,7 +5,9 @@ on:
       - main
       - "mvp/**"
   pull_request:
-    branches: [main]
+    branches:
+      - main
+      - "mvp/batch-1-stabilization-security"
 jobs:
   verify:
     runs-on: ubuntu-latest
