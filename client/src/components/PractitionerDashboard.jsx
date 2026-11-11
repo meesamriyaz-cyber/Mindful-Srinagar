@@ -31,7 +31,7 @@ export function PractitionerDashboard({ token }) {
   if (state.loading) return <p className="empty-state">Loading your clinical activity...</p>;
   if (state.error) return <article className="action-panel"><h3>Practitioner dashboard unavailable</h3><p className="form-status error-status">{state.error}</p><p>Ask an administrator to verify that your staff account is linked to an active practitioner profile.</p></article>;
 
-  const { practitioner, metrics, todaysAppointments, upcomingAppointments, recentNotes, assignedTasks } = state.data;
+  const { practitioner, role, metrics, todaysAppointments, upcomingAppointments, recentNotes, assignedTasks } = state.data;
   return (
     <div className="director-view">
       <article className="action-panel director-panel">
@@ -46,7 +46,8 @@ export function PractitionerDashboard({ token }) {
         <Metric label="Completed sessions this month" value={metrics.completedSessionsThisMonth} icon={CheckCircle2} />
         <Metric label="Pending assessments" value={metrics.pendingAssessments} icon={ClipboardCheck} />
         <Metric label="Active treatment plans" value={metrics.activeTreatmentPlans} icon={FileText} />
-        {practitioner.discipline && <Metric label="Open assigned tasks" value={metrics.openTasks} icon={ListChecks} />}
+        <Metric label="Open assigned tasks" value={metrics.openTasks} icon={ListChecks} />
+        {role === "doctor" && <Metric label="Active prescriptions" value={metrics.activePrescriptions} icon={FileText} />}
       </div>
       <div className="console-grid">
         <article className="table-panel">
