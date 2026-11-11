@@ -7,6 +7,7 @@ import { InventoryItem } from "../models/InventoryItem.js";
 import { InventoryMovement } from "../models/InventoryMovement.js";
 import { Invoice } from "../models/Invoice.js";
 import { permit } from "../middleware/auth.js";
+import { makeCrudController } from "../controllers/crudController.js";
 
 test("task lifecycle allows forward progress and controlled reopening only before completion", () => {
   assert.equal(canTransitionTask("todo", "in-progress"), true);
@@ -176,4 +177,33 @@ test("task endpoint permission middleware rejects non-manager create roles and p
   assert.deepEqual(invoke("accounts", ["director", "admin", "coordinator", "reception"]), { nextCalled: false, responseStatus: 403 });
   assert.deepEqual(invoke("coordinator", ["director", "admin", "coordinator", "reception"]), { nextCalled: true, responseStatus: null });
   assert.deepEqual(invoke("doctor", ["director", "admin", "coordinator", "reception", "doctor", "therapist", "accounts"]), { nextCalled: true, responseStatus: null });
+});
+
+test("task CRUD record and update handlers enforce the assigned-user scope", async () => {
+  const userId = "64b000000000000000000003";
+  const taskId = "64b000000000000000000004";
+  const captured = [];
+  const record = { _id: taskId, assignedTo: userId, status: "todo" };
+  const Model = {
+    findOne(filter) {
+      captured.push({ operation: "get", filter });
+      return Promise.resolve(record);
+    },
+    findOneAndUpdate(filter, update) {
+      captured.push({ operation: "update", filter, update });
+      return Promise.resolve(record);
+    }
+  };
+  const controller = makeCrudController(Model, [], {
+    updateFields: ["status"],
+    recordScope: taskScope,
+    updateScope: taskScope
+  });
+  const req = { params: { id: taskId }, user: { _id: userId, role: "doctor" }, body: { status: "done", title: "attempted escalation" } };
+  const response = { status() { return this; }, json(value) { this.value = value; return this; } };
+  await controller.get(req, response, (error) => { throw error; });
+  await controller.update(req, response, (error) => { throw error; });
+  assert.deepEqual(captured[0].filter, { _id: taskId, assignedTo: userId });
+  assert.deepEqual(captured[1].filter, { _id: taskId, assignedTo: userId });
+  assert.deepEqual(captured[1].update, { $set: { status: "done" } });
 });
