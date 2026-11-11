@@ -44,9 +44,12 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
   createFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes"],
   updateFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes","dischargeDate","dischargeSummary","dischargeReason"],
   validateCreate: async ({ payload }) => {
-    if (payload.status === "discharged" || payload.status === "on-hold") return { statusCode: 400, message: "New patients must begin in new or assessment status" };
+    if (payload.status && !["new","assessment"].includes(payload.status)) return { statusCode: 400, message: "New patients must begin in new or assessment status" };
     if (payload.referral) {
-      if (!mongoose.isValidObjectId(payload.referral) || !(await Referral.exists({ _id: payload.referral }))) return { statusCode: 404, message: "Referral not found" };
+      if (!mongoose.isValidObjectId(payload.referral)) return { statusCode: 400, message: "A valid referral is required" };
+      const linkedReferral = await Referral.findById(payload.referral).select("status");
+      if (!linkedReferral) return { statusCode: 404, message: "Referral not found" };
+      if (linkedReferral.status === "converted") return { statusCode: 409, message: "This referral has already been converted" };
       if (await Patient.exists({ referral: payload.referral })) return { statusCode: 409, message: "This referral is already linked to a patient" };
     }
     const duplicate = await Patient.findOne({
@@ -105,6 +108,22 @@ router.use("/doctors", crudRoutes(makeCrudController(Doctor, [], {
 router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo"], {
   createFields: ["sourceType","sourceName","contactPerson","phone","email","patientName","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
   updateFields: ["sourceType","sourceName","contactPerson","phone","email","patientName","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
+  validateUpdate: async ({ req, payload }) => {
+    if (payload.status === "converted") return { statusCode: 409, message: "Use the Convert to Patient action to preserve referral and patient linkage" };
+    const current = await Referral.findById(req.params.id).select("status");
+    if (!current) return { statusCode: 404, message: "Referral not found" };
+    const allowed = {
+      new: ["contacted", "scheduled", "lost"],
+      contacted: ["scheduled", "lost"],
+      scheduled: ["contacted", "lost"],
+      converted: [],
+      lost: ["contacted"]
+    };
+    if (payload.status && payload.status !== current.status && !allowed[current.status]?.includes(payload.status)) {
+      return { statusCode: 409, message: `Referral status cannot move from ${current.status} to ${payload.status}` };
+    }
+    return null;
+  },
   filterFields: ["status","sourceType","urgency","assignedTo"], searchableFields: ["patientName","sourceName","phone","concern"]
 }), { read: reception, write: reception, remove: management }));
 router.post("/referrals/:id/convert", permit(...reception), convertReferralToPatient);
