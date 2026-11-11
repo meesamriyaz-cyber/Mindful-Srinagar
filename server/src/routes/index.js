@@ -42,6 +42,25 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
     coordinator: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","dischargeDate","dischargeReason"]
   },
   redactFieldsByRole: { reception: ["notes","dischargeSummary"], coordinator: ["notes","dischargeSummary"] },
+  validateUpdate: async ({ req, payload }) => {
+    if (payload.status !== "discharged") return null;
+    const invoices = await Invoice.find({ patient: req.params.id, status: { $ne: "void" } })
+      .select("items discount paidAmount")
+      .lean();
+    const outstanding = invoices.reduce((sum, invoice) => {
+      const subtotal = (invoice.items || []).reduce(
+        (itemSum, item) => itemSum + Number(item.quantity || 0) * Number(item.rate || 0), 0
+      );
+      return sum + Math.max(subtotal - Number(invoice.discount || 0) - Number(invoice.paidAmount || 0), 0);
+    }, 0);
+    if (outstanding > 0.009) {
+      return {
+        statusCode: 409,
+        message: `Patient cannot be discharged while invoices have an outstanding balance of ₹${outstanding.toLocaleString("en-IN", { maximumFractionDigits: 2 })}. Settle all bills first.`
+      };
+    }
+    return null;
+  },
   filterFields: ["status","referral"], searchableFields: ["fullName","mrn","phone","guardianName","primaryConcern"]
 }), { read: patientReaders, write: reception, remove: [] }));
 router.use("/doctors", crudRoutes(makeCrudController(Doctor, [], {
