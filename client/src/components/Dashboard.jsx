@@ -1035,7 +1035,13 @@ export function Dashboard() {
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.22 }}
               >
-              {activeView === "practitioners" ? (\n                <PractitionerBoard\n                  token={session.token}\n                  staffAccounts={staffAccounts}\n                  onChanged={() => setResourceRefresh((value) => value + 1)}\n                />\n              ) : activeView === "overview" ? (
+              {activeView === "practitioners" ? (
+                <PractitionerBoard
+                  token={session.token}
+                  staffAccounts={staffAccounts}
+                  onChanged={() => setResourceRefresh((value) => value + 1)}
+                />
+              ) : activeView === "overview" ? (
                 <OverviewWorkspace data={data} isDirector={isDirector} />
               ) : ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeView) ? (
                 <ClinicalBoard
