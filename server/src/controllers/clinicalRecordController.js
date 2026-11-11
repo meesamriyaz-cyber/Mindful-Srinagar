@@ -21,8 +21,8 @@ export function makeClinicalRecordController({
   function ownerFilter(req) {
     return privilegedRoles.includes(req.user.role) ? {} : { [ownerField]: req.user._id };
   }
-  async function validateRelated(payload) {
-    if (validateRelations) await validateRelations(payload);
+  async function validateRelated(payload, req) {
+    if (validateRelations) await validateRelations(payload, req);
   }
   return {
     async list(req, res, next) {
@@ -50,7 +50,7 @@ export function makeClinicalRecordController({
         const defaults = typeof defaultValues === "function" ? defaultValues() : defaultValues;
         const payload = { ...defaults, ...sanitizePayload(req.body, createFields) };
         await validatePatient(payload.patient);
-        await validateRelated(payload);
+        await validateRelated(payload, req);
         const record = await Model.create({ ...payload, [ownerField]: req.user._id });
         return res.status(201).json(await populateQuery(Model.findById(record._id)));
       } catch (error) { return next(error); }
@@ -79,7 +79,7 @@ export function makeClinicalRecordController({
           return res.status(400).json({ message: "A clinical record cannot be reassigned to another patient" });
         }
         await validatePatient(existing.patient);
-        await validateRelated({ ...existing.toObject(), ...payload });
+        await validateRelated({ ...existing.toObject(), ...payload }, req);
         const record = await Model.findOneAndUpdate({ _id: req.params.id, ...ownerFilter(req) }, { $set: payload }, { new: true, runValidators: true, context: "query" });
         return res.json(await populateQuery(Model.findById(record._id)));
       } catch (error) { return next(error); }
