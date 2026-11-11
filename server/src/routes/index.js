@@ -27,6 +27,7 @@ const patientReaders = ["director", "admin", "reception", "coordinator", "doctor
 const appointmentStaff = ["director", "admin", "reception", "coordinator", "doctor", "therapist"];
 const billing = ["director", "admin", "accounts"];
 const invoiceReaders = [...billing, "reception"];
+const invoiceCreators = [...billing, "reception"];
 
 router.get("/health", (_req, res) => res.json({ status: "ok", service: "mindful-api" }));
 router.use("/auth", authRoutes);
@@ -53,13 +54,13 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
   updateFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status","clinicalNotes"],
   filterFields: ["status","patient","practitioner"], searchableFields: ["service","room"]
 }), { read: appointmentStaff, write: appointmentStaff, remove: management }));
-router.post("/invoices", permit(...billing), createInvoice);
+router.post("/invoices", permit(...invoiceCreators), createInvoice);
 router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient"], {
   createFields: ["patient","invoiceNo","items","discount","paidAmount","paymentMode","status"],
   updateFields: ["items","discount","paidAmount","paymentMode","status"],
   filterFields: ["status","patient"], searchableFields: ["invoiceNo"]
 }), { read: invoiceReaders, write: billing, create: [], remove: management }));
-router.post("/invoices/generate-from-appointment/:appointmentId", permit(...billing), generateInvoiceFromAppointment);
+router.post("/invoices/generate-from-appointment/:appointmentId", permit(...invoiceCreators), generateInvoiceFromAppointment);
 router.use("/inventory", crudRoutes(makeCrudController(InventoryItem, [], {
   createFields: ["name","category","quantity","reorderLevel","unit","vendor","notes"],
   updateFields: ["name","category","quantity","reorderLevel","unit","vendor","notes"],
