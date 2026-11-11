@@ -2,12 +2,12 @@ import { Appointment } from "../models/Appointment.js";
 
 const BUSY_STATUSES = ["scheduled", "checked-in"];
 
-export function validateAppointmentShape(value) {
+export function validateAppointmentShape(value, { allowPast = false } = {}) {
   if (!value || !value.patient || !value.practitioner) return "A patient and practitioner are required";
   if (typeof value.service !== "string" || !value.service.trim() || value.service.trim().length > 120) return "Service must be between 1 and 120 characters";
   const start = new Date(value.startsAt);
   if (!Number.isFinite(start.getTime())) return "A valid appointment date and time is required";
-  if (start.getTime() < Date.now() - 5 * 60 * 1000) return "Appointments cannot be scheduled in the past";
+  if (!allowPast && start.getTime() < Date.now() - 5 * 60 * 1000) return "Appointments cannot be scheduled in the past";
   const duration = Number(value.durationMinutes ?? 45);
   if (!Number.isInteger(duration) || duration < 15 || duration > 240 || duration % 15 !== 0) return "Appointment duration must be 15–240 minutes in 15-minute increments";
   if (value.room != null && (typeof value.room !== "string" || value.room.trim().length > 80)) return "Room must be 80 characters or fewer";
