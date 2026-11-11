@@ -37,6 +37,11 @@ router.get("/dashboard", permit("director", "admin", "coordinator", "reception")
 router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
   createFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes"],
   updateFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes","dischargeDate","dischargeSummary","dischargeReason"],
+  updateFieldsByRole: {
+    reception: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","dischargeDate","dischargeReason"],
+    coordinator: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","dischargeDate","dischargeReason"]
+  },
+  redactFieldsByRole: { reception: ["notes","dischargeSummary"], coordinator: ["notes","dischargeSummary"] },
   filterFields: ["status","referral"], searchableFields: ["fullName","mrn","phone","guardianName","primaryConcern"]
 }), { read: patientReaders, write: reception, remove: management }));
 router.use("/doctors", crudRoutes(makeCrudController(Doctor, [], {
@@ -50,8 +55,14 @@ router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo"],
   filterFields: ["status","sourceType","urgency","assignedTo"], searchableFields: ["patientName","sourceName","phone","concern"]
 }), { read: reception, write: reception, remove: management }));
 router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient","practitioner"], {
-  createFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status","clinicalNotes"],
+  createFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status"],
   updateFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status","clinicalNotes"],
+  updateFieldsByRole: {
+    reception: ["patient","practitioner","service","startsAt","durationMinutes","room","status"],
+    coordinator: ["patient","practitioner","service","startsAt","durationMinutes","room","status"],
+    doctor: ["status","clinicalNotes"], therapist: ["status","clinicalNotes"]
+  },
+  redactFieldsByRole: { reception: ["clinicalNotes"], coordinator: ["clinicalNotes"] },
   filterFields: ["status","patient","practitioner"], filterAliases: { patientId: "patient" },
   updateFieldsByRole: { doctor: ["status","clinicalNotes"], therapist: ["status","clinicalNotes"] },
   searchableFields: ["service","room"]
