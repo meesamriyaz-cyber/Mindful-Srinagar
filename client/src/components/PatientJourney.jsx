@@ -143,7 +143,9 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     return () => { active = false; };
   }, [patient, token, journeyKey, userRole]);
 
-  const steps = ["referral", "appointments", "assessments", "treatment-plans", "progress-notes", "prescriptions", "invoices"];
+  const canViewBilling = ["director", "admin", "accounts", "reception"].includes(userRole);
+  const canDischarge = ["director", "admin", "reception", "coordinator"].includes(userRole);
+  const steps = ["referral", "appointments", "assessments", "treatment-plans", "progress-notes", "prescriptions", ...(canViewBilling ? ["invoices"] : [])];
   const activeRecords = data[activeStep] || [];
   const isDischarged = patient?.status === "discharged";
   const canCreate = ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeStep);
@@ -427,7 +429,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           )}
         </div>
 
-        {!isDischarged && !createStep && (
+        {!isDischarged && !createStep && canDischarge && (
           <div className="journey-footer">
             <button className="primary-button" type="button" onClick={() => setShowDischarge(true)}>
               Discharge Patient
