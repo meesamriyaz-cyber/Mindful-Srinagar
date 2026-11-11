@@ -34,7 +34,7 @@ export async function findAppointmentConflict(value, excludeId = null) {
     startsAt: { $lt: end },
     $expr: {
       $gt: [
-        { $add: ["$startsAt", { $multiply: ["$durationMinutes", 60000] }] },
+        { $add: ["$startsAt", { $multiply: [{ $ifNull: ["$durationMinutes", 45] }, 60000] }] },
         start
       ]
     },
