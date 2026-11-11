@@ -215,9 +215,9 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
 }), { read: appointmentStaff, create: reception, update: appointmentStaff, remove: [] }));
 router.post("/invoices", permit(...invoiceCreators), createInvoice);
 router.post("/invoices/:id/payments", permit(...billing), recordInvoicePayment);
-router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient"], {
+router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient", "payments.receivedBy"], {
   createFields: ["patient","invoiceNo","items","discount","paymentMode","status"],
-  updateFields: ["items","discount","paymentMode"],
+  updateFields: ["items","discount"],
   filterFields: ["status","patient"], filterAliases: { patientId: "patient" }, searchableFields: ["invoiceNo"],
   updateScope: (req) => ["director","admin"].includes(req.user.role) ? {} : { status: { $nin: ["paid","void"] } }
 }), { read: invoiceReaders, write: billing, create: [], remove: [] }));
