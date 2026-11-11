@@ -47,8 +47,10 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
       if (!mongoose.isValidObjectId(payload.referral) || !(await Referral.exists({ _id: payload.referral }))) return { statusCode: 404, message: "Referral not found" };
       if (await Patient.exists({ referral: payload.referral })) return { statusCode: 409, message: "This referral is already linked to a patient" };
     }
-    const duplicate = await Patient.findOne({ fullName: new RegExp("^" + String(payload.fullName || "").trim().replace(/[.*+?^${}()|[\]\\]/g, "\\  updateFieldsByRole: {
-    reception:") + "$", "i"), phone: String(payload.phone || "").trim() }).select("_id").lean();
+    const duplicate = await Patient.findOne({
+      fullName: new RegExp("^" + String(payload.fullName || "").trim().replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&") + "$", "i"),
+      phone: String(payload.phone || "").trim()
+    }).select("_id").lean();
     if (duplicate) return { statusCode: 409, message: "A patient with this name and phone number already exists" };
     return null;
   },
@@ -141,7 +143,7 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
     const existing = await Appointment.findById(req.params.id);
     if (!existing) return { statusCode: 404, message: "Appointment not found" };
     const next = { ...existing.toObject(), ...payload };
-    const shapeError = validateAppointmentShape(next);
+    const shapeError = validateAppointmentShape(next, { allowPast: true });
     if (shapeError) return { statusCode: 400, message: shapeError };
     if (payload.status && !canTransitionAppointment(existing.status, payload.status)) {
       return { statusCode: 409, message: `Appointment cannot move from ${existing.status} to ${payload.status}` };
