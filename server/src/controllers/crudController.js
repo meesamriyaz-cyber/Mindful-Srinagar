@@ -9,6 +9,8 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
   const listScope = policy.listScope || (() => ({}));
   const recordScope = policy.recordScope || (() => ({}));
   const updateScope = policy.updateScope || recordScope;
+  const validateCreate = policy.validateCreate;
+  const validateUpdate = policy.validateUpdate;
   const redact = (doc, req) => {
     const fields = policy.redactFieldsByRole?.[req.user.role] || [];
     if (!doc || !fields.length) return doc;
@@ -36,7 +38,15 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
       } catch (error) { return next(error); }
     },
     async create(req, res, next) {
-      try { const doc = await Model.create(sanitizePayload(req.body, createFields)); return res.status(201).json(redact(doc, req)); }
+      try {
+        const payload = sanitizePayload(req.body, createFields);
+        if (validateCreate) {
+          const validation = await validateCreate({ req, payload, Model });
+          if (validation) return res.status(validation.statusCode || 400).json({ message: validation.message || "Record is not valid" });
+        }
+        const doc = await Model.create(payload);
+        return res.status(201).json(redact(doc, req));
+      }
       catch (error) { return next(error); }
     },
     async get(req, res, next) {
@@ -52,8 +62,8 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
         if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid record ID is required" });
         const allowed = policy.updateFieldsByRole?.[req.user.role] || updateFields;
         const payload = sanitizePayload(req.body, allowed);
-        if (policy.validateUpdate) {
-          const validation = await policy.validateUpdate({ req, payload, Model });
+        if (validateUpdate) {
+          const validation = await validateUpdate({ req, payload, Model });
           if (validation) return res.status(validation.statusCode || 400).json({ message: validation.message || "Update is not allowed" });
         }
         const doc = await Model.findOneAndUpdate({ _id: req.params.id, ...updateScope(req) }, { $set: payload }, {
