@@ -1,35 +1,25 @@
 import jwt from "jsonwebtoken";
 import { User } from "../models/User.js";
-
 export async function protect(req, res, next) {
   const header = req.headers.authorization || "";
   const token = header.startsWith("Bearer ") ? header.slice(7) : null;
-
-  if (!token) {
-    res.status(401);
-    return next(new Error("Authentication required"));
-  }
-
+  if (!token) return res.status(401).json({ message: "Authentication required" });
+  if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) return res.status(503).json({ message: "Authentication is temporarily unavailable" });
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id).select("-passwordHash");
-    if (!req.user) {
-      res.status(401);
-      return next(new Error("User no longer exists"));
-    }
-    next();
-  } catch (error) {
-    res.status(401);
-    next(new Error("Invalid or expired token"));
+    const decoded = jwt.verify(token, process.env.JWT_SECRET, {
+      algorithms: ["HS256"], issuer: "mindful-srinagar", audience: "mindful-staff"
+    });
+    const user = await User.findById(decoded.id).select("name email role isActive");
+    if (!user || !user.isActive) return res.status(401).json({ message: "This staff account is inactive or no longer exists" });
+    req.user = user;
+    return next();
+  } catch {
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 }
-
 export function permit(...roles) {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      res.status(403);
-      return next(new Error("You do not have permission for this action"));
-    }
-    next();
+    if (!req.user || !roles.includes(req.user.role)) return res.status(403).json({ message: "You do not have permission for this action" });
+    return next();
   };
 }
