@@ -32,7 +32,10 @@ export async function recordInvoicePayment(req, res, next) {
     const paidAmount = (priorPaidCents + amountCents) / 100;
     const status = paidAmount === totalCents / 100 ? "paid" : "partial";
     const priorMethods = new Set((invoice.payments || []).map((entry) => entry.method));
-    const paymentMode = priorMethods.size === 0 ? method : priorMethods.size === 1 && priorMethods.has(method) ? method : "mixed";
+    const openingPaidAmount = Number(invoice.openingPaidAmount ?? ((invoice.payments || []).length ? 0 : invoice.paidAmount || 0));
+    const paymentMode = openingPaidAmount > 0 || priorMethods.size > 1 || (priorMethods.size === 1 && !priorMethods.has(method))
+      ? "mixed"
+      : method;
     const payment = {
       _id: new mongoose.Types.ObjectId(),
       amount: amountCents / 100,
@@ -44,7 +47,7 @@ export async function recordInvoicePayment(req, res, next) {
     };
     const updated = await Invoice.findOneAndUpdate(
       { _id: id, paidAmount: invoice.paidAmount, status: { $ne: "void" } },
-      { $set: { paidAmount, status, paymentMode }, $push: { payments: payment } },
+      { $set: { paidAmount, openingPaidAmount, status, paymentMode }, $push: { payments: payment } },
       { new: true, runValidators: true }
     ).populate("patient", "fullName mrn").populate("payments.receivedBy", "name email");
     if (!updated) return res.status(409).json({ message: "Invoice changed while recording payment. Refresh and try again." });
