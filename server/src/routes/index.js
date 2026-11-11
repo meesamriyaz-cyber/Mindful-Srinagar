@@ -20,6 +20,7 @@ import prescriptionRoutes from "./prescriptionRoutes.js";
 import { createInvoice, generateInvoiceFromAppointment } from "../controllers/invoiceController.js";
 import { taskManagers, taskScope } from "../security/taskAccess.js";
 import { calculateOutstandingBalance } from "../utils/invoiceBalance.js";
+import { validateAppointmentShape, canTransitionAppointment } from "../security/appointmentRules.js";
 const router = express.Router();
 const management = ["director", "admin"];
 const reception = ["director", "admin", "reception", "coordinator"];
@@ -80,6 +81,42 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
   redactFieldsByRole: { reception: ["clinicalNotes"], coordinator: ["clinicalNotes"] },
   filterFields: ["status","patient","practitioner"], filterAliases: { patientId: "patient" },
   searchableFields: ["service","room"]
+  validateCreate: async ({ payload }) => {
+    const shapeError = validateAppointmentShape(payload);
+    if (shapeError) return { statusCode: 400, message: shapeError };
+    const [patient, practitioner] = await Promise.all([
+      Patient.findById(payload.patient).select("status"),
+      Doctor.findById(payload.practitioner).select("status")
+    ]);
+    if (!patient) return { statusCode: 404, message: "Patient not found" };
+    if (["on-hold", "discharged"].includes(patient.status)) return { statusCode: 409, message: "Appointments cannot be booked for patients on hold or discharged" };
+    if (!practitioner || practitioner.status === "inactive") return { statusCode: 409, message: "Select an active practitioner" };
+    const conflict = await findAppointmentConflict(payload);
+    if (conflict) return { statusCode: 409, message: "The practitioner or room already has an overlapping appointment" };
+    return null;
+  },
+  validateUpdate: async ({ req, payload }) => {
+    const existing = await Appointment.findById(req.params.id);
+    if (!existing) return { statusCode: 404, message: "Appointment not found" };
+    const next = { ...existing.toObject(), ...payload };
+    const shapeError = validateAppointmentShape(next);
+    if (shapeError) return { statusCode: 400, message: shapeError };
+    if (payload.status && !canTransitionAppointment(existing.status, payload.status)) {
+      return { statusCode: 409, message: `Appointment cannot move from ${existing.status} to ${payload.status}` };
+    }
+    if (payload.patient || payload.practitioner || payload.startsAt || payload.durationMinutes || payload.room) {
+      const [patient, practitioner] = await Promise.all([
+        Patient.findById(next.patient).select("status"),
+        Doctor.findById(next.practitioner).select("status")
+      ]);
+      if (!patient) return { statusCode: 404, message: "Patient not found" };
+      if (["on-hold", "discharged"].includes(patient.status)) return { statusCode: 409, message: "Appointments cannot be scheduled for patients on hold or discharged" };
+      if (!practitioner || practitioner.status === "inactive") return { statusCode: 409, message: "Select an active practitioner" };
+      const conflict = await findAppointmentConflict(next, existing._id);
+      if (conflict) return { statusCode: 409, message: "The practitioner or room already has an overlapping appointment" };
+    }
+    return null;
+  }
 }), { read: appointmentStaff, create: reception, update: appointmentStaff, remove: [] }));
 router.post("/invoices", permit(...invoiceCreators), createInvoice);
 router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient"], {
