@@ -871,7 +871,7 @@ export function Dashboard() {
     e.preventDefault();
     setConvertSaving(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/patients`, {
+      const response = await fetch(`${API_BASE_URL}/referrals/${convertReferral._id}/convert`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -885,9 +885,8 @@ export function Dashboard() {
       });
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(data.message || "Failed to create patient");
+        throw new Error(data.message || "Failed to convert referral");
       }
-      await updateRecord("referrals", convertReferral._id, { status: "converted" }, { token: session.token });
       setConvertReferral(null);
       setConvertForm({});
       setResourceRefresh((value) => value + 1);
