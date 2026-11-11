@@ -541,7 +541,7 @@ function describeRecord(viewId, record) {
 function recordActions(viewId, record, userRole) {
   if (viewId === "patients") {
     const actions = [{ label: "View Journey", action: "journey" }];
-    if (record.status !== "discharged") {
+    if (record.status !== "discharged" && ["director", "admin", "reception", "coordinator"].includes(userRole)) {
       actions.push({ label: "Discharge", action: "discharge" });
     }
     return actions;
