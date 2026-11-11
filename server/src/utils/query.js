@@ -1,5 +1,6 @@
+const REGEX_SPECIAL_CHARACTERS = new Set(["|", "\\", "{", "}", "(", ")", "[", "]", "^", "$", "+", "*", "?", ".", "/", "-"]);
 export function escapeRegex(value) {
-  return String(value).replace(/[|\\{}()[\]^$+*?.\/-]/g, "\\$&");
+  return [...String(value)].map((character) => REGEX_SPECIAL_CHARACTERS.has(character) ? "\\" + character : character).join("");
 }
 export function parseLimit(value, fallback = 50, maximum = 100) {
   const parsed = Number.parseInt(value, 10);
