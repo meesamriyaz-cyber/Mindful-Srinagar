@@ -51,6 +51,17 @@ const viewItems = [
 function getViewConfig(id) {
   return viewItems.find((item) => item.id === id) || viewItems[0];
 }
+function getVisibleViewItems(role) {
+  const allowed = {
+    reception: ["overview","patients","referrals","appointments","billing","tasks","reports"],
+    coordinator: ["overview","patients","referrals","appointments","inventory","tasks","reports"],
+    doctor: ["patients","appointments","assessments","treatment-plans","progress-notes","prescriptions","tasks"],
+    therapist: ["patients","appointments","assessments","treatment-plans","progress-notes","tasks"],
+    accounts: ["overview","billing","tasks","reports"]
+  };
+  if (["director","admin"].includes(role)) return viewItems;
+  return viewItems.filter((item) => (allowed[role] || []).includes(item.id));
+}
 
 function formatTime(value) {
   if (!value) return "--";
@@ -698,7 +709,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
 
 export function Dashboard() {
   const [session, setSession] = useState(getStoredSession);
-  const [activeView, setActiveView] = useState("overview");
+  const [activeView, setActiveView] = useState(() => ["doctor","therapist"].includes(getStoredSession().user?.role) ? "patients" : "overview");
   const [query, setQuery] = useState("");
   const [resourceRefresh, setResourceRefresh] = useState(0);
   const [actionId, setActionId] = useState("");
@@ -722,7 +733,9 @@ export function Dashboard() {
     }).catch(() => {});
     return () => { active = false; };
   }, [session.token, resourceRefresh]);
-  const { data, loading, refreshing, error, updatedAt, refresh } = useDashboard(session.token);
+  const canViewOverview = ["director","admin","reception","coordinator","accounts"].includes(session.user?.role);
+  const visibleViewItems = getVisibleViewItems(session.user?.role);
+  const { data, loading, refreshing, error, updatedAt, refresh } = useDashboard(canViewOverview ? session.token : null);
   const resourceState = useResourceRecords({ activeView, token: session.token, query, refreshSignal: resourceRefresh });
   const isDirector = ["director", "admin"].includes(session.user?.role);
   const activeConfig = getViewConfig(activeView);
@@ -836,7 +849,10 @@ export function Dashboard() {
   }
 
   if (!session.token) {
-    return <LoginPanel onLogin={setSession} />;
+    return <LoginPanel onLogin={(nextSession) => {
+      setSession(nextSession);
+      setActiveView(["doctor","therapist"].includes(nextSession.user?.role) ? "patients" : "overview");
+    }} />;
   }
 
   return (
@@ -851,7 +867,7 @@ export function Dashboard() {
             </span>
           </div>
           {Object.entries(
-            viewItems.reduce((acc, item) => {
+            visibleViewItems.reduce((acc, item) => {
               const section = item.section || "Other";
               if (!acc[section]) acc[section] = [];
               acc[section].push(item);
@@ -933,6 +949,7 @@ export function Dashboard() {
                   refreshSignal={resourceRefresh}
                   patients={patientsList}
                   patientId={journeyPatientId}
+                  userRole={session.user?.role}
                 />
               ) : (
                 <ResourceBoard
@@ -954,6 +971,7 @@ export function Dashboard() {
         <PatientJourney
           patient={resourceState.records.find(r => r._id === journeyPatientId) || { _id: journeyPatientId }}
           token={session.token}
+          userRole={session.user?.role}
           onClose={() => setJourneyPatientId(null)}
           onDischarge={async (updates) => {
             await updateRecord("patients", journeyPatientId, updates, { token: session.token });
