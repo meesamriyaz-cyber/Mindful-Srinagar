@@ -58,7 +58,7 @@ const CREATE_FIELDS = {
     { name: "interventions", label: "Interventions (comma-separated)", type: "text" },
     { name: "frequency", label: "Frequency", type: "text", placeholder: "Weekly" },
     { name: "duration", label: "Duration", type: "text", placeholder: "45 minutes" },
-    { name: "status", label: "Status", type: "select", options: ["active", "completed", "on-hold"] }
+    { name: "status", label: "Status", type: "select", options: ["planned", "active", "completed", "on-hold"] }
   ],
   "progress-notes": [
     { name: "noteType", label: "Note Type", type: "select", options: ["session", "review", "incident"] },
