@@ -39,7 +39,7 @@ const CONFIGS = {
       { name: "domains", label: "Domains", type: "text", placeholder: "Speech, Language, Social..." },
       { name: "findings", label: "Findings", type: "textarea" },
       { name: "recommendations", label: "Recommendations", type: "textarea" },
-      { name: "status", label: "Status", type: "select", options: ["completed", "in-progress", "pending"] }
+      { name: "status", label: "Status", type: "select", options: ["draft", "completed"] }
     ]
   },
   "treatment-plans": {
@@ -137,7 +137,7 @@ function parseValue(type, value) {
   return value;
 }
 
-export function ClinicalBoard({ activeView, token, query, refreshSignal, patients = [], patientId = null }) {
+export function ClinicalBoard({ activeView, token, query, refreshSignal, patients = [], patientId = null, userRole }) {
   const config = CONFIGS[activeView];
   const Icon = config?.icon;
   const [records, setRecords] = useState([]);
@@ -315,7 +315,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                       >
                         Update
                       </button>
-                      {activeView !== "prescriptions" && (
+                      {activeView !== "prescriptions" && ["director", "admin", "accounts"].includes(userRole) && (
                         <button
                           className="primary-button compact-button"
                           type="button"
