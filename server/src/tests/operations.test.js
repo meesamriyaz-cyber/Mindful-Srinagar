@@ -6,6 +6,7 @@ import { Task } from "../models/Task.js";
 import { InventoryItem } from "../models/InventoryItem.js";
 import { InventoryMovement } from "../models/InventoryMovement.js";
 import { Invoice } from "../models/Invoice.js";
+import { permit } from "../middleware/auth.js";
 
 test("task lifecycle allows forward progress and controlled reopening only before completion", () => {
   assert.equal(canTransitionTask("todo", "in-progress"), true);
@@ -120,4 +121,59 @@ test("invoice schema accepts a reconciled multi-method payment ledger", async ()
   });
   await invoice.validate();
   assert.equal(invoice.payments.reduce((sum, payment) => sum + payment.amount, 0), 300);
+});
+
+test("legacy invoice without payment entries treats its historic paidAmount as opening balance", async () => {
+  const invoice = new Invoice({
+    patient: "64b000000000000000000001",
+    invoiceNo: "B3-LEGACY-OPENING",
+    items: [{ description: "Assessment", quantity: 1, rate: 1000 }],
+    paidAmount: 250,
+    status: "partial"
+  });
+  await invoice.validate();
+  assert.equal(invoice.openingPaidAmount, undefined);
+  assert.equal(invoice.payments.length, 0);
+});
+
+test("invoice schema reconciles legacy opening balance with newly recorded payments", async () => {
+  const invoice = new Invoice({
+    patient: "64b000000000000000000001",
+    invoiceNo: "B3-LEGACY-APPEND",
+    items: [{ description: "Assessment", quantity: 1, rate: 1000 }],
+    paidAmount: 350,
+    openingPaidAmount: 250,
+    status: "partial",
+    payments: [{ amount: 100, method: "upi", receivedBy: "64b000000000000000000002" }]
+  });
+  await invoice.validate();
+  assert.equal(invoice.openingPaidAmount + invoice.payments[0].amount, invoice.paidAmount);
+});
+
+test("invoice schema rejects opening balance and ledger totals that do not reconcile", async () => {
+  const invoice = new Invoice({
+    patient: "64b000000000000000000001",
+    invoiceNo: "B3-LEGACY-MISMATCH",
+    items: [{ description: "Assessment", quantity: 1, rate: 1000 }],
+    paidAmount: 360,
+    openingPaidAmount: 250,
+    status: "partial",
+    payments: [{ amount: 100, method: "upi", receivedBy: "64b000000000000000000002" }]
+  });
+  await assert.rejects(invoice.validate(), (error) => Boolean(error.errors?.payments));
+});
+
+test("task endpoint permission middleware rejects non-manager create roles and permits assigned-task staff updates", () => {
+  const invoke = (role, allowed) => {
+    let nextCalled = false;
+    let responseStatus = null;
+    const req = { user: { role } };
+    const res = { status(code) { responseStatus = code; return this; }, json() { return this; } };
+    permit(...allowed)(req, res, () => { nextCalled = true; });
+    return { nextCalled, responseStatus };
+  };
+  assert.deepEqual(invoke("doctor", ["director", "admin", "coordinator", "reception"]), { nextCalled: false, responseStatus: 403 });
+  assert.deepEqual(invoke("accounts", ["director", "admin", "coordinator", "reception"]), { nextCalled: false, responseStatus: 403 });
+  assert.deepEqual(invoke("coordinator", ["director", "admin", "coordinator", "reception"]), { nextCalled: true, responseStatus: null });
+  assert.deepEqual(invoke("doctor", ["director", "admin", "coordinator", "reception", "doctor", "therapist", "accounts"]), { nextCalled: true, responseStatus: null });
 });
