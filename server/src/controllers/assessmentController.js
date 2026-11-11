@@ -1,7 +1,7 @@
 import { Assessment } from "../models/Assessment.js";
 import { makeClinicalRecordController } from "./clinicalRecordController.js";
 const controller = makeClinicalRecordController({
-  Model: Assessment, ownerField: "assessedBy",
+  Model: Assessment, recordType: "assessment", ownerField: "assessedBy",
   createFields: ["patient","assessedAt","domains","findings","recommendations","status"],
   updateFields: ["assessedAt","domains","findings","recommendations","status"],
   populate: [["patient","fullName mrn"],["assessedBy","name email"]],
@@ -11,3 +11,5 @@ export const listAssessments = controller.list;
 export const createAssessment = controller.create;
 export const getAssessment = controller.get;
 export const updateAssessment = controller.update;
+export const listAssessmentAmendments = controller.amendments;
+export const amendAssessment = controller.amend;

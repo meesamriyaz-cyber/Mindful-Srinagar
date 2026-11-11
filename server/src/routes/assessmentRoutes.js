@@ -1,11 +1,11 @@
 import express from "express";
-import { listAssessments, createAssessment, getAssessment, updateAssessment } from "../controllers/assessmentController.js";
-
+import { listAssessments, createAssessment, getAssessment, updateAssessment, listAssessmentAmendments, amendAssessment } from "../controllers/assessmentController.js";
+import { permit } from "../middleware/auth.js";
 const router = express.Router();
-
 router.get("/", listAssessments);
 router.post("/", createAssessment);
+router.get("/:id/amendments", listAssessmentAmendments);
+router.post("/:id/amendments", permit("director","admin"), amendAssessment);
 router.get("/:id", getAssessment);
 router.put("/:id", updateAssessment);
-
 export default router;

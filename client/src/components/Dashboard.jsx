@@ -20,14 +20,18 @@ import {
   Plus,
   X,
   UsersRound,
+  Stethoscope,
   WalletCards
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDashboard } from "../hooks/useDashboard.js";
-import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, API_BASE_URL } from "../lib/api.js";
+import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, API_BASE_URL } from "../lib/api.js";
 import { ClinicalBoard } from "./ClinicalBoard.jsx";
 import { PatientJourney } from "./PatientJourney.jsx";
+import { PractitionerBoard } from "./PractitionerBoard.jsx";
+import { PractitionerDashboard } from "./PractitionerDashboard.jsx";
+import { StaffBoard } from "./StaffBoard.jsx";
 import { ChipInput } from "./ChipInput.jsx";
 import { serviceCharges, services } from "../data/centreData.js";
 
@@ -36,6 +40,8 @@ const INR = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR",
 const viewItems = [
   { id: "overview", label: "Overview", resource: null, icon: LayoutDashboard, section: "General" },
   { id: "patients", label: "Patients", resource: "patients", icon: UsersRound, section: "Clinical" },
+  { id: "practitioners", label: "Practitioners", resource: "doctors", icon: Stethoscope, section: "Clinical" },
+  { id: "staff", label: "Staff Management", resource: null, icon: ShieldCheck, section: "System" },
   { id: "referrals", label: "Referrals", resource: "referrals", icon: TrendingUp, section: "Clinical" },
   { id: "appointments", label: "Appointments", resource: "appointments", icon: CalendarClock, section: "Clinical" },
   { id: "assessments", label: "Assessments", resource: "assessments", icon: ClipboardCheck, section: "Clinical" },
@@ -55,8 +61,8 @@ function getVisibleViewItems(role) {
   const allowed = {
     reception: ["overview","patients","referrals","appointments","billing","tasks","reports"],
     coordinator: ["patients","referrals","appointments","inventory","tasks"],
-    doctor: ["patients","appointments","assessments","treatment-plans","progress-notes","prescriptions","tasks"],
-    therapist: ["patients","appointments","assessments","treatment-plans","progress-notes","tasks"],
+    doctor: ["overview","patients","appointments","assessments","treatment-plans","progress-notes","prescriptions","tasks"],
+    therapist: ["overview","patients","appointments","assessments","treatment-plans","progress-notes","tasks"],
     accounts: ["billing","tasks"]
   };
   if (["director","admin"].includes(role)) return viewItems;
@@ -568,8 +574,14 @@ function recordActions(viewId, record, userRole) {
     return actions;
   }
 
-  if (viewId === "billing" && ["director", "admin", "accounts"].includes(userRole) && ["draft", "partial"].includes(record.status)) {
-    return [{ label: "Mark paid", updates: { status: "paid", paidAmount: invoiceTotal(record) } }];
+  if (viewId === "billing" && ["director", "admin", "accounts"].includes(userRole)) {
+    const actions = [{ label: "Payment history", action: "history" }];
+    if (["draft", "partial"].includes(record.status)) actions.unshift({ label: "Record payment", action: "payment" });
+    return actions;
+  }
+
+  if (viewId === "inventory" && ["director", "admin", "coordinator"].includes(userRole)) {
+    return [{ label: "Stock movement", action: "stock" }, { label: "Movement history", action: "history" }];
   }
 
   if (viewId === "tasks" && record.status !== "done") {
@@ -658,7 +670,7 @@ function ReferralNotesEditor({ record, onSave, saving }) {
   );
 }
 
-function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError, userRole }) {
+function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError, userRole, onCreateAppointment }) {
   const config = getViewConfig(activeView);
   const Icon = config.icon;
 
@@ -676,6 +688,9 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
           <h3>{config.label}</h3>
           <span>{records.length} record(s) loaded</span>
         </div>
+        {activeView === "appointments" && ["director","admin","reception","coordinator"].includes(userRole) && (
+          <button className="primary-button compact-button" type="button" onClick={onCreateAppointment}><Plus size={15} /> New appointment</button>
+        )}
       </div>
       {state.loading && <p className="empty-state">Loading {config.label.toLowerCase()}...</p>}
       {state.error && <p className="form-status error-status">{state.error}</p>}
@@ -744,7 +759,8 @@ export function Dashboard() {
   const [session, setSession] = useState(getStoredSession);
   const [activeView, setActiveView] = useState(() => {
     const role = getStoredSession().user?.role;
-    if (["doctor","therapist","coordinator"].includes(role)) return "patients";
+    if (["doctor","therapist"].includes(role)) return "overview";
+    if (role === "coordinator") return "patients";
     if (role === "accounts") return "billing";
     return "overview";
   });
@@ -752,6 +768,10 @@ export function Dashboard() {
   const [resourceRefresh, setResourceRefresh] = useState(0);
   const [actionId, setActionId] = useState("");
   const [actionError, setActionError] = useState("");
+  const [operationModal, setOperationModal] = useState(null);
+  const [operationHistory, setOperationHistory] = useState(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [operationForm, setOperationForm] = useState({ amount: "", method: "cash", reference: "", type: "receipt", quantity: "", reason: "" });
   const [journeyPatientId, setJourneyPatientId] = useState(null);
   const [showBilling, setShowBilling] = useState(false);
   const [billingRecord, setBillingRecord] = useState(null);
@@ -759,6 +779,12 @@ export function Dashboard() {
   const [billingSaving, setBillingSaving] = useState(false);
   const [billingError, setBillingError] = useState("");
   const [patientsList, setPatientsList] = useState([]);
+  const [practitionersList, setPractitionersList] = useState([]);
+  const [staffAccounts, setStaffAccounts] = useState([]);
+  const [showAppointmentForm, setShowAppointmentForm] = useState(false);
+  const [appointmentSaving, setAppointmentSaving] = useState(false);
+  const [appointmentError, setAppointmentError] = useState("");
+  const [appointmentForm, setAppointmentForm] = useState({ patient: "", practitioner: "", service: "", startsAt: "", durationMinutes: 45, room: "" });
   const [convertReferral, setConvertReferral] = useState(null);
   const [convertForm, setConvertForm] = useState({});
   const [convertSaving, setConvertSaving] = useState(false);
@@ -766,8 +792,22 @@ export function Dashboard() {
   useEffect(() => {
     if (!session.token) return;
     let active = true;
-    listRecords("patients", { token: session.token, limit: 100 }).then((patients) => {
-      if (active) setPatientsList(patients || []);
+    Promise.all([
+      listRecords("patients", { token: session.token, limit: 100 }),
+      listRecords("doctors", { token: session.token, status: "active", limit: 100 }),
+      ["director", "admin"].includes(session.user?.role)
+        ? fetch(`${API_BASE_URL}/staff-accounts`, { headers: { Authorization: `Bearer ${session.token}` } }).then(async (response) => {
+            const body = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(body.message || "Unable to load staff accounts");
+            return body;
+          })
+        : Promise.resolve([])
+    ]).then(([patients, practitioners, staff]) => {
+      if (active) {
+        setPatientsList(patients || []);
+        setPractitionersList((practitioners || []).filter((item) => item.status !== "inactive"));
+        setStaffAccounts(staff || []);
+      }
     }).catch(() => {});
     return () => { active = false; };
   }, [session.token, resourceRefresh]);
@@ -784,6 +824,35 @@ export function Dashboard() {
     if (updatedAt) return `Live ${formatTime(updatedAt)}`;
     return "Waiting";
   }, [error, refreshing, updatedAt]);
+
+  async function handleOperationSubmit(event) {
+    event.preventDefault();
+    if (!operationModal) return;
+    const { type, id } = operationModal;
+    const isPayment = type === "payment";
+    const payload = isPayment
+      ? { amount: Number(operationForm.amount), method: operationForm.method, reference: operationForm.reference }
+      : { type: operationForm.type, quantity: Number(operationForm.quantity), reason: operationForm.reason, reference: operationForm.reference };
+    setActionId(id);
+    setActionError("");
+    try {
+      const endpoint = isPayment ? "/invoices/" + id + "/payments" : "/inventory/" + id + "/movements";
+      const response = await fetch(API_BASE_URL + endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.token },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.message || (isPayment ? "Payment could not be recorded" : "Stock movement could not be recorded"));
+      setOperationModal(null);
+      setResourceRefresh((value) => value + 1);
+      if (isPayment) refresh();
+    } catch (error) {
+      setActionError(error.message);
+    } finally {
+      setActionId("");
+    }
+  }
 
   function handleLogout() {
     clearSession();
@@ -820,6 +889,32 @@ export function Dashboard() {
       }
       return;
     }
+    if (extra?.action === "history") {
+      const record = resourceState.records.find((item) => item._id === id);
+      if (resource === "invoices") {
+        setOperationHistory({ type: "payment", record, entries: record?.payments || [] });
+      } else {
+        setOperationHistory({ type: "stock", record, entries: [] });
+        setHistoryLoading(true);
+        try {
+          const response = await fetch(`${API_BASE_URL}/inventory/${id}/movements`, { headers: { Authorization: `Bearer ${session.token}` } });
+          const body = await response.json().catch(() => []);
+          if (!response.ok) throw new Error(body.message || "Movement history could not be loaded");
+          setOperationHistory({ type: "stock", record, entries: Array.isArray(body) ? body : [] });
+        } catch (error) {
+          setActionError(error.message);
+        } finally {
+          setHistoryLoading(false);
+        }
+      }
+      return;
+    }
+    if (extra?.action === "payment" || extra?.action === "stock") {
+      setOperationForm({ amount: "", method: "cash", reference: "", type: "receipt", quantity: "", reason: "" });
+      setOperationModal({ type: extra.action, id, record: resourceState.records.find((record) => record._id === id) });
+      setActionError("");
+      return;
+    }
     if (extra?.action === "bill") {
       const appointment = resourceState.records.find(r => r._id === id);
       if (appointment) {
@@ -846,9 +941,7 @@ export function Dashboard() {
           gender: "",
           address: "",
           primaryConcern: referral.concern || "",
-          services: [],
-          referral: referral._id,
-          status: "assessment"
+          services: []
         });
         setConvertReferral(referral);
       }
@@ -867,27 +960,48 @@ export function Dashboard() {
     }
   }
 
+  async function handleAppointmentSubmit(e) {
+    e.preventDefault();
+    setAppointmentSaving(true);
+    setAppointmentError("");
+    try {
+      await createRecord("appointments", { ...appointmentForm, startsAt: new Date(appointmentForm.startsAt).toISOString(), durationMinutes: Number(appointmentForm.durationMinutes) }, { token: session.token });
+      setShowAppointmentForm(false);
+      setAppointmentForm({ patient: "", practitioner: "", service: "", startsAt: "", durationMinutes: 45, room: "" });
+      setResourceRefresh((value) => value + 1);
+      refresh();
+    } catch (err) {
+      setAppointmentError(err.message);
+    } finally {
+      setAppointmentSaving(false);
+    }
+  }
+
   async function handleConvertSubmit(e) {
     e.preventDefault();
     setConvertSaving(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/patients`, {
+      const response = await fetch(`${API_BASE_URL}/referrals/${convertReferral._id}/convert`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.token}`
         },
         body: JSON.stringify({
-          ...convertForm,
+          fullName: convertForm.fullName,
+          phone: convertForm.phone,
+          guardianName: convertForm.guardianName || undefined,
           age: convertForm.age ? Number(convertForm.age) : undefined,
+          gender: convertForm.gender || undefined,
+          address: convertForm.address || undefined,
+          primaryConcern: convertForm.primaryConcern,
           services: Array.isArray(convertForm.services) ? convertForm.services : (convertForm.services ? convertForm.services.split(",").map(s => s.trim()).filter(Boolean) : [])
         })
       });
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(data.message || "Failed to create patient");
+        throw new Error(data.message || "Failed to convert referral");
       }
-      await updateRecord("referrals", convertReferral._id, { status: "converted" }, { token: session.token });
       setConvertReferral(null);
       setConvertForm({});
       setResourceRefresh((value) => value + 1);
@@ -902,7 +1016,7 @@ export function Dashboard() {
   if (!session.token) {
     return <LoginPanel onLogin={(nextSession) => {
       setSession(nextSession);
-      setActiveView(["doctor","therapist","coordinator"].includes(nextSession.user?.role) ? "patients" : nextSession.user?.role === "accounts" ? "billing" : "overview");
+      setActiveView(["doctor","therapist"].includes(nextSession.user?.role) ? "overview" : nextSession.user?.role === "coordinator" ? "patients" : nextSession.user?.role === "accounts" ? "billing" : "overview");
     }} />;
   }
 
@@ -952,7 +1066,7 @@ export function Dashboard() {
           <div className="console-header">
             <div>
               <p className="eyebrow">{isDirector ? "Director command centre" : "Operations dashboard"}</p>
-              <h2>{activeView === "overview" ? "Whole-centre operating view" : activeConfig.label}</h2>
+              <h2>{activeView === "overview" ? (["doctor","therapist"].includes(session.user?.role) ? "My clinical activity" : "Whole-centre operating view") : activeConfig.label}</h2>
               <p className="console-user">Signed in as {session.user?.name} ({session.user?.role})</p>
             </div>
             <div className="console-tools">
@@ -990,8 +1104,18 @@ export function Dashboard() {
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.22 }}
               >
-              {activeView === "overview" ? (
-                <OverviewWorkspace data={data} isDirector={isDirector} />
+              {activeView === "staff" ? (
+                <StaffBoard token={session.token} currentRole={session.user?.role} onChanged={() => setResourceRefresh((value) => value + 1)} />
+              ) : activeView === "practitioners" ? (
+                <PractitionerBoard
+                  token={session.token}
+                  staffAccounts={staffAccounts}
+                  onChanged={() => setResourceRefresh((value) => value + 1)}
+                />
+              ) : activeView === "overview" ? (
+                ["doctor", "therapist"].includes(session.user?.role)
+                  ? <PractitionerDashboard token={session.token} />
+                  : <OverviewWorkspace data={data} isDirector={isDirector} />
               ) : ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeView) ? (
                 <ClinicalBoard
                   activeView={activeView}
@@ -1001,6 +1125,7 @@ export function Dashboard() {
                   patients={patientsList}
                   patientId={journeyPatientId}
                   userRole={session.user?.role}
+                  onCreateAppointment={() => { setAppointmentError(""); setShowAppointmentForm(true); }}
                 />
               ) : (
                 <ResourceBoard
@@ -1011,6 +1136,7 @@ export function Dashboard() {
                   actionId={actionId}
                   actionError={actionError}
                   userRole={session.user?.role}
+                  onCreateAppointment={() => { setAppointmentError(""); setShowAppointmentForm(true); }}
                 />
               )}
               </motion.div>
@@ -1109,6 +1235,137 @@ export function Dashboard() {
         </motion.div>
       )}
 
+      {showAppointmentForm && (
+        <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAppointmentForm(false)}>
+          <motion.div className="modal" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Schedule appointment</h3>
+              <button className="icon-button" type="button" onClick={() => setShowAppointmentForm(false)}>✕</button>
+            </div>
+            <form className="clinical-form" onSubmit={handleAppointmentSubmit}>
+              {appointmentError && <p className="form-status error-status">{appointmentError}</p>}
+              <label>Patient
+                <select required value={appointmentForm.patient} onChange={(e) => setAppointmentForm({ ...appointmentForm, patient: e.target.value })}>
+                  <option value="">Select patient</option>
+                  {patientsList.filter((patient) => !["on-hold","discharged"].includes(patient.status)).map((patient) => <option key={patient._id} value={patient._id}>{patient.fullName} · {patient.mrn}</option>)}
+                </select>
+              </label>
+              <label>Practitioner
+                <select required value={appointmentForm.practitioner} onChange={(e) => setAppointmentForm({ ...appointmentForm, practitioner: e.target.value })}>
+                  <option value="">Select practitioner</option>
+                  {practitionersList.map((person) => <option key={person._id} value={person._id}>{person.name} · {person.discipline}</option>)}
+                </select>
+              </label>
+              <label>Service
+                <input required maxLength={120} value={appointmentForm.service} onChange={(e) => setAppointmentForm({ ...appointmentForm, service: e.target.value })} placeholder="Speech Therapy, Occupational Therapy..." />
+              </label>
+              <div className="form-row">
+                <label>Date & time
+                  <input required type="datetime-local" min={new Date().toISOString().slice(0,16)} value={appointmentForm.startsAt} onChange={(e) => setAppointmentForm({ ...appointmentForm, startsAt: e.target.value })} />
+                </label>
+                <label>Duration
+                  <select value={appointmentForm.durationMinutes} onChange={(e) => setAppointmentForm({ ...appointmentForm, durationMinutes: Number(e.target.value) })}>
+                    {[15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240].map((minutes) => <option key={minutes} value={minutes}>{minutes} minutes</option>)}
+                  </select>
+                </label>
+              </div>
+              <label>Room (optional)
+                <input maxLength={80} value={appointmentForm.room} onChange={(e) => setAppointmentForm({ ...appointmentForm, room: e.target.value })} placeholder="Room 1" />
+              </label>
+              <div className="modal-actions">
+                <button className="primary-button" type="submit" disabled={appointmentSaving}>{appointmentSaving ? "Scheduling..." : "Schedule appointment"}</button>
+                <button className="secondary-button" type="button" onClick={() => setShowAppointmentForm(false)}>Cancel</button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {operationModal && (
+        <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOperationModal(null)}>
+          <motion.div className="modal" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{operationModal.type === "payment" ? "Record invoice payment" : "Record stock movement"}</h3>
+              <button className="icon-button" type="button" onClick={() => setOperationModal(null)} aria-label="Close">✕</button>
+            </div>
+            {actionError && <p className="form-status error-status">{actionError}</p>}
+            <form className="clinical-form" onSubmit={handleOperationSubmit}>
+              {operationModal.type === "payment" ? (
+                <>
+                  <p>{operationModal.record?.invoiceNo || "Invoice"} · Outstanding ₹{Math.max(invoiceTotal(operationModal.record || {}) - Number(operationModal.record?.paidAmount || 0), 0).toFixed(2)}</p>
+                  <label>Amount (₹)
+                    <input type="number" min="0.01" step="0.01" max={Math.max(invoiceTotal(operationModal.record || {}) - Number(operationModal.record?.paidAmount || 0), 0)} required value={operationForm.amount} onChange={(event) => setOperationForm({ ...operationForm, amount: event.target.value })} />
+                  </label>
+                  <label>Payment method
+                    <select required value={operationForm.method} onChange={(event) => setOperationForm({ ...operationForm, method: event.target.value })}>
+                      <option value="cash">Cash</option><option value="upi">UPI</option><option value="card">Card</option><option value="bank">Bank transfer</option>
+                    </select>
+                  </label>
+                  <label>Reference (optional)
+                    <input maxLength="120" value={operationForm.reference} onChange={(event) => setOperationForm({ ...operationForm, reference: event.target.value })} />
+                  </label>
+                </>
+              ) : (
+                <>
+                  <label>Movement type
+                    <select required value={operationForm.type} onChange={(event) => setOperationForm({ ...operationForm, type: event.target.value })}>
+                      <option value="receipt">Stock receipt</option><option value="issue">Stock issue</option><option value="adjustment">Set stock balance</option>
+                    </select>
+                  </label>
+                  <label>{operationForm.type === "adjustment" ? "New stock quantity" : "Quantity"}
+                    <input type="number" min="0.01" step="0.01" required value={operationForm.quantity} onChange={(event) => setOperationForm({ ...operationForm, quantity: event.target.value })} />
+                  </label>
+                  <label>Reason
+                    <textarea rows={3} maxLength="300" required value={operationForm.reason} onChange={(event) => setOperationForm({ ...operationForm, reason: event.target.value })} />
+                  </label>
+                  <label>Reference (optional)
+                    <input maxLength="120" value={operationForm.reference} onChange={(event) => setOperationForm({ ...operationForm, reference: event.target.value })} />
+                  </label>
+                </>
+              )}
+              <div className="modal-actions">
+                <button className="primary-button" type="submit" disabled={actionId === operationModal.id}>{actionId === operationModal.id ? "Saving..." : operationModal.type === "payment" ? "Record payment" : "Save movement"}</button>
+                <button className="secondary-button" type="button" onClick={() => setOperationModal(null)}>Cancel</button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+      {operationHistory && (
+        <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOperationHistory(null)}>
+          <motion.div className="modal" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{operationHistory.type === "payment" ? "Payment history" : "Stock movement history"}</h3>
+              <button className="icon-button" type="button" onClick={() => setOperationHistory(null)} aria-label="Close">✕</button>
+            </div>
+            <p>{operationHistory.record?.invoiceNo || operationHistory.record?.name || "Record"}</p>
+            {historyLoading ? <p className="empty-state">Loading history...</p> : operationHistory.entries.length ? (
+              <div className="insight-list">
+                {operationHistory.entries.map((entry, index) => (
+                  <div className="history-entry" key={entry._id || index}>
+                    {operationHistory.type === "payment" ? (
+                      <>
+                        <strong>{INR.format(Number(entry.amount || 0))} · {entry.method || "Payment"}</strong>
+                        <span>{formatDateTime(entry.receivedAt)} · {entry.receivedBy?.name || "Staff"}</span>
+                        {entry.reference && <span>Reference: {entry.reference}</span>}
+                        {entry.notes && <span>{entry.notes}</span>}
+                      </>
+                    ) : (
+                      <>
+                        <strong>{entry.type} · {entry.quantity} {operationHistory.record?.unit || ""}</strong>
+                        <span>{formatDateTime(entry.createdAt)} · {entry.performedBy?.name || "Staff"}</span>
+                        <span>Stock: {entry.previousQuantity} → {entry.newQuantity}</span>
+                        <span>{entry.reason}</span>
+                        {entry.reference && <span>Reference: {entry.reference}</span>}
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : <p className="empty-state">No history has been recorded for this item yet.</p>}
+          </motion.div>
+        </motion.div>
+      )}
       {showBilling && (
         <motion.div
           className="modal-overlay"

@@ -1,11 +1,11 @@
 import express from "express";
-import { listProgressNotes, createProgressNote, getProgressNote, updateProgressNote } from "../controllers/progressNoteController.js";
-
+import { listProgressNotes, createProgressNote, getProgressNote, updateProgressNote, listProgressNoteAmendments, amendProgressNote } from "../controllers/progressNoteController.js";
+import { permit } from "../middleware/auth.js";
 const router = express.Router();
-
 router.get("/", listProgressNotes);
 router.post("/", createProgressNote);
+router.get("/:id/amendments", listProgressNoteAmendments);
+router.post("/:id/amendments", permit("director","admin"), amendProgressNote);
 router.get("/:id", getProgressNote);
 router.put("/:id", updateProgressNote);
-
 export default router;

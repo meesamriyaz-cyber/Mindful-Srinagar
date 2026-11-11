@@ -265,3 +265,23 @@ export function generateInvoiceFromAppointment(appointmentId, items, { token } =
     body: JSON.stringify({ items })
   });
 }
+
+export function createRecord(resource, payload, { token } = {}) {
+  return apiRequest(`/${resource}`, {
+    token,
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export function listClinicalAmendments(resource, id, { token } = {}) {
+  return apiRequest(`/${resource}/${id}/amendments`, { token });
+}
+
+export function amendClinicalRecord(resource, id, payload, { token } = {}) {
+  return apiRequest(`/${resource}/${id}/amendments`, {
+    token,
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}

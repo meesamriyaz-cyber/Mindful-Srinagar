@@ -1,0 +1,35 @@
+name: Mindful CI
+
+on:
+  pull_request:
+    branches:
+      - mvp/batch-4-clinical-governance
+  push:
+    branches:
+      - mvp/batch-3-billing-operations-inventory
+      - mvp/batch-4-clinical-governance
+      - mvp/batch-5-release-readiness
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install root dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install server dependencies
+        run: npm install --prefix server --no-audit --no-fund
+      - name: Install client dependencies
+        run: npm install --prefix client --no-audit --no-fund
+      - name: Run server tests
+        run: npm test --prefix server
+      - name: Build client
+        run: npm run build --prefix client
