@@ -271,7 +271,8 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
       );
     }
     if (activeStep === "invoices") {
-      const total = (record?.items || []).reduce((sum, item) => sum + (item.quantity || 0) * (item.rate || 0), 0);
+      const subtotal = (record?.items || []).reduce((sum, item) => sum + (item.quantity || 0) * (item.rate || 0), 0);
+      const total = Math.max(subtotal - (record?.discount || 0), 0);
       const due = Math.max(total - (record?.paidAmount || 0), 0);
       return (
         <div>
