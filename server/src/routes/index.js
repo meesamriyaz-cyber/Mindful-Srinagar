@@ -37,6 +37,7 @@ const clinical = ["director", "admin", "doctor", "therapist"];
 const patientReaders = ["director", "admin", "reception", "coordinator", "doctor", "therapist"];
 const appointmentStaff = ["director", "admin", "reception", "coordinator", "doctor", "therapist"];
 const billing = ["director", "admin", "accounts"];
+const inventoryManagers = [...management, "coordinator"];
 const invoiceReaders = [...billing, "reception"];
 const invoiceCreators = [...billing, "reception"];
 
@@ -221,8 +222,8 @@ router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient"], {
   updateScope: (req) => ["director","admin"].includes(req.user.role) ? {} : { status: { $nin: ["paid","void"] } }
 }), { read: invoiceReaders, write: billing, create: [], remove: [] }));
 router.post("/invoices/generate-from-appointment/:appointmentId", permit(...invoiceCreators), generateInvoiceFromAppointment);
-router.post("/inventory/:id/movements", permit(...management), adjustInventory);
-router.get("/inventory/:id/movements", permit(...management), listInventoryMovements);
+router.post("/inventory/:id/movements", permit(...inventoryManagers), adjustInventory);
+router.get("/inventory/:id/movements", permit(...inventoryManagers), listInventoryMovements);
 router.use("/inventory", crudRoutes(makeCrudController(InventoryItem, [], {
   createFields: ["name","category","reorderLevel","unit","vendor","notes"],
   updateFields: ["name","category","reorderLevel","unit","vendor","notes"],
