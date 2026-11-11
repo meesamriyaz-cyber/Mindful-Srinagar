@@ -68,7 +68,7 @@ router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo"], {
   createFields: ["title","department","assignedTo","dueDate","priority","status"],
   updateFields: ["title","department","assignedTo","dueDate","priority","status"],
   updateFieldsByRole: { doctor: ["status"], therapist: ["status"], accounts: ["status"] },
-  filterFields: ["status","department","assignedTo"], searchableFields: ["title","department"],
+  filterFields: ["status","department"], searchableFields: ["title","department"],
   listScope: taskScope, recordScope: taskScope
 }), {
   read: ["director","admin","reception","doctor","therapist","accounts","coordinator"],
