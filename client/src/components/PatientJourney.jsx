@@ -23,7 +23,8 @@ import {
   createTreatmentPlan,
   createProgressNote,
   createPrescription,
-  API_BASE_URL
+  API_BASE_URL,
+  listClinicalAmendments
 } from "../lib/api.js";
 
 const STEP_ICONS = {
@@ -102,6 +103,9 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const [createSaving, setCreateSaving] = useState(false);
   const [createError, setCreateError] = useState("");
   const [journeyKey, setJourneyKey] = useState(0);
+  const [auditRecordId, setAuditRecordId] = useState(null);
+  const [auditHistory, setAuditHistory] = useState([]);
+  const [auditError, setAuditError] = useState("");
 
   useEffect(() => {
     if (!patient || !token) return;
@@ -430,6 +434,29 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                   </div>
                   <div className="journey-card-body">
                     {describeRecord(record)}
+                    {["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeStep) && (
+                      <button className="secondary-button" type="button" onClick={async () => {
+                        try {
+                          setAuditError("");
+                          const history = await listClinicalAmendments(activeStep, record._id, { token });
+                          setAuditHistory(history || []);
+                          setAuditRecordId(record._id);
+                        } catch (error) { setAuditError(error.message); }
+                      }}>View amendment history</button>
+                    )}
+                    {auditRecordId === record._id && (
+                      <div className="journey-audit-history">
+                        <strong>Amendment history</strong>
+                        {auditHistory.length ? auditHistory.map(item => (
+                          <div key={item._id}>
+                            <p>{item.reason}</p>
+                            <small>{item.amendedBy?.name || "Authorised staff"} · {formatDateTime(item.createdAt)} · {item.changedFields.join(", ")}</small>
+                            <pre>{JSON.stringify({ before: item.before, after: item.after }, null, 2)}</pre>
+                          </div>
+                        )) : <p>No amendments recorded.</p>}
+                      </div>
+                    )}
+                    {auditError && <p className="form-status error-status">{auditError}</p>}
                   </div>
                 </div>
               ))}
