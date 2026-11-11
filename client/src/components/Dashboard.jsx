@@ -929,7 +929,7 @@ export function Dashboard() {
           {loading && <p className="empty-state">Loading live centre data...</p>}
           {error && <p className="form-status error-status">{error}</p>}
 
-          {data && (
+          {(!canViewOverview || data) && (
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeView}
