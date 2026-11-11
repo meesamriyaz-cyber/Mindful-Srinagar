@@ -1040,7 +1040,7 @@ export function Dashboard() {
                 transition={{ duration: 0.22 }}
               >
               {activeView === "staff" ? (
-                <StaffBoard token={session.token} currentRole={session.user?.role} />
+                <StaffBoard token={session.token} currentRole={session.user?.role} onChanged={() => setResourceRefresh((value) => value + 1)} />
               ) : activeView === "practitioners" ? (
                 <PractitionerBoard
                   token={session.token}
