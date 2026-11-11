@@ -999,7 +999,7 @@ export function Dashboard() {
           <div className="console-header">
             <div>
               <p className="eyebrow">{isDirector ? "Director command centre" : "Operations dashboard"}</p>
-              <h2>{activeView === "overview" ? "Whole-centre operating view" : activeConfig.label}</h2>
+              <h2>{activeView === "overview" ? (["doctor","therapist"].includes(session.user?.role) ? "My clinical activity" : "Whole-centre operating view") : activeConfig.label}</h2>
               <p className="console-user">Signed in as {session.user?.name} ({session.user?.role})</p>
             </div>
             <div className="console-tools">
