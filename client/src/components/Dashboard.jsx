@@ -31,6 +31,7 @@ import { ClinicalBoard } from "./ClinicalBoard.jsx";
 import { PatientJourney } from "./PatientJourney.jsx";
 import { PractitionerBoard } from "./PractitionerBoard.jsx";
 import { PractitionerDashboard } from "./PractitionerDashboard.jsx";
+import { StaffBoard } from "./StaffBoard.jsx";
 import { ChipInput } from "./ChipInput.jsx";
 import { serviceCharges, services } from "../data/centreData.js";
 
@@ -40,6 +41,7 @@ const viewItems = [
   { id: "overview", label: "Overview", resource: null, icon: LayoutDashboard, section: "General" },
   { id: "patients", label: "Patients", resource: "patients", icon: UsersRound, section: "Clinical" },
   { id: "practitioners", label: "Practitioners", resource: "doctors", icon: Stethoscope, section: "Clinical" },
+  { id: "staff", label: "Staff Management", resource: null, icon: ShieldCheck, section: "System" },
   { id: "referrals", label: "Referrals", resource: "referrals", icon: TrendingUp, section: "Clinical" },
   { id: "appointments", label: "Appointments", resource: "appointments", icon: CalendarClock, section: "Clinical" },
   { id: "assessments", label: "Assessments", resource: "assessments", icon: ClipboardCheck, section: "Clinical" },
@@ -1037,7 +1039,9 @@ export function Dashboard() {
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.22 }}
               >
-              {activeView === "practitioners" ? (
+              {activeView === "staff" ? (
+                <StaffBoard token={session.token} currentRole={session.user?.role} />
+              ) : activeView === "practitioners" ? (
                 <PractitionerBoard
                   token={session.token}
                   staffAccounts={staffAccounts}
