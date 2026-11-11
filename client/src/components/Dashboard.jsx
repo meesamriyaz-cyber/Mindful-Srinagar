@@ -25,7 +25,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDashboard } from "../hooks/useDashboard.js";
-import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, API_BASE_URL } from "../lib/api.js";
+import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, API_BASE_URL } from "../lib/api.js";
 import { ClinicalBoard } from "./ClinicalBoard.jsx";
 import { PatientJourney } from "./PatientJourney.jsx";
 import { ChipInput } from "./ChipInput.jsx";
@@ -658,7 +658,7 @@ function ReferralNotesEditor({ record, onSave, saving }) {
   );
 }
 
-function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError, userRole }) {
+function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError, userRole, onCreateAppointment }) {
   const config = getViewConfig(activeView);
   const Icon = config.icon;
 
@@ -675,6 +675,11 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
         <div>
           <h3>{config.label}</h3>
           <span>{records.length} record(s) loaded</span>
+        </div>
+        {activeView === "appointments" && ["director","admin","reception","coordinator"].includes(userRole) && (
+          <button className="primary-button compact-button" type="button" onClick={onCreateAppointment}><Plus size={15} /> New appointment</button>
+        )}
+      </div>
         </div>
       </div>
       {state.loading && <p className="empty-state">Loading {config.label.toLowerCase()}...</p>}
@@ -759,6 +764,11 @@ export function Dashboard() {
   const [billingSaving, setBillingSaving] = useState(false);
   const [billingError, setBillingError] = useState("");
   const [patientsList, setPatientsList] = useState([]);
+  const [practitionersList, setPractitionersList] = useState([]);
+  const [showAppointmentForm, setShowAppointmentForm] = useState(false);
+  const [appointmentSaving, setAppointmentSaving] = useState(false);
+  const [appointmentError, setAppointmentError] = useState("");
+  const [appointmentForm, setAppointmentForm] = useState({ patient: "", practitioner: "", service: "", startsAt: "", durationMinutes: 45, room: "" });
   const [convertReferral, setConvertReferral] = useState(null);
   const [convertForm, setConvertForm] = useState({});
   const [convertSaving, setConvertSaving] = useState(false);
@@ -766,8 +776,14 @@ export function Dashboard() {
   useEffect(() => {
     if (!session.token) return;
     let active = true;
-    listRecords("patients", { token: session.token, limit: 100 }).then((patients) => {
-      if (active) setPatientsList(patients || []);
+    Promise.all([
+      listRecords("patients", { token: session.token, limit: 100 }),
+      listRecords("doctors", { token: session.token, status: "active", limit: 100 })
+    ]).then(([patients, practitioners]) => {
+      if (active) {
+        setPatientsList(patients || []);
+        setPractitionersList((practitioners || []).filter((item) => item.status !== "inactive"));
+      }
     }).catch(() => {});
     return () => { active = false; };
   }, [session.token, resourceRefresh]);
@@ -864,6 +880,23 @@ export function Dashboard() {
       setActionError(err.message);
     } finally {
       setActionId("");
+    }
+  }
+
+  async function handleAppointmentSubmit(e) {
+    e.preventDefault();
+    setAppointmentSaving(true);
+    setAppointmentError("");
+    try {
+      await createRecord("appointments", { ...appointmentForm, startsAt: new Date(appointmentForm.startsAt).toISOString(), durationMinutes: Number(appointmentForm.durationMinutes) }, { token: session.token });
+      setShowAppointmentForm(false);
+      setAppointmentForm({ patient: "", practitioner: "", service: "", startsAt: "", durationMinutes: 45, room: "" });
+      setResourceRefresh((value) => value + 1);
+      refresh();
+    } catch (err) {
+      setAppointmentError(err.message);
+    } finally {
+      setAppointmentSaving(false);
     }
   }
 
@@ -1000,6 +1033,7 @@ export function Dashboard() {
                   patients={patientsList}
                   patientId={journeyPatientId}
                   userRole={session.user?.role}
+                  onCreateAppointment={() => { setAppointmentError(""); setShowAppointmentForm(true); }}
                 />
               ) : (
                 <ResourceBoard
@@ -1102,6 +1136,52 @@ export function Dashboard() {
                   {convertSaving ? "Creating..." : "Create Patient"}
                 </button>
                 <button className="secondary-button" type="button" onClick={() => setConvertReferral(null)}>Cancel</button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {showAppointmentForm && (
+        <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAppointmentForm(false)}>
+          <motion.div className="modal" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Schedule appointment</h3>
+              <button className="icon-button" type="button" onClick={() => setShowAppointmentForm(false)}>✕</button>
+            </div>
+            <form className="clinical-form" onSubmit={handleAppointmentSubmit}>
+              {appointmentError && <p className="form-status error-status">{appointmentError}</p>}
+              <label>Patient
+                <select required value={appointmentForm.patient} onChange={(e) => setAppointmentForm({ ...appointmentForm, patient: e.target.value })}>
+                  <option value="">Select patient</option>
+                  {patientsList.filter((patient) => !["on-hold","discharged"].includes(patient.status)).map((patient) => <option key={patient._id} value={patient._id}>{patient.fullName} · {patient.mrn}</option>)}
+                </select>
+              </label>
+              <label>Practitioner
+                <select required value={appointmentForm.practitioner} onChange={(e) => setAppointmentForm({ ...appointmentForm, practitioner: e.target.value })}>
+                  <option value="">Select practitioner</option>
+                  {practitionersList.map((person) => <option key={person._id} value={person._id}>{person.name} · {person.discipline}</option>)}
+                </select>
+              </label>
+              <label>Service
+                <input required maxLength={120} value={appointmentForm.service} onChange={(e) => setAppointmentForm({ ...appointmentForm, service: e.target.value })} placeholder="Speech Therapy, Occupational Therapy..." />
+              </label>
+              <div className="form-row">
+                <label>Date & time
+                  <input required type="datetime-local" min={new Date().toISOString().slice(0,16)} value={appointmentForm.startsAt} onChange={(e) => setAppointmentForm({ ...appointmentForm, startsAt: e.target.value })} />
+                </label>
+                <label>Duration
+                  <select value={appointmentForm.durationMinutes} onChange={(e) => setAppointmentForm({ ...appointmentForm, durationMinutes: Number(e.target.value) })}>
+                    {[15,30,45,60,75,90,105,120,135,150,165,180,195,210,225,240].map((minutes) => <option key={minutes} value={minutes}>{minutes} minutes</option>)}
+                  </select>
+                </label>
+              </div>
+              <label>Room (optional)
+                <input maxLength={80} value={appointmentForm.room} onChange={(e) => setAppointmentForm({ ...appointmentForm, room: e.target.value })} placeholder="Room 1" />
+              </label>
+              <div className="modal-actions">
+                <button className="primary-button" type="submit" disabled={appointmentSaving}>{appointmentSaving ? "Scheduling..." : "Schedule appointment"}</button>
+                <button className="secondary-button" type="button" onClick={() => setShowAppointmentForm(false)}>Cancel</button>
               </div>
             </form>
           </motion.div>
