@@ -574,8 +574,14 @@ function recordActions(viewId, record, userRole) {
     return actions;
   }
 
-  if (viewId === "billing" && ["director", "admin", "accounts"].includes(userRole) && ["draft", "partial"].includes(record.status)) {
-    return [{ label: "Mark paid", updates: { status: "paid", paidAmount: invoiceTotal(record) } }];
+  if (viewId === "billing" && ["director", "admin", "accounts"].includes(userRole)) {
+    const actions = [{ label: "Payment history", action: "history" }];
+    if (["draft", "partial"].includes(record.status)) actions.unshift({ label: "Record payment", action: "payment" });
+    return actions;
+  }
+
+  if (viewId === "inventory" && ["director", "admin", "coordinator"].includes(userRole)) {
+    return [{ label: "Stock movement", action: "stock" }, { label: "Movement history", action: "history" }];
   }
 
   if (viewId === "tasks" && record.status !== "done") {
@@ -762,6 +768,10 @@ export function Dashboard() {
   const [resourceRefresh, setResourceRefresh] = useState(0);
   const [actionId, setActionId] = useState("");
   const [actionError, setActionError] = useState("");
+  const [operationModal, setOperationModal] = useState(null);
+  const [operationHistory, setOperationHistory] = useState(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [operationForm, setOperationForm] = useState({ amount: "", method: "cash", reference: "", type: "receipt", quantity: "", reason: "" });
   const [journeyPatientId, setJourneyPatientId] = useState(null);
   const [showBilling, setShowBilling] = useState(false);
   const [billingRecord, setBillingRecord] = useState(null);
@@ -815,6 +825,35 @@ export function Dashboard() {
     return "Waiting";
   }, [error, refreshing, updatedAt]);
 
+  async function handleOperationSubmit(event) {
+    event.preventDefault();
+    if (!operationModal) return;
+    const { type, id } = operationModal;
+    const isPayment = type === "payment";
+    const payload = isPayment
+      ? { amount: Number(operationForm.amount), method: operationForm.method, reference: operationForm.reference }
+      : { type: operationForm.type, quantity: Number(operationForm.quantity), reason: operationForm.reason, reference: operationForm.reference };
+    setActionId(id);
+    setActionError("");
+    try {
+      const endpoint = isPayment ? "/invoices/" + id + "/payments" : "/inventory/" + id + "/movements";
+      const response = await fetch(API_BASE_URL + endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: "Bearer " + session.token },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.message || (isPayment ? "Payment could not be recorded" : "Stock movement could not be recorded"));
+      setOperationModal(null);
+      setResourceRefresh((value) => value + 1);
+      if (isPayment) refresh();
+    } catch (error) {
+      setActionError(error.message);
+    } finally {
+      setActionId("");
+    }
+  }
+
   function handleLogout() {
     clearSession();
     setSession({ token: null, user: null });
@@ -848,6 +887,32 @@ export function Dashboard() {
       if (patient) {
         setJourneyPatientId(id);
       }
+      return;
+    }
+    if (extra?.action === "history") {
+      const record = resourceState.records.find((item) => item._id === id);
+      if (resource === "invoices") {
+        setOperationHistory({ type: "payment", record, entries: record?.payments || [] });
+      } else {
+        setOperationHistory({ type: "stock", record, entries: [] });
+        setHistoryLoading(true);
+        try {
+          const response = await fetch(`${API_BASE_URL}/inventory/${id}/movements`, { headers: { Authorization: `Bearer ${session.token}` } });
+          const body = await response.json().catch(() => []);
+          if (!response.ok) throw new Error(body.message || "Movement history could not be loaded");
+          setOperationHistory({ type: "stock", record, entries: Array.isArray(body) ? body : [] });
+        } catch (error) {
+          setActionError(error.message);
+        } finally {
+          setHistoryLoading(false);
+        }
+      }
+      return;
+    }
+    if (extra?.action === "payment" || extra?.action === "stock") {
+      setOperationForm({ amount: "", method: "cash", reference: "", type: "receipt", quantity: "", reason: "" });
+      setOperationModal({ type: extra.action, id, record: resourceState.records.find((record) => record._id === id) });
+      setActionError("");
       return;
     }
     if (extra?.action === "bill") {
@@ -1216,6 +1281,91 @@ export function Dashboard() {
         </motion.div>
       )}
 
+      {operationModal && (
+        <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOperationModal(null)}>
+          <motion.div className="modal" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{operationModal.type === "payment" ? "Record invoice payment" : "Record stock movement"}</h3>
+              <button className="icon-button" type="button" onClick={() => setOperationModal(null)} aria-label="Close">✕</button>
+            </div>
+            {actionError && <p className="form-status error-status">{actionError}</p>}
+            <form className="clinical-form" onSubmit={handleOperationSubmit}>
+              {operationModal.type === "payment" ? (
+                <>
+                  <p>{operationModal.record?.invoiceNo || "Invoice"} · Outstanding ₹{Math.max(invoiceTotal(operationModal.record || {}) - Number(operationModal.record?.paidAmount || 0), 0).toFixed(2)}</p>
+                  <label>Amount (₹)
+                    <input type="number" min="0.01" step="0.01" max={Math.max(invoiceTotal(operationModal.record || {}) - Number(operationModal.record?.paidAmount || 0), 0)} required value={operationForm.amount} onChange={(event) => setOperationForm({ ...operationForm, amount: event.target.value })} />
+                  </label>
+                  <label>Payment method
+                    <select required value={operationForm.method} onChange={(event) => setOperationForm({ ...operationForm, method: event.target.value })}>
+                      <option value="cash">Cash</option><option value="upi">UPI</option><option value="card">Card</option><option value="bank">Bank transfer</option>
+                    </select>
+                  </label>
+                  <label>Reference (optional)
+                    <input maxLength="120" value={operationForm.reference} onChange={(event) => setOperationForm({ ...operationForm, reference: event.target.value })} />
+                  </label>
+                </>
+              ) : (
+                <>
+                  <label>Movement type
+                    <select required value={operationForm.type} onChange={(event) => setOperationForm({ ...operationForm, type: event.target.value })}>
+                      <option value="receipt">Stock receipt</option><option value="issue">Stock issue</option><option value="adjustment">Set stock balance</option>
+                    </select>
+                  </label>
+                  <label>{operationForm.type === "adjustment" ? "New stock quantity" : "Quantity"}
+                    <input type="number" min="0.01" step="0.01" required value={operationForm.quantity} onChange={(event) => setOperationForm({ ...operationForm, quantity: event.target.value })} />
+                  </label>
+                  <label>Reason
+                    <textarea rows={3} maxLength="300" required value={operationForm.reason} onChange={(event) => setOperationForm({ ...operationForm, reason: event.target.value })} />
+                  </label>
+                  <label>Reference (optional)
+                    <input maxLength="120" value={operationForm.reference} onChange={(event) => setOperationForm({ ...operationForm, reference: event.target.value })} />
+                  </label>
+                </>
+              )}
+              <div className="modal-actions">
+                <button className="primary-button" type="submit" disabled={actionId === operationModal.id}>{actionId === operationModal.id ? "Saving..." : operationModal.type === "payment" ? "Record payment" : "Save movement"}</button>
+                <button className="secondary-button" type="button" onClick={() => setOperationModal(null)}>Cancel</button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+      {operationHistory && (
+        <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOperationHistory(null)}>
+          <motion.div className="modal" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{operationHistory.type === "payment" ? "Payment history" : "Stock movement history"}</h3>
+              <button className="icon-button" type="button" onClick={() => setOperationHistory(null)} aria-label="Close">✕</button>
+            </div>
+            <p>{operationHistory.record?.invoiceNo || operationHistory.record?.name || "Record"}</p>
+            {historyLoading ? <p className="empty-state">Loading history...</p> : operationHistory.entries.length ? (
+              <div className="insight-list">
+                {operationHistory.entries.map((entry, index) => (
+                  <div className="history-entry" key={entry._id || index}>
+                    {operationHistory.type === "payment" ? (
+                      <>
+                        <strong>{INR.format(Number(entry.amount || 0))} · {entry.method || "Payment"}</strong>
+                        <span>{formatDateTime(entry.receivedAt)} · {entry.receivedBy?.name || "Staff"}</span>
+                        {entry.reference && <span>Reference: {entry.reference}</span>}
+                        {entry.notes && <span>{entry.notes}</span>}
+                      </>
+                    ) : (
+                      <>
+                        <strong>{entry.type} · {entry.quantity} {operationHistory.record?.unit || ""}</strong>
+                        <span>{formatDateTime(entry.createdAt)} · {entry.performedBy?.name || "Staff"}</span>
+                        <span>Stock: {entry.previousQuantity} → {entry.newQuantity}</span>
+                        <span>{entry.reason}</span>
+                        {entry.reference && <span>Reference: {entry.reference}</span>}
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : <p className="empty-state">No history has been recorded for this item yet.</p>}
+          </motion.div>
+        </motion.div>
+      )}
       {showBilling && (
         <motion.div
           className="modal-overlay"
