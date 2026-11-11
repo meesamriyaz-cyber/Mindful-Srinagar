@@ -1,26 +1,25 @@
 export function notFound(req, res, next) {
-  const error = new Error(`Route not found: ${req.originalUrl}`);
+  const error = new Error("Route not found: " + req.originalUrl);
   res.status(404);
   next(error);
 }
-
 export function errorHandler(error, req, res, _next) {
-  let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  let statusCode = res.statusCode === 200 ? (error.statusCode || 500) : res.statusCode;
   let message = error.message || "Server error";
-
-  if (error.name === "ValidationError") {
+  if (error.name === "ValidationError" || error.name === "CastError") {
     statusCode = 400;
-    message = Object.values(error.errors).map((issue) => issue.message).join(". ");
+    message = error.name === "ValidationError"
+      ? Object.values(error.errors).map((issue) => issue.message).join(". ")
+      : "The supplied record identifier or value is invalid";
   }
-
   if (error.code === 11000) {
     statusCode = 409;
     const field = Object.keys(error.keyPattern || {})[0] || "record";
-    message = `A ${field} with this value already exists`;
+    message = "A " + field + " with this value already exists";
   }
-
-  res.status(statusCode).json({
-    message,
-    stack: process.env.NODE_ENV === "production" ? undefined : error.stack
-  });
+  if (statusCode >= 500) {
+    console.error(error);
+    if (process.env.NODE_ENV === "production") message = "An unexpected server error occurred";
+  }
+  res.status(statusCode).json({ message, ...(process.env.NODE_ENV === "production" ? {} : { stack: error.stack }) });
 }
