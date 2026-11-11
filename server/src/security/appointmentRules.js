@@ -59,7 +59,7 @@ export function isWithinPractitionerAvailability(startsAt, durationMinutes, avai
     const slotDay = String(slot.day || "").toLowerCase();
     const dayMatches = slotDay === day || slotDay === day.slice(0, 3);
     const parse = (value) => {
-      const match = /^(\\d{1,2}):(\\d{2})$/.exec(String(value || ""));
+      const match = /^(\d{1,2}):(\d{2})$/.exec(String(value || ""));
       return match ? Number(match[1]) * 60 + Number(match[2]) : NaN;
     };
     const from = parse(slot.from), to = parse(slot.to);
