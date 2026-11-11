@@ -11,7 +11,7 @@ const ROLES = [
   ["director", "Director"]
 ];
 
-export function StaffBoard({ token, currentRole }) {
+export function StaffBoard({ token, currentRole, onChanged }) {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -61,6 +61,7 @@ export function StaffBoard({ token, currentRole }) {
       setForm({ name: "", email: "", role: "reception", password: "", confirmPassword: "" });
       setShowForm(false);
       await load();
+      onChanged?.();
     } catch (err) {
       setError(err.message);
     } finally {
