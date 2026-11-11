@@ -2,11 +2,15 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import morgan from "morgan";
-import { loadEnv } from "./config/env.js";
+import { loadEnv, validateRuntimeEnv } from "./config/env.js";
 import { connectDb } from "./config/db.js";
 import { errorHandler, notFound } from "./middleware/errorHandler.js";
 import apiRoutes from "./routes/index.js";
 loadEnv();
+const runtimeConfig = validateRuntimeEnv();
+if (!runtimeConfig.valid) {
+  throw new Error("Invalid runtime configuration: " + runtimeConfig.errors.join("; "));
+}
 const app = express();
 const port = process.env.PORT || 5000;
 if (process.env.RENDER === "true") app.set("trust proxy", 1);
