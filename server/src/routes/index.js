@@ -40,6 +40,15 @@ router.use("/auth", authRoutes);
 router.post("/enquiries", createRateLimiter({ windowMs: 900000, max: 8, message: "Too many enquiries from this connection. Please try again later." }), createEnquiry);
 router.use(protect);
 router.get("/dashboard", permit("director", "admin", "reception"), getDashboard);
+router.get("/staff-accounts", permit(...management), async (_req, res, next) => {
+  try {
+    const staff = await User.find({ isActive: true, role: { $in: ["doctor", "therapist"] } })
+      .select("_id name email role")
+      .sort({ name: 1 })
+      .lean();
+    return res.json(staff);
+  } catch (error) { return next(error); }
+});
 router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
   createFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes"],
   updateFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes","dischargeDate","dischargeSummary","dischargeReason"],
