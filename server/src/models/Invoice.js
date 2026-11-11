@@ -22,6 +22,7 @@ const invoiceSchema = new mongoose.Schema({
   }},
   discount: { type: Number, default: 0, min: 0 },
   paidAmount: { type: Number, default: 0, min: 0 },
+  openingPaidAmount: { type: Number, default: 0, min: 0 },
   payments: { type: [paymentSchema], default: [] },
   paymentMode: { type: String, enum: ["cash","upi","card","bank","mixed"], default: "cash" },
   status: { type: String, enum: ["draft","paid","partial","void"], default: "draft" }
@@ -35,9 +36,10 @@ invoiceSchema.pre("validate", function validateInvoice(next) {
   const paid = Math.round(Number(this.paidAmount || 0) * 100) / 100;
   if (this.discount > gross) this.invalidate("discount", "Discount cannot exceed the invoice subtotal");
   if (paid > total) this.invalidate("paidAmount", "Payment cannot exceed the invoice total");
-  if (this.payments?.length) {
-    const ledgerTotal = Math.round(this.payments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0) * 100) / 100;
-    if (Math.abs(ledgerTotal - paid) > 0.009) this.invalidate("payments", "Payment ledger total must match the paid amount");
+  const openingPaid = Math.round(Number(this.openingPaidAmount || 0) * 100) / 100;
+  const ledgerTotal = Math.round((this.payments || []).reduce((sum, payment) => sum + Number(payment.amount || 0), 0) * 100) / 100;
+  if (openingPaid > paid || Math.abs(openingPaid + ledgerTotal - paid) > 0.009) {
+    this.invalidate("payments", "Opening paid amount plus payment ledger must match the paid amount");
   }
   if (this.status === "paid" && paid !== total) this.invalidate("status", "A paid invoice must be fully paid");
   if (this.status === "partial" && !(paid > 0 && paid < total)) {
@@ -52,6 +54,16 @@ invoiceSchema.pre("findOneAndUpdate", async function validateInvoiceUpdate() {
   const patch = update.$set || update;
   const fail = (message) => { const error = new Error(message); error.statusCode = 400; throw error; };
   const addingPayment = Boolean(update.$push?.payments);
+  const protectedFields = ["paidAmount", "openingPaidAmount", "payments"];
+  for (const operator of ["$set", "$unset", "$inc", "$mul", "$min", "$max", "$rename", "$setOnInsert"]) {
+    const values = update[operator] || {};
+    for (const field of protectedFields) {
+      if (values[field] !== undefined && !(addingPayment && operator === "$set" && field === "paidAmount")) {
+        if (field !== "paidAmount" || !addingPayment) fail("Payment history can only be changed through the payment endpoint");
+        if (field === "openingPaidAmount" || field === "payments") fail("Payment history can only be changed through the payment endpoint");
+      }
+    }
+  }
   if (patch.paidAmount !== undefined && Number(patch.paidAmount) !== Number(current.paidAmount || 0) && !addingPayment) {
     fail("Payments must be recorded through the payment endpoint");
   }
@@ -71,8 +83,10 @@ invoiceSchema.pre("findOneAndUpdate", async function validateInvoiceUpdate() {
     const newAmount = Number(update.$push.payments.amount);
     if (!Number.isFinite(newAmount) || newAmount <= 0 || Math.round(newAmount * 100) !== newAmount * 100) fail("Payment must be a positive amount with at most two decimal places");
     const priorLedger = (current.payments || []).reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
-    if ((current.payments || []).length && Math.abs(Math.round(priorLedger * 100) / 100 - Math.round(Number(current.paidAmount || 0) * 100) / 100) > 0.009) fail("Existing payment ledger does not reconcile with the paid amount");
-    if (Math.abs(Math.round((priorLedger + newAmount) * 100) / 100 - paid) > 0.009) fail("New payment does not reconcile with the updated paid amount");
+    const openingPaid = Number(current.openingPaidAmount ?? ((current.payments || []).length ? 0 : current.paidAmount || 0));
+    if (Math.abs(Math.round((openingPaid + priorLedger) * 100) / 100 - Math.round(Number(current.paidAmount || 0) * 100) / 100) > 0.009) fail("Existing payment history does not reconcile with the paid amount");
+    if (Math.abs(Math.round((openingPaid + priorLedger + newAmount) * 100) / 100 - paid) > 0.009) fail("New payment does not reconcile with the updated paid amount");
+    if (Number(update.$set?.openingPaidAmount ?? openingPaid) !== openingPaid) fail("Opening paid amount cannot be changed");
   }
   if (status === "paid" && paid !== total) fail("A paid invoice must be fully paid");
   if (status === "partial" && !(paid > 0 && paid < total)) fail("A partial invoice must have a payment between zero and the total");
