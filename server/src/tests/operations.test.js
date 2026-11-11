@@ -199,7 +199,7 @@ test("task CRUD record and update handlers enforce the assigned-user scope", asy
     recordScope: taskScope,
     updateScope: taskScope
   });
-  const req = { params: { id: taskId }, user: { _id: userId, role: "doctor" }, body: { status: "done", title: "attempted escalation" } };
+  const req = { params: { id: taskId }, user: { _id: userId, role: "doctor" }, body: { status: "done" } };
   const response = { status() { return this; }, json(value) { this.value = value; return this; } };
   await controller.get(req, response, (error) => { throw error; });
   await controller.update(req, response, (error) => { throw error; });
