@@ -55,3 +55,10 @@ test("invoice validation rejects payment above total", async () => {
   });
   await assert.rejects(invoice.validate(), (error) => Boolean(error.errors?.paidAmount));
 });
+
+import { taskScope } from "../security/taskAccess.js";
+
+test("task scope limits non-manager staff to their own assignments", () => {
+  assert.deepEqual(taskScope({ user: { role: "therapist", _id: "staff-123" } }), { assignedTo: "staff-123" });
+  assert.deepEqual(taskScope({ user: { role: "admin", _id: "admin-123" } }), {});
+});
