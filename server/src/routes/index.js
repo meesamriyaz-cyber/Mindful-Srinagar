@@ -21,6 +21,9 @@ import treatmentPlanRoutes from "./treatmentPlanRoutes.js";
 import progressNoteRoutes from "./progressNoteRoutes.js";
 import prescriptionRoutes from "./prescriptionRoutes.js";
 import { createInvoice, generateInvoiceFromAppointment } from "../controllers/invoiceController.js";
+import { recordInvoicePayment } from "../controllers/paymentController.js";
+import { adjustInventory, listInventoryMovements } from "../controllers/inventoryController.js";
+import { canTransitionTask, validateTaskPayload } from "../security/taskRules.js";
 import { taskManagers, taskScope } from "../security/taskAccess.js";
 import { calculateOutstandingBalance } from "../utils/invoiceBalance.js";
 import { escapeRegex } from "../utils/query.js";
@@ -210,24 +213,51 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
   }
 }), { read: appointmentStaff, create: reception, update: appointmentStaff, remove: [] }));
 router.post("/invoices", permit(...invoiceCreators), createInvoice);
+router.post("/invoices/:id/payments", permit(...billing), recordInvoicePayment);
 router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient"], {
-  createFields: ["patient","invoiceNo","items","discount","paidAmount","paymentMode","status"],
-  updateFields: ["items","discount","paidAmount","paymentMode","status"],
+  createFields: ["patient","invoiceNo","items","discount","paymentMode","status"],
+  updateFields: ["items","discount","paymentMode"],
   filterFields: ["status","patient"], filterAliases: { patientId: "patient" }, searchableFields: ["invoiceNo"],
   updateScope: (req) => ["director","admin"].includes(req.user.role) ? {} : { status: { $nin: ["paid","void"] } }
 }), { read: invoiceReaders, write: billing, create: [], remove: [] }));
 router.post("/invoices/generate-from-appointment/:appointmentId", permit(...invoiceCreators), generateInvoiceFromAppointment);
+router.post("/inventory/:id/movements", permit(...management), adjustInventory);
+router.get("/inventory/:id/movements", permit(...management), listInventoryMovements);
 router.use("/inventory", crudRoutes(makeCrudController(InventoryItem, [], {
-  createFields: ["name","category","quantity","reorderLevel","unit","vendor","notes"],
-  updateFields: ["name","category","quantity","reorderLevel","unit","vendor","notes"],
+  createFields: ["name","category","reorderLevel","unit","vendor","notes"],
+  updateFields: ["name","category","reorderLevel","unit","vendor","notes"],
   filterFields: ["category"], searchableFields: ["name","category","vendor"]
-}), { read: ["director","admin","coordinator"], write: ["director","admin","coordinator"], remove: management }));
+}), { read: ["director","admin","coordinator"], write: management, remove: management }));
 router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo"], {
   createFields: ["title","department","assignedTo","dueDate","priority","status"],
   updateFields: ["title","department","assignedTo","dueDate","priority","status"],
   updateFieldsByRole: { doctor: ["status"], therapist: ["status"], accounts: ["status"] },
   filterFields: ["status","department"], searchableFields: ["title","department"],
-  listScope: taskScope, recordScope: taskScope
+  listScope: taskScope, recordScope: taskScope,
+  validateCreate: async ({ payload }) => {
+    const error = validateTaskPayload(payload);
+    if (error) return { statusCode: 400, message: error };
+    if (payload.assignedTo) {
+      const assignee = await User.findOne({ _id: payload.assignedTo, isActive: true }).select("_id");
+      if (!assignee) return { statusCode: 400, message: "Assign tasks only to an active staff account" };
+    }
+    if (payload.status && payload.status !== "todo") return { statusCode: 400, message: "New tasks must begin in todo status" };
+    return null;
+  },
+  validateUpdate: async ({ req, payload }) => {
+    const error = validateTaskPayload(payload);
+    if (error) return { statusCode: 400, message: error };
+    const current = await Task.findOne({ _id: req.params.id, ...taskScope(req) }).select("status");
+    if (!current) return { statusCode: 404, message: "Task not found" };
+    if (payload.status && !canTransitionTask(current.status, payload.status)) {
+      return { statusCode: 409, message: "Task cannot move from " + current.status + " to " + payload.status };
+    }
+    if (payload.assignedTo) {
+      const assignee = await User.findOne({ _id: payload.assignedTo, isActive: true }).select("_id");
+      if (!assignee) return { statusCode: 400, message: "Assign tasks only to an active staff account" };
+    }
+    return null;
+  }
 }), {
   read: ["director","admin","reception","doctor","therapist","accounts","coordinator"],
   create: taskManagers, update: [...taskManagers,"doctor","therapist","accounts"], remove: management
