@@ -29,6 +29,7 @@ import { useDashboard } from "../hooks/useDashboard.js";
 import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, API_BASE_URL } from "../lib/api.js";
 import { ClinicalBoard } from "./ClinicalBoard.jsx";
 import { PatientJourney } from "./PatientJourney.jsx";
+import { PractitionerBoard } from "./PractitionerBoard.jsx";
 import { ChipInput } from "./ChipInput.jsx";
 import { serviceCharges, services } from "../data/centreData.js";
 
