@@ -52,6 +52,10 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
         if (!isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid record ID is required" });
         const allowed = policy.updateFieldsByRole?.[req.user.role] || updateFields;
         const payload = sanitizePayload(req.body, allowed);
+        if (policy.validateUpdate) {
+          const validation = await policy.validateUpdate({ req, payload, Model });
+          if (validation) return res.status(validation.statusCode || 400).json({ message: validation.message || "Update is not allowed" });
+        }
         const doc = await Model.findOneAndUpdate({ _id: req.params.id, ...updateScope(req) }, { $set: payload }, {
           new: true, runValidators: true, context: "query"
         });
