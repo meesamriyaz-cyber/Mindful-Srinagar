@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+
 const invoiceItemSchema = new mongoose.Schema({
   description: { type: String, required: true, trim: true, maxlength: 200 },
   quantity: { type: Number, required: true, default: 1, min: 0.01, max: 100000 },
@@ -30,11 +31,16 @@ invoiceSchema.virtual("total").get(function getTotal() {
 });
 invoiceSchema.pre("validate", function validateInvoice(next) {
   const gross = this.items.reduce((sum, item) => sum + item.quantity * item.rate, 0);
-  const total = gross - this.discount;
+  const total = Math.round((gross - this.discount) * 100) / 100;
+  const paid = Math.round(Number(this.paidAmount || 0) * 100) / 100;
   if (this.discount > gross) this.invalidate("discount", "Discount cannot exceed the invoice subtotal");
-  if (this.paidAmount > total) this.invalidate("paidAmount", "Payment cannot exceed the invoice total");
-  if (this.status === "paid" && this.paidAmount !== total) this.invalidate("status", "A paid invoice must be fully paid");
-  if (this.status === "partial" && !(this.paidAmount > 0 && this.paidAmount < total)) {
+  if (paid > total) this.invalidate("paidAmount", "Payment cannot exceed the invoice total");
+  if (this.payments?.length) {
+    const ledgerTotal = Math.round(this.payments.reduce((sum, payment) => sum + Number(payment.amount || 0), 0) * 100) / 100;
+    if (Math.abs(ledgerTotal - paid) > 0.009) this.invalidate("payments", "Payment ledger total must match the paid amount");
+  }
+  if (this.status === "paid" && paid !== total) this.invalidate("status", "A paid invoice must be fully paid");
+  if (this.status === "partial" && !(paid > 0 && paid < total)) {
     this.invalidate("status", "A partial invoice must have a payment between zero and the total");
   }
   next();
@@ -45,19 +51,31 @@ invoiceSchema.pre("findOneAndUpdate", async function validateInvoiceUpdate() {
   const update = this.getUpdate() || {};
   const patch = update.$set || update;
   const fail = (message) => { const error = new Error(message); error.statusCode = 400; throw error; };
-  if (patch.paidAmount !== undefined && Number(patch.paidAmount) !== Number(current.paidAmount || 0) && !update.$push?.payments) {
+  const addingPayment = Boolean(update.$push?.payments);
+  if (patch.paidAmount !== undefined && Number(patch.paidAmount) !== Number(current.paidAmount || 0) && !addingPayment) {
     fail("Payments must be recorded through the payment endpoint");
+  }
+  if ((patch.items !== undefined || patch.discount !== undefined) && (current.payments || []).length > 0) {
+    fail("Invoice items and discounts cannot be changed after a payment has been recorded");
   }
   const items = patch.items ?? current.items ?? [];
   const discount = Number(patch.discount ?? current.discount ?? 0);
-  const paidAmount = Number(current.paidAmount || 0);
+  const paidAmount = Number(patch.paidAmount ?? current.paidAmount ?? 0);
   const status = patch.status ?? current.status;
   const subtotal = items.reduce((sum, item) => sum + Number(item.quantity) * Number(item.rate), 0);
-  const total = subtotal - discount;
-  if (!Number.isFinite(subtotal) || discount < 0 || discount > subtotal) fail("Discount must be non-negative and cannot exceed the invoice subtotal");
-  if (!Number.isFinite(paidAmount) || paidAmount < 0 || paidAmount > total) fail("Payment must be between zero and the invoice total");
-  if (status === "paid" && paidAmount !== total) fail("A paid invoice must be fully paid");
-  if (status === "partial" && !(paidAmount > 0 && paidAmount < total)) fail("A partial invoice must have a payment between zero and the total");
+  const total = Math.round((subtotal - discount) * 100) / 100;
+  const paid = Math.round(paidAmount * 100) / 100;
+  if (!Number.isFinite(subtotal) || !Number.isFinite(discount) || discount < 0 || discount > subtotal) fail("Discount must be non-negative and cannot exceed the invoice subtotal");
+  if (!Number.isFinite(paid) || paid < 0 || paid > total) fail("Payment must be between zero and the invoice total");
+  if (addingPayment) {
+    const newAmount = Number(update.$push.payments.amount);
+    if (!Number.isFinite(newAmount) || newAmount <= 0 || Math.round(newAmount * 100) !== newAmount * 100) fail("Payment must be a positive amount with at most two decimal places");
+    const priorLedger = (current.payments || []).reduce((sum, payment) => sum + Number(payment.amount || 0), 0);
+    if ((current.payments || []).length && Math.abs(Math.round(priorLedger * 100) / 100 - Math.round(Number(current.paidAmount || 0) * 100) / 100) > 0.009) fail("Existing payment ledger does not reconcile with the paid amount");
+    if (Math.abs(Math.round((priorLedger + newAmount) * 100) / 100 - paid) > 0.009) fail("New payment does not reconcile with the updated paid amount");
+  }
+  if (status === "paid" && paid !== total) fail("A paid invoice must be fully paid");
+  if (status === "partial" && !(paid > 0 && paid < total)) fail("A partial invoice must have a payment between zero and the total");
 });
 invoiceSchema.index({ status: 1, createdAt: -1 });
 invoiceSchema.index({ patient: 1, createdAt: -1 });
