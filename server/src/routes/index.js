@@ -33,6 +33,7 @@ import { calculateOutstandingBalance } from "../utils/invoiceBalance.js";
 import { escapeRegex } from "../utils/query.js";
 import { canTransitionPatientStatus, validateDischargeDetails } from "../security/patientLifecycle.js";
 import { canActivatePatient } from "../security/carePlanRules.js";
+import { validateDischargeApprovalPayload, validateDischargeReadiness, canCloseDischarge } from "../security/dischargeRules.js";
 import { validateAppointmentShape, canTransitionAppointment, findAppointmentConflict, isWithinPractitionerAvailability } from "../security/appointmentRules.js";
 import { createPractitionerPatientScope } from "../security/practitionerPatientScope.js";
 import { requiresApprovedTreatmentPlan } from "../security/sessionRules.js";
@@ -47,7 +48,87 @@ const inventoryManagers = [...management, "coordinator"];
 const invoiceReaders = [...billing, "reception"];
 const invoiceCreators = [...billing, "reception"];
 
+
 const practitionerPatientScope = createPractitionerPatientScope({ Doctor, Appointment });
+
+async function getPatientDischargeReadiness(patientId) {
+  const [hasCompletedDischargeAssessment, openAppointments, openTreatmentPlans, openTasks, invoices] = await Promise.all([
+    Assessment.exists({ patient: patientId, assessmentType: "discharge", status: "completed" }),
+    Appointment.countDocuments({ patient: patientId, status: { $in: ["scheduled", "checked-in"] } }),
+    TreatmentPlan.countDocuments({ patient: patientId, status: { $in: ["planned", "active", "on-hold"] } }),
+    Task.countDocuments({ patient: patientId, status: { $ne: "done" } }),
+    Invoice.find({ patient: patientId, status: { $ne: "void" } }).select("items discount paidAmount").lean()
+  ]);
+  const outstandingBalance = calculateOutstandingBalance(invoices);
+  return {
+    hasCompletedDischargeAssessment: Boolean(hasCompletedDischargeAssessment),
+    openAppointments,
+    openTreatmentPlans,
+    openTasks,
+    outstandingBalance,
+    error: validateDischargeReadiness({
+      hasCompletedDischargeAssessment: Boolean(hasCompletedDischargeAssessment),
+      openAppointments,
+      openTreatmentPlans,
+      openTasks,
+      outstandingBalance
+    })
+  };
+}
+
+router.post("/patients/:id/discharge-approval", permit("director", "admin", "doctor"), async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid patient ID is required" });
+    const payload = req.body && typeof req.body === "object" && !Array.isArray(req.body) ? req.body : {};
+    const allowed = ["summary", "reason", "outcome", "recommendations"];
+    const unexpected = Object.keys(payload).find((key) => !allowed.includes(key));
+    if (unexpected) return res.status(400).json({ message: "Unsupported field: " + unexpected });
+    const validationError = validateDischargeApprovalPayload(payload);
+    if (validationError) return res.status(400).json({ message: validationError });
+    const patient = await Patient.findById(req.params.id).select("status dischargeApprovedAt");
+    if (!patient) return res.status(404).json({ message: "Patient not found" });
+    if (patient.status === "discharged") return res.status(409).json({ message: "Patient is already discharged" });
+    if (patient.dischargeApprovedAt) return res.status(409).json({ message: "Clinical discharge has already been approved; complete administrative closure instead" });
+    const readiness = await getPatientDischargeReadiness(patient._id);
+    if (readiness.error) return res.status(409).json({ message: readiness.error, readiness });
+    const updated = await Patient.findOneAndUpdate(
+      { _id: patient._id, status: { $ne: "discharged" }, $or: [{ dischargeApprovedAt: { $exists: false } }, { dischargeApprovedAt: null }] },
+      { $set: {
+        dischargeSummary: payload.summary.trim(),
+        dischargeReason: payload.reason.trim(),
+        dischargeOutcome: payload.outcome.trim(),
+        dischargeRecommendations: payload.recommendations.trim(),
+        dischargeApprovedBy: req.user._id,
+        dischargeApprovedAt: new Date()
+      } },
+      { new: true, runValidators: true }
+    ).populate("dischargeApprovedBy", "name role");
+    if (!updated) return res.status(409).json({ message: "Discharge approval changed concurrently. Reload the patient record." });
+    return res.json(updated);
+  } catch (error) { return next(error); }
+});
+
+router.post("/patients/:id/discharge-close", permit("director", "admin", "reception", "coordinator"), async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid patient ID is required" });
+    const patient = await Patient.findById(req.params.id).select("status dischargeApprovedAt");
+    if (!patient) return res.status(404).json({ message: "Patient not found" });
+    if (!canCloseDischarge({ approvedAt: patient.dischargeApprovedAt, isAlreadyDischarged: patient.status === "discharged" })) {
+      return res.status(409).json({ message: "Clinical discharge approval is required before administrative closure" });
+    }
+    const readiness = await getPatientDischargeReadiness(patient._id);
+    if (readiness.error) return res.status(409).json({ message: readiness.error, readiness });
+    const closedAt = new Date();
+    const updated = await Patient.findOneAndUpdate(
+      { _id: patient._id, status: { $ne: "discharged" }, dischargeApprovedAt: { $ne: null } },
+      { $set: { status: "discharged", dischargeDate: closedAt, dischargeClosedBy: req.user._id, dischargeClosedAt: closedAt } },
+      { new: true, runValidators: true }
+    ).populate("dischargeApprovedBy", "name role").populate("dischargeClosedBy", "name role");
+    if (!updated) return res.status(409).json({ message: "Patient discharge was already closed. Reload the record." });
+    return res.json(updated);
+  } catch (error) { return next(error); }
+});
+
 
 router.get("/health", (_req, res) => res.json({ status: "ok", service: "mindful-api" }));
 router.use("/auth", authRoutes);
@@ -70,9 +151,9 @@ router.get("/staff-accounts", permit(...management), async (_req, res, next) => 
     return res.json(staff);
   } catch (error) { return next(error); }
 });
-router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
+router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral", "dischargeApprovedBy", "dischargeClosedBy"], {
   createFields: ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status","referral","notes"],
-  updateFields: ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status","referral","notes","dischargeDate","dischargeSummary","dischargeReason"],
+  updateFields: ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status","referral","notes"],
   validateCreate: async ({ payload }) => {
     if (payload.status && !["new","assessment"].includes(payload.status)) return { statusCode: 400, message: "New patients must begin in new or assessment status" };
     if (payload.referral) {
@@ -90,13 +171,14 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
     return null;
   },
   updateFieldsByRole: {
-    reception: ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status","referral","dischargeDate","dischargeReason"],
-    coordinator: ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status","referral","dischargeDate","dischargeReason"]
+    reception: ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status","referral"],
+    coordinator: ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status","referral"]
   },
   redactFieldsByRole: { reception: ["notes","dischargeSummary"], coordinator: ["notes","dischargeSummary"] },
   validateUpdate: async ({ req, payload }) => {
-    const current = await Patient.findById(req.params.id).select("status referral");
+    const current = await Patient.findById(req.params.id).select("status referral dischargeApprovedAt");
     if (!current) return { statusCode: 404, message: "Patient not found" };
+    if (payload.status === "discharged") return { statusCode: 409, message: "Use clinical discharge approval followed by administrative closure" };
     if (payload.status && !canTransitionPatientStatus(current.status, payload.status)) return { statusCode: 409, message: `Patient status cannot move from ${current.status} to ${payload.status}` };
     if (payload.status === "active") {
       const [hasCompletedAssessment, hasApprovedActivePlan] = await Promise.all([
@@ -108,8 +190,7 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
         return { statusCode: 409, message: "An approved active treatment plan is required before activating this patient" };
       }
     }
-    const dischargeError = validateDischargeDetails(payload);
-    if (dischargeError) return { statusCode: 400, message: dischargeError };
+    if (current.dischargeApprovedAt && payload.status && payload.status !== current.status) return { statusCode: 409, message: "Patient status cannot change while discharge closure is pending" };
     if (payload.referral && String(payload.referral) !== String(current.referral || "")) return { statusCode: 400, message: "A patient's referral linkage cannot be changed after registration" };
     if (payload.status !== "discharged") return null;
     const invoices = await Invoice.find({ patient: req.params.id, status: { $ne: "void" } })
@@ -288,15 +369,23 @@ router.use("/inventory", crudRoutes(makeCrudController(InventoryItem, [], {
   updateFields: ["name","category","reorderLevel","unit","vendor","notes"],
   filterFields: ["category"], searchableFields: ["name","category","vendor"]
 }), { read: ["director","admin","coordinator"], write: management, remove: management }));
-router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo"], {
-  createFields: ["title","department","assignedTo","dueDate","priority","status"],
-  updateFields: ["title","department","assignedTo","dueDate","priority","status"],
+router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo", "patient"], {
+  createFields: ["title","patient","department","assignedTo","dueDate","priority","status"],
+  updateFields: ["title","patient","department","assignedTo","dueDate","priority","status"],
   updateFieldsByRole: { doctor: ["status"], therapist: ["status"], accounts: ["status"] },
   filterFields: ["status","department"], searchableFields: ["title","department"],
   listScope: taskScope, recordScope: taskScope,
   validateCreate: async ({ payload }) => {
     const error = validateTaskPayload(payload);
     if (error) return { statusCode: 400, message: error };
+    if (payload.patient) {
+      const linkedPatient = await Patient.findOne({ _id: payload.patient, status: { $ne: "discharged" }, dischargeApprovedAt: null }).select("_id");
+      if (!linkedPatient) return { statusCode: 409, message: "Link tasks only to patients who are open and not awaiting discharge closure" };
+    }
+    if (payload.patient) {
+      const linkedPatient = await Patient.findOne({ _id: payload.patient, status: { $ne: "discharged" }, dischargeApprovedAt: null }).select("_id");
+      if (!linkedPatient) return { statusCode: 409, message: "Link tasks only to patients who are open and not awaiting discharge closure" };
+    }
     if (payload.assignedTo) {
       const assignee = await User.findOne({ _id: payload.assignedTo, isActive: true }).select("_id");
       if (!assignee) return { statusCode: 400, message: "Assign tasks only to an active staff account" };
