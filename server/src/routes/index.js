@@ -151,15 +151,8 @@ router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo", 
     if (payload.followUpDate && !Number.isFinite(new Date(payload.followUpDate).getTime())) {
       return { statusCode: 400, message: "Enter a valid follow-up date" };
     }
-    const allowed = {
-      new: ["contacted", "scheduled", "lost"],
-      contacted: ["scheduled", "lost"],
-      scheduled: ["contacted", "lost"],
-      converted: [],
-      lost: ["contacted"]
-    };
-    if (payload.status && payload.status !== current.status && !allowed[current.status]?.includes(payload.status)) {
-      return { statusCode: 409, message: `Referral status cannot move from ${current.status} to ${payload.status}` };
+    if (payload.status && payload.status !== current.status) {
+      return { statusCode: 409, message: "Use the Log Contact Attempt action to advance a referral. Use Convert to Patient for registration." };
     }
     return null;
   },
