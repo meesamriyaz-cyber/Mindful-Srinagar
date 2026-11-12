@@ -831,6 +831,41 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
       .catch(() => { if (active) setReferralOwners([]); });
     return () => { active = false; };
   }, [activeView, token]);
+
+  useEffect(() => {
+    if (activeView !== "tasks" || !token) { setTaskPatients([]); return undefined; }
+    let active = true;
+    listRecords("patients", { token, limit: 100 }).then((items) => {
+      if (active) setTaskPatients(items || []);
+    }).catch(() => {
+      if (active) setTaskPatients([]);
+    });
+    return () => { active = false; };
+  }, [activeView, token]);
+
+  async function submitTask(event) {
+    event.preventDefault();
+    setTaskSaving(true);
+    setTaskError("");
+    try {
+      await createRecord("tasks", {
+        title: taskForm.title.trim(),
+        ...(taskForm.patient ? { patient: taskForm.patient } : {}),
+        department: taskForm.department,
+        priority: taskForm.priority,
+        ...(taskForm.dueDate ? { dueDate: new Date(taskForm.dueDate).toISOString() } : {}),
+        status: "todo"
+      }, { token });
+      setTaskForm({ title: "", patient: "", department: "clinical", priority: "medium", dueDate: "" });
+      setShowTaskCreate(false);
+      onRefreshRecords?.();
+    } catch (error) {
+      setTaskError(error.message || "Unable to create task");
+    } finally {
+      setTaskSaving(false);
+    }
+  }
+
   const config = getViewConfig(activeView);
   const Icon = config.icon;
 
