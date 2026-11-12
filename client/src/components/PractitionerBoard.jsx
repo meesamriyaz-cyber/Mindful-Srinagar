@@ -134,6 +134,7 @@ export function PractitionerBoard({ token, staffAccounts = [], onChanged }) {
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   async function load() {
     setLoading(true);
@@ -152,12 +153,13 @@ export function PractitionerBoard({ token, staffAccounts = [], onChanged }) {
 
   const visible = useMemo(() => {
     const term = search.trim().toLowerCase();
-    if (!term) return records;
-    return records.filter((record) =>
-      [record.name, record.discipline, record.phone, record.email, record.registrationNo]
-        .some((value) => String(value || "").toLowerCase().includes(term))
-    );
-  }, [records, search]);
+    return records.filter((record) => {
+      const matchesSearch = !term || [record.name, record.discipline, record.phone, record.email, record.registrationNo]
+        .some((value) => String(value || "").toLowerCase().includes(term));
+      const matchesStatus = statusFilter === "all" || record.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [records, search, statusFilter]);
 
   async function save(payload) {
     setSaving(true);
@@ -177,7 +179,7 @@ export function PractitionerBoard({ token, staffAccounts = [], onChanged }) {
       <div className="panel-title resource-title practitioner-board-heading">
         <div>
           <h3>Practitioners & doctors</h3>
-          <span className="resource-count" aria-live="polite">{records.length} profiles · {records.filter(record => record.status === "active").length} active</span>
+          <span className="resource-count" aria-live="polite">{records.length} profiles · {records.filter(record => record.status === "active").length} active · {records.filter(record => record.status === "visiting").length} visiting</span>
           <p className="resource-description">Manage clinical profiles, staff account links and appointment availability.</p>
         </div>
         {!editing && <button className="primary-button compact-button" type="button" onClick={() => setEditing({})}>+ Add practitioner</button>}
@@ -196,9 +198,25 @@ export function PractitionerBoard({ token, staffAccounts = [], onChanged }) {
           />
         </section>
       )}
-      <label className="search-box practitioner-search">
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search practitioners by name, speciality or contact" />
-      </label>
+      <div className="practitioner-toolbar">
+        <label className="search-box practitioner-search">
+          <span className="practitioner-search-label">Find a practitioner</span>
+          <input aria-label="Search practitioners by name, speciality or contact" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Name, speciality or contact" />
+        </label>
+        <label className="practitioner-status-filter">
+          <span>Profile status</span>
+          <select aria-label="Filter practitioners by status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+            <option value="all">All statuses</option>
+            <option value="active">Active</option>
+            <option value="visiting">Visiting</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </label>
+        {(search || statusFilter !== "all") && (
+          <button className="practitioner-filter-reset" type="button" onClick={() => { setSearch(""); setStatusFilter("all"); }}>Clear</button>
+        )}
+      </div>
+      <p className="practitioner-results-line" aria-live="polite">Showing {visible.length} of {records.length} practitioner profiles</p>
       {loading ? <p className="empty-state">Loading practitioners...</p> : visible.length ? (
         <div className="record-grid practitioner-record-grid">
           {visible.map((record) => {
@@ -219,6 +237,8 @@ export function PractitionerBoard({ token, staffAccounts = [], onChanged }) {
             );
           })}
         </div>
+      ) : records.length ? (
+        <p className="empty-state practitioner-no-results">No practitioner profiles match these filters. Adjust the search or status.</p>
       ) : <p className="empty-state">No practitioners found. Add the centre's first practitioner to enable appointment scheduling.</p>}
     </article>
   );
