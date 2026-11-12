@@ -38,6 +38,7 @@ const CONFIGS = {
     updateFn: updateAssessment,
     fields: [
       { name: "patient", label: "Patient", type: "patient" },
+      { name: "assessmentType", label: "Assessment type", type: "select", options: ["initial", "review", "discharge"] },
       { name: "domains", label: "Domains", type: "text", placeholder: "Speech, Language, Social..." },
       { name: "findings", label: "Findings", type: "textarea" },
       { name: "recommendations", label: "Recommendations", type: "textarea" },
@@ -57,7 +58,7 @@ const CONFIGS = {
       { name: "interventions", label: "Interventions", type: "chips", suggestions: services },
       { name: "frequency", label: "Frequency", type: "text", placeholder: "Weekly" },
       { name: "duration", label: "Duration", type: "text", placeholder: "45 minutes" },
-      { name: "status", label: "Status", type: "select", options: ["planned", "active", "on-hold", "completed"] }
+      { name: "status", label: "Status", type: "select", options: ["planned", "active", "on-hold", "completed", "cancelled"] }
     ]
   },
   "progress-notes": {
