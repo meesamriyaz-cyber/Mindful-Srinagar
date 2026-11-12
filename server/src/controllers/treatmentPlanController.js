@@ -9,7 +9,7 @@ const controller = makeClinicalRecordController({
   Model: TreatmentPlan, recordType: "treatment-plan", ownerField: "createdBy",
   createFields: ["patient","assessment","startDate","endDate","goals","interventions","frequency","duration","status"],
   updateFields: ["startDate","endDate","goals","interventions","frequency","duration","status"],
-  populate: [["patient","fullName mrn"],["createdBy","name email"],["assessment","assessedAt status domains"]],
+  populate: [["patient","fullName mrn"],["createdBy","name email"],["assessment","assessedAt status domains"],["approvedBy","name email"]],
   sortField: "startDate", searchFields: ["goals","interventions"],
   defaultValues: () => ({ startDate: new Date(), status: "planned" }),
   validateRelations: async (payload, req) => {
