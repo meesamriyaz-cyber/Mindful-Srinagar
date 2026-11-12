@@ -1,4 +1,4 @@
-import { escapeRegex, isValidObjectId, parseLimit, sanitizePayload } from "../utils/query.js";
+import { escapeRegex, isValidObjectId, parseLimit, parseOffset, sanitizePayload } from "../utils/query.js";
 export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
   const applyPopulate = (query) => defaultPopulate.reduce((current, path) => current.populate(path), query);
   const createFields = policy.createFields || [];
@@ -21,7 +21,7 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
   return {
     async list(req, res, next) {
       try {
-        const { status, q, limit = 50, ...extraFilters } = req.query;
+        const { status, q, limit = 50, skip = 0, ...extraFilters } = req.query;
         const filter = { ...(await listScope(req)) };
         if (status && filterFields.includes("status")) filter.status = status;
         for (const [key, value] of Object.entries(extraFilters)) {
@@ -33,7 +33,15 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
           const expression = new RegExp(escapeRegex(String(q).trim().slice(0, 80)), "i");
           filter.$or = searchableFields.map((field) => ({ [field]: expression }));
         }
-        const docs = await applyPopulate(Model.find(filter)).sort({ createdAt: -1 }).limit(parseLimit(limit));
+        const pageSize = parseLimit(limit);
+        const offset = parseOffset(skip);
+        const [total, docs] = await Promise.all([
+          Model.countDocuments(filter),
+          applyPopulate(Model.find(filter)).sort({ createdAt: -1 }).skip(offset).limit(pageSize)
+        ]);
+        res.set("X-Total-Count", String(total));
+        res.set("X-Has-More", String(offset + docs.length < total));
+        res.set("X-Next-Offset", String(offset + docs.length));
         return res.json(docs.map((doc) => redact(doc, req)));
       } catch (error) { return next(error); }
     },
