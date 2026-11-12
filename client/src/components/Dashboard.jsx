@@ -793,7 +793,7 @@ function ReferralNotesEditor({ record, onSave, saving, token, onFollowUpLogged }
   );
 }
 
-function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError, userRole, onCreateAppointment }) {
+function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError, userRole, token, onRefreshRecords, onCreateAppointment }) {
   const config = getViewConfig(activeView);
   const Icon = config.icon;
 
@@ -847,8 +847,8 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                       <ReferralNotesEditor
                         record={record}
                         saving={actionId === record._id}
-                        token={data.token}
-                        onFollowUpLogged={() => onRecordAction(config.resource, record._id, {}, { action: "refresh" })}
+                        token={token}
+                        onFollowUpLogged={onRefreshRecords}
                         onSave={(updates) => onRecordAction(config.resource, record._id, updates, { action: "save-notes" })}
                       />
                     )}
@@ -1252,6 +1252,8 @@ export function Dashboard() {
                   patients={patientsList}
                   patientId={journeyPatientId}
                   userRole={session.user?.role}
+                  token={session.token}
+                  onRefreshRecords={() => { setResourceRefresh((value) => value + 1); refresh(); }}
                   onCreateAppointment={() => { setAppointmentError(""); setShowAppointmentForm(true); }}
                 />
               ) : (
