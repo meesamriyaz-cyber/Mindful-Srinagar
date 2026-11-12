@@ -8,6 +8,7 @@ import { logReferralFollowUp } from "../controllers/referralController.js";
 import { permit, protect } from "../middleware/auth.js";
 import { createRateLimiter } from "../middleware/rateLimiter.js";
 import { Appointment } from "../models/Appointment.js";
+import { ProgressNote } from "../models/ProgressNote.js";
 import { Doctor } from "../models/Doctor.js";
 import { InventoryItem } from "../models/InventoryItem.js";
 import { Invoice } from "../models/Invoice.js";
@@ -34,6 +35,7 @@ import { canTransitionPatientStatus, validateDischargeDetails } from "../securit
 import { canActivatePatient } from "../security/carePlanRules.js";
 import { validateAppointmentShape, canTransitionAppointment, findAppointmentConflict, isWithinPractitionerAvailability } from "../security/appointmentRules.js";
 import { createPractitionerPatientScope } from "../security/practitionerPatientScope.js";
+import { requiresApprovedTreatmentPlan } from "../security/sessionRules.js";
 const router = express.Router();
 const management = ["director", "admin"];
 const reception = ["director", "admin", "reception", "coordinator"];
@@ -183,11 +185,11 @@ router.get("/referral-owners", permit(...reception), async (_req, res, next) => 
 router.post("/referrals/:id/follow-ups", permit(...reception), logReferralFollowUp);
 router.post("/referrals/:id/convert", permit(...reception), convertReferralToPatient);
 router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient","practitioner"], {
-  createFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status"],
-  updateFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status","clinicalNotes"],
+  createFields: ["patient","practitioner","service","appointmentType","startsAt","durationMinutes","room","status"],
+  updateFields: ["patient","practitioner","service","appointmentType","startsAt","durationMinutes","room","status","clinicalNotes"],
   updateFieldsByRole: {
-    reception: ["patient","practitioner","service","startsAt","durationMinutes","room","status"],
-    coordinator: ["patient","practitioner","service","startsAt","durationMinutes","room","status"],
+    reception: ["patient","practitioner","service","appointmentType","startsAt","durationMinutes","room","status"],
+    coordinator: ["patient","practitioner","service","appointmentType","startsAt","durationMinutes","room","status"],
     doctor: ["status","clinicalNotes"], therapist: ["status","clinicalNotes"]
   },
   redactFieldsByRole: { reception: ["clinicalNotes"], coordinator: ["clinicalNotes"] },
@@ -212,6 +214,12 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
     ]);
     if (!patient) return { statusCode: 404, message: "Patient not found" };
     if (["on-hold", "discharged"].includes(patient.status)) return { statusCode: 409, message: "Appointments cannot be booked for patients on hold or discharged" };
+    const appointmentType = payload.appointmentType || (String(payload.service).toLowerCase().includes("assessment") ? "assessment" : "treatment");
+    if (requiresApprovedTreatmentPlan(appointmentType)) {
+      if (patient.status !== "active") return { statusCode: 409, message: "Activate the patient after assessment and plan approval before scheduling treatment sessions" };
+      const hasApprovedPlan = await TreatmentPlan.exists({ patient: payload.patient, status: "active", approvedBy: { $ne: null }, approvedAt: { $ne: null } });
+      if (!hasApprovedPlan) return { statusCode: 409, message: "An approved active treatment plan is required before scheduling a treatment session" };
+    }
     if (!practitioner || practitioner.status === "inactive") return { statusCode: 409, message: "Select an active practitioner" };
     if (!isWithinPractitionerAvailability(payload.startsAt, payload.durationMinutes, practitioner.availability)) return { statusCode: 409, message: "The appointment falls outside this practitioner’s recorded availability" };
     const conflict = await findAppointmentConflict(payload);
@@ -224,6 +232,20 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
     const next = { ...existing.toObject(), ...payload };
     const shapeError = validateAppointmentShape(next, { allowPast: true });
     if (shapeError) return { statusCode: 400, message: shapeError };
+    if (payload.status === "completed") {
+      if (!["director", "admin", "doctor", "therapist"].includes(req.user.role)) {
+        return { statusCode: 403, message: "Only clinical staff or management may complete an appointment" };
+      }
+      const hasSessionNote = await ProgressNote.exists({ appointment: existing._id, noteType: "session" });
+      if (!hasSessionNote) return { statusCode: 409, message: "Complete and save the session progress note before completing this appointment" };
+    }
+    if (payload.status === "checked-in" && next.appointmentType && requiresApprovedTreatmentPlan(next.appointmentType)) {
+      const patient = await Patient.findById(next.patient).select("status");
+      const hasApprovedPlan = await TreatmentPlan.exists({ patient: next.patient, status: "active", approvedBy: { $ne: null }, approvedAt: { $ne: null } });
+      if (!patient || patient.status !== "active" || !hasApprovedPlan) {
+        return { statusCode: 409, message: "Treatment sessions require an active patient with an approved active treatment plan" };
+      }
+    }
     if (payload.status && !canTransitionAppointment(existing.status, payload.status)) {
       return { statusCode: 409, message: `Appointment cannot move from ${existing.status} to ${payload.status}` };
     }
