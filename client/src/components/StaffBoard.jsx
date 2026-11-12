@@ -70,8 +70,8 @@ export function StaffBoard({ token, currentRole, onChanged }) {
   }
 
   return (
-    <article className="table-panel resource-panel">
-      <div className="panel-title resource-title staff-board-heading">
+    <article className="table-panel resource-panel staff-management-board">
+      <div className="panel-title resource-title staff-board-heading staff-management-heading">
         <div>
           <h3>Staff accounts</h3>
           <span className="resource-count">{staff.length} {staff.length === 1 ? "account" : "accounts"} · {staff.filter(person => person.isActive).length} active</span>
@@ -81,9 +81,9 @@ export function StaffBoard({ token, currentRole, onChanged }) {
       </div>
       {error && <p className="form-status error-status">{error}</p>}
       {showForm && (
-        <section className="action-panel">
+        <section className="action-panel staff-account-editor">
           <h3>Create staff login</h3>
-          <form className="clinical-form" onSubmit={submit}>
+          <form className="clinical-form staff-account-form" onSubmit={submit}>
             <div className="form-row">
               <label>Full name
                 <input required minLength={2} maxLength={90} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -114,7 +114,7 @@ export function StaffBoard({ token, currentRole, onChanged }) {
         </section>
       )}
       {loading ? <p className="empty-state">Loading staff accounts...</p> : staff.length ? (
-        <div className="record-grid staff-record-grid">
+        <div className="record-grid staff-record-grid staff-management-grid">
           {staff.map((person) => (
             <div className="record-card staff-record-card" key={person._id}>
               <div className="record-main">
