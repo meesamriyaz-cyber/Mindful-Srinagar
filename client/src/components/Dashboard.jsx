@@ -1252,8 +1252,6 @@ export function Dashboard() {
                   patients={patientsList}
                   patientId={journeyPatientId}
                   userRole={session.user?.role}
-                  token={session.token}
-                  onRefreshRecords={() => { setResourceRefresh((value) => value + 1); refresh(); }}
                   onCreateAppointment={() => { setAppointmentError(""); setShowAppointmentForm(true); }}
                 />
               ) : (
@@ -1265,6 +1263,8 @@ export function Dashboard() {
                   actionId={actionId}
                   actionError={actionError}
                   userRole={session.user?.role}
+                  token={session.token}
+                  onRefreshRecords={() => { setResourceRefresh((value) => value + 1); refresh(); }}
                   onCreateAppointment={() => { setAppointmentError(""); setShowAppointmentForm(true); }}
                 />
               )}
