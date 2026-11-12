@@ -285,3 +285,15 @@ export function amendClinicalRecord(resource, id, payload, { token } = {}) {
     body: JSON.stringify(payload)
   });
 }
+
+export function listReferralOwners({ token } = {}) {
+  return apiRequest("/referral-owners", { token });
+}
+
+export function logReferralFollowUp(id, payload, { token } = {}) {
+  return apiRequest(`/referrals/${id}/follow-ups`, {
+    token,
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
