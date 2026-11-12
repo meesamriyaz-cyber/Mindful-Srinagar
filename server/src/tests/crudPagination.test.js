@@ -16,6 +16,7 @@ function makeResponse() {
     statusCode: 200,
     headers: {},
     body: null,
+    status(code) { this.statusCode = code; return this; },
     set(name, value) { this.headers[name] = value; return this; },
     json(value) { this.body = value; return this; }
   };
