@@ -33,6 +33,7 @@ const CONFIGS = {
   assessments: {
     icon: ClipboardCheck,
     title: "Assessments",
+    description: "Capture structured findings, developmental domains and clinical recommendations.",
     listFn: listAssessments,
     createFn: createAssessment,
     updateFn: updateAssessment,
@@ -48,6 +49,7 @@ const CONFIGS = {
   "treatment-plans": {
     icon: FileText,
     title: "Treatment Plans",
+    description: "Define therapy goals, interventions, session frequency and care-plan status.",
     listFn: listTreatmentPlans,
     createFn: createTreatmentPlan,
     updateFn: updateTreatmentPlan,
@@ -64,6 +66,7 @@ const CONFIGS = {
   "progress-notes": {
     icon: ClipboardList,
     title: "Progress Notes",
+    description: "Document session observations, outcomes and the next clinical steps.",
     listFn: listProgressNotes,
     createFn: createProgressNote,
     updateFn: updateProgressNote,
@@ -80,6 +83,7 @@ const CONFIGS = {
   prescriptions: {
     icon: HeartPulse,
     title: "Prescriptions",
+    description: "Maintain medication instructions and prescription status for patient records.",
     listFn: listPrescriptions,
     createFn: createPrescription,
     updateFn: updatePrescription,
@@ -325,12 +329,13 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   if (!config) return null;
 
   return (
-    <article className="table-panel resource-panel">
-      <div className="panel-title resource-title">
+    <article className={`table-panel resource-panel clinical-resource-panel clinical-resource-${activeView}`}>
+      <div className="panel-title resource-title clinical-board-heading management-resource-heading">
         <Icon size={21} />
         <div>
           <h3>{config.title}</h3>
-          <span>{records.length} record(s) loaded</span>
+          <p className="resource-description">{config.description}</p>
+          <span className="resource-count" aria-live="polite">{records.length} {records.length === 1 ? "record" : "records"} loaded</span>
         </div>
         <button className="primary-button compact-button" type="button" onClick={openCreate}>
           <Plus size={16} /> New
@@ -341,12 +346,12 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
       {!loading && !error && (
         <AnimatePresence>
           {records.length ? (
-            <div className="record-grid">
+            <div className={`record-grid clinical-record-grid clinical-record-grid-${activeView}`}>
               {records.map((record) => {
                 const summary = describeRecord(activeView, record);
                 return (
                   <motion.div
-                    className="record-card"
+                    className={`record-card clinical-record-card clinical-record-card-${activeView}`}
                     key={record._id}
                     layout
                     initial={{ opacity: 0, y: 8 }}
@@ -357,11 +362,11 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                     <div className="record-main">
                       <div>
                         <strong>{summary.title}</strong>
-                        <span>{summary.meta}</span>
+                        <span className="clinical-record-meta">{summary.meta}</span>
                       </div>
                       <mark className={statusClass(summary.status)}>{summary.status || "open"}</mark>
                     </div>
-                    <p>{summary.detail}</p>
+                    <p className="clinical-record-detail">{summary.detail}</p>
                     <div className="record-actions">
                       <button
                         className="secondary-button compact-button"
@@ -408,7 +413,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
             onClick={() => setShowForm(false)}
           >
             <motion.div
-              className="modal"
+              className="modal clinical-editor-modal"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
@@ -521,7 +526,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
             onClick={() => setShowBilling(false)}
           >
             <motion.div
-              className="modal"
+              className="modal clinical-billing-modal"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}

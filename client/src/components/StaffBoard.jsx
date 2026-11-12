@@ -70,19 +70,20 @@ export function StaffBoard({ token, currentRole, onChanged }) {
   }
 
   return (
-    <article className="table-panel resource-panel">
-      <div className="panel-title resource-title">
+    <article className="table-panel resource-panel staff-management-board">
+      <div className="panel-title resource-title staff-board-heading staff-management-heading">
         <div>
           <h3>Staff accounts</h3>
-          <span>Create staff login credentials and review account access</span>
+          <span className="resource-count">{staff.length} {staff.length === 1 ? "account" : "accounts"} · {staff.filter(person => person.isActive).length} active</span>
+          <p className="resource-description">Create staff login credentials and review account access.</p>
         </div>
         {!showForm && <button className="primary-button compact-button" type="button" onClick={() => setShowForm(true)}>+ Add staff account</button>}
       </div>
       {error && <p className="form-status error-status">{error}</p>}
       {showForm && (
-        <section className="action-panel">
+        <section className="action-panel staff-account-editor">
           <h3>Create staff login</h3>
-          <form className="clinical-form" onSubmit={submit}>
+          <form className="clinical-form staff-account-form" onSubmit={submit}>
             <div className="form-row">
               <label>Full name
                 <input required minLength={2} maxLength={90} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -113,15 +114,15 @@ export function StaffBoard({ token, currentRole, onChanged }) {
         </section>
       )}
       {loading ? <p className="empty-state">Loading staff accounts...</p> : staff.length ? (
-        <div className="record-grid">
+        <div className="record-grid staff-record-grid staff-management-grid">
           {staff.map((person) => (
-            <div className="record-card" key={person._id}>
+            <div className="record-card staff-record-card" key={person._id}>
               <div className="record-main">
                 <div><strong>{person.name}</strong><span>{person.email}</span></div>
                 <mark className={person.isActive ? "good" : "risk"}>{person.isActive ? "Active" : "Inactive"}</mark>
               </div>
-              <p>Role: {ROLES.find(([role]) => role === person.role)?.[1] || person.role}</p>
-              <p>Created: {person.createdAt ? new Date(person.createdAt).toLocaleDateString("en-IN") : "—"}</p>
+              <p className="staff-role-line"><span>ACCESS ROLE</span><strong>{ROLES.find(([role]) => role === person.role)?.[1] || person.role}</strong></p>
+              <p className="staff-created-line"><span>Created</span><strong>{person.createdAt ? new Date(person.createdAt).toLocaleDateString("en-IN") : "—"}</strong></p>
               {["doctor", "therapist"].includes(person.role) && <p>Practitioner profile must be linked before the clinical dashboard can show appointment activity.</p>}
             </div>
           ))}
