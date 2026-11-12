@@ -43,6 +43,7 @@ test("invoice appointment reference index prevents the same session being charge
   );
   assert.ok(appointmentIndex);
   assert.deepEqual(appointmentIndex[1].partialFilterExpression, {
+    status: { $in: ["draft", "paid", "partial"] },
     "items.appointment": { $type: "objectId" }
   });
 });
