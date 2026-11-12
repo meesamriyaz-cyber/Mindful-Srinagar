@@ -9496,3 +9496,9 @@ mark.risk {
   }
 }
 
+@media (max-width: 820px) {
+  .dashboard-shell .sidebar-section-single .side-link {
+    grid-column: 1 / -1;
+  }
+}
+
