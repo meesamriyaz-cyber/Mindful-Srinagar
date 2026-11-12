@@ -9625,3 +9625,86 @@ body {
     padding-top: 26px;
   }
 }
+
+/* D6 mobile hero polish — clearer hierarchy, breathing room and compact trust cues.
+   These overrides are intentionally phone-only; tablet and desktop remain intact. */
+@media (max-width: 620px) {
+  .hero {
+    padding: 24px 18px 34px;
+    row-gap: 0;
+    background:
+      radial-gradient(circle at 92% 84%, rgba(36, 127, 131, 0.09), transparent 34%),
+      linear-gradient(160deg, #fbfcfd 0%, #fbfcfd 70%, #eef6f5 100%);
+  }
+
+  .hero-copy {
+    transform: none;
+  }
+
+  .hero-copy .hero-identity {
+    gap: 9px;
+    margin: 0 0 22px;
+    padding: 3px 0 3px 14px;
+    border-left-width: 4px;
+  }
+
+  .hero-identity-name {
+    font-size: clamp(2.55rem, 11vw, 3.05rem);
+    line-height: 1;
+    letter-spacing: -0.055em;
+  }
+
+  .hero-identity-description {
+    font-size: clamp(0.98rem, 4.1vw, 1.08rem);
+    line-height: 1.52;
+  }
+
+  .hero-identity-line + .hero-identity-line {
+    margin-top: 3px;
+  }
+
+  .hero-identity-location {
+    letter-spacing: 0.09em;
+  }
+
+  .hero-copy .hero-lede {
+    margin: 0 0 22px;
+    max-width: 38rem;
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: #526b7a;
+  }
+
+  .hero-actions {
+    gap: 11px;
+    margin-top: 0;
+  }
+
+  .hero-actions a {
+    min-height: 54px;
+    border-radius: 14px;
+  }
+
+  .trust-row {
+    gap: 9px;
+    margin-top: 19px;
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  .trust-row span {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid rgba(36, 127, 131, 0.13);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .trust-row span svg {
+    flex: 0 0 18px;
+    margin-top: 1px;
+  }
+}
