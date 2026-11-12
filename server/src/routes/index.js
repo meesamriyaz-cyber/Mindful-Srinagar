@@ -132,7 +132,7 @@ router.use("/doctors", crudRoutes(makeCrudController(Doctor, [], {
   },
   filterFields: ["status","discipline"], searchableFields: ["name","discipline","phone","email"]
 }), { read: patientReaders, write: management, remove: management }));
-router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo"], {
+router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo", "followUpHistory.loggedBy"], {
   createFields: ["sourceType","sourceName","contactPerson","contactRelationship","phone","email","patientName","patientAge","guardianName","guardianRelationship","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
   updateFields: ["sourceType","sourceName","contactPerson","contactRelationship","phone","email","patientName","patientAge","guardianName","guardianRelationship","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
   validateUpdate: async ({ req, payload }) => {
