@@ -8879,3 +8879,42 @@ mark.risk {
     padding-left: 12px;
   }
 }
+
+
+/* Homepage identity: preserve the requested three-line institutional name. */
+.hero-copy .hero-identity {
+  max-width: min(100%, 940px);
+}
+
+.hero-identity-description {
+  display: grid;
+  gap: 1px;
+  max-width: 900px;
+}
+
+.hero-identity-line {
+  display: block;
+}
+
+.hero-identity-line:first-child {
+  white-space: nowrap;
+}
+
+.hero-identity-line strong {
+  color: #365c70;
+  font-weight: 850;
+}
+
+@media (max-width: 760px) {
+  .hero-copy .hero-identity {
+    max-width: 100%;
+  }
+
+  .hero-identity-description {
+    max-width: 100%;
+  }
+
+  .hero-identity-line:first-child {
+    white-space: normal;
+  }
+}
