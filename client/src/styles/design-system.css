@@ -5569,3 +5569,232 @@ mark.risk {
     font-size: 0.66rem;
   }
 }
+
+
+/* Admin and Director resource workspaces: dense, readable operational records. */
+.dashboard-role-admin .management-resource-heading,
+.dashboard-role-director .management-resource-heading {
+  align-items: flex-start;
+  gap: 14px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e8eef0;
+}
+.dashboard-role-admin .management-resource-heading > svg,
+.dashboard-role-director .management-resource-heading > svg {
+  flex: 0 0 auto;
+  margin-top: 3px;
+  color: #247f83;
+}
+.dashboard-role-admin .management-resource-heading > div,
+.dashboard-role-director .management-resource-heading > div {
+  min-width: 0;
+  flex: 1;
+}
+.dashboard-role-admin .management-resource-heading h3,
+.dashboard-role-director .management-resource-heading h3 {
+  margin: 0;
+  color: #17384c;
+  font-size: 1.12rem;
+  letter-spacing: -.025em;
+}
+.dashboard-role-admin .management-resource-heading .resource-description,
+.dashboard-role-director .management-resource-heading .resource-description {
+  max-width: 680px;
+  margin: 5px 0 8px;
+  color: #647985;
+  font-size: .78rem;
+  line-height: 1.55;
+}
+.dashboard-role-admin .management-resource-heading .resource-count,
+.dashboard-role-director .management-resource-heading .resource-count {
+  display: inline-flex;
+  align-items: center;
+  min-height: 23px;
+  padding: 3px 8px;
+  border: 1px solid #dce9e9;
+  border-radius: 6px;
+  color: #356d70;
+  background: #f1f8f7;
+  font-size: .66rem;
+  font-weight: 800;
+  letter-spacing: .015em;
+}
+.dashboard-role-admin .management-record-grid,
+.dashboard-role-director .management-record-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+  padding-top: 18px;
+}
+.dashboard-role-admin .management-record-card,
+.dashboard-role-director .management-record-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 11px;
+  padding: 17px;
+  border: 1px solid #e1e9eb;
+  border-radius: 11px;
+  background: linear-gradient(145deg, #fff 0%, #fbfdfd 100%);
+  box-shadow: 0 2px 8px rgba(20, 54, 70, .035);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.dashboard-role-admin .management-record-card:hover,
+.dashboard-role-director .management-record-card:hover {
+  border-color: #b9d7d4;
+  box-shadow: 0 8px 22px rgba(20, 54, 70, .075);
+  transform: translateY(-1px);
+}
+.dashboard-role-admin .management-record-main,
+.dashboard-role-director .management-record-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.dashboard-role-admin .management-record-main > div,
+.dashboard-role-director .management-record-main > div {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+.dashboard-role-admin .management-record-main strong,
+.dashboard-role-director .management-record-main strong {
+  color: #193d50;
+  font-size: .9rem;
+  font-weight: 820;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .management-record-meta,
+.dashboard-role-director .management-record-meta {
+  color: #70838c;
+  font-size: .7rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .management-record-detail,
+.dashboard-role-director .management-record-detail {
+  margin: 0;
+  padding: 10px 11px;
+  border-left: 2px solid #c4dfdb;
+  border-radius: 0 6px 6px 0;
+  color: #526b77;
+  background: #f5f9f9;
+  font-size: .73rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .management-record-card > mark,
+.dashboard-role-director .management-record-card > mark {
+  flex: 0 0 auto;
+  max-width: 105px;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.dashboard-role-admin .management-record-actions,
+.dashboard-role-director .management-record-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: auto;
+  padding-top: 11px;
+  border-top: 1px solid #edf1f2;
+}
+.dashboard-role-admin .management-record-actions .compact-button,
+.dashboard-role-director .management-record-actions .compact-button {
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: .68rem;
+}
+.dashboard-role-admin .resource-panel .empty-state,
+.dashboard-role-director .resource-panel .empty-state {
+  margin: 18px 0 2px;
+  padding: 25px 18px;
+  border: 1px dashed #d5e1e4;
+  border-radius: 9px;
+  color: #71838c;
+  background: #fafcfc;
+  text-align: center;
+  font-size: .78rem;
+}
+.dashboard-role-admin .management-reports-grid,
+.dashboard-role-director .management-reports-grid {
+  align-items: stretch;
+  gap: 15px;
+}
+.dashboard-role-admin .management-reports-grid > article,
+.dashboard-role-director .management-reports-grid > article {
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid #e1e9eb;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(20, 54, 70, .035);
+}
+.dashboard-role-admin .management-reports-grid .panel-title,
+.dashboard-role-director .management-reports-grid .panel-title {
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #edf1f2;
+}
+.dashboard-role-admin .management-reports-grid .panel-title > svg,
+.dashboard-role-director .management-reports-grid .panel-title > svg {
+  flex: 0 0 auto;
+  color: #247f83;
+}
+.dashboard-role-admin .management-reports-grid .panel-title h3,
+.dashboard-role-director .management-reports-grid .panel-title h3 {
+  margin: 0;
+  color: #193d50;
+  font-size: .94rem;
+}
+.dashboard-role-admin .management-reports-grid .insight-list,
+.dashboard-role-director .management-reports-grid .insight-list,
+.dashboard-role-admin .management-reports-grid .mix-list,
+.dashboard-role-director .management-reports-grid .mix-list {
+  display: grid;
+  gap: 9px;
+  padding-top: 14px;
+}
+.dashboard-role-admin .management-reports-grid .mix-list > span,
+.dashboard-role-director .management-reports-grid .mix-list > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 10px;
+  border: 1px solid #edf1f2;
+  border-radius: 7px;
+  color: #627781;
+  background: #fafcfc;
+  font-size: .74rem;
+  text-transform: capitalize;
+}
+.dashboard-role-admin .management-reports-grid .mix-list strong,
+.dashboard-role-director .management-reports-grid .mix-list strong {
+  color: #1d5960;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 760px) {
+  .dashboard-role-admin .management-record-grid,
+  .dashboard-role-director .management-record-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard-role-admin .management-resource-heading,
+  .dashboard-role-director .management-resource-heading {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 480px) {
+  .dashboard-role-admin .management-record-card,
+  .dashboard-role-director .management-record-card,
+  .dashboard-role-admin .management-reports-grid > article,
+  .dashboard-role-director .management-reports-grid > article {
+    padding: 14px;
+  }
+  .dashboard-role-admin .management-record-main,
+  .dashboard-role-director .management-record-main {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
