@@ -275,12 +275,12 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
 
   return (
     <article className="table-panel resource-panel">
-      <div className="panel-title resource-title">
+      <div className="panel-title resource-title clinical-board-heading">
         <Icon size={21} />
         <div>
           <h3>{config.title}</h3>
           <p className="resource-description">{config.description}</p>
-          <span>{records.length} record(s) loaded</span>
+          <span className="resource-count">{records.length} {records.length === 1 ? "record" : "records"} loaded</span>
         </div>
         <button className="primary-button compact-button" type="button" onClick={openCreate}>
           <Plus size={16} /> New
@@ -291,12 +291,12 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
       {!loading && !error && (
         <AnimatePresence>
           {records.length ? (
-            <div className="record-grid">
+            <div className="record-grid clinical-record-grid">
               {records.map((record) => {
                 const summary = describeRecord(activeView, record);
                 return (
                   <motion.div
-                    className="record-card"
+                    className="record-card clinical-record-card"
                     key={record._id}
                     layout
                     initial={{ opacity: 0, y: 8 }}
@@ -311,7 +311,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                       </div>
                       <mark className={statusClass(summary.status)}>{summary.status || "open"}</mark>
                     </div>
-                    <p>{summary.detail}</p>
+                    <p className="clinical-record-detail">{summary.detail}</p>
                     <div className="record-actions">
                       <button
                         className="secondary-button compact-button"
