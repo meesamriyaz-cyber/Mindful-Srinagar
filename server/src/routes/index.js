@@ -12,6 +12,8 @@ import { Doctor } from "../models/Doctor.js";
 import { InventoryItem } from "../models/InventoryItem.js";
 import { Invoice } from "../models/Invoice.js";
 import { Patient } from "../models/Patient.js";
+import { Assessment } from "../models/Assessment.js";
+import { TreatmentPlan } from "../models/TreatmentPlan.js";
 import { Referral } from "../models/Referral.js";
 import { Task } from "../models/Task.js";
 import { User } from "../models/User.js";
@@ -93,6 +95,14 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
     const current = await Patient.findById(req.params.id).select("status referral");
     if (!current) return { statusCode: 404, message: "Patient not found" };
     if (payload.status && !canTransitionPatientStatus(current.status, payload.status)) return { statusCode: 409, message: `Patient status cannot move from ${current.status} to ${payload.status}` };
+    if (payload.status === "active") {
+      const [hasCompletedAssessment, hasApprovedActivePlan] = await Promise.all([
+        Assessment.exists({ patient: req.params.id, status: "completed" }),
+        TreatmentPlan.exists({ patient: req.params.id, status: "active", approvedBy: { $ne: null }, approvedAt: { $ne: null } })
+      ]);
+      if (!hasCompletedAssessment) return { statusCode: 409, message: "Complete an initial assessment before activating this patient's treatment episode" };
+      if (!hasApprovedActivePlan) return { statusCode: 409, message: "An approved active treatment plan is required before activating this patient" };
+    }
     const dischargeError = validateDischargeDetails(payload);
     if (dischargeError) return { statusCode: 400, message: dischargeError };
     if (payload.referral && String(payload.referral) !== String(current.referral || "")) return { statusCode: 400, message: "A patient's referral linkage cannot be changed after registration" };
