@@ -539,12 +539,9 @@ function describeRecord(viewId, record) {
     const dueLabel = record.followUpDate ? formatDateTime(record.followUpDate) : "No follow-up due";
     return {
       title: record.patientName,
-    return {
-      title: record.patientName,
       meta: `Source: ${record.sourceName || record.sourceType || "Not recorded"} · Phone: ${record.phone || "Not provided"}`,
       detail: `Concern: ${excerpt(record.concern, 100)} · Preferred contact: ${record.preferredContact || "Phone"} · Owner: ${ownerName} · Follow-up: ${dueLabel}`,
       status: overdue ? "overdue" : record.urgency === "urgent" ? "urgent" : record.status
-    };
     };
   }
 
