@@ -463,11 +463,15 @@ function describeRecord(viewId, record) {
   }
 
   if (viewId === "referrals") {
+    const open = ["new", "contacted", "scheduled"].includes(record.status);
+    const overdue = open && record.followUpDate && new Date(record.followUpDate).getTime() < Date.now();
+    const ownerName = record.assignedTo?.name || "Unassigned";
+    const dueLabel = record.followUpDate ? formatDateTime(record.followUpDate) : "No follow-up due";
     return {
       title: record.patientName,
       meta: `${record.sourceName || record.sourceType} - ${record.phone || "No phone"}`,
-      detail: `${record.concern || "No concern noted"} - preferred ${record.preferredContact || "phone"}`,
-      status: record.urgency === "urgent" ? "urgent" : record.status
+      detail: `${record.concern || "No concern noted"} · Contact: ${record.contactPerson || "Not recorded"} · Owner: ${ownerName} · Follow-up: ${dueLabel}`,
+      status: overdue ? "overdue" : record.urgency === "urgent" ? "urgent" : record.status
     };
   }
 
@@ -555,9 +559,6 @@ function recordActions(viewId, record, userRole) {
 
   if (viewId === "referrals") {
     const actions = [];
-    if (record.status === "new") actions.push({ label: "Contacted", updates: { status: "contacted" } });
-    if (record.status === "contacted") actions.push({ label: "Scheduled", updates: { status: "scheduled" } });
-    if (record.status === "scheduled") actions.push({ label: "Converted", updates: { status: "converted" } });
     if (["new", "contacted", "scheduled"].includes(record.status)) {
       actions.push({ label: "Convert to Patient", action: "convert" });
     }
