@@ -43,5 +43,8 @@ export function validateReferralFollowUp(payload = {}) {
   if (payload.nextFollowUpAt && !Number.isFinite(new Date(payload.nextFollowUpAt).getTime())) {
     return "Enter a valid next follow-up date";
   }
+  if (!["appointment-booked", "not-interested"].includes(payload.outcome) && !payload.nextFollowUpAt) {
+    return "Set the next follow-up date unless an appointment is booked or the enquiry is closed";
+  }
   return null;
 }
