@@ -33,13 +33,13 @@ export function PractitionerDashboard({ token }) {
 
   const { practitioner, role, metrics, todaysAppointments, upcomingAppointments, recentNotes, assignedTasks } = state.data;
   return (
-    <div className="director-view">
-      <article className="action-panel director-panel">
-        <div className="panel-title"><UsersRound size={21} /><h3>My clinical workspace</h3></div>
+    <div className="director-view staff-console-view">
+      <article className="action-panel director-panel staff-console-identity">
+        <div className="panel-title staff-console-panel-title"><UsersRound size={21} /><h3>My clinical workspace</h3></div>
         <p><strong>{practitioner.name}</strong> · {practitioner.discipline || (practitioner.status === "active" ? "Practitioner" : "Clinical staff")}</p>
         <p>Your appointments, clinical workload and activity are limited to your linked practitioner and staff account.</p>
       </article>
-      <div className="stats-grid">
+      <div className="stats-grid staff-console-metrics">
         <Metric label="Patients under my care" value={metrics.patientsUnderCare} icon={UsersRound} />
         <Metric label="Appointments today" value={metrics.appointmentsToday} icon={CalendarClock} />
         <Metric label="Upcoming appointments" value={metrics.upcomingAppointments} icon={CalendarClock} />
@@ -49,12 +49,12 @@ export function PractitionerDashboard({ token }) {
         <Metric label="Open assigned tasks" value={metrics.openTasks} icon={ListChecks} />
         {role === "doctor" && <Metric label="Active prescriptions" value={metrics.activePrescriptions} icon={FileText} />}
       </div>
-      <div className="console-grid">
-        <article className="table-panel">
+      <div className="console-grid staff-console-grid">
+        <article className="table-panel staff-console-panel">
           <div className="panel-title"><CalendarClock size={21} /><h3>Today's appointments</h3></div>
-          <div className="appointment-list">
+          <div className="appointment-list staff-console-list">
             {todaysAppointments.length ? todaysAppointments.map((item) => (
-              <div className="appointment-row" key={item._id}>
+              <div className="appointment-row staff-console-appointment" key={item._id}>
                 <time>{new Intl.DateTimeFormat("en-IN", { hour: "2-digit", minute: "2-digit" }).format(new Date(item.startsAt))}</time>
                 <div><strong>{item.patient?.fullName || "Patient"}</strong><span>{item.service} · {item.durationMinutes} min</span></div>
                 <mark>{item.status}</mark>
@@ -64,9 +64,9 @@ export function PractitionerDashboard({ token }) {
         </article>
         <article className="table-panel">
           <div className="panel-title"><CalendarClock size={21} /><h3>Coming up</h3></div>
-          <div className="compact-record-list">
+          <div className="compact-record-list staff-console-list">
             {upcomingAppointments.length ? upcomingAppointments.map((item) => (
-              <div className="compact-record" key={item._id}><div><strong>{item.patient?.fullName || "Patient"}</strong><span>{timeLabel(item.startsAt)} · {item.service}</span></div><mark>{item.status}</mark></div>
+              <div className="compact-record staff-console-record" key={item._id}><div><strong>{item.patient?.fullName || "Patient"}</strong><span>{timeLabel(item.startsAt)} · {item.service}</span></div><mark>{item.status}</mark></div>
             )) : <p className="empty-state">No upcoming appointments currently scheduled.</p>}
           </div>
         </article>
