@@ -9027,3 +9027,9 @@ mark.risk {
     line-height: 1.5;
   }
 }
+
+/* Match the hero trust statements to the teal italic location accent. */
+.hero-copy .trust-row span {
+  color: #247f83;
+  font-style: italic;
+}
