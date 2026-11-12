@@ -274,13 +274,13 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   if (!config) return null;
 
   return (
-    <article className="table-panel resource-panel">
-      <div className="panel-title resource-title clinical-board-heading">
+    <article className={`table-panel resource-panel clinical-resource-panel clinical-resource-${activeView}`}>
+      <div className="panel-title resource-title clinical-board-heading management-resource-heading">
         <Icon size={21} />
         <div>
           <h3>{config.title}</h3>
           <p className="resource-description">{config.description}</p>
-          <span className="resource-count">{records.length} {records.length === 1 ? "record" : "records"} loaded</span>
+          <span className="resource-count" aria-live="polite">{records.length} {records.length === 1 ? "record" : "records"} loaded</span>
         </div>
         <button className="primary-button compact-button" type="button" onClick={openCreate}>
           <Plus size={16} /> New
@@ -291,12 +291,12 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
       {!loading && !error && (
         <AnimatePresence>
           {records.length ? (
-            <div className="record-grid clinical-record-grid">
+            <div className={`record-grid clinical-record-grid clinical-record-grid-${activeView}`}>
               {records.map((record) => {
                 const summary = describeRecord(activeView, record);
                 return (
                   <motion.div
-                    className="record-card clinical-record-card"
+                    className={`record-card clinical-record-card clinical-record-card-${activeView}`}
                     key={record._id}
                     layout
                     initial={{ opacity: 0, y: 8 }}
@@ -307,7 +307,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                     <div className="record-main">
                       <div>
                         <strong>{summary.title}</strong>
-                        <span>{summary.meta}</span>
+                        <span className="clinical-record-meta">{summary.meta}</span>
                       </div>
                       <mark className={statusClass(summary.status)}>{summary.status || "open"}</mark>
                     </div>
@@ -350,7 +350,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
             onClick={() => setShowForm(false)}
           >
             <motion.div
-              className="modal"
+              className="modal clinical-editor-modal"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
@@ -439,7 +439,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
             onClick={() => setShowBilling(false)}
           >
             <motion.div
-              className="modal"
+              className="modal clinical-billing-modal"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
