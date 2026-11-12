@@ -221,6 +221,7 @@ export function Contact() {
           {feedback.message && (
             <motion.div
               className={`form-status ${feedback.type === "error" ? "error-status" : "success-status"}`}
+              role={feedback.type === "error" ? "alert" : "status"}
               aria-live="polite"
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
