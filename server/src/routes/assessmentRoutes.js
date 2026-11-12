@@ -3,9 +3,9 @@ import { listAssessments, createAssessment, getAssessment, updateAssessment, lis
 import { permit } from "../middleware/auth.js";
 const router = express.Router();
 router.get("/", listAssessments);
-router.post("/", createAssessment);
+router.post("/", permit("director", "admin", "doctor", "therapist"), createAssessment);
 router.get("/:id/amendments", listAssessmentAmendments);
 router.post("/:id/amendments", permit("director","admin"), amendAssessment);
 router.get("/:id", getAssessment);
-router.put("/:id", updateAssessment);
+router.put("/:id", permit("director", "admin", "doctor", "therapist"), updateAssessment);
 export default router;
