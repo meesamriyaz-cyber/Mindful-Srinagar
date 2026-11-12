@@ -165,7 +165,17 @@ router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo", 
   },
   filterFields: ["status","sourceType","urgency","assignedTo"], searchableFields: ["patientName","sourceName","phone","concern"]
 }), { read: reception, write: reception, remove: management }));
-router.get("/referral-owners", permit(...reception), async (_req, res, next) => {\n  try {\n    const owners = await User.find({ isActive: true, role: { $in: ["director", "admin", "reception", "coordinator"] } })\n      .select("_id name role")\n      .sort({ name: 1 })\n      .lean();\n    return res.json(owners);\n  } catch (error) { return next(error); }\n});\nrouter.post("/referrals/:id/follow-ups", permit(...reception), logReferralFollowUp);\nrouter.post("/referrals/:id/convert", permit(...reception), convertReferralToPatient);
+router.get("/referral-owners", permit(...reception), async (_req, res, next) => {
+  try {
+    const owners = await User.find({ isActive: true, role: { $in: ["director", "admin", "reception", "coordinator"] } })
+      .select("_id name role")
+      .sort({ name: 1 })
+      .lean();
+    return res.json(owners);
+  } catch (error) { return next(error); }
+});
+router.post("/referrals/:id/follow-ups", permit(...reception), logReferralFollowUp);
+router.post("/referrals/:id/convert", permit(...reception), convertReferralToPatient);
 router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient","practitioner"], {
   createFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status"],
   updateFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status","clinicalNotes"],
