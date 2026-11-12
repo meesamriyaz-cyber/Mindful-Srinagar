@@ -15,6 +15,8 @@ export function Contact() {
     const form = event.currentTarget;
     const formData = new FormData(form);
     const patientName = formData.get("patientName")?.toString().trim();
+    const ageValue = formData.get("age")?.toString().trim();
+    const patientAge = ageValue ? Number(ageValue) : undefined;
     const guardianName = formData.get("guardianName")?.toString().trim();
     const guardianRelationship = formData.get("guardianRelationship")?.toString().trim();
     const contactName = formData.get("contactName")?.toString().trim();
@@ -39,6 +41,7 @@ export function Contact() {
     try {
       const response = await createEnquiry({
         patientName,
+        ...(patientAge !== undefined ? { patientAge } : {}),
         ...(guardianName ? { guardianName } : {}),
         ...(guardianRelationship ? { guardianRelationship } : {}),
         contactName,
@@ -207,8 +210,7 @@ export function Contact() {
         <label className="privacy-consent">
           <input name="privacyConsent" type="checkbox" required />
           <span>
-            I acknowledge that Mindful may use the information above to contact me and coordinate this enquiry.
-            I have read the centre's privacy notice.
+            I agree that Mindful may use these details to respond to this enquiry and coordinate the requested assessment. I understand I can contact the centre to ask about or correct the information provided.
           </span>
         </label>
         <button className="primary-button full" type="submit" disabled={submitting}>
