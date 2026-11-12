@@ -21,10 +21,8 @@ import {
   createProgressNote,
   updateProgressNote,
   listPrescriptions,
-  listRecords,
   createPrescription,
-  updatePrescription,
-  approveTreatmentPlan
+  updatePrescription
 } from "../lib/api.js";
 import { ChipInput } from "./ChipInput.jsx";
 import { services, serviceCharges } from "../data/centreData.js";
@@ -33,12 +31,12 @@ const CONFIGS = {
   assessments: {
     icon: ClipboardCheck,
     title: "Assessments",
+    description: "Capture structured findings, developmental domains and clinical recommendations.",
     listFn: listAssessments,
     createFn: createAssessment,
     updateFn: updateAssessment,
     fields: [
       { name: "patient", label: "Patient", type: "patient" },
-      { name: "assessmentType", label: "Assessment type", type: "select", options: ["initial", "review", "discharge"] },
       { name: "domains", label: "Domains", type: "text", placeholder: "Speech, Language, Social..." },
       { name: "findings", label: "Findings", type: "textarea" },
       { name: "recommendations", label: "Recommendations", type: "textarea" },
@@ -48,29 +46,29 @@ const CONFIGS = {
   "treatment-plans": {
     icon: FileText,
     title: "Treatment Plans",
+    description: "Define therapy goals, interventions, session frequency and care-plan status.",
     listFn: listTreatmentPlans,
     createFn: createTreatmentPlan,
     updateFn: updateTreatmentPlan,
     fields: [
       { name: "patient", label: "Patient", type: "patient" },
-      { name: "assessment", label: "Completed assessment", type: "assessment" },
       { name: "goals", label: "Goals", type: "textarea" },
       { name: "interventions", label: "Interventions", type: "chips", suggestions: services },
       { name: "frequency", label: "Frequency", type: "text", placeholder: "Weekly" },
       { name: "duration", label: "Duration", type: "text", placeholder: "45 minutes" },
-      { name: "status", label: "Status", type: "select", options: ["planned", "active", "on-hold", "completed", "cancelled"] }
+      { name: "status", label: "Status", type: "select", options: ["active", "completed", "on-hold"] }
     ]
   },
   "progress-notes": {
     icon: ClipboardList,
     title: "Progress Notes",
+    description: "Document session observations, outcomes and the next clinical steps.",
     listFn: listProgressNotes,
     createFn: createProgressNote,
     updateFn: updateProgressNote,
     fields: [
       { name: "patient", label: "Patient", type: "patient" },
       { name: "noteType", label: "Note Type", type: "select", options: ["session", "review", "incident"] },
-      { name: "appointment", label: "Session appointment", type: "appointment" },
       { name: "subjective", label: "Subjective", type: "textarea" },
       { name: "objective", label: "Objective", type: "textarea" },
       { name: "assessment", label: "Assessment", type: "textarea" },
@@ -80,6 +78,7 @@ const CONFIGS = {
   prescriptions: {
     icon: HeartPulse,
     title: "Prescriptions",
+    description: "Maintain medication instructions and prescription status for patient records.",
     listFn: listPrescriptions,
     createFn: createPrescription,
     updateFn: updatePrescription,
@@ -112,7 +111,7 @@ function describeRecord(resource, record) {
     return {
       title: `Plan - ${(record.goals || "").slice(0, 50) || "Untitled"}`,
       meta: `Frequency: ${record.frequency || "Not set"} | ${record.duration || ""}`,
-      detail: `Assessment: ${record.assessment?.assessedAt ? new Date(record.assessment.assessedAt).toLocaleDateString("en-IN") : "Legacy / not linked"} · Approved: ${record.approvedAt ? new Date(record.approvedAt).toLocaleDateString("en-IN") : "Not yet"}`,
+      detail: `Status: ${record.status || "pending"}`,
       status: record.status
     };
   }
@@ -120,7 +119,7 @@ function describeRecord(resource, record) {
     return {
       title: `Note - ${record.noteType || "General"} (${new Date(record.notedAt).toLocaleDateString("en-IN")})`,
       meta: `Objective: ${(record.objective || "").slice(0, 60)}...`,
-      detail: `Appointment: ${record.appointment?.service || "Not linked"} · ${record.appointment?.startsAt ? new Date(record.appointment.startsAt).toLocaleString("en-IN") : ""} · ${record.appointment?.practitioner?.name || ""}`,
+      detail: `Assessment: ${(record.assessment || "").slice(0, 60)}...`,
       status: "completed"
     };
   }
@@ -157,9 +156,6 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   const [billingItems, setBillingItems] = useState([]);
   const [billingSaving, setBillingSaving] = useState(false);
   const [billingError, setBillingError] = useState("");
-  const [completedAssessments, setCompletedAssessments] = useState([]);
-  const [approvingId, setApprovingId] = useState("");
-  const [availableAppointments, setAvailableAppointments] = useState([]);
 
   React.useEffect(() => {
     if (!token || !config) return;
@@ -177,42 +173,8 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
     return () => { active = false; window.clearTimeout(timeoutId); };
   }, [token, config, query, refreshSignal]);
 
-  React.useEffect(() => {
-    if (activeView !== "progress-notes" || !token) { setAvailableAppointments([]); return undefined; }
-    let active = true;
-    listRecords("appointments", { token, limit: 100 }).then((items) => {
-      if (active) setAvailableAppointments((items || []).filter((item) => ["checked-in", "completed"].includes(item.status)));
-    }).catch((err) => { if (active) setError(err.message); });
-    return () => { active = false; };
-  }, [activeView, token, refreshSignal]);
-
-  React.useEffect(() => {
-    if (activeView !== "treatment-plans" || !token) {
-      setCompletedAssessments([]);
-      return undefined;
-    }
-    let active = true;
-    listAssessments({ token, status: "completed", limit: 100 })
-      .then((items) => { if (active) setCompletedAssessments(items || []); })
-      .catch((err) => { if (active) setError(err.message); });
-    return () => { active = false; };
-  }, [activeView, token, refreshSignal]);
-
-  async function handleApprove(record) {
-    setApprovingId(record._id);
-    setError("");
-    try {
-      const approved = await approveTreatmentPlan(record._id, { token });
-      setRecords((current) => current.map((item) => item._id === record._id ? approved : item));
-    } catch (err) {
-      setError(err.message || "Treatment plan could not be approved");
-    } finally {
-      setApprovingId("");
-    }
-  }
-
   function openCreate() {
-    setForm({ patient: patientId || "", ...(activeView === "assessments" ? { assessmentType: "initial" } : {}), ...(activeView === "treatment-plans" ? { status: "planned" } : {}), ...(activeView === "progress-notes" ? { noteType: "session" } : {}) });
+    setForm({ patient: patientId || "" });
     setEditingId(null);
     setShowForm(true);
   }
@@ -223,10 +185,6 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
       let val = record[f.name];
       if (f.name === "patient") {
         val = typeof val === "object" && val !== null ? val._id : val;
-      } else if (f.name === "appointment" && val && typeof val === "object") {
-        val = val._id;
-      } else if (f.name === "assessment" && val && typeof val === "object") {
-        val = val._id;
       } else if (f.type === "chips") {
         val = Array.isArray(val) ? val : (typeof val === "string" ? val.split(",").map(s => s.trim()).filter(Boolean) : []);
       } else if (Array.isArray(val)) val = val.join(", ");
@@ -247,8 +205,6 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
         let val = form[f.name] ?? "";
         if (f.type === "chips") {
           val = Array.isArray(val) ? val : [];
-        } else if (f.name === "domains" && typeof val === "string") {
-          val = val.split(",").map((item) => item.trim()).filter(Boolean);
         } else if (f.type === "textarea" && typeof val === "string" && val.startsWith("[") && val.endsWith("]")) {
           try { val = JSON.parse(val); } catch { /* keep as string */ }
         }
@@ -273,18 +229,11 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
 
   function openBilling(record) {
     setBillingRecord(record);
-    const linkedAppointment = activeView === "appointments"
-      ? record
-      : activeView === "progress-notes"
-        ? record?.appointment
-        : null;
-    const service = linkedAppointment?.service || record?.service || "Service";
-    const defaultService = serviceCharges.find((item) => item.service === service);
+    const defaultService = serviceCharges.find(s => s.service === record?.service);
     setBillingItems([{
-      description: service,
+      description: record?.service || "Service",
       quantity: 1,
-      rate: defaultService?.rate || 0,
-      ...(linkedAppointment?.status === "completed" ? { appointment: linkedAppointment._id } : {})
+      rate: defaultService?.rate || 0
     }]);
     setBillingError("");
     setShowBilling(true);
@@ -325,12 +274,13 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   if (!config) return null;
 
   return (
-    <article className="table-panel resource-panel">
-      <div className="panel-title resource-title">
+    <article className={`table-panel resource-panel clinical-resource-panel clinical-resource-${activeView}`}>
+      <div className="panel-title resource-title clinical-board-heading management-resource-heading">
         <Icon size={21} />
         <div>
           <h3>{config.title}</h3>
-          <span>{records.length} record(s) loaded</span>
+          <p className="resource-description">{config.description}</p>
+          <span className="resource-count" aria-live="polite">{records.length} {records.length === 1 ? "record" : "records"} loaded</span>
         </div>
         <button className="primary-button compact-button" type="button" onClick={openCreate}>
           <Plus size={16} /> New
@@ -341,12 +291,12 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
       {!loading && !error && (
         <AnimatePresence>
           {records.length ? (
-            <div className="record-grid">
+            <div className={`record-grid clinical-record-grid clinical-record-grid-${activeView}`}>
               {records.map((record) => {
                 const summary = describeRecord(activeView, record);
                 return (
                   <motion.div
-                    className="record-card"
+                    className={`record-card clinical-record-card clinical-record-card-${activeView}`}
                     key={record._id}
                     layout
                     initial={{ opacity: 0, y: 8 }}
@@ -357,11 +307,11 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                     <div className="record-main">
                       <div>
                         <strong>{summary.title}</strong>
-                        <span>{summary.meta}</span>
+                        <span className="clinical-record-meta">{summary.meta}</span>
                       </div>
                       <mark className={statusClass(summary.status)}>{summary.status || "open"}</mark>
                     </div>
-                    <p>{summary.detail}</p>
+                    <p className="clinical-record-detail">{summary.detail}</p>
                     <div className="record-actions">
                       <button
                         className="secondary-button compact-button"
@@ -370,15 +320,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                       >
                         Update
                       </button>
-                      {activeView === "treatment-plans" && record.status === "planned" && ["director", "admin", "doctor"].includes(userRole) && (
-                        <button className="primary-button compact-button" type="button" disabled={approvingId === record._id} onClick={() => handleApprove(record)}>
-                          {approvingId === record._id ? "Approving..." : "Approve & activate"}
-                        </button>
-                      )}
-                      {["director", "admin", "accounts"].includes(userRole) &&
-                        activeView !== "prescriptions" &&
-                        (activeView !== "appointments" || record.status === "completed") &&
-                        (activeView !== "progress-notes" || record.appointment?.status === "completed") && (
+                      {activeView !== "prescriptions" && ["director", "admin", "accounts"].includes(userRole) && (
                         <button
                           className="primary-button compact-button"
                           type="button"
@@ -408,7 +350,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
             onClick={() => setShowForm(false)}
           >
             <motion.div
-              className="modal"
+              className="modal clinical-editor-modal"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
@@ -439,32 +381,8 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                         required
                       >
                         <option value="">Select...</option>
-                        {(activeView === "treatment-plans" && field.name === "status" ? field.options.filter((opt) => !editingId ? opt === "planned" : opt !== "active" || records.find((item) => item._id === editingId)?.approvedAt) : field.options).map(opt => (
+                        {field.options.map(opt => (
                           <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                      </select>
-                    ) : field.type === "appointment" ? (
-                      <select
-                        value={form[field.name] || ""}
-                        onChange={(e) => setForm({ ...form, [field.name]: e.target.value })}
-                        required={form.noteType === "session" || !form.noteType}
-                      >
-                        <option value="">Select checked-in session...</option>
-                        {availableAppointments.filter((item) => item.patient?._id === (form.patient || patientId) || item.patient === (form.patient || patientId)).map((item) => (
-                          <option key={item._id} value={item._id}>{item.service} · {new Date(item.startsAt).toLocaleString("en-IN")}</option>
-                        ))}
-                      </select>
-                    ) : field.type === "assessment" ? (
-                      <select
-                        value={form[field.name] || ""}
-                        onChange={(e) => setForm({ ...form, [field.name]: e.target.value })}
-                        required
-                      >
-                        <option value="">Select completed assessment...</option>
-                        {completedAssessments.filter((item) => item.patient?._id === (form.patient || patientId) || item.patient === (form.patient || patientId)).map((item) => (
-                          <option key={item._id} value={item._id}>
-                            {item.patient?.fullName || "Patient"} · {(item.domains || []).join(", ") || "Assessment"} · {new Date(item.assessedAt).toLocaleDateString("en-IN")}
-                          </option>
                         ))}
                       </select>
                     ) : field.type === "patient" ? (
@@ -521,7 +439,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
             onClick={() => setShowBilling(false)}
           >
             <motion.div
-              className="modal"
+              className="modal clinical-billing-modal"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
