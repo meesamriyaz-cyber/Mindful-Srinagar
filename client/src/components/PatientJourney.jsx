@@ -464,7 +464,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           {createStep ? (
             <form onSubmit={handleCreateSubmit} className="journey-create-form management-journey-create-form">
               <h4>New {STEP_LABELS[createStep]}</h4>
-              {createError && <p className="form-status error-status">{createError}</p>}
+              {createError && <p className="form-status error-status" role="alert" aria-live="assertive">{createError}</p>}
               {(CREATE_FIELDS[createStep] || []).map((field) => (
                 <label key={field.name}>
                   {field.label}
@@ -538,7 +538,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           ) : (
             <div className="journey-list">
               {pageInfo[activeStep]?.total > 0 && <p className="history-count">Showing {activeRecords.length} of {pageInfo[activeStep].total} records</p>}
-              {timelineError && <p className="form-status error-status">{timelineError}</p>}
+              {timelineError && <p className="form-status error-status" role="alert" aria-live="assertive">{timelineError}</p>}
               {(activeStep === "referral" ? [data.referral] : activeRecords).map((record, idx) => (
                 <div key={record?._id || idx} className="journey-card">
                   <div className="journey-card-header">
@@ -548,7 +548,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                   </div>
                   <div className="journey-card-body management-journey-card-body">
                     {describeRecord(record)}
-                    {planApprovalError && activeStep === "treatment-plans" && <p className="form-status error-status">{planApprovalError}</p>}
+                    {planApprovalError && activeStep === "treatment-plans" && <p className="form-status error-status" role="alert" aria-live="assertive">{planApprovalError}</p>}
                     {activeStep === "treatment-plans" && record.status === "planned" && canApprovePlans && (
                       <button className="primary-button" type="button" disabled={approvingPlanId === record._id} onClick={() => approvePlan(record._id)}>
                         {approvingPlanId === record._id ? "Approving..." : "Approve and activate plan"}
@@ -585,7 +585,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                         )}
                       </div>
                     )}
-                    {auditError && <p className="form-status error-status">{auditError}</p>}
+                    {auditError && <p className="form-status error-status" role="alert" aria-live="assertive">{auditError}</p>}
                   </div>
                 </div>
               ))}
@@ -634,7 +634,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                   </button>
                 </div>
                 <form onSubmit={handleDischarge} className="clinical-form">
-                  {dischargeError && <p className="form-status error-status">{dischargeError}</p>}
+                  {dischargeError && <p className="form-status error-status" role="alert" aria-live="assertive">{dischargeError}</p>}
                   <h4>{patient.dischargeApprovedAt ? "Administrative discharge closure" : "Clinical discharge approval"}</h4>
                   {patient.dischargeApprovedAt ? (
                     <div className="discharge-approval-summary">
