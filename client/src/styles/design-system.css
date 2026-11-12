@@ -7002,3 +7002,176 @@ mark.risk {
     padding: 16px;
   }
 }
+
+
+/* Admin/Director: patient access, referral pipeline and appointment coordination. */
+.dashboard-role-admin .resource-panel-patients,
+.dashboard-role-director .resource-panel-patients,
+.dashboard-role-admin .resource-panel-referrals,
+.dashboard-role-director .resource-panel-referrals,
+.dashboard-role-admin .resource-panel-appointments,
+.dashboard-role-director .resource-panel-appointments {
+  overflow: hidden;
+  border: 1px solid #dfe9eb;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 14px rgba(20, 54, 70, .045);
+}
+.dashboard-role-admin .resource-panel-patients .management-resource-heading,
+.dashboard-role-director .resource-panel-patients .management-resource-heading,
+.dashboard-role-admin .resource-panel-referrals .management-resource-heading,
+.dashboard-role-director .resource-panel-referrals .management-resource-heading,
+.dashboard-role-admin .resource-panel-appointments .management-resource-heading,
+.dashboard-role-director .resource-panel-appointments .management-resource-heading {
+  align-items: flex-start;
+  padding: 20px 22px;
+  border-bottom: 1px solid #eaf0f1;
+  background: linear-gradient(110deg, #f7fbfb 0%, #fff 72%);
+}
+.dashboard-role-admin .management-record-grid-patients,
+.dashboard-role-director .management-record-grid-patients,
+.dashboard-role-admin .management-record-grid-referrals,
+.dashboard-role-director .management-record-grid-referrals,
+.dashboard-role-admin .management-record-grid-appointments,
+.dashboard-role-director .management-record-grid-appointments {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+.dashboard-role-admin .management-record-card-patients,
+.dashboard-role-director .management-record-card-patients,
+.dashboard-role-admin .management-record-card-referrals,
+.dashboard-role-director .management-record-card-referrals,
+.dashboard-role-admin .management-record-card-appointments,
+.dashboard-role-director .management-record-card-appointments {
+  min-width: 0;
+  padding: 16px 17px;
+  border: 1px solid #e5edef;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(20, 54, 70, .025);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.dashboard-role-admin .management-record-card-patients:hover,
+.dashboard-role-director .management-record-card-patients:hover,
+.dashboard-role-admin .management-record-card-referrals:hover,
+.dashboard-role-director .management-record-card-referrals:hover,
+.dashboard-role-admin .management-record-card-appointments:hover,
+.dashboard-role-director .management-record-card-appointments:hover {
+  border-color: #c5dcdd;
+  box-shadow: 0 7px 20px rgba(20, 54, 70, .065);
+  transform: translateY(-1px);
+}
+.dashboard-role-admin .management-record-card-patients .management-record-main strong,
+.dashboard-role-director .management-record-card-patients .management-record-main strong,
+.dashboard-role-admin .management-record-card-referrals .management-record-main strong,
+.dashboard-role-director .management-record-card-referrals .management-record-main strong,
+.dashboard-role-admin .management-record-card-appointments .management-record-main strong,
+.dashboard-role-director .management-record-card-appointments .management-record-main strong {
+  color: #193f50;
+  font-size: .88rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .management-record-card-patients .management-record-meta,
+.dashboard-role-director .management-record-card-patients .management-record-meta,
+.dashboard-role-admin .management-record-card-referrals .management-record-meta,
+.dashboard-role-director .management-record-card-referrals .management-record-meta,
+.dashboard-role-admin .management-record-card-appointments .management-record-meta,
+.dashboard-role-director .management-record-card-appointments .management-record-meta {
+  margin-top: 5px;
+  color: #71838c;
+  font-size: .7rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .management-record-card-patients .management-record-detail,
+.dashboard-role-director .management-record-card-patients .management-record-detail,
+.dashboard-role-admin .management-record-card-referrals .management-record-detail,
+.dashboard-role-director .management-record-card-referrals .management-record-detail,
+.dashboard-role-admin .management-record-card-appointments .management-record-detail,
+.dashboard-role-director .management-record-card-appointments .management-record-detail {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid #edf2f3;
+  color: #506873;
+  font-size: .72rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .management-record-card-patients .management-record-actions,
+.dashboard-role-director .management-record-card-patients .management-record-actions,
+.dashboard-role-admin .management-record-card-referrals .management-record-actions,
+.dashboard-role-director .management-record-card-referrals .management-record-actions,
+.dashboard-role-admin .management-record-card-appointments .management-record-actions,
+.dashboard-role-director .management-record-card-appointments .management-record-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 13px;
+}
+.dashboard-role-admin .management-record-card-patients .management-record-actions button,
+.dashboard-role-director .management-record-card-patients .management-record-actions button,
+.dashboard-role-admin .management-record-card-referrals .management-record-actions button,
+.dashboard-role-director .management-record-card-referrals .management-record-actions button,
+.dashboard-role-admin .management-record-card-appointments .management-record-actions button,
+.dashboard-role-director .management-record-card-appointments .management-record-actions button {
+  min-height: 32px;
+  border-radius: 6px;
+  font-size: .67rem;
+  font-weight: 750;
+}
+.dashboard-role-admin .management-record-card-referrals .referral-notes-editor,
+.dashboard-role-director .management-record-card-referrals .referral-notes-editor {
+  display: grid;
+  gap: 8px;
+  margin-top: 13px;
+  padding: 12px;
+  border: 1px solid #e8eff0;
+  border-radius: 8px;
+  background: #f8fbfb;
+}
+.dashboard-role-admin .management-record-card-referrals .referral-notes-editor label,
+.dashboard-role-director .management-record-card-referrals .referral-notes-editor label {
+  display: grid;
+  gap: 6px;
+  color: #526d77;
+  font-size: .68rem;
+  font-weight: 750;
+}
+.dashboard-role-admin .management-record-card-referrals .referral-notes-editor textarea,
+.dashboard-role-director .management-record-card-referrals .referral-notes-editor textarea {
+  width: 100%;
+  min-height: 74px;
+  padding: 9px 10px;
+  border: 1px solid #dce7e9;
+  border-radius: 6px;
+  color: #294956;
+  background: #fff;
+  font: inherit;
+  font-size: .72rem;
+  resize: vertical;
+}
+.dashboard-role-admin .management-record-card-referrals .referral-notes-editor button,
+.dashboard-role-director .management-record-card-referrals .referral-notes-editor button {
+  justify-self: start;
+}
+@media (max-width: 760px) {
+  .dashboard-role-admin .management-record-grid-patients,
+  .dashboard-role-director .management-record-grid-patients,
+  .dashboard-role-admin .management-record-grid-referrals,
+  .dashboard-role-director .management-record-grid-referrals,
+  .dashboard-role-admin .management-record-grid-appointments,
+  .dashboard-role-director .management-record-grid-appointments {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 12px;
+  }
+  .dashboard-role-admin .resource-panel-patients .management-resource-heading,
+  .dashboard-role-director .resource-panel-patients .management-resource-heading,
+  .dashboard-role-admin .resource-panel-referrals .management-resource-heading,
+  .dashboard-role-director .resource-panel-referrals .management-resource-heading,
+  .dashboard-role-admin .resource-panel-appointments .management-resource-heading,
+  .dashboard-role-director .resource-panel-appointments .management-resource-heading {
+    padding: 16px;
+  }
+}
