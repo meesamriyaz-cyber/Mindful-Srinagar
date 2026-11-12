@@ -26,7 +26,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDashboard } from "../hooks/useDashboard.js";
-import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, API_BASE_URL } from "../lib/api.js";
+import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, listReferralOwners, logReferralFollowUp, API_BASE_URL } from "../lib/api.js";
 import { ClinicalBoard } from "./ClinicalBoard.jsx";
 import { PatientJourney } from "./PatientJourney.jsx";
 import { PractitionerBoard } from "./PractitionerBoard.jsx";
@@ -644,28 +644,151 @@ function ReportsView({ data }) {
   );
 }
 
-function ReferralNotesEditor({ record, onSave, saving }) {
+function toDateTimeLocal(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+
+function ReferralNotesEditor({ record, onSave, saving, token, onFollowUpLogged }) {
   const [notes, setNotes] = useState(record.notes || "");
-  useEffect(() => setNotes(record.notes || ""), [record._id, record.notes]);
+  const [owners, setOwners] = useState([]);
+  const [ownerId, setOwnerId] = useState(record.assignedTo?._id || record.assignedTo || "");
+  const [followUpDate, setFollowUpDate] = useState(toDateTimeLocal(record.followUpDate));
+  const [method, setMethod] = useState("phone");
+  const [outcome, setOutcome] = useState("reached");
+  const [followUpNote, setFollowUpNote] = useState("");
+  const [nextFollowUpAt, setNextFollowUpAt] = useState("");
+  const [logging, setLogging] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    setNotes(record.notes || "");
+    setOwnerId(record.assignedTo?._id || record.assignedTo || "");
+    setFollowUpDate(toDateTimeLocal(record.followUpDate));
+  }, [record._id, record.notes, record.assignedTo, record.followUpDate]);
+
+  useEffect(() => {
+    let active = true;
+    listReferralOwners({ token }).then((items) => {
+      if (active) setOwners(items || []);
+    }).catch(() => {
+      if (active) setOwners([]);
+    });
+    return () => { active = false; };
+  }, [token]);
+
+  async function submitFollowUp(event) {
+    event.preventDefault();
+    setLogging(true);
+    setError("");
+    try {
+      await logReferralFollowUp(record._id, {
+        contactMethod: method,
+        outcome,
+        note: followUpNote,
+        ...(nextFollowUpAt ? { nextFollowUpAt: new Date(nextFollowUpAt).toISOString() } : {})
+      }, { token });
+      setFollowUpNote("");
+      setNextFollowUpAt("");
+      onFollowUpLogged();
+    } catch (err) {
+      setError(err.message || "Unable to save follow-up");
+    } finally {
+      setLogging(false);
+    }
+  }
+
+  const history = [...(record.followUpHistory || [])].reverse();
   return (
     <div className="referral-notes-editor">
+      <div className="form-row">
+        <label>
+          Referral owner
+          <select value={ownerId} onChange={(event) => setOwnerId(event.target.value)}>
+            <option value="">Unassigned</option>
+            {owners.map((owner) => <option key={owner._id} value={owner._id}>{owner.name} · {owner.role}</option>)}
+          </select>
+        </label>
+        <label>
+          Follow-up due
+          <input type="datetime-local" value={followUpDate} onChange={(event) => setFollowUpDate(event.target.value)} />
+        </label>
+      </div>
+      <button
+        className="secondary-button compact-button"
+        type="button"
+        disabled={saving || (ownerId === (record.assignedTo?._id || record.assignedTo || "") && followUpDate === toDateTimeLocal(record.followUpDate))}
+        onClick={() => onSave({
+          assignedTo: ownerId || null,
+          followUpDate: followUpDate ? new Date(followUpDate).toISOString() : null
+        })}
+      >
+        {saving ? "Saving..." : "Save owner and deadline"}
+      </button>
       <label>
-        Staff call / conversation notes
+        Staff context notes
         <textarea
-          rows={3}
+          rows={2}
           value={notes}
           onChange={(event) => setNotes(event.target.value)}
-          placeholder="Record the discussion, needs, agreed next step and follow-up..."
+          placeholder="Internal context for the next staff member..."
         />
       </label>
       <button
         className="secondary-button compact-button"
         type="button"
         disabled={saving || notes.trim() === (record.notes || "").trim()}
-        onClick={() => onSave(notes)}
+        onClick={() => onSave({ notes })}
       >
-        {saving ? "Saving notes..." : "Save conversation notes"}
+        {saving ? "Saving..." : "Save internal notes"}
       </button>
+      <form className="clinical-form" onSubmit={submitFollowUp}>
+        <strong>Log contact attempt</strong>
+        <div className="form-row">
+          <label>Method
+            <select value={method} onChange={(event) => setMethod(event.target.value)}>
+              <option value="phone">Phone</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="email">Email</option>
+              <option value="in-person">In person</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+          <label>Outcome
+            <select value={outcome} onChange={(event) => setOutcome(event.target.value)}>
+              <option value="reached">Reached</option>
+              <option value="no-answer">No answer</option>
+              <option value="left-message">Left message</option>
+              <option value="callback-requested">Callback requested</option>
+              <option value="appointment-booked">Appointment booked</option>
+              <option value="not-interested">Not interested</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+        </div>
+        <label>Contact summary
+          <textarea rows={2} minLength={3} maxLength={1000} value={followUpNote} onChange={(event) => setFollowUpNote(event.target.value)} required placeholder="Who was contacted, what was discussed and the agreed next step..." />
+        </label>
+        <label>Next follow-up (if needed)
+          <input type="datetime-local" value={nextFollowUpAt} onChange={(event) => setNextFollowUpAt(event.target.value)} />
+        </label>
+        {error && <p className="form-status error-status">{error}</p>}
+        <button className="secondary-button compact-button" type="submit" disabled={logging}>{logging ? "Saving..." : "Add follow-up to history"}</button>
+      </form>
+      {history.length > 0 && (
+        <div className="referral-follow-up-history">
+          <strong>Contact history</strong>
+          {history.map((entry) => (
+            <div className="history-entry" key={entry._id}>
+              <strong>{entry.outcome.replaceAll("-", " ")} · {entry.contactMethod}</strong>
+              <span>{formatDateTime(entry.createdAt)} · {entry.loggedBy?.name || "Staff"}</span>
+              <p>{entry.note}</p>
+              {entry.nextFollowUpAt && <span>Next follow-up: {formatDateTime(entry.nextFollowUpAt)}</span>}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -724,7 +847,9 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                       <ReferralNotesEditor
                         record={record}
                         saving={actionId === record._id}
-                        onSave={(notes) => onRecordAction(config.resource, record._id, { notes }, { action: "save-notes" })}
+                        token={data.token}
+                        onFollowUpLogged={() => onRecordAction(config.resource, record._id, {}, { action: "refresh" })}
+                        onSave={(updates) => onRecordAction(config.resource, record._id, updates, { action: "save-notes" })}
                       />
                     )}
                     {actions.length > 0 && (
