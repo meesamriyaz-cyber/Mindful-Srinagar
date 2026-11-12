@@ -26,7 +26,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDashboard } from "../hooks/useDashboard.js";
-import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, listReferralOwners, logReferralFollowUp, API_BASE_URL } from "../lib/api.js";
+import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, listReferralOwners, logReferralFollowUp, listTaskAssignees, API_BASE_URL } from "../lib/api.js";
 import { ClinicalBoard } from "./ClinicalBoard.jsx";
 import { PatientJourney } from "./PatientJourney.jsx";
 import { PractitionerBoard } from "./PractitionerBoard.jsx";
@@ -212,10 +212,11 @@ function useResourceRecords({ activeView, token, query, refreshSignal }) {
         ...(taskForm.patient ? { patient: taskForm.patient } : {}),
         department: taskForm.department,
         priority: taskForm.priority,
+        ...(taskForm.assignedTo ? { assignedTo: taskForm.assignedTo } : {}),
         ...(taskForm.dueDate ? { dueDate: new Date(taskForm.dueDate).toISOString() } : {}),
         status: "todo"
       }, { token });
-      setTaskForm({ title: "", patient: "", department: "clinical", priority: "medium", dueDate: "" });
+      setTaskForm({ title: "", patient: "", department: "clinical", priority: "medium", dueDate: "", assignedTo: "" });
       setShowTaskCreate(false);
       onRefreshRecords?.();
     } catch (error) {
@@ -820,6 +821,7 @@ function ReferralNotesEditor({ record, onSave, saving, token, owners, onFollowUp
 function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError, userRole, token, onRefreshRecords, onCreateAppointment }) {
   const [referralOwners, setReferralOwners] = useState([]);
   const [taskPatients, setTaskPatients] = useState([]);
+  const [taskAssignees, setTaskAssignees] = useState([]);
   const [showTaskCreate, setShowTaskCreate] = useState(false);
   const [taskSaving, setTaskSaving] = useState(false);
   const [taskError, setTaskError] = useState("");
@@ -856,7 +858,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
         ...(taskForm.dueDate ? { dueDate: new Date(taskForm.dueDate).toISOString() } : {}),
         status: "todo"
       }, { token });
-      setTaskForm({ title: "", patient: "", department: "clinical", priority: "medium", dueDate: "" });
+      setTaskForm({ title: "", patient: "", department: "clinical", priority: "medium", dueDate: "", assignedTo: "" });
       setShowTaskCreate(false);
       onRefreshRecords?.();
     } catch (error) {
@@ -911,6 +913,12 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
             </label>
           </div>
           <div className="form-row">
+            <label>Assigned staff member
+              <select value={taskForm.assignedTo} onChange={(event) => setTaskForm({ ...taskForm, assignedTo: event.target.value })} required>
+                <option value="">Select responsible staff...</option>
+                {taskAssignees.map((staff) => <option key={staff._id} value={staff._id}>{staff.name} · {staff.role}</option>)}
+              </select>
+            </label>
             <label>Priority
               <select value={taskForm.priority} onChange={(event) => setTaskForm({ ...taskForm, priority: event.target.value })}>
                 <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option>
