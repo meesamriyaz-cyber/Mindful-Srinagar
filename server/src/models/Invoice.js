@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 const invoiceItemSchema = new mongoose.Schema({
   description: { type: String, required: true, trim: true, maxlength: 200 },
   quantity: { type: Number, required: true, default: 1, min: 0.01, max: 100000 },
-  rate: { type: Number, required: true, min: 0, max: 100000000 }
+  rate: { type: Number, required: true, min: 0, max: 100000000 },
+  appointment: { type: mongoose.Schema.Types.ObjectId, ref: "Appointment" }
 });
 const paymentSchema = new mongoose.Schema({
   amount: { type: Number, required: true, min: 0.01 },
@@ -93,4 +94,5 @@ invoiceSchema.pre("findOneAndUpdate", async function validateInvoiceUpdate() {
 });
 invoiceSchema.index({ status: 1, createdAt: -1 });
 invoiceSchema.index({ patient: 1, createdAt: -1 });
+invoiceSchema.index({ "items.appointment": 1 }, { unique: true, partialFilterExpression: { status: { $in: ["draft", "paid", "partial"] }, "items.appointment": { $type: "objectId" } } });
 export const Invoice = mongoose.model("Invoice", invoiceSchema);

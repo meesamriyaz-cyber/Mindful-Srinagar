@@ -310,11 +310,13 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
       const subtotal = (record?.items || []).reduce((sum, item) => sum + (item.quantity || 0) * (item.rate || 0), 0);
       const total = Math.max(subtotal - (record?.discount || 0), 0);
       const due = Math.max(total - (record?.paidAmount || 0), 0);
+      const linkedSessions = [...new Map((record?.items || []).filter((item) => item.appointment).map((item) => [item.appointment._id || item.appointment, item.appointment])).values()];
       return (
         <div>
           <p><strong>Invoice No:</strong> {record?.invoiceNo}</p>
           <p><strong>Total:</strong> ₹{total.toLocaleString("en-IN")} | <strong>Paid:</strong> ₹{(record?.paidAmount || 0).toLocaleString("en-IN")} | <strong>Due:</strong> ₹{due.toLocaleString("en-IN")}</p>
           <p><strong>Status:</strong> {record?.status}</p>
+          <p><strong>Linked sessions:</strong> {linkedSessions.length ? linkedSessions.map((item) => typeof item === "object" ? `${item.service || "Session"} · ${formatDate(item.startsAt)}` : String(item)).join("; ") : "No appointment-linked session items"}</p>
         </div>
       );
     }

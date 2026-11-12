@@ -272,11 +272,18 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
 
   function openBilling(record) {
     setBillingRecord(record);
-    const defaultService = serviceCharges.find(s => s.service === record?.service);
+    const linkedAppointment = activeView === "appointments"
+      ? record
+      : activeView === "progress-notes"
+        ? record?.appointment
+        : null;
+    const service = linkedAppointment?.service || record?.service || "Service";
+    const defaultService = serviceCharges.find((item) => item.service === service);
     setBillingItems([{
-      description: record?.service || "Service",
+      description: service,
       quantity: 1,
-      rate: defaultService?.rate || 0
+      rate: defaultService?.rate || 0,
+      ...(linkedAppointment?.status === "completed" ? { appointment: linkedAppointment._id } : {})
     }]);
     setBillingError("");
     setShowBilling(true);
@@ -367,7 +374,10 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                           {approvingId === record._id ? "Approving..." : "Approve & activate"}
                         </button>
                       )}
-                      {activeView !== "prescriptions" && ["director", "admin", "accounts"].includes(userRole) && (
+                      {["director", "admin", "accounts"].includes(userRole) &&
+                        activeView !== "prescriptions" &&
+                        (activeView !== "appointments" || record.status === "completed") &&
+                        (activeView !== "progress-notes" || record.appointment?.status === "completed") && (
                         <button
                           className="primary-button compact-button"
                           type="button"

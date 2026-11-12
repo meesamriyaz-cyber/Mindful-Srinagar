@@ -24,7 +24,7 @@ import assessmentRoutes from "./assessmentRoutes.js";
 import treatmentPlanRoutes from "./treatmentPlanRoutes.js";
 import progressNoteRoutes from "./progressNoteRoutes.js";
 import prescriptionRoutes from "./prescriptionRoutes.js";
-import { createInvoice, generateInvoiceFromAppointment } from "../controllers/invoiceController.js";
+import { createInvoice, generateInvoiceFromAppointment, validateInvoiceAppointmentLinks } from "../controllers/invoiceController.js";
 import { recordInvoicePayment } from "../controllers/paymentController.js";
 import { adjustInventory, listInventoryMovements } from "../controllers/inventoryController.js";
 import { canTransitionTask, validateTaskPayload } from "../security/taskRules.js";
@@ -266,9 +266,17 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
 }), { read: appointmentStaff, create: reception, update: appointmentStaff, remove: [] }));
 router.post("/invoices", permit(...invoiceCreators), createInvoice);
 router.post("/invoices/:id/payments", permit(...billing), recordInvoicePayment);
-router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient", "payments.receivedBy"], {
+router.use("/invoices", crudRoutes(makeCrudController(Invoice, ["patient", "payments.receivedBy", "items.appointment"], {
   createFields: ["patient","invoiceNo","items","discount","paymentMode","status"],
   updateFields: ["items","discount"],
+  validateUpdate: async ({ req, payload }) => {
+    if (!payload.items) return null;
+    const current = await Invoice.findById(req.params.id).select("patient");
+    if (!current) return { statusCode: 404, message: "Invoice not found" };
+    const appointmentError = await validateInvoiceAppointmentLinks(current.patient, payload.items, req.params.id);
+    if (appointmentError) return { statusCode: 409, message: appointmentError };
+    return null;
+  },
   filterFields: ["status","patient"], filterAliases: { patientId: "patient" }, searchableFields: ["invoiceNo"],
   updateScope: (req) => ["director","admin"].includes(req.user.role) ? {} : { status: { $nin: ["paid","void"] } }
 }), { read: invoiceReaders, write: billing, create: [], remove: [] }));
