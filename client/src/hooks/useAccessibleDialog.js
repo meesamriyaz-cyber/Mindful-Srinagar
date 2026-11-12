@@ -12,6 +12,8 @@ const FOCUSABLE = [
 
 export function useAccessibleDialog(open, onClose) {
   const dialogRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!open || !dialogRef.current) return undefined;
@@ -27,7 +29,7 @@ export function useAccessibleDialog(open, onClose) {
     function handleKeyDown(event) {
       if (event.key === "Escape") {
         event.preventDefault();
-        onClose?.();
+        onCloseRef.current?.();
         return;
       }
 
@@ -57,7 +59,7 @@ export function useAccessibleDialog(open, onClose) {
         previousFocus.focus();
       }
     };
-  }, [open, onClose]);
+  }, [open]);
 
   return dialogRef;
 }
