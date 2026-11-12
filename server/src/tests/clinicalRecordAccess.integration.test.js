@@ -6,6 +6,7 @@ function queryResult(value) {
   return {
     populate() { return this; },
     sort() { return this; },
+    skip() { return this; },
     limit() { return Promise.resolve(value); },
     then(resolve, reject) { return Promise.resolve(value).then(resolve, reject); }
   };
@@ -16,6 +17,7 @@ function response() {
     statusCode: 200,
     body: null,
     status(code) { this.statusCode = code; return this; },
+    set() { return this; },
     json(value) { this.body = value; return this; }
   };
 }
@@ -23,7 +25,8 @@ function response() {
 test("clinical list is scoped to the authenticated record author", async () => {
   let captured;
   const Model = {
-    find(filter) { captured = filter; return queryResult([]); }
+    find(filter) { captured = filter; return queryResult([]); },
+    countDocuments() { return Promise.resolve(0); }
   };
   const controller = makeClinicalRecordController({
     Model, ownerField: "assessedBy", createFields: [], updateFields: [], sortField: "assessedAt"
