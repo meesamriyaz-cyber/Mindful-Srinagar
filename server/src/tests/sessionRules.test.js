@@ -19,7 +19,7 @@ test("session progress note must link to its own checked-in or completed appoint
   assert.match(validateSessionNoteLink({ noteType: "session", patient: "p1" }), /must be linked/);
   assert.match(validateSessionNoteLink({
     noteType: "session", patient: "p1", appointment: { patient: "p2" }, appointmentStatus: "checked-in"
-  }), /different patient/);
+  }), /does not belong/);
   assert.match(validateSessionNoteLink({
     noteType: "session", patient: "p1", appointment: { patient: "p1" }, appointmentStatus: "scheduled"
   }), /checked-in or completed/);
