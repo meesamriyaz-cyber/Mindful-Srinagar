@@ -177,7 +177,7 @@ export function PractitionerBoard({ token, staffAccounts = [], onChanged }) {
       <div className="panel-title resource-title">
         <div>
           <h3>Practitioners & doctors</h3>
-          <span>Manage clinical profiles, staff account links and appointment availability</span>
+          <p className="resource-description">Manage clinical profiles, staff account links and appointment availability.</p>
         </div>
         {!editing && <button className="primary-button compact-button" type="button" onClick={() => setEditing({})}>+ Add practitioner</button>}
       </div>
