@@ -290,11 +290,12 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
     const shapeError = validateAppointmentShape(payload);
     if (shapeError) return { statusCode: 400, message: shapeError };
     const [patient, practitioner] = await Promise.all([
-      Patient.findById(payload.patient).select("status"),
+      Patient.findById(payload.patient).select("status dischargeApprovedAt"),
       Doctor.findById(payload.practitioner).select("status availability")
     ]);
     if (!patient) return { statusCode: 404, message: "Patient not found" };
     if (["on-hold", "discharged"].includes(patient.status)) return { statusCode: 409, message: "Appointments cannot be booked for patients on hold or discharged" };
+    if (patient.dischargeApprovedAt) return { statusCode: 409, message: "No new appointments can be booked while discharge closure is pending" };
     const appointmentType = payload.appointmentType || (String(payload.service).toLowerCase().includes("assessment") ? "assessment" : "treatment");
     if (requiresApprovedTreatmentPlan(appointmentType)) {
       if (patient.status !== "active") return { statusCode: 409, message: "Activate the patient after assessment and plan approval before scheduling treatment sessions" };
@@ -321,9 +322,9 @@ router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient
       if (!hasSessionNote) return { statusCode: 409, message: "Complete and save the session progress note before completing this appointment" };
     }
     if (payload.status === "checked-in" && next.appointmentType && requiresApprovedTreatmentPlan(next.appointmentType)) {
-      const patient = await Patient.findById(next.patient).select("status");
+      const patient = await Patient.findById(next.patient).select("status dischargeApprovedAt");
       const hasApprovedPlan = await TreatmentPlan.exists({ patient: next.patient, status: "active", approvedBy: { $ne: null }, approvedAt: { $ne: null } });
-      if (!patient || patient.status !== "active" || !hasApprovedPlan) {
+      if (!patient || patient.status !== "active" || patient.dischargeApprovedAt || !hasApprovedPlan) {
         return { statusCode: 409, message: "Treatment sessions require an active patient with an approved active treatment plan" };
       }
     }
