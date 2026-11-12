@@ -7680,3 +7680,77 @@ mark.risk {
   color: #687d86;
   opacity: 1;
 }
+
+
+/* Final Admin/Director analytics and operational-summary contrast pass. */
+.dashboard-role-admin .management-reports-grid .resource-description,
+.dashboard-role-director .management-reports-grid .resource-description {
+  color: #4b626e;
+}
+.dashboard-role-admin .management-reports-grid .panel-title h3,
+.dashboard-role-director .management-reports-grid .panel-title h3 {
+  color: #193f50;
+}
+.dashboard-role-admin .management-reports-grid .mix-list > span,
+.dashboard-role-director .management-reports-grid .mix-list > span {
+  color: #405b67;
+}
+.dashboard-role-admin .management-reports-grid .mix-list > span strong,
+.dashboard-role-director .management-reports-grid .mix-list > span strong {
+  color: #174f59;
+  font-weight: 850;
+}
+.dashboard-role-admin .management-reports-grid .insight-list > p,
+.dashboard-role-director .management-reports-grid .insight-list > p {
+  color: #405b67;
+}
+.dashboard-role-admin .management-reports-grid .empty-state,
+.dashboard-role-director .management-reports-grid .empty-state {
+  color: #526873;
+}
+.dashboard-role-admin .management-director-view .appointment-row strong,
+.dashboard-role-director .management-director-view .appointment-row strong,
+.dashboard-role-admin .management-director-view .priority-list strong,
+.dashboard-role-director .management-director-view .priority-list strong,
+.dashboard-role-admin .management-director-view .compact-record strong,
+.dashboard-role-director .management-director-view .compact-record strong {
+  color: #193f50;
+}
+.dashboard-role-admin .management-director-view .appointment-row span,
+.dashboard-role-director .management-director-view .appointment-row span,
+.dashboard-role-admin .management-director-view .compact-record span,
+.dashboard-role-director .management-director-view .compact-record span,
+.dashboard-role-admin .management-director-view .risk-stack span,
+.dashboard-role-director .management-director-view .risk-stack span {
+  color: #405b67;
+}
+.dashboard-role-admin .management-director-view .risk-stack strong,
+.dashboard-role-director .management-director-view .risk-stack strong {
+  color: #8a4a25;
+}
+.dashboard-role-admin .management-director-view .director-panel-kicker,
+.dashboard-role-director .management-director-view .director-panel-kicker,
+.dashboard-role-admin .management-director-view .director-card-kicker,
+.dashboard-role-director .management-director-view .director-card-kicker {
+  color: #286d70;
+}
+.dashboard-role-admin .management-director-view .director-collection-label,
+.dashboard-role-director .management-director-view .director-collection-label {
+  color: #365b67;
+}
+.dashboard-role-admin .management-director-view .director-collection-track,
+.dashboard-role-director .management-director-view .director-collection-track {
+  background: #dce9ea;
+}
+.dashboard-role-admin .management-director-view .director-insights p,
+.dashboard-role-director .management-director-view .director-insights p {
+  color: #405b67;
+}
+.dashboard-role-admin .management-director-view .bar-row > span,
+.dashboard-role-director .management-director-view .bar-row > span {
+  color: #405b67;
+}
+.dashboard-role-admin .management-director-view .bar-row > b,
+.dashboard-role-director .management-director-view .bar-row > b {
+  color: #174f59;
+}
