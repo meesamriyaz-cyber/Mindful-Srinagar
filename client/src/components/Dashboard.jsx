@@ -1320,7 +1320,7 @@ export function Dashboard() {
 
       {showAppointmentForm && (
         <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAppointmentForm(false)}>
-          <motion.div className="modal" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()}>
+          <motion.div className="modal modal-appointment" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Schedule appointment</h3>
               <button className="icon-button" type="button" onClick={() => setShowAppointmentForm(false)}>✕</button>
@@ -1366,7 +1366,7 @@ export function Dashboard() {
 
       {operationModal && (
         <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOperationModal(null)}>
-          <motion.div className="modal" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
+          <motion.div className="modal modal-operation" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
               <h3>{operationModal.type === "payment" ? "Record invoice payment" : "Record stock movement"}</h3>
               <button className="icon-button" type="button" onClick={() => setOperationModal(null)} aria-label="Close">✕</button>
