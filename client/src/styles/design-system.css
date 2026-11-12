@@ -7533,3 +7533,150 @@ mark.risk {
 .dashboard-role-director .dashboard-section .modal .history-entry strong {
   color: #193f50;
 }
+
+
+/* Admin/Director: shared console chrome, modal workflows and journey navigation contrast. */
+.dashboard-role-admin .management-console-header .console-user,
+.dashboard-role-director .management-console-header .console-user {
+  color: #405b67;
+  font-weight: 650;
+}
+.dashboard-role-admin .management-console-header .eyebrow,
+.dashboard-role-director .management-console-header .eyebrow {
+  color: #286d70;
+}
+.dashboard-role-admin .management-console-header .search-box input,
+.dashboard-role-director .management-console-header .search-box input {
+  color: #203f4c;
+  background: #fff;
+}
+.dashboard-role-admin .management-console-header .search-box input::placeholder,
+.dashboard-role-director .management-console-header .search-box input::placeholder {
+  color: #687d86;
+  opacity: 1;
+}
+.dashboard-role-admin .management-console-header .sync-pill,
+.dashboard-role-director .management-console-header .sync-pill {
+  color: #205c58;
+  font-weight: 750;
+}
+.dashboard-role-admin .side-link,
+.dashboard-role-director .side-link {
+  color: #e1eef0;
+}
+.dashboard-role-admin .side-link svg,
+.dashboard-role-director .side-link svg {
+  color: #b8d2d8;
+}
+.dashboard-role-admin .side-link.active,
+.dashboard-role-director .side-link.active {
+  color: #fff;
+  background: rgba(255,255,255,.14);
+}
+.dashboard-role-admin .side-link.active svg,
+.dashboard-role-director .side-link.active svg {
+  color: #9ce0d5;
+}
+.dashboard-role-admin .sidebar-section-title,
+.dashboard-role-director .sidebar-section-title {
+  color: #b2cbd1;
+}
+.dashboard-role-admin .sidebar-context-label,
+.dashboard-role-director .sidebar-context-label {
+  color: #b2cbd1;
+}
+.dashboard-role-admin .dashboard-section .modal,
+.dashboard-role-director .dashboard-section .modal {
+  color: #294653;
+  background: #fff;
+}
+.dashboard-role-admin .dashboard-section .modal-header h3,
+.dashboard-role-director .dashboard-section .modal-header h3 {
+  color: #173f59;
+}
+.dashboard-role-admin .dashboard-section .modal-header small,
+.dashboard-role-director .dashboard-section .modal-header small {
+  color: #405b67;
+}
+.dashboard-role-admin .dashboard-section .modal .clinical-form label,
+.dashboard-role-director .dashboard-section .modal .clinical-form label {
+  color: #294c5b;
+  font-weight: 750;
+}
+.dashboard-role-admin .dashboard-section .modal .clinical-form p:not(.form-status),
+.dashboard-role-director .dashboard-section .modal .clinical-form p:not(.form-status) {
+  color: #405b67;
+}
+.dashboard-role-admin .dashboard-section .modal .clinical-form input,
+.dashboard-role-director .dashboard-section .modal .clinical-form input,
+.dashboard-role-admin .dashboard-section .modal .clinical-form select,
+.dashboard-role-director .dashboard-section .modal .clinical-form select,
+.dashboard-role-admin .dashboard-section .modal .clinical-form textarea,
+.dashboard-role-director .dashboard-section .modal .clinical-form textarea {
+  color: #203f4c;
+  background: #fff;
+  border-color: #bdcdd1;
+}
+.dashboard-role-admin .dashboard-section .modal .clinical-form input::placeholder,
+.dashboard-role-director .dashboard-section .modal .clinical-form input::placeholder,
+.dashboard-role-admin .dashboard-section .modal .clinical-form textarea::placeholder,
+.dashboard-role-director .dashboard-section .modal .clinical-form textarea::placeholder {
+  color: #687d86;
+  opacity: 1;
+}
+.dashboard-role-admin .journey-step-select,
+.dashboard-role-director .journey-step-select {
+  color: #345461;
+}
+.dashboard-role-admin .journey-step-select svg,
+.dashboard-role-director .journey-step-select svg {
+  color: #287b7a;
+}
+.dashboard-role-admin .journey-step-select small,
+.dashboard-role-director .journey-step-select small {
+  color: #405b67;
+  background: #e8f0f1;
+}
+.dashboard-role-admin .journey-step.is-active .journey-step-select,
+.dashboard-role-director .journey-step.is-active .journey-step-select {
+  color: #fff;
+}
+.dashboard-role-admin .journey-step.is-active .journey-step-select svg,
+.dashboard-role-director .journey-step.is-active .journey-step-select svg,
+.dashboard-role-admin .journey-step.is-active .journey-step-select small,
+.dashboard-role-director .journey-step.is-active .journey-step-select small {
+  color: #fff;
+}
+.dashboard-role-admin .journey-card-header > span,
+.dashboard-role-director .journey-card-header > span {
+  color: #526873;
+}
+.dashboard-role-admin .journey-discharged-banner p,
+.dashboard-role-director .journey-discharged-banner p {
+  color: #365b53;
+}
+.dashboard-role-admin .journey-content .empty-state,
+.dashboard-role-director .journey-content .empty-state {
+  color: #405b67;
+}
+.dashboard-role-admin .journey-create-form label,
+.dashboard-role-director .journey-create-form label {
+  color: #294c5b;
+}
+.dashboard-role-admin .journey-create-form input,
+.dashboard-role-director .journey-create-form input,
+.dashboard-role-admin .journey-create-form select,
+.dashboard-role-director .journey-create-form select,
+.dashboard-role-admin .journey-create-form textarea,
+.dashboard-role-director .journey-create-form textarea {
+  color: #203f4c;
+  background: #fff;
+  border-color: #bdcdd1;
+}
+.dashboard-role-admin .journey-create-form input::placeholder,
+.dashboard-role-director .journey-create-form input::placeholder,
+.dashboard-role-admin .journey-create-form textarea::placeholder,
+.dashboard-role-director .journey-create-form textarea::placeholder {
+  color: #687d86;
+  opacity: 1;
+}
