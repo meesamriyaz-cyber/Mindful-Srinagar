@@ -1346,7 +1346,7 @@ export function Dashboard() {
               return acc;
             }, {})
           ).map(([section, items]) => (
-            <div className="sidebar-section" key={section}>
+            <div className={`sidebar-section${items.length === 1 ? " sidebar-section-single" : ""}`} key={section}>
               <div className="sidebar-section-title">{section}</div>
               {items.map((item) => {
                 const Icon = item.icon;
