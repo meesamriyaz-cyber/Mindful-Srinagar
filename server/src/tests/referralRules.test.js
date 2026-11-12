@@ -26,9 +26,13 @@ test("follow-up log validates contact method, outcome and note", () => {
   assert.equal(validateReferralFollowUp({
     contactMethod: "whatsapp",
     outcome: "reached",
-    note: "Spoke with the patient's guardian."
+    note: "Spoke with the patient's guardian.",
+    nextFollowUpAt: "2026-11-13T11:30:00.000Z"
   }), null);
   assert.match(validateReferralFollowUp({ contactMethod: "fax", outcome: "reached", note: "Spoke" }), /contact method/);
   assert.match(validateReferralFollowUp({ contactMethod: "phone", outcome: "unknown", note: "Spoke" }), /outcome/);
-  assert.match(validateReferralFollowUp({ contactMethod: "phone", outcome: "reached", note: " " }), /follow-up note/);
+  assert.match(validateReferralFollowUp({ contactMethod: "phone", outcome: "reached", note: " ", nextFollowUpAt: "2026-11-13T11:30:00.000Z" }), /follow-up note/);
+  assert.match(validateReferralFollowUp({ contactMethod: "phone", outcome: "no-answer", note: "No answer" }), /next follow-up date/);
+  assert.equal(validateReferralFollowUp({ contactMethod: "phone", outcome: "appointment-booked", note: "Appointment confirmed" }), null);
+  assert.equal(validateReferralFollowUp({ contactMethod: "phone", outcome: "not-interested", note: "Family declined" }), null);
 });
