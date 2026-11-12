@@ -8522,3 +8522,48 @@ mark.risk {
     min-height: 98px;
   }
 }
+
+
+/* Hotfix: Director overview financial panel had legacy dark-panel text rules
+   outranking the light-surface management treatment. Keep all panel copy legible. */
+.dashboard-role-admin .director-panel.action-panel.management-financial-panel .director-panel-heading .panel-title,
+.dashboard-role-director .director-panel.action-panel.management-financial-panel .director-panel-heading .panel-title,
+.dashboard-role-admin .director-panel.action-panel.management-financial-panel .director-panel-heading .panel-title h3,
+.dashboard-role-director .director-panel.action-panel.management-financial-panel .director-panel-heading .panel-title h3,
+.dashboard-role-admin .director-panel.action-panel.management-financial-panel .director-panel-heading .panel-title svg,
+.dashboard-role-director .director-panel.action-panel.management-financial-panel .director-panel-heading .panel-title svg {
+  color: #193f50;
+}
+.dashboard-role-admin .director-panel.action-panel.management-financial-panel .director-panel-heading .director-panel-kicker,
+.dashboard-role-director .director-panel.action-panel.management-financial-panel .director-panel-heading .director-panel-kicker {
+  color: #287b78;
+}
+.dashboard-role-admin .director-panel.action-panel.management-financial-panel .director-period-label-dark,
+.dashboard-role-director .director-panel.action-panel.management-financial-panel .director-period-label-dark {
+  color: #42616c;
+  border-color: #dce8e9;
+  background: #f4f8f8;
+}
+.dashboard-role-admin .director-panel.action-panel.management-financial-panel .business-grid > div > span,
+.dashboard-role-director .director-panel.action-panel.management-financial-panel .business-grid > div > span {
+  color: #425b67;
+}
+.dashboard-role-admin .director-panel.action-panel.management-financial-panel .business-grid > div > strong,
+.dashboard-role-director .director-panel.action-panel.management-financial-panel .business-grid > div > strong {
+  color: #173f59;
+}
+.dashboard-role-admin .director-panel.action-panel.management-financial-panel .director-collection-label,
+.dashboard-role-director .director-panel.action-panel.management-financial-panel .director-collection-label,
+.dashboard-role-admin .director-panel.action-panel.management-financial-panel .director-collection-label strong,
+.dashboard-role-director .director-panel.action-panel.management-financial-panel .director-collection-label strong {
+  color: #365b67;
+}
+.dashboard-role-admin .director-panel.action-panel.management-financial-panel .director-insights p,
+.dashboard-role-director .director-panel.action-panel.management-financial-panel .director-insights p {
+  color: #405b67;
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 3px solid #79c7bd;
+  background: #f4f9f8;
+}
