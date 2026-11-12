@@ -345,7 +345,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
         </button>
       </div>
       {loading && <p className="empty-state">Loading {config.title.toLowerCase()}...</p>}
-      {error && <p className="form-status error-status">{error}</p>}
+      {error && <p className="form-status error-status" role="alert" aria-live="assertive">{error}</p>}
       {!loading && !error && (
         <AnimatePresence>
           {records.length ? (
@@ -552,7 +552,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                 </button>
               </div>
               <form onSubmit={handleBillingSubmit} className="clinical-form">
-                {billingError && <p className="form-status error-status">{billingError}</p>}
+                {billingError && <p className="form-status error-status" role="alert" aria-live="assertive">{billingError}</p>}
                 <div className="billing-items">
                   {billingItems.map((item, idx) => (
                     <div key={idx} className="billing-item-row">
