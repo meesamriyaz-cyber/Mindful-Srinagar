@@ -57,6 +57,23 @@ const viewItems = [
 function getViewConfig(id) {
   return viewItems.find((item) => item.id === id) || viewItems[0];
 }
+
+const viewDescriptions = {
+  overview: "A live summary of centre activity, care delivery and operational priorities.",
+  patients: "Review patient records, care status and the next step in each patient journey.",
+  practitioners: "Manage the practitioners delivering services across the centre.",
+  staff: "Maintain staff access, roles and day-to-day team responsibilities.",
+  referrals: "Track incoming enquiries from first contact through appointment conversion.",
+  appointments: "Coordinate the centre schedule, attendance and practitioner availability.",
+  assessments: "Review clinical assessments and the findings recorded for each patient.",
+  "treatment-plans": "Monitor agreed goals, therapy frequency and active care plans.",
+  "progress-notes": "Review session notes and the documented progress of ongoing care.",
+  prescriptions: "Review prescriptions and medication instructions recorded by clinicians.",
+  billing: "Track invoices, payments received and outstanding patient balances.",
+  inventory: "Monitor stock levels, reorder thresholds and stock movement.",
+  tasks: "Coordinate follow-ups and operational work across the centre.",
+  reports: "Understand service activity, referral movement and daily operating patterns."
+};
 function getVisibleViewItems(role) {
   const allowed = {
     reception: ["overview","patients","referrals","appointments","billing","tasks","reports"],
@@ -730,7 +747,8 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
         <Icon size={21} />
         <div>
           <h3>{config.label}</h3>
-          <span>{records.length} record(s) loaded</span>
+          <p className="resource-description">{viewDescriptions[activeView]}</p>
+          <span className="resource-count">{records.length} {records.length === 1 ? "record" : "records"} loaded</span>
         </div>
         {activeView === "appointments" && ["director","admin","reception","coordinator"].includes(userRole) && (
           <button className="primary-button compact-button" type="button" onClick={onCreateAppointment}><Plus size={15} /> New appointment</button>
