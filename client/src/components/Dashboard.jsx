@@ -228,43 +228,82 @@ function DirectorView({ data }) {
   const referralMix = Object.entries(data.analytics?.referralMix || {});
   const patientStatus = Object.entries(data.analytics?.patientStatus || {});
   const maxDemand = Math.max(...serviceDemand.map((item) => item.count), 1);
+  const billed = Number(metrics.billedThisMonth || 0);
+  const collected = Number(metrics.revenueThisMonth || 0);
+  const collectionRate = billed > 0 ? Math.min(Math.round((collected / billed) * 100), 100) : 0;
 
   return (
-    <div className="director-view">
+    <div className="director-view" aria-label="Director performance overview">
+      <header className="director-heading">
+        <div>
+          <p className="director-section-kicker">Executive overview</p>
+          <h3>Centre performance</h3>
+          <p>Financial health, service demand and patient acquisition in one operating view.</p>
+        </div>
+        <span className="director-period-label">Current month</span>
+      </header>
+
       <article className="action-panel director-panel">
-        <div className="panel-title">
-          <TrendingUp size={21} />
-          <h3>Director business view</h3>
+        <div className="director-panel-heading">
+          <div className="panel-title">
+            <TrendingUp size={21} />
+            <div>
+              <span className="director-panel-kicker">Financial performance</span>
+              <h3>Revenue & collections</h3>
+            </div>
+          </div>
+          <span className="director-period-label director-period-label-dark">Monthly</span>
         </div>
         <div className="business-grid">
           <div>
             <span>Monthly billed</span>
-            <strong>{INR.format(metrics.billedThisMonth || 0)}</strong>
+            <strong>{INR.format(billed)}</strong>
           </div>
           <div>
-            <span>Collections</span>
-            <strong>{INR.format(metrics.revenueThisMonth || 0)}</strong>
+            <span>Collections received</span>
+            <strong>{INR.format(collected)}</strong>
           </div>
           <div>
-            <span>Outstanding</span>
+            <span>Outstanding balance</span>
             <strong>{INR.format(metrics.outstanding || 0)}</strong>
           </div>
           <div>
-            <span>Monthly conversion</span>
+            <span>Referral conversion</span>
             <strong>{metrics.conversionRate || 0}%</strong>
           </div>
         </div>
-        <div className="insight-list">
-          {(data.businessInsights || []).map((insight) => (
-            <p key={insight}>{insight}</p>
-          ))}
+        <div className="director-collection">
+          <div className="director-collection-label">
+            <span>Collection against billed amount</span>
+            <strong>{collectionRate}%</strong>
+          </div>
+          <div
+            className="director-collection-track"
+            role="progressbar"
+            aria-label="Collection against billed amount"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={collectionRate}
+          >
+            <span style={{ width: `${collectionRate}%` }} />
+          </div>
         </div>
+        {(data.businessInsights || []).length > 0 && (
+          <div className="insight-list director-insights" aria-label="Business insights">
+            {(data.businessInsights || []).map((insight) => (
+              <p key={insight}>{insight}</p>
+            ))}
+          </div>
+        )}
       </article>
 
-      <article className="table-panel">
+      <article className="table-panel director-demand-panel">
         <div className="panel-title">
           <BarChart3 size={21} />
-          <h3>Service demand</h3>
+          <div>
+            <span className="director-card-kicker">Service portfolio</span>
+            <h3>Appointment demand</h3>
+          </div>
         </div>
         <div className="bar-list">
           {serviceDemand.length ? (
@@ -281,10 +320,13 @@ function DirectorView({ data }) {
         </div>
       </article>
 
-      <article className="table-panel">
+      <article className="table-panel director-mix-panel">
         <div className="panel-title">
           <UsersRound size={21} />
-          <h3>Patient mix</h3>
+          <div>
+            <span className="director-card-kicker">Care activity</span>
+            <h3>Patient mix</h3>
+          </div>
         </div>
         <div className="mix-list">
           {patientStatus.length ? patientStatus.map(([status, count]) => (
@@ -293,10 +335,13 @@ function DirectorView({ data }) {
         </div>
       </article>
 
-      <article className="table-panel">
+      <article className="table-panel director-referral-panel">
         <div className="panel-title">
           <ClipboardCheck size={21} />
-          <h3>Referral channels</h3>
+          <div>
+            <span className="director-card-kicker">Acquisition channels</span>
+            <h3>Referral sources</h3>
+          </div>
         </div>
         <div className="mix-list">
           {referralMix.length ? referralMix.map(([source, count]) => (
@@ -307,7 +352,6 @@ function DirectorView({ data }) {
     </div>
   );
 }
-
 function AppointmentList({ appointments = [] }) {
   return (
     <div className="appointment-list">
