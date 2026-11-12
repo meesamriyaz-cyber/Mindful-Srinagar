@@ -8590,3 +8590,183 @@ mark.risk {
 .dashboard-role-therapist .sidebar .sidebar-context > span:last-child {
   color: #526873;
 }
+
+/* D2 — Director daily briefing. Extends the established role-aware design system. */
+.dashboard-role-director .director-welcome {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+  gap: 24px;
+  align-items: center;
+  min-width: 0;
+  padding: clamp(22px, 2.6vw, 32px);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 92% 12%, rgba(80, 201, 185, 0.2), transparent 17rem),
+    linear-gradient(118deg, #173f59 0%, #1e5d68 100%);
+  box-shadow: 0 12px 28px rgba(23, 63, 89, 0.12);
+}
+
+.dashboard-role-director .director-welcome::after {
+  position: absolute;
+  right: -76px;
+  bottom: -160px;
+  width: 300px;
+  height: 300px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  content: "";
+  pointer-events: none;
+}
+
+.dashboard-role-director .director-welcome-copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: start;
+  gap: 11px;
+  min-width: 0;
+}
+
+.dashboard-role-director .director-welcome-kicker {
+  color: #a9d9d2;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.dashboard-role-director .director-welcome-copy h3 {
+  max-width: 430px;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.65rem, 2.4vw, 2.25rem);
+  font-weight: 850;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+.dashboard-role-director .director-welcome-copy p {
+  max-width: 420px;
+  margin: 0;
+  color: #d2e5e8;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.dashboard-role-director .director-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 3px;
+  padding: 8px 11px;
+  border: 1px solid rgba(222, 244, 245, 0.18);
+  border-radius: 999px;
+  color: #e5f2f2;
+  background: rgba(255, 255, 255, 0.075);
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+
+.dashboard-role-director .director-welcome-pulse {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+.dashboard-role-director .director-pulse-card {
+  display: grid;
+  align-content: center;
+  gap: 9px;
+  min-width: 0;
+  min-height: 132px;
+  padding: 15px;
+  border: 1px solid rgba(230, 246, 247, 0.14);
+  border-radius: 13px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.085);
+}
+
+.dashboard-role-director .director-pulse-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #d2e5e8;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.dashboard-role-director .director-pulse-top svg {
+  flex: 0 0 auto;
+  color: #a9d9d2;
+}
+
+.dashboard-role-director .director-pulse-card strong {
+  color: #fff;
+  font-size: clamp(1.7rem, 2.3vw, 2.2rem);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.dashboard-role-director .director-pulse-card small {
+  color: #d2e5e8;
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+
+.dashboard-role-director .director-pulse-amber .director-pulse-top svg {
+  color: #f3cb77;
+}
+
+.dashboard-role-director .director-pulse-coral .director-pulse-top svg {
+  color: #f0a58d;
+}
+
+@media (max-width: 1240px) {
+  .dashboard-role-director .director-welcome {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .dashboard-role-director .director-welcome {
+    gap: 18px;
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .dashboard-role-director .director-welcome-pulse {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-role-director .director-pulse-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    min-height: auto;
+    padding: 12px;
+  }
+
+  .dashboard-role-director .director-pulse-top {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .dashboard-role-director .director-pulse-card strong {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    font-size: 1.55rem;
+  }
+
+  .dashboard-role-director .director-pulse-card small {
+    grid-column: 1;
+    grid-row: 2;
+  }
+}
