@@ -339,12 +339,12 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="modal journey-modal"
+        className="modal journey-modal management-journey-modal"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
       >
-        <div className="modal-header">
+        <div className="modal-header journey-header">
           <div>
             <h3>Patient Journey & History</h3>
             <small>{patient?.fullName} (MRN: {patient?.mrn})</small>
@@ -392,9 +392,9 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           })}
         </div>
 
-        <div className="journey-content">
+        <div className="journey-content management-journey-content">
           {createStep ? (
-            <form onSubmit={handleCreateSubmit} className="journey-create-form">
+            <form onSubmit={handleCreateSubmit} className="journey-create-form management-journey-create-form">
               <h4>New {STEP_LABELS[createStep]}</h4>
               {createError && <p className="form-status error-status">{createError}</p>}
               {(CREATE_FIELDS[createStep] || []).map((field) => (
@@ -454,7 +454,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                     <span>{formatDateTime(record?.createdAt)}</span>
                     {record?.status && <mark className={["completed", "active", "paid", "converted", "ready"].includes(record.status) ? "good" : ""}>{record.status}</mark>}
                   </div>
-                  <div className="journey-card-body">
+                  <div className="journey-card-body management-journey-card-body">
                     {describeRecord(record)}
                     {["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeStep) && (
                       <button className="secondary-button" type="button" onClick={async () => {
@@ -467,7 +467,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                       }}>View amendment history</button>
                     )}
                     {auditRecordId === record._id && (
-                      <div className="journey-audit-history">
+                      <div className="journey-audit-history management-audit-history">
                         <strong>Amendment history</strong>
                         {auditHistory.length ? auditHistory.map(item => (
                           <div key={item._id}>
@@ -496,7 +496,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
         </div>
 
         {!isDischarged && !createStep && canDischarge && (
-          <div className="journey-footer">
+          <div className="journey-footer management-journey-footer">
             <button className="primary-button" type="button" onClick={() => setShowDischarge(true)}>
               Discharge Patient
             </button>
@@ -513,7 +513,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
               onClick={() => setShowDischarge(false)}
             >
               <motion.div
-                className="modal"
+                className="modal journey-discharge-modal"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
