@@ -297,3 +297,10 @@ export function logReferralFollowUp(id, payload, { token } = {}) {
     body: JSON.stringify(payload)
   });
 }
+
+export function approveTreatmentPlan(id, { token } = {}) {
+  return apiRequest(`/treatment-plans/${id}/approve`, {
+    token,
+    method: "POST"
+  });
+}

@@ -25,7 +25,8 @@ import {
   createPrescription,
   API_BASE_URL,
   listClinicalAmendments,
-  amendClinicalRecord
+  amendClinicalRecord,
+  approveTreatmentPlan
 } from "../lib/api.js";
 
 const STEP_ICONS = {
@@ -56,11 +57,12 @@ const CREATE_FIELDS = {
     { name: "status", label: "Status", type: "select", options: ["draft", "completed"] }
   ],
   "treatment-plans": [
+    { name: "assessment", label: "Completed assessment", type: "assessment" },
     { name: "goals", label: "Goals", type: "textarea" },
     { name: "interventions", label: "Interventions (comma-separated)", type: "text" },
     { name: "frequency", label: "Frequency", type: "text", placeholder: "Weekly" },
     { name: "duration", label: "Duration", type: "text", placeholder: "45 minutes" },
-    { name: "status", label: "Status", type: "select", options: ["planned", "active", "completed", "on-hold"] }
+    { name: "status", label: "Status", type: "select", options: ["planned", "completed", "on-hold"] }
   ],
   "progress-notes": [
     { name: "noteType", label: "Note Type", type: "select", options: ["session", "review", "incident"] },
@@ -110,6 +112,8 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const [amendmentReason, setAmendmentReason] = useState("");
   const [amendmentJson, setAmendmentJson] = useState("{}");
   const [amendmentSaving, setAmendmentSaving] = useState(false);
+  const [approvingPlanId, setApprovingPlanId] = useState("");
+  const [planApprovalError, setPlanApprovalError] = useState("");
 
   useEffect(() => {
     if (!patient || !token) return;
@@ -163,6 +167,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const activeRecords = data[activeStep] || [];
   const isDischarged = patient?.status === "discharged";
   const canCreate = ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeStep);
+  const canApprovePlans = ["director", "admin", "doctor"].includes(userRole);
 
   function formatDate(val) {
     if (!val) return "--";
@@ -184,8 +189,22 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     return value;
   }
 
+  async function approvePlan(planId) {
+    setApprovingPlanId(planId);
+    setPlanApprovalError("");
+    try {
+      await approveTreatmentPlan(planId, { token });
+      setJourneyKey((value) => value + 1);
+      onRefresh?.();
+    } catch (error) {
+      setPlanApprovalError(error.message || "Treatment plan approval failed");
+    } finally {
+      setApprovingPlanId("");
+    }
+  }
+
   function openCreate() {
-    setCreateForm({ patient: patient._id });
+    setCreateForm({ patient: patient._id, ...(activeStep === "treatment-plans" ? { status: "planned" } : {}) });
     setCreateError("");
     setCreateStep(activeStep);
   }
@@ -199,6 +218,9 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
       const payload = { patient: patient._id };
       fields.forEach(f => {
         let val = parseValue(f.type, createForm[f.name] || "");
+        if (f.name === "domains" && typeof val === "string") {
+          val = val.split(",").map((item) => item.trim()).filter(Boolean);
+        }
         if (f.name === "interventions" && typeof val === "string") {
           val = val.split(",").map(s => s.trim()).filter(Boolean);
         }
@@ -252,6 +274,8 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     if (activeStep === "treatment-plans") {
       return (
         <div>
+          <p><strong>Linked assessment:</strong> {record?.assessment?.assessedAt ? formatDate(record.assessment.assessedAt) : "Legacy plan — no assessment link"}</p>
+          <p><strong>Approved by:</strong> {record?.approvedBy?.name || "Not approved"} {record?.approvedAt ? `on ${formatDate(record.approvedAt)}` : ""}</p>
           <p><strong>Goals:</strong> {record?.goals}</p>
           <p><strong>Interventions:</strong> {(record?.interventions || []).join(", ")}</p>
           <p><strong>Frequency:</strong> {record?.frequency} | <strong>Duration:</strong> {record?.duration}</p>
@@ -408,6 +432,17 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                       placeholder={field.placeholder}
                       required
                     />
+                  ) : field.type === "assessment" ? (
+                    <select
+                      value={createForm[field.name] || ""}
+                      onChange={(e) => setCreateForm({ ...createForm, [field.name]: e.target.value })}
+                      required
+                    >
+                      <option value="">Select completed assessment...</option>
+                      {data.assessments.filter((item) => item.status === "completed").map((item) => (
+                        <option key={item._id} value={item._id}>{(item.domains || []).join(", ") || "Assessment"} · {formatDate(item.assessedAt)}</option>
+                      ))}
+                    </select>
                   ) : field.type === "select" ? (
                     <select
                       value={createForm[field.name] || ""}
@@ -456,6 +491,12 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                   </div>
                   <div className="journey-card-body">
                     {describeRecord(record)}
+                    {planApprovalError && activeStep === "treatment-plans" && <p className="form-status error-status">{planApprovalError}</p>}
+                    {activeStep === "treatment-plans" && record.status === "planned" && canApprovePlans && (
+                      <button className="primary-button" type="button" disabled={approvingPlanId === record._id} onClick={() => approvePlan(record._id)}>
+                        {approvingPlanId === record._id ? "Approving..." : "Approve and activate plan"}
+                      </button>
+                    )}
                     {["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeStep) && (
                       <button className="secondary-button" type="button" onClick={async () => {
                         try {
