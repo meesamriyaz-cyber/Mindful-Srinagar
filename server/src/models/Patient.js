@@ -20,8 +20,14 @@ const patientSchema = new mongoose.Schema(
     referral: { type: mongoose.Schema.Types.ObjectId, ref: "Referral" },
     notes: { type: String, trim: true },
     dischargeDate: Date,
-    dischargeSummary: { type: String, trim: true },
-    dischargeReason: { type: String, trim: true }
+    dischargeSummary: { type: String, trim: true, maxlength: 5000 },
+    dischargeReason: { type: String, trim: true, maxlength: 500 },
+    dischargeOutcome: { type: String, trim: true, maxlength: 2000 },
+    dischargeRecommendations: { type: String, trim: true, maxlength: 3000 },
+    dischargeApprovedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    dischargeApprovedAt: Date,
+    dischargeClosedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    dischargeClosedAt: Date
   },
   { timestamps: true }
 );
