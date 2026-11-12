@@ -9,7 +9,7 @@ on:
       - mvp/batch-3-billing-operations-inventory
       - mvp/batch-4-clinical-governance
       - mvp/batch-5-release-readiness
-      - ui/frontend-design-refresh
+      - 'ui/**'
 
 permissions:
   contents: read
