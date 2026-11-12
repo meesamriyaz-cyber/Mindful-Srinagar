@@ -65,7 +65,7 @@ const CREATE_FIELDS = {
     { name: "interventions", label: "Interventions (comma-separated)", type: "text" },
     { name: "frequency", label: "Frequency", type: "text", placeholder: "Weekly" },
     { name: "duration", label: "Duration", type: "text", placeholder: "45 minutes" },
-    { name: "status", label: "Status", type: "select", options: ["planned", "completed", "on-hold", "cancelled"] }
+    { name: "status", label: "Status", type: "select", options: ["planned"] }
   ],
   "progress-notes": [
     { name: "noteType", label: "Note Type", type: "select", options: ["session", "review", "incident"] },
@@ -209,7 +209,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   }
 
   function openCreate() {
-    setCreateForm({ patient: patient._id, ...(activeStep === "treatment-plans" ? { status: "planned" } : {}), ...(activeStep === "progress-notes" ? { noteType: "session" } : {}) });
+    setCreateForm({ patient: patient._id, ...(activeStep === "assessments" ? { assessmentType: "initial" } : {}), ...(activeStep === "treatment-plans" ? { status: "planned" } : {}), ...(activeStep === "progress-notes" ? { noteType: "session" } : {}) });
     setCreateError("");
     setCreateStep(activeStep);
   }
