@@ -13,7 +13,7 @@ export function Header({ staffMode = false }) {
   const navItems = staffMode ? [{ label: "Public website", href: "#home" }] : publicNavItems;
 
   return (
-    <header className="site-header">
+    <header className={staffMode ? "site-header" : "site-header site-header-home"}>
       <a className="brand" href="#home" aria-label="Mindful Centre home">
         <span className="brand-mark">M</span>
         <span>
