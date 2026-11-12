@@ -8213,3 +8213,312 @@ mark.risk {
     font-size: 1rem;
   }
 }
+
+
+/* D3 — Staff Console: focused clinical workspace, distinct from management dashboards. */
+.dashboard-role-doctor .staff-console-view,
+.dashboard-role-therapist .staff-console-view {
+  display: grid;
+  gap: 18px;
+  color: #294653;
+}
+.dashboard-role-doctor .staff-console-identity,
+.dashboard-role-therapist .staff-console-identity {
+  position: relative;
+  overflow: hidden;
+  padding: 23px 25px;
+  border: 1px solid #1c5966;
+  border-radius: 14px;
+  color: #f3f8fa;
+  background: linear-gradient(118deg, #153f56 0%, #1b5d69 72%, #287c7c 100%);
+  box-shadow: 0 12px 28px rgba(20, 54, 70, .13);
+}
+.dashboard-role-doctor .staff-console-identity::after,
+.dashboard-role-therapist .staff-console-identity::after {
+  position: absolute;
+  top: -52px;
+  right: -34px;
+  width: 190px;
+  height: 190px;
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 50%;
+  content: "";
+  box-shadow: 0 0 0 22px rgba(255,255,255,.035), 0 0 0 48px rgba(255,255,255,.025);
+  pointer-events: none;
+}
+.dashboard-role-doctor .staff-console-identity .panel-title,
+.dashboard-role-therapist .staff-console-identity .panel-title {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 13px;
+  color: #d4efeb;
+}
+.dashboard-role-doctor .staff-console-identity .panel-title h3,
+.dashboard-role-therapist .staff-console-identity .panel-title h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.08rem;
+  font-weight: 850;
+}
+.dashboard-role-doctor .staff-console-identity > p,
+.dashboard-role-therapist .staff-console-identity > p {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 7px 0 0;
+  color: #e2eff1;
+  font-size: .82rem;
+  line-height: 1.65;
+}
+.dashboard-role-doctor .staff-console-identity > p strong,
+.dashboard-role-therapist .staff-console-identity > p strong {
+  color: #fff;
+  font-size: 1rem;
+}
+.dashboard-role-doctor .staff-console-metrics,
+.dashboard-role-therapist .staff-console-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.dashboard-role-doctor .staff-console-metrics .stat-card,
+.dashboard-role-therapist .staff-console-metrics .stat-card {
+  min-width: 0;
+  min-height: 116px;
+  padding: 16px 17px;
+  border: 1px solid #e0e9eb;
+  border-radius: 11px;
+  background: linear-gradient(145deg, #fff 0%, #f8fbfb 100%);
+  box-shadow: 0 3px 12px rgba(20, 54, 70, .045);
+}
+.dashboard-role-doctor .staff-console-metrics .stat-topline,
+.dashboard-role-therapist .staff-console-metrics .stat-topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  color: #405b67;
+  font-size: .7rem;
+  font-weight: 750;
+  line-height: 1.4;
+}
+.dashboard-role-doctor .staff-console-metrics .stat-topline svg,
+.dashboard-role-therapist .staff-console-metrics .stat-topline svg {
+  flex: 0 0 auto;
+  color: #287b7a;
+}
+.dashboard-role-doctor .staff-console-metrics .stat-card > strong,
+.dashboard-role-therapist .staff-console-metrics .stat-card > strong {
+  display: block;
+  margin-top: 13px;
+  color: #173f59;
+  font-size: clamp(1.35rem, 2.2vw, 1.8rem);
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-role-doctor .staff-console-metrics .stat-card > small,
+.dashboard-role-therapist .staff-console-metrics .stat-card > small {
+  display: block;
+  margin-top: 8px;
+  color: #647985;
+  font-size: .65rem;
+}
+.dashboard-role-doctor .staff-console-grid,
+.dashboard-role-therapist .staff-console-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+.dashboard-role-doctor .staff-console-panel,
+.dashboard-role-therapist .staff-console-panel {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #e0e9eb;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 14px rgba(20, 54, 70, .04);
+}
+.dashboard-role-doctor .staff-console-panel .panel-title,
+.dashboard-role-therapist .staff-console-panel .panel-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 17px 19px;
+  border-bottom: 1px solid #edf2f3;
+  background: #f8fbfb;
+}
+.dashboard-role-doctor .staff-console-panel .panel-title h3,
+.dashboard-role-therapist .staff-console-panel .panel-title h3 {
+  margin: 0;
+  color: #193f50;
+  font-size: .9rem;
+  font-weight: 850;
+}
+.dashboard-role-doctor .staff-console-panel .panel-title svg,
+.dashboard-role-therapist .staff-console-panel .panel-title svg {
+  flex: 0 0 auto;
+  color: #287b7a;
+}
+.dashboard-role-doctor .staff-console-list,
+.dashboard-role-therapist .staff-console-list {
+  display: grid;
+  gap: 0;
+  padding: 4px 18px 10px;
+}
+.dashboard-role-doctor .staff-console-appointment,
+.dashboard-role-therapist .staff-console-appointment,
+.dashboard-role-doctor .staff-console-record,
+.dashboard-role-therapist .staff-console-record {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 13px;
+  min-width: 0;
+  padding: 13px 2px;
+  border-bottom: 1px solid #edf2f3;
+  background: transparent;
+}
+.dashboard-role-doctor .staff-console-appointment:last-child,
+.dashboard-role-therapist .staff-console-appointment:last-child,
+.dashboard-role-doctor .staff-console-record:last-child,
+.dashboard-role-therapist .staff-console-record:last-child {
+  border-bottom: 0;
+}
+.dashboard-role-doctor .staff-console-appointment time,
+.dashboard-role-therapist .staff-console-appointment time {
+  flex: 0 0 66px;
+  color: #24646b;
+  font-size: .76rem;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-role-doctor .staff-console-appointment > div,
+.dashboard-role-therapist .staff-console-appointment > div,
+.dashboard-role-doctor .staff-console-record > div,
+.dashboard-role-therapist .staff-console-record > div {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 4px;
+}
+.dashboard-role-doctor .staff-console-appointment strong,
+.dashboard-role-therapist .staff-console-appointment strong,
+.dashboard-role-doctor .staff-console-record strong,
+.dashboard-role-therapist .staff-console-record strong {
+  color: #193f50;
+  font-size: .78rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-doctor .staff-console-appointment span,
+.dashboard-role-therapist .staff-console-appointment span,
+.dashboard-role-doctor .staff-console-record span,
+.dashboard-role-therapist .staff-console-record span {
+  color: #526873;
+  font-size: .69rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-doctor .staff-console-appointment mark,
+.dashboard-role-therapist .staff-console-appointment mark,
+.dashboard-role-doctor .staff-console-record mark,
+.dashboard-role-therapist .staff-console-record mark {
+  flex: 0 0 auto;
+  max-width: 100px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  color: #365762;
+  background: #edf3f4;
+  font-size: .62rem;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+.dashboard-role-doctor .staff-console-panel .empty-state,
+.dashboard-role-therapist .staff-console-panel .empty-state {
+  margin: 12px 18px 18px;
+  padding: 20px 14px;
+  border: 1px dashed #d6e2e4;
+  border-radius: 8px;
+  color: #526873;
+  background: #f8fbfb;
+  text-align: center;
+  font-size: .75rem;
+}
+.dashboard-role-admin .staff-management-board,
+.dashboard-role-director .staff-management-board {
+  overflow: hidden;
+}
+.dashboard-role-admin .staff-management-heading,
+.dashboard-role-director .staff-management-heading {
+  padding: 20px 22px;
+  border-bottom: 1px solid #e8eff0;
+  background: linear-gradient(110deg, #f7fbfb, #fff 75%);
+}
+.dashboard-role-admin .staff-account-editor,
+.dashboard-role-director .staff-account-editor {
+  margin: 16px;
+  padding: 20px;
+  border: 1px solid #dce8e9;
+  border-radius: 11px;
+  background: #f8fbfb;
+}
+.dashboard-role-admin .staff-account-editor h3,
+.dashboard-role-director .staff-account-editor h3 {
+  color: #193f50;
+  font-size: .95rem;
+  font-weight: 850;
+}
+.dashboard-role-admin .staff-management-grid,
+.dashboard-role-director .staff-management-grid {
+  padding: 16px;
+}
+.dashboard-role-admin .staff-management-grid .staff-record-card,
+.dashboard-role-director .staff-management-grid .staff-record-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #e2ebed;
+  border-radius: 10px;
+  background: #fff;
+}
+@media (max-width: 980px) {
+  .dashboard-role-doctor .staff-console-metrics,
+  .dashboard-role-therapist .staff-console-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 680px) {
+  .dashboard-role-doctor .staff-console-grid,
+  .dashboard-role-therapist .staff-console-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard-role-doctor .staff-console-identity,
+  .dashboard-role-therapist .staff-console-identity {
+    padding: 18px;
+  }
+  .dashboard-role-doctor .staff-console-list,
+  .dashboard-role-therapist .staff-console-list {
+    padding-right: 13px;
+    padding-left: 13px;
+  }
+  .dashboard-role-doctor .staff-console-appointment,
+  .dashboard-role-therapist .staff-console-appointment,
+  .dashboard-role-doctor .staff-console-record,
+  .dashboard-role-therapist .staff-console-record {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 420px) {
+  .dashboard-role-doctor .staff-console-metrics,
+  .dashboard-role-therapist .staff-console-metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard-role-doctor .staff-console-metrics .stat-card,
+  .dashboard-role-therapist .staff-console-metrics .stat-card {
+    min-height: 98px;
+  }
+}
