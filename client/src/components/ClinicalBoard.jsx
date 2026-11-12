@@ -413,7 +413,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setShowForm(false)}
+            aria-label="Close clinical record dialog" onClick={() => setShowForm(false)}
           >
             <motion.div
               className="modal clinical-editor-modal"
@@ -531,7 +531,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setShowBilling(false)}
+            aria-label="Close invoice dialog" onClick={() => setShowBilling(false)}
           >
             <motion.div
               className="modal clinical-billing-modal"
