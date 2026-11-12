@@ -2892,3 +2892,180 @@ mark.risk {
     font-size: 1.35rem;
   }
 }
+
+
+
+/* Referral section: correct text contrast and restore balanced full-screen composition */
+#referrals {
+  min-height: calc(100svh - var(--mindful-header-height));
+  grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+  grid-template-rows: auto;
+  align-content: center;
+  align-items: center;
+  justify-content: stretch;
+  gap: clamp(28px, 5vw, 76px);
+  padding-top: clamp(54px, 7vw, 92px);
+  padding-bottom: clamp(54px, 7vw, 92px);
+  background:
+    radial-gradient(ellipse at 88% 46%, rgba(36,127,131,0.09), transparent 34%),
+    linear-gradient(135deg, #fbfcfc 0%, #f5f9f9 100%);
+}
+
+#referrals .referral-copy {
+  width: 100%;
+  max-width: 760px;
+  align-self: center;
+}
+
+#referrals .referral-copy h2 {
+  max-width: 700px;
+  margin: 0 0 18px;
+  color: #173f59;
+  font-size: clamp(2rem, 3vw, 2.85rem);
+  font-weight: 820;
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+}
+
+#referrals .referral-copy > p:not(.eyebrow) {
+  max-width: 680px;
+  margin: 0;
+  color: #526b79;
+  font-size: clamp(1rem, 1.2vw, 1.12rem);
+  line-height: 1.75;
+}
+
+#referrals .callout {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin-top: clamp(24px, 3vw, 38px);
+  padding: 19px 21px;
+  border: 1px solid #dce9e8;
+  border-left: 4px solid #d7a84b;
+  border-radius: 15px;
+  color: #456273;
+  background: #f6faf9;
+  box-shadow: 0 7px 22px rgba(23,63,89,0.045);
+}
+
+#referrals .callout svg {
+  flex: 0 0 auto;
+  color: #247f83;
+}
+
+#referrals .callout span {
+  color: #456273;
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+#referrals .referral-action {
+  width: 100%;
+  max-width: none;
+  align-self: center;
+  gap: 20px;
+  padding: clamp(22px, 2.6vw, 32px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  background: linear-gradient(145deg, #1e3442, #173f59);
+  box-shadow: 0 20px 48px rgba(23,63,89,0.16);
+}
+
+#referrals .referral-audience {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0 0 3px;
+}
+
+#referrals .referral-partner-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 17px;
+  min-width: 0;
+  min-height: 132px;
+  padding: 18px 16px;
+  border: 1px solid #dce9eb;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.07);
+}
+
+#referrals .referral-partner-card svg {
+  color: #247f83;
+}
+
+#referrals .referral-partner-card strong {
+  display: block;
+  color: #24475d !important;
+  font-size: clamp(0.78rem, 0.9vw, 0.9rem);
+  font-weight: 800;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+#referrals .referral-action > .primary-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  min-height: 58px;
+  padding: 12px 18px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 13px;
+  color: #fff;
+  background: #247f83;
+  box-shadow: none;
+  font-weight: 850;
+  text-align: center;
+}
+
+#referrals .referral-action > .primary-button:hover {
+  background: #1d6e73;
+}
+
+@media (max-width: 900px) {
+  #referrals {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    align-content: start;
+  }
+
+  #referrals .referral-copy {
+    max-width: 760px;
+  }
+
+  #referrals .referral-action {
+    max-width: 760px;
+  }
+}
+
+@media (max-width: 560px) {
+  #referrals {
+    padding: 48px 18px;
+  }
+
+  #referrals .referral-copy h2 {
+    font-size: 1.85rem;
+  }
+
+  #referrals .referral-audience {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #referrals .referral-partner-card {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 68px;
+    padding: 14px;
+  }
+
+  #referrals .referral-partner-card strong {
+    font-size: 0.88rem;
+  }
+}
