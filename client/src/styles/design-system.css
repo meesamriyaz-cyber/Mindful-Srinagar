@@ -5798,3 +5798,146 @@ mark.risk {
     align-items: flex-start;
   }
 }
+
+
+/* Consistent presentation for the operational dialogs used by management. */
+.dashboard-role-admin .modal-convert-referral,
+.dashboard-role-director .modal-convert-referral,
+.dashboard-role-admin .modal-appointment,
+.dashboard-role-director .modal-appointment,
+.dashboard-role-admin .modal-operation,
+.dashboard-role-director .modal-operation,
+.dashboard-role-admin .modal-invoice,
+.dashboard-role-director .modal-invoice {
+  width: min(100% - 28px, 620px);
+  max-height: min(88vh, 820px);
+  overflow-y: auto;
+  border: 1px solid #dce7e9;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(10, 35, 48, .22);
+}
+.dashboard-role-admin .modal-convert-referral .modal-header,
+.dashboard-role-director .modal-convert-referral .modal-header,
+.dashboard-role-admin .modal-appointment .modal-header,
+.dashboard-role-director .modal-appointment .modal-header,
+.dashboard-role-admin .modal-operation .modal-header,
+.dashboard-role-director .modal-operation .modal-header,
+.dashboard-role-admin .modal-invoice .modal-header,
+.dashboard-role-director .modal-invoice .modal-header {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  padding: 18px 22px;
+  border-bottom: 1px solid #e7edef;
+  background: rgba(255,255,255,.97);
+  backdrop-filter: blur(10px);
+}
+.dashboard-role-admin .modal-convert-referral .modal-header h3,
+.dashboard-role-director .modal-convert-referral .modal-header h3,
+.dashboard-role-admin .modal-appointment .modal-header h3,
+.dashboard-role-director .modal-appointment .modal-header h3,
+.dashboard-role-admin .modal-operation .modal-header h3,
+.dashboard-role-director .modal-operation .modal-header h3,
+.dashboard-role-admin .modal-invoice .modal-header h3,
+.dashboard-role-director .modal-invoice .modal-header h3 {
+  color: #17384c;
+  font-size: 1.02rem;
+  font-weight: 850;
+}
+.dashboard-role-admin .modal-convert-referral .clinical-form,
+.dashboard-role-director .modal-convert-referral .clinical-form,
+.dashboard-role-admin .modal-appointment .clinical-form,
+.dashboard-role-director .modal-appointment .clinical-form,
+.dashboard-role-admin .modal-operation .clinical-form,
+.dashboard-role-director .modal-operation .clinical-form,
+.dashboard-role-admin .modal-invoice .clinical-form,
+.dashboard-role-director .modal-invoice .clinical-form {
+  gap: 15px;
+  padding: 20px 22px 22px;
+}
+.dashboard-role-admin .modal-convert-referral .clinical-form label,
+.dashboard-role-director .modal-convert-referral .clinical-form label,
+.dashboard-role-admin .modal-appointment .clinical-form label,
+.dashboard-role-director .modal-appointment .clinical-form label,
+.dashboard-role-admin .modal-operation .clinical-form label,
+.dashboard-role-director .modal-operation .clinical-form label,
+.dashboard-role-admin .modal-invoice .clinical-form label,
+.dashboard-role-director .modal-invoice .clinical-form label {
+  color: #405b68;
+  font-size: .75rem;
+  font-weight: 780;
+}
+.dashboard-role-admin .modal-convert-referral .clinical-form input,
+.dashboard-role-director .modal-convert-referral .clinical-form input,
+.dashboard-role-admin .modal-convert-referral .clinical-form select,
+.dashboard-role-director .modal-convert-referral .clinical-form select,
+.dashboard-role-admin .modal-convert-referral .clinical-form textarea,
+.dashboard-role-director .modal-convert-referral .clinical-form textarea,
+.dashboard-role-admin .modal-appointment .clinical-form input,
+.dashboard-role-director .modal-appointment .clinical-form input,
+.dashboard-role-admin .modal-appointment .clinical-form select,
+.dashboard-role-director .modal-appointment .clinical-form select,
+.dashboard-role-admin .modal-operation .clinical-form input,
+.dashboard-role-director .modal-operation .clinical-form input,
+.dashboard-role-admin .modal-operation .clinical-form select,
+.dashboard-role-director .modal-operation .clinical-form select,
+.dashboard-role-admin .modal-operation .clinical-form textarea,
+.dashboard-role-director .modal-operation .clinical-form textarea {
+  min-height: 42px;
+  border-color: #d8e3e6;
+  border-radius: 8px;
+  color: #244555;
+  background: #fbfdfd;
+  font-size: .8rem;
+}
+.dashboard-role-admin .modal-convert-referral .clinical-form input:focus,
+.dashboard-role-director .modal-convert-referral .clinical-form input:focus,
+.dashboard-role-admin .modal-appointment .clinical-form input:focus,
+.dashboard-role-director .modal-appointment .clinical-form input:focus,
+.dashboard-role-admin .modal-operation .clinical-form input:focus,
+.dashboard-role-director .modal-operation .clinical-form input:focus {
+  border-color: #459b98;
+  outline: 3px solid rgba(69,155,152,.13);
+}
+.dashboard-role-admin .modal-convert-referral .modal-actions,
+.dashboard-role-director .modal-convert-referral .modal-actions,
+.dashboard-role-admin .modal-appointment .modal-actions,
+.dashboard-role-director .modal-appointment .modal-actions,
+.dashboard-role-admin .modal-operation .modal-actions,
+.dashboard-role-director .modal-operation .modal-actions,
+.dashboard-role-admin .modal-invoice .modal-actions,
+.dashboard-role-director .modal-invoice .modal-actions {
+  position: sticky;
+  bottom: -22px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 4px -22px -22px;
+  padding: 14px 22px 18px;
+  border-top: 1px solid #e8eef0;
+  background: rgba(255,255,255,.97);
+}
+@media (max-width: 560px) {
+  .dashboard-role-admin .modal-convert-referral .clinical-form,
+  .dashboard-role-director .modal-convert-referral .clinical-form,
+  .dashboard-role-admin .modal-appointment .clinical-form,
+  .dashboard-role-director .modal-appointment .clinical-form,
+  .dashboard-role-admin .modal-operation .clinical-form,
+  .dashboard-role-director .modal-operation .clinical-form,
+  .dashboard-role-admin .modal-invoice .clinical-form,
+  .dashboard-role-director .modal-invoice .clinical-form {
+    padding: 15px;
+  }
+  .dashboard-role-admin .modal-convert-referral .modal-actions,
+  .dashboard-role-director .modal-convert-referral .modal-actions,
+  .dashboard-role-admin .modal-appointment .modal-actions,
+  .dashboard-role-director .modal-appointment .modal-actions,
+  .dashboard-role-admin .modal-operation .modal-actions,
+  .dashboard-role-director .modal-operation .modal-actions,
+  .dashboard-role-admin .modal-invoice .modal-actions,
+  .dashboard-role-director .modal-invoice .modal-actions {
+    margin: 4px -15px -15px;
+    padding: 12px 15px 15px;
+  }
+}
