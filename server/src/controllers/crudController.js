@@ -37,7 +37,7 @@ export function makeCrudController(Model, defaultPopulate = [], policy = {}) {
         const offset = parseOffset(skip);
         const [total, docs] = await Promise.all([
           Model.countDocuments(filter),
-          applyPopulate(Model.find(filter)).sort({ createdAt: -1 }).skip(offset).limit(pageSize)
+          applyPopulate(Model.find(filter)).sort({ createdAt: -1, _id: -1 }).skip(offset).limit(pageSize)
         ]);
         res.set("X-Total-Count", String(total));
         res.set("X-Has-More", String(offset + docs.length < total));
