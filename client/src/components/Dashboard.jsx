@@ -392,7 +392,7 @@ function PriorityWork({ data }) {
   const lowStock = data.lowStock || [];
 
   return (
-    <article className="action-panel">
+    <article className="action-panel management-priority-panel">
       <div className="panel-title">
         <ClipboardCheck size={21} />
         <h3>Priority work</h3>
@@ -426,7 +426,7 @@ function CashWatch({ data }) {
   const invoices = data.unpaidInvoices || [];
 
   return (
-    <article className="table-panel">
+    <article className="table-panel management-cash-panel">
       <div className="panel-title">
         <IndianRupee size={21} />
         <h3>Cash watch</h3>
