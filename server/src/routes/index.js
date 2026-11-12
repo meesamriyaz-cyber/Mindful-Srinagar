@@ -176,7 +176,7 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral", "dis
     reception: ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status","referral"],
     coordinator: ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status","referral"]
   },
-  redactFieldsByRole: { reception: ["notes","dischargeSummary"], coordinator: ["notes","dischargeSummary"] },
+  redactFieldsByRole: { reception: ["notes","dischargeSummary","dischargeOutcome","dischargeRecommendations"], coordinator: ["notes","dischargeSummary","dischargeOutcome","dischargeRecommendations"] },
   validateUpdate: async ({ req, payload }) => {
     const current = await Patient.findById(req.params.id).select("status referral dischargeApprovedAt");
     if (!current) return { statusCode: 404, message: "Patient not found" };
