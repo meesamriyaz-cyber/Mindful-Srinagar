@@ -9708,28 +9708,3 @@ body {
     margin-top: 1px;
   }
 }
-
-/* Keep a compact brand anchor in the mobile navbar while the hero is visible.
-   The full centre identity remains in the hero; hide only the long subtitle. */
-@media (max-width: 620px) {
-  .site-header-home.is-hero-visible .brand {
-    visibility: visible;
-    gap: 10px;
-  }
-
-  .site-header-home.is-hero-visible .brand-mark {
-    width: 40px;
-    height: 40px;
-    flex-basis: 40px;
-    border-radius: 13px;
-  }
-
-  .site-header-home.is-hero-visible .brand strong {
-    display: block;
-    font-size: 1.08rem;
-  }
-
-  .site-header-home.is-hero-visible .brand small {
-    display: none;
-  }
-}
