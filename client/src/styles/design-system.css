@@ -3069,3 +3069,192 @@ mark.risk {
     font-size: 0.88rem;
   }
 }
+
+
+
+/* Care process: remove deferred section sizing and keep all pathway content visible */
+#operations {
+  content-visibility: visible;
+  contain-intrinsic-size: auto;
+  min-height: calc(100svh - var(--mindful-header-height));
+  height: auto;
+  grid-template-rows: auto auto;
+  align-content: center;
+  gap: clamp(20px, 2.4vh, 30px);
+  padding-top: clamp(34px, 4.5vh, 56px);
+  padding-bottom: clamp(34px, 4.5vh, 56px);
+  overflow: visible;
+}
+
+#operations .care-process-header {
+  grid-template-columns: minmax(0, 1.25fr) minmax(250px, 0.7fr);
+  align-items: center;
+  gap: clamp(22px, 3vw, 44px);
+  margin: 0 auto;
+}
+
+#operations .section-heading {
+  max-width: 850px;
+  margin: 0;
+}
+
+#operations .section-heading h2 {
+  max-width: 760px;
+  margin-bottom: 13px;
+  color: #173f59;
+  font-size: clamp(1.9rem, 2.8vw, 2.65rem);
+  line-height: 1.12;
+}
+
+#operations .section-heading > p:last-child {
+  max-width: 820px;
+  margin: 0;
+  color: #526b79;
+  font-size: clamp(0.96rem, 1.1vw, 1.05rem);
+  line-height: 1.65;
+}
+
+#operations .care-outcomes {
+  gap: 8px;
+}
+
+#operations .care-outcomes span {
+  min-height: 44px;
+  padding: 10px 14px;
+  border-color: #dce8e9;
+  border-radius: 12px;
+  color: #405f70;
+  background: rgba(255,255,255,0.88);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+#operations .care-timeline {
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  align-items: stretch;
+  gap: 18px;
+  width: 100%;
+  max-width: 1450px;
+  margin: 0 auto;
+}
+
+#operations .care-step-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: stretch;
+  gap: 9px;
+}
+
+#operations .care-step-card {
+  min-width: 0;
+  min-height: 112px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #fff;
+}
+
+#operations .care-step-card.is-active {
+  background: #e8f3f2;
+}
+
+#operations .care-step-name {
+  color: #173f59;
+  font-size: 0.86rem;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+#operations .care-step-owner {
+  color: #6c8290;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+#operations .care-detail {
+  min-height: 0;
+  align-content: center;
+  padding: clamp(24px, 3vw, 40px);
+  border: 1px solid #dce8e9;
+  border-radius: 20px;
+  color: #24475d;
+  background: linear-gradient(145deg, #fff, #f8fbfb);
+  box-shadow: 0 13px 34px rgba(23,63,89,0.07);
+}
+
+#operations .care-detail-kicker {
+  color: #247f83;
+}
+
+#operations .care-detail h3 {
+  color: #173f59;
+}
+
+#operations .care-detail p {
+  color: #526b79;
+  font-size: 0.98rem;
+  line-height: 1.7;
+}
+
+#operations .care-detail .secondary-button {
+  justify-self: start;
+  min-height: 48px;
+  padding: 0 17px;
+  border: 1px solid #dce8e9;
+  border-radius: 11px;
+  color: #173f59;
+  background: #edf4f5;
+}
+
+@media (max-width: 900px) {
+  #operations {
+    align-content: start;
+    gap: 24px;
+  }
+
+  #operations .care-process-header {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #operations .care-outcomes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #operations .care-timeline {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #operations .care-step-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  #operations .care-detail {
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 620px) {
+  #operations {
+    padding: 44px 18px;
+  }
+
+  #operations .section-heading h2 {
+    font-size: 1.85rem;
+  }
+
+  #operations .care-outcomes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  #operations .care-step-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #operations .care-step-card {
+    min-height: 104px;
+    padding: 12px;
+  }
+
+  #operations .care-detail {
+    min-height: 0;
+    padding: 22px;
+  }
+}
