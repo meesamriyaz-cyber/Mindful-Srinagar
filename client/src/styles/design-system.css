@@ -8935,7 +8935,7 @@ mark.risk {
 
 /* Hero typography and vertical balance refinement. */
 .hero-copy {
-  transform: translateY(-20px);
+  transform: translateY(-32px);
 }
 
 .hero-copy .hero-identity {
@@ -8971,7 +8971,7 @@ mark.risk {
 
 @media (max-width: 820px) {
   .hero-copy {
-    transform: translateY(-8px);
+    transform: translateY(-12px);
   }
 
   .hero-identity-name {
@@ -8993,7 +8993,7 @@ mark.risk {
 
 @media (max-width: 620px) {
   .hero-copy {
-    transform: translateY(-5px);
+    transform: translateY(-7px);
   }
 
   .hero-copy .hero-identity {
