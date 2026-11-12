@@ -662,16 +662,16 @@ function ReportsView({ data }) {
       <article className="action-panel director-panel">
         <div className="panel-title">
           <FileText size={21} />
-          <h3>Business diagnosis</h3>
+          <div><h3>Business diagnosis</h3><p className="resource-description">Signals and recommended actions based on current centre activity.</p></div>
         </div>
         <div className="insight-list">
-          {(data?.businessInsights || []).map((insight) => <p key={insight}>{insight}</p>)}
+          {(data?.businessInsights || []).length ? data.businessInsights.map((insight) => <p key={insight}>{insight}</p>) : <p className="empty-state">Business insights will appear as centre activity is recorded.</p>}
         </div>
       </article>
       <article className="table-panel">
         <div className="panel-title">
           <TrendingUp size={21} />
-          <h3>Referral funnel</h3>
+          <div><h3>Referral funnel</h3><p className="resource-description">Track how incoming enquiries progress through the referral journey.</p></div>
         </div>
         <div className="mix-list">
           {referralStatus.length ? referralStatus.map(([status, count]) => (
@@ -682,7 +682,7 @@ function ReportsView({ data }) {
       <article className="table-panel">
         <div className="panel-title">
           <CalendarClock size={21} />
-          <h3>Today by status</h3>
+          <div><h3>Today by status</h3><p className="resource-description">A snapshot of today's appointment outcomes.</p></div>
         </div>
         <div className="mix-list">
           {appointmentStatus.length ? appointmentStatus.map(([status, count]) => (
@@ -693,7 +693,7 @@ function ReportsView({ data }) {
       <article className="table-panel">
         <div className="panel-title">
           <BarChart3 size={21} />
-          <h3>Service mix</h3>
+          <div><h3>Service mix</h3><p className="resource-description">Compare the services represented in recorded activity.</p></div>
         </div>
         <div className="mix-list">
           {serviceMix.length ? serviceMix.map(([service, count]) => (
