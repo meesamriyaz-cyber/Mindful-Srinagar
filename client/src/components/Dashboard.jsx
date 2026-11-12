@@ -450,9 +450,65 @@ function CashWatch({ data }) {
   );
 }
 
+function DirectorWelcome({ data }) {
+  const metrics = data.metrics || {};
+  const todayLabel = new Intl.DateTimeFormat("en-IN", {
+    weekday: "long",
+    day: "numeric",
+    month: "long"
+  }).format(new Date());
+  const pulseItems = [
+    {
+      label: "Appointments today",
+      value: metrics.appointmentsToday ?? 0,
+      note: `${metrics.checkedInToday ?? 0} checked in so far`,
+      icon: CalendarClock,
+      tone: "teal"
+    },
+    {
+      label: "Urgent referrals",
+      value: metrics.urgentReferrals ?? 0,
+      note: "Require priority contact",
+      icon: AlertTriangle,
+      tone: "amber"
+    },
+    {
+      label: "Overdue tasks",
+      value: metrics.overdueTasks ?? 0,
+      note: "Need an owner and next step",
+      icon: ClipboardCheck,
+      tone: "coral"
+    }
+  ];
+
+  return (
+    <section className="director-welcome" aria-label="Director daily briefing">
+      <div className="director-welcome-copy">
+        <span className="director-welcome-kicker">Mindful · Executive workspace</span>
+        <h3>Care delivery, at a glance.</h3>
+        <p>Keep patient flow, financial health and operational priorities in view throughout the day.</p>
+        <span className="director-date"><CalendarClock size={15} />{todayLabel}</span>
+      </div>
+      <div className="director-welcome-pulse">
+        {pulseItems.map(({ label, value, note, icon: Icon, tone }) => (
+          <article className={`director-pulse-card director-pulse-${tone}`} key={label}>
+            <div className="director-pulse-top">
+              <span>{label}</span>
+              <Icon size={17} aria-hidden="true" />
+            </div>
+            <strong>{value}</strong>
+            <small>{note}</small>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 function OverviewWorkspace({ data, isDirector }) {
   return (
     <>
+      {isDirector && <DirectorWelcome data={data} />}
       <div className="stats-grid management-stats-grid">
         <StatCard
           label="Active patients"
@@ -1315,7 +1371,7 @@ export function Dashboard() {
   }
 
   return (
-    <section className="dashboard-section" id="dashboard">
+    <section className="dashboard-section dashboard-app-section" id="dashboard">
       <div className={`dashboard-shell dashboard-role-${session.user?.role || "staff"}`}>
         <aside className="sidebar" aria-label="Staff workspace navigation">
           <div className="sidebar-brand">
