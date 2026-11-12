@@ -8918,3 +8918,17 @@ mark.risk {
     white-space: normal;
   }
 }
+
+/* Homepage header: avoid repeating the centre identity already shown in the hero. */
+.site-header-home .brand {
+  display: none;
+}
+
+.hero-identity-line .hero-identity-location {
+  display: inline-block;
+  margin: 0 0 0 0.45em;
+  color: #247f83;
+  font-size: 0.72em;
+  letter-spacing: 0.12em;
+  vertical-align: baseline;
+}
