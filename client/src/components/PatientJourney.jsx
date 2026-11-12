@@ -118,7 +118,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const [amendmentSaving, setAmendmentSaving] = useState(false);
   const [approvingPlanId, setApprovingPlanId] = useState("");
   const [planApprovalError, setPlanApprovalError] = useState("");
-  const journeyDialogRef = useAccessibleDialog(true, onClose);
+  const journeyDialogRef = useAccessibleDialog(!showDischarge, onClose);
   const dischargeDialogRef = useAccessibleDialog(showDischarge, () => setShowDischarge(false));
 
   useEffect(() => {
