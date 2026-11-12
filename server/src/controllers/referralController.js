@@ -33,6 +33,9 @@ export async function logReferralFollowUp(req, res, next) {
     if (payload.outcome === "appointment-booked") {
       referral.status = "scheduled";
       referral.followUpDate = undefined;
+    } else if (payload.outcome === "not-interested") {
+      referral.status = "lost";
+      referral.followUpDate = undefined;
     } else {
       if (referral.status === "new") referral.status = "contacted";
       referral.followUpDate = nextFollowUpAt;
