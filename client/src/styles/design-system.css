@@ -8920,7 +8920,7 @@ mark.risk {
 }
 
 /* Homepage header: avoid repeating the centre identity already shown in the hero. */
-.site-header-home .brand {
+.site-header-home.is-hero-visible .brand {
   visibility: hidden;
 }
 
