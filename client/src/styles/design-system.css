@@ -1903,3 +1903,144 @@ footer span {
     letter-spacing: -0.02em;
   }
 }
+
+
+
+/* Full-viewport section rhythm — sections fill the screen without clipping content */
+:root {
+  --mindful-header-height: 82px;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--mindful-header-height);
+}
+
+#home,
+#services,
+#operations,
+#referrals,
+#contact,
+#dashboard {
+  scroll-margin-top: var(--mindful-header-height);
+}
+
+.hero,
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section,
+.dashboard-section {
+  box-sizing: border-box;
+  min-height: calc(100svh - var(--mindful-header-height));
+  height: auto;
+  overflow: visible;
+}
+
+.hero {
+  align-content: center;
+}
+
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  display: grid;
+  align-content: center;
+}
+
+.services-section {
+  grid-template-rows: auto 1fr;
+}
+
+.operations-section {
+  grid-template-rows: auto 1fr;
+}
+
+.referral-section,
+.contact-section {
+  grid-template-rows: 1fr auto;
+}
+
+.dashboard-section {
+  padding-top: clamp(22px, 3vw, 42px);
+  padding-bottom: clamp(22px, 3vw, 42px);
+}
+
+.dashboard-shell {
+  min-height: calc(100svh - var(--mindful-header-height) - 84px);
+  height: auto;
+  overflow: visible;
+  align-self: stretch;
+}
+
+.console {
+  min-width: 0;
+  min-height: 100%;
+  overflow: visible;
+}
+
+.workspace-view {
+  min-width: 0;
+  min-height: 420px;
+  overflow: visible;
+}
+
+.staff-login-section {
+  display: grid;
+  align-items: center;
+}
+
+.staff-login {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+}
+
+@media (max-width: 820px) {
+  :root {
+    --mindful-header-height: 72px;
+  }
+
+  .hero,
+  .services-section,
+  .operations-section,
+  .referral-section,
+  .contact-section,
+  .dashboard-section {
+    min-height: calc(100svh - var(--mindful-header-height));
+  }
+
+  .services-section,
+  .operations-section,
+  .referral-section,
+  .contact-section {
+    align-content: start;
+  }
+
+  .dashboard-shell {
+    min-height: 0;
+  }
+
+  .workspace-view {
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 620px) {
+  :root {
+    --mindful-header-height: 64px;
+  }
+
+  .hero,
+  .services-section,
+  .operations-section,
+  .referral-section,
+  .contact-section,
+  .dashboard-section {
+    min-height: calc(100svh - var(--mindful-header-height));
+  }
+
+  .workspace-view {
+    min-height: 260px;
+  }
+}
