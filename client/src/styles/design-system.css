@@ -8879,3 +8879,238 @@ mark.risk {
     padding-left: 12px;
   }
 }
+
+/* D4 — consistent interaction, form, dialog and feedback states. */
+.dashboard-section .modal-overlay,
+.dashboard-section .journey-overlay {
+  padding: clamp(14px, 3vw, 28px);
+  background: rgba(12, 31, 43, 0.58);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+
+.dashboard-section .modal,
+.dashboard-section .journey-modal {
+  max-height: min(90dvh, 920px);
+  border: 1px solid rgba(213, 228, 231, 0.95);
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 28px 90px rgba(12, 37, 51, 0.24);
+}
+
+.dashboard-section .modal-header,
+.dashboard-section .journey-header {
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5edef;
+  background: linear-gradient(120deg, #f7fbfb, #fff 78%);
+}
+
+.dashboard-section .modal-header h3,
+.dashboard-section .journey-header h3 {
+  color: #173f59;
+  font-size: clamp(1.02rem, 1.5vw, 1.2rem);
+  font-weight: 850;
+  letter-spacing: -0.02em;
+}
+
+.dashboard-section .modal-header small,
+.dashboard-section .journey-header small {
+  color: #607783;
+  line-height: 1.5;
+}
+
+.dashboard-section .clinical-form,
+.dashboard-section .journey-create-form {
+  gap: 16px;
+  padding: clamp(18px, 2.4vw, 26px);
+  color: #294653;
+}
+
+.dashboard-section .clinical-form label,
+.dashboard-section .journey-create-form label {
+  gap: 7px;
+  color: #294c5b;
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.dashboard-section .clinical-form input,
+.dashboard-section .clinical-form select,
+.dashboard-section .clinical-form textarea,
+.dashboard-section .journey-create-form input,
+.dashboard-section .journey-create-form select,
+.dashboard-section .journey-create-form textarea {
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #cbdadd;
+  border-radius: 9px;
+  color: #203f4c;
+  background: #fff;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.dashboard-section .clinical-form textarea,
+.dashboard-section .journey-create-form textarea {
+  min-height: 112px;
+  line-height: 1.55;
+}
+
+.dashboard-section .clinical-form input::placeholder,
+.dashboard-section .clinical-form textarea::placeholder,
+.dashboard-section .journey-create-form input::placeholder,
+.dashboard-section .journey-create-form textarea::placeholder {
+  color: #84959e;
+  opacity: 1;
+}
+
+.dashboard-section .clinical-form input:focus-visible,
+.dashboard-section .clinical-form select:focus-visible,
+.dashboard-section .clinical-form textarea:focus-visible,
+.dashboard-section .journey-create-form input:focus-visible,
+.dashboard-section .journey-create-form select:focus-visible,
+.dashboard-section .journey-create-form textarea:focus-visible {
+  outline: none;
+  border-color: #247f83;
+  box-shadow: 0 0 0 3px rgba(36, 127, 131, 0.15);
+}
+
+.dashboard-section .clinical-form input:disabled,
+.dashboard-section .clinical-form select:disabled,
+.dashboard-section .clinical-form textarea:disabled,
+.dashboard-section .journey-create-form input:disabled,
+.dashboard-section .journey-create-form select:disabled,
+.dashboard-section .journey-create-form textarea:disabled {
+  color: #657984;
+  background: #f0f4f5;
+  border-color: #dce5e7;
+  cursor: not-allowed;
+}
+
+.dashboard-section .form-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px 13px;
+  border-radius: 9px;
+  font-size: 0.86rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.dashboard-section .form-status.success-status {
+  color: #176044;
+  background: #eaf6ef;
+  border: 1px solid #c5e4d1;
+}
+
+.dashboard-section .form-status.error-status {
+  color: #8b2929;
+  background: #fff1ef;
+  border: 1px solid #e8c4bd;
+}
+
+.dashboard-section .modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px clamp(18px, 2.4vw, 26px) clamp(18px, 2.4vw, 24px);
+  border-top: 1px solid #edf2f3;
+  background: #fbfdfd;
+}
+
+.dashboard-section .modal-actions button {
+  min-height: 42px;
+  border-radius: 9px;
+  font-weight: 800;
+}
+
+.dashboard-section .modal-actions button:disabled,
+.dashboard-section button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  filter: saturate(0.65);
+  box-shadow: none;
+}
+
+.dashboard-section .empty-state {
+  margin: 14px 0;
+  padding: clamp(20px, 3vw, 30px);
+  border: 1px dashed #cbdcde;
+  border-radius: 12px;
+  color: #526b78;
+  background: linear-gradient(145deg, #f8fbfb, #f3f8f8);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.dashboard-section :is(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid rgba(36, 127, 131, 0.28);
+  outline-offset: 2px;
+}
+
+.booking-form input:focus-visible,
+.booking-form select:focus-visible,
+.booking-form textarea:focus-visible {
+  outline: none;
+  border-color: #247f83;
+  box-shadow: 0 0 0 3px rgba(36, 127, 131, 0.14);
+}
+
+.booking-form input:disabled,
+.booking-form select:disabled,
+.booking-form textarea:disabled {
+  color: #657984;
+  background: #f0f4f5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 620px) {
+  .dashboard-section .modal-overlay,
+  .dashboard-section .journey-overlay {
+    align-items: flex-end;
+    padding: 8px;
+  }
+
+  .dashboard-section .modal,
+  .dashboard-section .journey-modal {
+    width: 100%;
+    max-height: calc(100dvh - 16px);
+    border-radius: 16px 16px 12px 12px;
+  }
+
+  .dashboard-section .modal-header,
+  .dashboard-section .journey-header {
+    padding: 16px;
+  }
+
+  .dashboard-section .clinical-form,
+  .dashboard-section .journey-create-form {
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .dashboard-section .modal-actions {
+    flex-direction: column-reverse;
+    padding: 14px 16px 16px;
+  }
+
+  .dashboard-section .modal-actions button {
+    width: 100%;
+    min-height: 46px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-section .clinical-form input,
+  .dashboard-section .clinical-form select,
+  .dashboard-section .clinical-form textarea,
+  .dashboard-section .journey-create-form input,
+  .dashboard-section .journey-create-form select,
+  .dashboard-section .journey-create-form textarea {
+    transition: none;
+  }
+}
