@@ -1022,8 +1022,8 @@ export function Dashboard() {
 
   return (
     <section className="dashboard-section" id="dashboard">
-      <div className="dashboard-shell">
-        <aside className="sidebar">
+      <div className={`dashboard-shell dashboard-role-${session.user?.role || "staff"}`}>
+        <aside className="sidebar" aria-label="Staff workspace navigation">
           <div className="sidebar-brand">
             <div className="brand compact">
               <span className="brand-mark">M</span>
@@ -1055,6 +1055,7 @@ export function Dashboard() {
                     className={item.id === activeView ? "side-link active" : "side-link"}
                     type="button"
                     key={item.id}
+                    aria-current={item.id === activeView ? "page" : undefined}
                     onClick={() => {
                       setActiveView(item.id);
                       setQuery("");
