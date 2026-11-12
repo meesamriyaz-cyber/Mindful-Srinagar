@@ -21,35 +21,43 @@ function validateItems(items) {
   return null;
 }
 
-export async function validateInvoiceAppointmentLinks(patientId, items, excludeInvoiceId = null) {
-  const inputError = validateInvoiceAppointmentItems(items);
-  if (inputError) return inputError;
-  const appointmentIds = getInvoiceAppointmentIds(items);
-  if (!appointmentIds.length) return null;
+export function makeValidateInvoiceAppointmentLinks({
+  AppointmentModel = Appointment,
+  ProgressNoteModel = ProgressNote,
+  InvoiceModel = Invoice
+} = {}) {
+  return async function validateInvoiceAppointmentLinks(patientId, items, excludeInvoiceId = null) {
+    const inputError = validateInvoiceAppointmentItems(items);
+    if (inputError) return inputError;
+    const appointmentIds = getInvoiceAppointmentIds(items);
+    if (!appointmentIds.length) return null;
 
-  const appointments = await Appointment.find({ _id: { $in: appointmentIds } }).select("patient status").lean();
-  if (appointments.length !== appointmentIds.length) return "One or more linked appointments could not be found";
-  for (const appointment of appointments) {
-    if (String(appointment.patient) !== String(patientId)) return "Every billed appointment must belong to the invoice patient";
-    if (appointment.status !== "completed") return "Only completed appointments can be billed";
-  }
+    const appointments = await AppointmentModel.find({ _id: { $in: appointmentIds } }).select("patient status").lean();
+    if (appointments.length !== appointmentIds.length) return "One or more linked appointments could not be found";
+    for (const appointment of appointments) {
+      if (String(appointment.patient) !== String(patientId)) return "Every billed appointment must belong to the invoice patient";
+      if (appointment.status !== "completed") return "Only completed appointments can be billed";
+    }
 
-  const notedAppointments = await ProgressNote.distinct("appointment", {
-    appointment: { $in: appointmentIds },
-    noteType: "session"
-  });
-  const notedIds = new Set(notedAppointments.map(String));
-  if (appointmentIds.some((id) => !notedIds.has(id))) return "A completed session note is required before its appointment can be billed";
+    const notedAppointments = await ProgressNoteModel.distinct("appointment", {
+      appointment: { $in: appointmentIds },
+      noteType: "session"
+    });
+    const notedIds = new Set(notedAppointments.map(String));
+    if (appointmentIds.some((id) => !notedIds.has(id))) return "A completed session note is required before its appointment can be billed";
 
-  const existingInvoiceFilter = {
-    status: { $ne: "void" },
-    "items.appointment": { $in: appointmentIds }
+    const existingInvoiceFilter = {
+      status: { $ne: "void" },
+      "items.appointment": { $in: appointmentIds }
+    };
+    if (excludeInvoiceId) existingInvoiceFilter._id = { $ne: excludeInvoiceId };
+    const alreadyBilled = await InvoiceModel.exists(existingInvoiceFilter);
+    if (alreadyBilled) return "One or more appointments have already been billed";
+    return null;
   };
-  if (excludeInvoiceId) existingInvoiceFilter._id = { $ne: excludeInvoiceId };
-  const alreadyBilled = await Invoice.exists(existingInvoiceFilter);
-  if (alreadyBilled) return "One or more appointments have already been billed";
-  return null;
 }
+
+export const validateInvoiceAppointmentLinks = makeValidateInvoiceAppointmentLinks();
 
 function createInvoiceNumber() {
   return "INV-" + Date.now().toString(36).toUpperCase() + "-" + Math.floor(1000 + Math.random() * 9000);
@@ -88,6 +96,7 @@ export async function createInvoice(req, res, next) {
     });
     return res.status(201).json(await Invoice.findById(invoice._id).populate("patient", "fullName mrn"));
   } catch (error) {
+    if (error?.code === 11000) return res.status(409).json({ message: "This appointment has already been billed" });
     return next(error);
   }
 }
@@ -111,6 +120,7 @@ export async function generateInvoiceFromAppointment(req, res, next) {
     });
     return res.status(201).json(await Invoice.findById(invoice._id).populate("patient", "fullName mrn"));
   } catch (error) {
+    if (error?.code === 11000) return res.status(409).json({ message: "This appointment has already been billed" });
     return next(error);
   }
 }
