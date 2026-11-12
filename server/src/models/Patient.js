@@ -5,6 +5,7 @@ const patientSchema = new mongoose.Schema(
     mrn: { type: String, unique: true, trim: true },
     fullName: { type: String, required: true, trim: true },
     guardianName: { type: String, trim: true },
+    guardianRelationship: { type: String, trim: true, maxlength: 80 },
     age: { type: Number, min: 0 },
     gender: { type: String, enum: ["female", "male", "other", "prefer-not-to-say"] },
     phone: { type: String, required: true, trim: true },

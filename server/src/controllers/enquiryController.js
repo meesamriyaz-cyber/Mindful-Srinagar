@@ -3,8 +3,15 @@ import { Referral } from "../models/Referral.js";
 import { Patient } from "../models/Patient.js";
 import mongoose from "mongoose";
 
-const enquirySchema = z.object({
-  name: z.string().trim().min(2, "Please enter the patient or guardian name").max(90),
+export const PRIVACY_NOTICE_VERSION = "2026-11-12-v1";
+
+export const enquirySchema = z.object({
+  patientName: z.string().trim().min(2, "Please enter the patient's full name").max(90),
+  patientAge: z.number().int().min(0).max(120).optional(),
+  guardianName: z.string().trim().max(90).optional().default(""),
+  guardianRelationship: z.string().trim().max(80).optional().default(""),
+  contactName: z.string().trim().min(2, "Please enter the name of the person we should contact").max(90),
+  contactRelationship: z.string().trim().min(1, "Please select the contact person's relationship to the patient").max(80),
   phone: z.string()
     .trim()
     .min(7, "Please enter a valid phone or WhatsApp number")
@@ -14,13 +21,21 @@ const enquirySchema = z.object({
   source: z.enum(["hospital", "doctor", "school", "ngo", "walk-in", "online", "other"]),
   concern: z.string().trim().min(10, "Please share a short note about the primary concern").max(1600),
   preferredContact: z.enum(["whatsapp", "phone", "email"]).default("whatsapp"),
-  urgency: z.enum(["routine", "soon", "urgent"]).default("routine")
+  urgency: z.enum(["routine", "soon", "urgent"]).default("routine"),
+  privacyConsent: z.literal(true, { errorMap: () => ({ message: "Please acknowledge the privacy notice before submitting" }) })
 }).superRefine((data, context) => {
   if (data.preferredContact === "email" && !data.email) {
     context.addIssue({
       code: z.ZodIssueCode.custom,
       path: ["email"],
       message: "Please enter an email address for email follow-up"
+    });
+  }
+  if (data.guardianRelationship && !data.guardianName) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["guardianName"],
+      message: "Enter the guardian's name or clear the relationship field"
     });
   }
 });
@@ -44,17 +59,29 @@ export async function createEnquiry(req, res, next) {
       throw new Error(parsed.error.issues[0]?.message || "Please check the enquiry details");
     }
 
-    const { name, phone, email, source, concern, preferredContact, urgency } = parsed.data;
+    const {
+      patientName, patientAge, guardianName, guardianRelationship, contactName,
+      contactRelationship, phone, email, source, concern,
+      preferredContact, urgency, privacyConsent
+    } = parsed.data;
 
     const referral = await Referral.create({
       sourceType: source,
       sourceName: sourceLabels[source],
+      contactPerson: contactName,
+      contactRelationship,
       phone,
       ...(email ? { email } : {}),
-      patientName: name,
+      patientName,
+      ...(patientAge !== undefined ? { patientAge } : {}),
+      ...(guardianName ? { guardianName } : {}),
+      ...(guardianRelationship ? { guardianRelationship } : {}),
       concern,
       preferredContact,
       urgency,
+      privacyConsent,
+      privacyConsentAt: new Date(),
+      privacyNoticeVersion: PRIVACY_NOTICE_VERSION,
       status: "new",
       notes: `Preferred contact: ${preferredContact}. Urgency: ${urgency}.`
     });
@@ -68,7 +95,6 @@ export async function createEnquiry(req, res, next) {
   }
 }
 
-
 export async function convertReferralToPatient(req, res, next) {
   let claimedReferral;
   try {
@@ -79,7 +105,7 @@ export async function convertReferralToPatient(req, res, next) {
       return res.status(409).json({ message: "This referral has already been converted to a patient" });
     }
     const payload = req.body && typeof req.body === "object" && !Array.isArray(req.body) ? req.body : {};
-    const allowed = ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status"];
+    const allowed = ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status"];
     const unexpected = Object.keys(payload).filter((key) => !allowed.includes(key));
     if (unexpected.length) return res.status(400).json({ message: "Unsupported field: " + unexpected[0] });
     const fullName = String(payload.fullName || referral.patientName || "").trim();
@@ -97,8 +123,9 @@ export async function convertReferralToPatient(req, res, next) {
     claimedReferral = referral;
     const patient = await Patient.create({
       fullName, phone, primaryConcern,
-      guardianName: payload.guardianName,
-      age: payload.age === "" || payload.age == null ? undefined : Number(payload.age),
+      guardianName: payload.guardianName ?? referral.guardianName,
+      guardianRelationship: payload.guardianRelationship ?? referral.guardianRelationship,
+      age: payload.age === "" || payload.age == null ? referral.patientAge : Number(payload.age),
       gender: payload.gender || undefined,
       address: payload.address,
       services: Array.isArray(payload.services) ? payload.services : [],

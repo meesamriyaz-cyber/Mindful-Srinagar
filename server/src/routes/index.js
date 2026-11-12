@@ -65,8 +65,8 @@ router.get("/staff-accounts", permit(...management), async (_req, res, next) => 
   } catch (error) { return next(error); }
 });
 router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
-  createFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes"],
-  updateFields: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","notes","dischargeDate","dischargeSummary","dischargeReason"],
+  createFields: ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status","referral","notes"],
+  updateFields: ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status","referral","notes","dischargeDate","dischargeSummary","dischargeReason"],
   validateCreate: async ({ payload }) => {
     if (payload.status && !["new","assessment"].includes(payload.status)) return { statusCode: 400, message: "New patients must begin in new or assessment status" };
     if (payload.referral) {
@@ -84,8 +84,8 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
     return null;
   },
   updateFieldsByRole: {
-    reception: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","dischargeDate","dischargeReason"],
-    coordinator: ["fullName","guardianName","age","gender","phone","address","primaryConcern","services","status","referral","dischargeDate","dischargeReason"]
+    reception: ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status","referral","dischargeDate","dischargeReason"],
+    coordinator: ["fullName","guardianName","guardianRelationship","age","gender","phone","address","primaryConcern","services","status","referral","dischargeDate","dischargeReason"]
   },
   redactFieldsByRole: { reception: ["notes","dischargeSummary"], coordinator: ["notes","dischargeSummary"] },
   validateUpdate: async ({ req, payload }) => {
@@ -132,8 +132,8 @@ router.use("/doctors", crudRoutes(makeCrudController(Doctor, [], {
   filterFields: ["status","discipline"], searchableFields: ["name","discipline","phone","email"]
 }), { read: patientReaders, write: management, remove: management }));
 router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo"], {
-  createFields: ["sourceType","sourceName","contactPerson","phone","email","patientName","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
-  updateFields: ["sourceType","sourceName","contactPerson","phone","email","patientName","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
+  createFields: ["sourceType","sourceName","contactPerson","contactRelationship","phone","email","patientName","patientAge","guardianName","guardianRelationship","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
+  updateFields: ["sourceType","sourceName","contactPerson","contactRelationship","phone","email","patientName","patientAge","guardianName","guardianRelationship","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
   validateUpdate: async ({ req, payload }) => {
     if (payload.status === "converted") return { statusCode: 409, message: "Use the Convert to Patient action to preserve referral and patient linkage" };
     const current = await Referral.findById(req.params.id).select("status");

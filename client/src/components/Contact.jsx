@@ -14,16 +14,24 @@ export function Contact() {
     event.preventDefault();
     const form = event.currentTarget;
     const formData = new FormData(form);
-    const name = formData.get("name")?.toString().trim();
+    const patientName = formData.get("patientName")?.toString().trim();
+    const ageValue = formData.get("age")?.toString().trim();
+    const patientAge = ageValue ? Number(ageValue) : undefined;
+    const guardianName = formData.get("guardianName")?.toString().trim();
+    const guardianRelationship = formData.get("guardianRelationship")?.toString().trim();
+    const contactName = formData.get("contactName")?.toString().trim();
+    const contactRelationship = formData.get("contactRelationship")?.toString();
     const phone = formData.get("phone")?.toString().trim();
     const source = formData.get("source")?.toString();
     const concern = formData.get("concern")?.toString().trim();
     const selectedContact = formData.get("preferredContact")?.toString();
     const urgency = formData.get("urgency")?.toString();
     const email = formData.get("email")?.toString().trim();
+    const privacyConsent = formData.get("privacyConsent") === "on";
 
-    if (!name || !phone || !source || !concern || (selectedContact === "email" && !email)) {
-      setFeedback({ type: "error", message: "Please complete the required enquiry details." });
+    if (!patientName || !contactName || !contactRelationship || !phone || !source || !concern ||
+        !privacyConsent || (selectedContact === "email" && !email)) {
+      setFeedback({ type: "error", message: "Please complete the required enquiry details and acknowledge the privacy notice." });
       return;
     }
 
@@ -32,12 +40,18 @@ export function Contact() {
 
     try {
       const response = await createEnquiry({
-        name,
+        patientName,
+        ...(patientAge !== undefined ? { patientAge } : {}),
+        ...(guardianName ? { guardianName } : {}),
+        ...(guardianRelationship ? { guardianRelationship } : {}),
+        contactName,
+        contactRelationship,
         phone,
         source,
         concern,
         preferredContact: selectedContact,
         urgency,
+        privacyConsent,
         ...(email ? { email } : {})
       });
       setFeedback({
@@ -83,14 +97,49 @@ export function Contact() {
           <span className="booking-icon"><UserRound size={19} /></span>
           <div>
             <strong>Assessment request</strong>
-            <small>Required fields help the team route your enquiry correctly.</small>
+            <small>Patient details and the correct contact person help us avoid registration errors.</small>
           </div>
         </div>
         <div className="form-row">
           <label>
-            Patient or guardian name
-            <input name="name" placeholder="Full name" maxLength={90} required />
+            Patient's full name
+            <input name="patientName" placeholder="Person who needs support" maxLength={90} required />
           </label>
+          <label>
+            Patient's age (optional)
+            <input name="age" type="number" min="0" max="120" placeholder="Age" />
+          </label>
+        </div>
+        <div className="form-row">
+          <label>
+            Parent / guardian name (if applicable)
+            <input name="guardianName" placeholder="Guardian's full name" maxLength={90} />
+          </label>
+          <label>
+            Relationship to patient
+            <input name="guardianRelationship" placeholder="Parent, uncle, spouse..." maxLength={80} />
+          </label>
+        </div>
+        <div className="form-row">
+          <label>
+            Person we should contact
+            <input name="contactName" placeholder="Your full name" maxLength={90} required />
+          </label>
+          <label>
+            Your relationship to the patient
+            <select name="contactRelationship" defaultValue="self" required>
+              <option value="self">Patient (self)</option>
+              <option value="mother">Mother</option>
+              <option value="father">Father</option>
+              <option value="guardian">Legal guardian</option>
+              <option value="relative">Other family member</option>
+              <option value="caregiver">Caregiver</option>
+              <option value="referrer">Professional referrer</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+        </div>
+        <div className="form-row">
           <label>
             Phone / WhatsApp
             <input
@@ -99,12 +148,10 @@ export function Contact() {
               inputMode="tel"
               autoComplete="tel"
               placeholder="+91 99000 00000"
-              pattern="\\+?[0-9\\s()\\-]{7,32}"
+              pattern="\+?[0-9\s()\-]{7,32}"
               required
             />
           </label>
-        </div>
-        <div className="form-row">
           <label>
             How did you hear about us?
             <select name="source" defaultValue="" required>
@@ -118,6 +165,8 @@ export function Contact() {
               <option value="other">Other</option>
             </select>
           </label>
+        </div>
+        <div className="form-row">
           <label>
             Urgency
             <select name="urgency" defaultValue="routine">
@@ -126,19 +175,19 @@ export function Contact() {
               <option value="urgent">Urgent follow-up requested</option>
             </select>
           </label>
+          <label>
+            Preferred contact
+            <select
+              name="preferredContact"
+              value={preferredContact}
+              onChange={(event) => setPreferredContact(event.target.value)}
+            >
+              <option value="whatsapp">WhatsApp</option>
+              <option value="phone">Phone call</option>
+              <option value="email">Email</option>
+            </select>
+          </label>
         </div>
-        <label>
-          Preferred contact
-          <select
-            name="preferredContact"
-            value={preferredContact}
-            onChange={(event) => setPreferredContact(event.target.value)}
-          >
-            <option value="whatsapp">WhatsApp</option>
-            <option value="phone">Phone call</option>
-            <option value="email">Email</option>
-          </select>
-        </label>
         <label>
           Email {preferredContact === "email" ? "(required)" : "(optional)"}
           <input
@@ -153,10 +202,16 @@ export function Contact() {
           Primary concern
           <textarea
             name="concern"
-            placeholder="Age, concern, current diagnosis or referral note"
+            placeholder="Briefly describe the concern, age/context, current diagnosis or referral note."
             maxLength={1600}
             required
           />
+        </label>
+        <label className="privacy-consent">
+          <input name="privacyConsent" type="checkbox" required />
+          <span>
+            I agree that Mindful may use these details to respond to this enquiry and coordinate the requested assessment. I understand I can contact the centre to ask about or correct the information provided.
+          </span>
         </label>
         <button className="primary-button full" type="submit" disabled={submitting}>
           <Send size={18} />
