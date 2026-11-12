@@ -62,7 +62,7 @@ export function PractitionerDashboard({ token }) {
             )) : <p className="empty-state">No appointments scheduled for today.</p>}
           </div>
         </article>
-        <article className="table-panel">
+        <article className="table-panel staff-console-panel">
           <div className="panel-title"><CalendarClock size={21} /><h3>Coming up</h3></div>
           <div className="compact-record-list staff-console-list">
             {upcomingAppointments.length ? upcomingAppointments.map((item) => (
@@ -71,20 +71,20 @@ export function PractitionerDashboard({ token }) {
           </div>
         </article>
       </div>
-      <div className="console-grid">
-        <article className="table-panel">
+      <div className="console-grid staff-console-grid">
+        <article className="table-panel staff-console-panel">
           <div className="panel-title"><FileText size={21} /><h3>Recent progress notes</h3></div>
-          <div className="compact-record-list">
+          <div className="compact-record-list staff-console-list">
             {recentNotes.length ? recentNotes.map((note) => (
-              <div className="compact-record" key={note._id}><div><strong>{note.patient?.fullName || "Patient"} · {note.noteType}</strong><span>{timeLabel(note.notedAt)} · {(note.assessment || note.plan || note.subjective || "").slice(0, 90)}</span></div></div>
+              <div className="compact-record staff-console-record" key={note._id}><div><strong>{note.patient?.fullName || "Patient"} · {note.noteType}</strong><span>{timeLabel(note.notedAt)} · {(note.assessment || note.plan || note.subjective || "").slice(0, 90)}</span></div></div>
             )) : <p className="empty-state">No progress notes authored yet.</p>}
           </div>
         </article>
-        <article className="table-panel">
+        <article className="table-panel staff-console-panel">
           <div className="panel-title"><ListChecks size={21} /><h3>My open tasks</h3></div>
-          <div className="compact-record-list">
+          <div className="compact-record-list staff-console-list">
             {assignedTasks.length ? assignedTasks.map((task) => (
-              <div className="compact-record" key={task._id}><div><strong>{task.title}</strong><span>{task.department} · {task.dueDate ? timeLabel(task.dueDate) : "No due date"}</span></div><mark>{task.priority}</mark></div>
+              <div className="compact-record staff-console-record" key={task._id}><div><strong>{task.title}</strong><span>{task.department} · {task.dueDate ? timeLabel(task.dueDate) : "No due date"}</span></div><mark>{task.priority}</mark></div>
             )) : <p className="empty-state">No open tasks assigned to you.</p>}
           </div>
         </article>
