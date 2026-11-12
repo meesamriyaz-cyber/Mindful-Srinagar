@@ -23,6 +23,7 @@ const progressNoteSchema = new mongoose.Schema(
 progressNoteSchema.pre("validate", function validateNoteContent(next) {
   const hasContent = [this.subjective, this.objective, this.assessment, this.plan].some((value) => String(value || "").trim());
   if (!hasContent) this.invalidate("subjective", "At least one progress note section must contain information");
+  if (this.noteType === "session" && !this.appointment) this.invalidate("appointment", "A session note must be linked to its appointment");
   next();
 });
 

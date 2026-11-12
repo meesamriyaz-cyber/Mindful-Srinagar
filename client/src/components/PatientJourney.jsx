@@ -66,6 +66,7 @@ const CREATE_FIELDS = {
   ],
   "progress-notes": [
     { name: "noteType", label: "Note Type", type: "select", options: ["session", "review", "incident"] },
+    { name: "appointment", label: "Session appointment", type: "appointment" },
     { name: "subjective", label: "Subjective", type: "textarea" },
     { name: "objective", label: "Objective", type: "textarea" },
     { name: "assessment", label: "Assessment", type: "textarea" },
@@ -204,7 +205,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   }
 
   function openCreate() {
-    setCreateForm({ patient: patient._id, ...(activeStep === "treatment-plans" ? { status: "planned" } : {}) });
+    setCreateForm({ patient: patient._id, ...(activeStep === "treatment-plans" ? { status: "planned" } : {}), ...(activeStep === "progress-notes" ? { noteType: "session" } : {}) });
     setCreateError("");
     setCreateStep(activeStep);
   }
@@ -285,6 +286,8 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     if (activeStep === "progress-notes") {
       return (
         <div>
+          <p><strong>Appointment:</strong> {record?.appointment?.service || "Not linked"} · {record?.appointment?.startsAt ? formatDateTime(record.appointment.startsAt) : ""}</p>
+          <p><strong>Practitioner:</strong> {record?.appointment?.practitioner?.name || record?.author?.name || "Not recorded"}</p>
           <p><strong>Subjective:</strong> {record?.subjective}</p>
           <p><strong>Objective:</strong> {record?.objective}</p>
           <p><strong>Assessment:</strong> {record?.assessment}</p>
@@ -432,6 +435,17 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                       placeholder={field.placeholder}
                       required
                     />
+                  ) : field.type === "appointment" ? (
+                    <select
+                      value={createForm[field.name] || ""}
+                      onChange={(e) => setCreateForm({ ...createForm, [field.name]: e.target.value })}
+                      required={createForm.noteType === "session" || !createForm.noteType}
+                    >
+                      <option value="">Select checked-in appointment...</option>
+                      {data.appointments.filter((item) => ["checked-in", "completed"].includes(item.status)).map((item) => (
+                        <option key={item._id} value={item._id}>{item.service} · {formatDateTime(item.startsAt)}</option>
+                      ))}
+                    </select>
                   ) : field.type === "assessment" ? (
                     <select
                       value={createForm[field.name] || ""}

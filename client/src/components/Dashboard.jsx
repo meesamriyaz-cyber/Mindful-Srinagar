@@ -908,7 +908,7 @@ export function Dashboard() {
   const [showAppointmentForm, setShowAppointmentForm] = useState(false);
   const [appointmentSaving, setAppointmentSaving] = useState(false);
   const [appointmentError, setAppointmentError] = useState("");
-  const [appointmentForm, setAppointmentForm] = useState({ patient: "", practitioner: "", service: "", startsAt: "", durationMinutes: 45, room: "" });
+  const [appointmentForm, setAppointmentForm] = useState({ patient: "", practitioner: "", service: "", appointmentType: "assessment", startsAt: "", durationMinutes: 45, room: "" });
   const [convertReferral, setConvertReferral] = useState(null);
   const [convertForm, setConvertForm] = useState({});
   const [convertSaving, setConvertSaving] = useState(false);
@@ -1092,7 +1092,7 @@ export function Dashboard() {
     try {
       await createRecord("appointments", { ...appointmentForm, startsAt: new Date(appointmentForm.startsAt).toISOString(), durationMinutes: Number(appointmentForm.durationMinutes) }, { token: session.token });
       setShowAppointmentForm(false);
-      setAppointmentForm({ patient: "", practitioner: "", service: "", startsAt: "", durationMinutes: 45, room: "" });
+      setAppointmentForm({ patient: "", practitioner: "", service: "", appointmentType: "assessment", startsAt: "", durationMinutes: 45, room: "" });
       setResourceRefresh((value) => value + 1);
       refresh();
     } catch (err) {
@@ -1390,9 +1390,19 @@ export function Dashboard() {
                   {practitionersList.map((person) => <option key={person._id} value={person._id}>{person.name} · {person.discipline}</option>)}
                 </select>
               </label>
-              <label>Service
-                <input required maxLength={120} value={appointmentForm.service} onChange={(e) => setAppointmentForm({ ...appointmentForm, service: e.target.value })} placeholder="Speech Therapy, Occupational Therapy..." />
-              </label>
+              <div className="form-row">
+                <label>Appointment purpose
+                  <select value={appointmentForm.appointmentType} onChange={(e) => setAppointmentForm({ ...appointmentForm, appointmentType: e.target.value })} required>
+                    <option value="assessment">Initial assessment</option>
+                    <option value="treatment">Treatment session</option>
+                    <option value="review">Clinical review</option>
+                    <option value="other">Other clinical visit</option>
+                  </select>
+                </label>
+                <label>Service
+                  <input required maxLength={120} value={appointmentForm.service} onChange={(e) => setAppointmentForm({ ...appointmentForm, service: e.target.value })} placeholder="Speech Therapy, Occupational Therapy..." />
+                </label>
+              </div>
               <div className="form-row">
                 <label>Date & time
                   <input required type="datetime-local" min={new Date().toISOString().slice(0,16)} value={appointmentForm.startsAt} onChange={(e) => setAppointmentForm({ ...appointmentForm, startsAt: e.target.value })} />
