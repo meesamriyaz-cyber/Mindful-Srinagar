@@ -274,6 +274,8 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     if (activeStep === "treatment-plans") {
       return (
         <div>
+          <p><strong>Linked assessment:</strong> {record?.assessment?.assessedAt ? formatDate(record.assessment.assessedAt) : "Legacy plan — no assessment link"}</p>
+          <p><strong>Approved by:</strong> {record?.approvedBy?.name || "Not approved"} {record?.approvedAt ? `on ${formatDate(record.approvedAt)}` : ""}</p>
           <p><strong>Goals:</strong> {record?.goals}</p>
           <p><strong>Interventions:</strong> {(record?.interventions || []).join(", ")}</p>
           <p><strong>Frequency:</strong> {record?.frequency} | <strong>Duration:</strong> {record?.duration}</p>
