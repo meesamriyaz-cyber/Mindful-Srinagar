@@ -16,9 +16,8 @@ export function Hero() {
           <p className="hero-identity-name">Mindful</p>
           <p className="hero-identity-description">
             <span className="hero-identity-line">Centre for Rehabilitation Research &amp; Training Foundation</span>
-            <span className="hero-identity-line">for <strong>Persons with Disabilities</strong></span>
+            <span className="hero-identity-line">for <strong>Persons with Disabilities</strong>, Srinagar</span>
           </p>
-          <span className="hero-identity-location">Srinagar</span>
         </div>
         <p className="hero-lede">
           One coordinated team for assessment, therapy, learning support and life skills for children, adolescents and
