@@ -3,8 +3,8 @@ import { makeClinicalRecordController } from "./clinicalRecordController.js";
 import { validateAssessmentCompletion } from "../security/carePlanRules.js";
 const controller = makeClinicalRecordController({
   Model: Assessment, recordType: "assessment", ownerField: "assessedBy",
-  createFields: ["patient","assessedAt","domains","findings","recommendations","status"],
-  updateFields: ["assessedAt","domains","findings","recommendations","status"],
+  createFields: ["patient","assessedAt","assessmentType","domains","findings","recommendations","status"],
+  updateFields: ["assessedAt","assessmentType","domains","findings","recommendations","status"],
   populate: [["patient","fullName mrn"],["assessedBy","name email"]],
   sortField: "assessedAt", searchFields: ["findings","recommendations"],
   validateRelations: (payload) => {

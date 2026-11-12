@@ -1,6 +1,6 @@
 const transitions = {
   assessment: { draft: ["completed"], completed: [] },
-  "treatment-plan": { planned: ["active","on-hold","completed"], active: ["on-hold","completed"], "on-hold": ["active","completed"], completed: [] },
+  "treatment-plan": { planned: ["active","on-hold","completed","cancelled"], active: ["on-hold","completed","cancelled"], "on-hold": ["active","completed","cancelled"], completed: [], cancelled: [] },
   prescription: { active: ["completed","cancelled"], completed: [], cancelled: [] }
 };
 export function canTransitionClinicalStatus(recordType, current, next) {

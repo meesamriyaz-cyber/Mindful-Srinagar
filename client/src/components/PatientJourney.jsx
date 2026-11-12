@@ -26,7 +26,9 @@ import {
   API_BASE_URL,
   listClinicalAmendments,
   amendClinicalRecord,
-  approveTreatmentPlan
+  approveTreatmentPlan,
+  approvePatientDischarge,
+  closePatientDischarge
 } from "../lib/api.js";
 
 const STEP_ICONS = {
@@ -51,6 +53,7 @@ const STEP_LABELS = {
 
 const CREATE_FIELDS = {
   assessments: [
+    { name: "assessmentType", label: "Assessment type", type: "select", options: ["initial", "review", "discharge"] },
     { name: "domains", label: "Domains", type: "text", placeholder: "Speech, Language, Social..." },
     { name: "findings", label: "Findings", type: "textarea" },
     { name: "recommendations", label: "Recommendations", type: "textarea" },
@@ -62,7 +65,7 @@ const CREATE_FIELDS = {
     { name: "interventions", label: "Interventions (comma-separated)", type: "text" },
     { name: "frequency", label: "Frequency", type: "text", placeholder: "Weekly" },
     { name: "duration", label: "Duration", type: "text", placeholder: "45 minutes" },
-    { name: "status", label: "Status", type: "select", options: ["planned", "completed", "on-hold"] }
+    { name: "status", label: "Status", type: "select", options: ["planned"] }
   ],
   "progress-notes": [
     { name: "noteType", label: "Note Type", type: "select", options: ["session", "review", "incident"] },
@@ -99,7 +102,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const [loading, setLoading] = useState(true);
   const [activeStep, setActiveStep] = useState(() => ["doctor", "therapist"].includes(userRole) ? "appointments" : "referral");
   const [showDischarge, setShowDischarge] = useState(false);
-  const [dischargeForm, setDischargeForm] = useState({ summary: "", reason: "" });
+  const [dischargeForm, setDischargeForm] = useState({ summary: "", reason: "", outcome: "", recommendations: "" });
   const [discharging, setDischarging] = useState(false);
   const [dischargeError, setDischargeError] = useState("");
   const [createStep, setCreateStep] = useState(null);
@@ -163,7 +166,8 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const canViewReferral = ["director", "admin", "reception", "coordinator"].includes(userRole);
   const canViewPrescriptions = ["director", "admin", "doctor"].includes(userRole);
   const canViewBilling = ["director", "admin", "accounts", "reception"].includes(userRole);
-  const canDischarge = ["director", "admin", "reception", "coordinator"].includes(userRole);
+  const canApproveDischarge = ["director", "admin", "doctor"].includes(userRole);
+  const canCloseDischarge = ["director", "admin", "reception", "coordinator"].includes(userRole);
   const steps = [...(canViewReferral ? ["referral"] : []), "appointments", ...(canViewClinical ? ["assessments", "treatment-plans", "progress-notes"] : []), ...(canViewPrescriptions ? ["prescriptions"] : []), ...(canViewBilling ? ["invoices"] : [])];
   const activeRecords = data[activeStep] || [];
   const isDischarged = patient?.status === "discharged";
@@ -205,7 +209,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   }
 
   function openCreate() {
-    setCreateForm({ patient: patient._id, ...(activeStep === "treatment-plans" ? { status: "planned" } : {}), ...(activeStep === "progress-notes" ? { noteType: "session" } : {}) });
+    setCreateForm({ patient: patient._id, ...(activeStep === "assessments" ? { assessmentType: "initial" } : {}), ...(activeStep === "treatment-plans" ? { status: "planned" } : {}), ...(activeStep === "progress-notes" ? { noteType: "session" } : {}) });
     setCreateError("");
     setCreateStep(activeStep);
   }
@@ -346,15 +350,13 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     setDischarging(true);
     setDischargeError("");
     try {
-      await onDischarge({
-        dischargeDate: new Date(),
-        dischargeSummary: dischargeForm.summary,
-        dischargeReason: dischargeForm.reason,
-        status: "discharged"
-      });
+      if (patient.dischargeApprovedAt) await closePatientDischarge(patient._id, { token });
+      else await approvePatientDischarge(patient._id, dischargeForm, { token });
       setShowDischarge(false);
+      setJourneyKey((value) => value + 1);
+      onRefresh?.();
     } catch (err) {
-      setDischargeError(err.message || "Unable to discharge patient");
+      setDischargeError(err.message || "Unable to process discharge");
     } finally {
       setDischarging(false);
     }
@@ -552,10 +554,10 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           )}
         </div>
 
-        {!isDischarged && !createStep && canDischarge && (
+        {!isDischarged && !createStep && ((patient.dischargeApprovedAt && canCloseDischarge) || (!patient.dischargeApprovedAt && canApproveDischarge)) && (
           <div className="journey-footer">
             <button className="primary-button" type="button" onClick={() => setShowDischarge(true)}>
-              Discharge Patient
+              {patient.dischargeApprovedAt ? "Close approved discharge" : "Prepare discharge"}
             </button>
           </div>
         )}
@@ -584,29 +586,32 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                 </div>
                 <form onSubmit={handleDischarge} className="clinical-form">
                   {dischargeError && <p className="form-status error-status">{dischargeError}</p>}
-                  <label>
-                    Discharge Summary
-                    <textarea
-                      rows={4}
-                      value={dischargeForm.summary}
-                      onChange={(e) => setDischargeForm({ ...dischargeForm, summary: e.target.value })}
-                      placeholder="Final outcome, improvements, recommendations..."
-                      required
-                    />
-                  </label>
-                  <label>
-                    Reason for Discharge
-                    <input
-                      type="text"
-                      value={dischargeForm.reason}
-                      onChange={(e) => setDischargeForm({ ...dischargeForm, reason: e.target.value })}
-                      placeholder="Goals met, transferred, etc."
-                      required
-                    />
-                  </label>
+                  <h4>{patient.dischargeApprovedAt ? "Administrative discharge closure" : "Clinical discharge approval"}</h4>
+                  {patient.dischargeApprovedAt ? (
+                    <div className="discharge-approval-summary">
+                      <p>Clinical approval recorded on {formatDate(patient.dischargeApprovedAt)} by {patient.dischargeApprovedBy?.name || "clinical lead"}.</p>
+                      <p><strong>Reason:</strong> {patient.dischargeReason}</p>
+                      <p>Readiness checks will be repeated before the patient is closed.</p>
+                    </div>
+                  ) : (
+                    <>
+                      <label>Discharge summary
+                        <textarea rows={4} minLength={20} maxLength={5000} value={dischargeForm.summary} onChange={(e) => setDischargeForm({ ...dischargeForm, summary: e.target.value })} placeholder="Clinical summary of the completed care episode..." required />
+                      </label>
+                      <label>Reason for discharge
+                        <input type="text" minLength={3} maxLength={500} value={dischargeForm.reason} onChange={(e) => setDischargeForm({ ...dischargeForm, reason: e.target.value })} placeholder="Goals met, transfer, family decision..." required />
+                      </label>
+                      <label>Final clinical outcome
+                        <textarea rows={3} minLength={20} maxLength={2000} value={dischargeForm.outcome} onChange={(e) => setDischargeForm({ ...dischargeForm, outcome: e.target.value })} placeholder="Describe progress against the agreed goals..." required />
+                      </label>
+                      <label>Post-discharge recommendations
+                        <textarea rows={3} minLength={10} maxLength={3000} value={dischargeForm.recommendations} onChange={(e) => setDischargeForm({ ...dischargeForm, recommendations: e.target.value })} placeholder="Home programme, review interval, referrals or follow-up..." required />
+                      </label>
+                    </>
+                  )}
                   <div className="modal-actions">
                     <button className="primary-button" type="submit" disabled={discharging}>
-                      Confirm Discharge
+                      {discharging ? "Processing..." : patient.dischargeApprovedAt ? "Close patient record" : "Submit clinical approval"}
                     </button>
                     <button className="secondary-button" type="button" onClick={() => setShowDischarge(false)}>
                       Cancel

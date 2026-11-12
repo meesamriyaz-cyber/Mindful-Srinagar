@@ -38,6 +38,7 @@ const CONFIGS = {
     updateFn: updateAssessment,
     fields: [
       { name: "patient", label: "Patient", type: "patient" },
+      { name: "assessmentType", label: "Assessment type", type: "select", options: ["initial", "review", "discharge"] },
       { name: "domains", label: "Domains", type: "text", placeholder: "Speech, Language, Social..." },
       { name: "findings", label: "Findings", type: "textarea" },
       { name: "recommendations", label: "Recommendations", type: "textarea" },
@@ -57,7 +58,7 @@ const CONFIGS = {
       { name: "interventions", label: "Interventions", type: "chips", suggestions: services },
       { name: "frequency", label: "Frequency", type: "text", placeholder: "Weekly" },
       { name: "duration", label: "Duration", type: "text", placeholder: "45 minutes" },
-      { name: "status", label: "Status", type: "select", options: ["planned", "active", "on-hold", "completed"] }
+      { name: "status", label: "Status", type: "select", options: ["planned", "active", "on-hold", "completed", "cancelled"] }
     ]
   },
   "progress-notes": {
@@ -211,7 +212,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   }
 
   function openCreate() {
-    setForm({ patient: patientId || "", ...(activeView === "treatment-plans" ? { status: "planned" } : {}), ...(activeView === "progress-notes" ? { noteType: "session" } : {}) });
+    setForm({ patient: patientId || "", ...(activeView === "assessments" ? { assessmentType: "initial" } : {}), ...(activeView === "treatment-plans" ? { status: "planned" } : {}), ...(activeView === "progress-notes" ? { noteType: "session" } : {}) });
     setEditingId(null);
     setShowForm(true);
   }
@@ -438,7 +439,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                         required
                       >
                         <option value="">Select...</option>
-                        {field.options.filter((opt) => opt !== "active" || (editingId && records.find((item) => item._id === editingId)?.approvedAt)).map(opt => (
+                        {(activeView === "treatment-plans" && field.name === "status" ? field.options.filter((opt) => !editingId ? opt === "planned" : opt !== "active" || records.find((item) => item._id === editingId)?.approvedAt) : field.options).map(opt => (
                           <option key={opt} value={opt}>{opt}</option>
                         ))}
                       </select>

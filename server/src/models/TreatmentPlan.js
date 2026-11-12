@@ -15,7 +15,7 @@ const treatmentPlanSchema = new mongoose.Schema(
     duration: { type: String, trim: true },
     status: {
       type: String,
-      enum: ["planned", "active", "completed", "on-hold"],
+      enum: ["planned", "active", "completed", "on-hold", "cancelled"],
       default: "planned"
     }
   },

@@ -13,6 +13,17 @@ const controller = makeClinicalRecordController({
   sortField: "startDate", searchFields: ["goals","interventions"],
   defaultValues: () => ({ startDate: new Date(), status: "planned" }),
   validateRelations: async (payload, req) => {
+    if (req.method === "POST" && payload.status && payload.status !== "planned") {
+      const error = new Error("New treatment plans must begin in planned status and be activated through clinical approval");
+      error.statusCode = 400;
+      throw error;
+    }
+    const patient = await Patient.findById(payload.patient).select("status dischargeApprovedAt");
+    if (!patient || patient.status === "discharged" || patient.dischargeApprovedAt) {
+      const error = new Error("Treatment plans cannot be created or changed while discharge closure is pending or the patient is discharged");
+      error.statusCode = 409;
+      throw error;
+    }
     if (!payload.assessment) {
       if (req.method === "POST") {
         const error = new Error("Select a completed assessment for this treatment plan");

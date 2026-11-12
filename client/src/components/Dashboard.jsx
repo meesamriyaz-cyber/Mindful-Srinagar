@@ -26,7 +26,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDashboard } from "../hooks/useDashboard.js";
-import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, listReferralOwners, logReferralFollowUp, API_BASE_URL } from "../lib/api.js";
+import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, listReferralOwners, logReferralFollowUp, listTaskAssignees, API_BASE_URL } from "../lib/api.js";
 import { ClinicalBoard } from "./ClinicalBoard.jsx";
 import { PatientJourney } from "./PatientJourney.jsx";
 import { PractitionerBoard } from "./PractitionerBoard.jsx";
@@ -191,6 +191,49 @@ function LoginPanel({ onLogin }) {
 }
 
 function useResourceRecords({ activeView, token, query, refreshSignal }) {
+  useEffect(() => {
+    if (activeView !== "tasks" || !token) { setTaskPatients([]); return undefined; }
+    let active = true;
+    listRecords("patients", { token, limit: 100 }).then((items) => {
+      if (active) setTaskPatients(items || []);
+    }).catch(() => {
+      if (active) setTaskPatients([]);
+    });
+    return () => { active = false; };
+  }, [activeView, token]);
+
+  useEffect(() => {
+    if (activeView !== "tasks" || !token) { setTaskAssignees([]); return undefined; }
+    let active = true;
+    listTaskAssignees({ token }).then((items) => { if (active) setTaskAssignees(items || []); })
+      .catch(() => { if (active) setTaskAssignees([]); });
+    return () => { active = false; };
+  }, [activeView, token]);
+
+  async function submitTask(event) {
+    event.preventDefault();
+    setTaskSaving(true);
+    setTaskError("");
+    try {
+      await createRecord("tasks", {
+        title: taskForm.title.trim(),
+        ...(taskForm.patient ? { patient: taskForm.patient } : {}),
+        department: taskForm.department,
+        priority: taskForm.priority,
+        ...(taskForm.assignedTo ? { assignedTo: taskForm.assignedTo } : {}),
+        ...(taskForm.dueDate ? { dueDate: new Date(taskForm.dueDate).toISOString() } : {}),
+        status: "todo"
+      }, { token });
+      setTaskForm({ title: "", patient: "", department: "clinical", priority: "medium", dueDate: "", assignedTo: "" });
+      setShowTaskCreate(false);
+      onRefreshRecords?.();
+    } catch (error) {
+      setTaskError(error.message || "Unable to create task");
+    } finally {
+      setTaskSaving(false);
+    }
+  }
+
   const config = getViewConfig(activeView);
   const resource = config.resource;
   const [state, setState] = useState({ records: [], loading: false, error: "" });
@@ -543,7 +586,7 @@ function describeRecord(viewId, record) {
   return {
     title: record.title,
     meta: `${record.department} - due ${formatDate(record.dueDate)}`,
-    detail: `Priority: ${record.priority}`,
+    detail: `Priority: ${record.priority} · Patient: ${record.patient?.fullName || "General task"}`,
     status: record.status === "todo" && record.dueDate && new Date(record.dueDate) < new Date() ? "overdue" : record.status
   };
 }
@@ -785,6 +828,12 @@ function ReferralNotesEditor({ record, onSave, saving, token, owners, onFollowUp
 
 function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError, userRole, token, onRefreshRecords, onCreateAppointment }) {
   const [referralOwners, setReferralOwners] = useState([]);
+  const [taskPatients, setTaskPatients] = useState([]);
+  const [taskAssignees, setTaskAssignees] = useState([]);
+  const [showTaskCreate, setShowTaskCreate] = useState(false);
+  const [taskSaving, setTaskSaving] = useState(false);
+  const [taskError, setTaskError] = useState("");
+  const [taskForm, setTaskForm] = useState({ title: "", patient: "", department: "clinical", priority: "medium", dueDate: "", assignedTo: "" });
   useEffect(() => {
     if (activeView !== "referrals" || !token) { setReferralOwners([]); return undefined; }
     let active = true;
@@ -792,6 +841,42 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
       .catch(() => { if (active) setReferralOwners([]); });
     return () => { active = false; };
   }, [activeView, token]);
+
+  useEffect(() => {
+    if (activeView !== "tasks" || !token) { setTaskPatients([]); return undefined; }
+    let active = true;
+    listRecords("patients", { token, limit: 100 }).then((items) => {
+      if (active) setTaskPatients(items || []);
+    }).catch(() => {
+      if (active) setTaskPatients([]);
+    });
+    return () => { active = false; };
+  }, [activeView, token]);
+
+  async function submitTask(event) {
+    event.preventDefault();
+    setTaskSaving(true);
+    setTaskError("");
+    try {
+      await createRecord("tasks", {
+        title: taskForm.title.trim(),
+        ...(taskForm.patient ? { patient: taskForm.patient } : {}),
+        department: taskForm.department,
+        priority: taskForm.priority,
+        ...(taskForm.assignedTo ? { assignedTo: taskForm.assignedTo } : {}),
+        ...(taskForm.dueDate ? { dueDate: new Date(taskForm.dueDate).toISOString() } : {}),
+        status: "todo"
+      }, { token });
+      setTaskForm({ title: "", patient: "", department: "clinical", priority: "medium", dueDate: "", assignedTo: "" });
+      setShowTaskCreate(false);
+      onRefreshRecords?.();
+    } catch (error) {
+      setTaskError(error.message || "Unable to create task");
+    } finally {
+      setTaskSaving(false);
+    }
+  }
+
   const config = getViewConfig(activeView);
   const Icon = config.icon;
 
@@ -809,12 +894,56 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
           <h3>{config.label}</h3>
           <span>{records.length} record(s) loaded</span>
         </div>
+        {activeView === "tasks" && ["director","admin","reception","coordinator"].includes(userRole) && (
+          <button className="primary-button compact-button" type="button" onClick={() => setShowTaskCreate((value) => !value)}><Plus size={15} /> New task</button>
+        )}
         {activeView === "appointments" && ["director","admin","reception","coordinator"].includes(userRole) && (
           <button className="primary-button compact-button" type="button" onClick={onCreateAppointment}><Plus size={15} /> New appointment</button>
         )}
       </div>
       {state.loading && <p className="empty-state">Loading {config.label.toLowerCase()}...</p>}
       {state.error && <p className="form-status error-status">{state.error}</p>}
+      {activeView === "tasks" && showTaskCreate && (
+        <form className="clinical-form task-create-form" onSubmit={submitTask}>
+          <label>Task title
+            <input value={taskForm.title} maxLength={180} onChange={(event) => setTaskForm({ ...taskForm, title: event.target.value })} required placeholder="Describe the action that needs to be completed" />
+          </label>
+          <div className="form-row">
+            <label>Related patient (optional)
+              <select value={taskForm.patient} onChange={(event) => setTaskForm({ ...taskForm, patient: event.target.value })}>
+                <option value="">General task — not patient-specific</option>
+                {taskPatients.map((patient) => <option key={patient._id} value={patient._id}>{patient.fullName} · {patient.mrn}</option>)}
+              </select>
+            </label>
+            <label>Department
+              <select value={taskForm.department} onChange={(event) => setTaskForm({ ...taskForm, department: event.target.value })}>
+                <option value="clinical">Clinical</option><option value="front-desk">Front desk</option><option value="accounts">Accounts</option><option value="outreach">Outreach</option><option value="operations">Operations</option>
+              </select>
+            </label>
+          </div>
+          <div className="form-row">
+            <label>Assigned staff member
+              <select value={taskForm.assignedTo} onChange={(event) => setTaskForm({ ...taskForm, assignedTo: event.target.value })} required>
+                <option value="">Select responsible staff...</option>
+                {taskAssignees.map((staff) => <option key={staff._id} value={staff._id}>{staff.name} · {staff.role}</option>)}
+              </select>
+            </label>
+            <label>Priority
+              <select value={taskForm.priority} onChange={(event) => setTaskForm({ ...taskForm, priority: event.target.value })}>
+                <option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option>
+              </select>
+            </label>
+            <label>Due date
+              <input type="date" value={taskForm.dueDate} onChange={(event) => setTaskForm({ ...taskForm, dueDate: event.target.value })} />
+            </label>
+          </div>
+          {taskError && <p className="form-status error-status">{taskError}</p>}
+          <div className="modal-actions">
+            <button className="primary-button" type="submit" disabled={taskSaving}>{taskSaving ? "Creating..." : "Create task"}</button>
+            <button className="secondary-button" type="button" onClick={() => setShowTaskCreate(false)}>Cancel</button>
+          </div>
+        </form>
+      )}
       {actionError && <p className="form-status error-status">{actionError}</p>}
       {!state.loading && !state.error && (
         <AnimatePresence mode="popLayout">
@@ -1279,11 +1408,7 @@ export function Dashboard() {
           token={session.token}
           userRole={session.user?.role}
           onClose={() => setJourneyPatientId(null)}
-          onDischarge={async (updates) => {
-            await updateRecord("patients", journeyPatientId, updates, { token: session.token });
-            setResourceRefresh((v) => v + 1);
-            refresh();
-          }}
+          onRefresh={() => { setResourceRefresh((value) => value + 1); refresh(); }}
         />
       )}
 

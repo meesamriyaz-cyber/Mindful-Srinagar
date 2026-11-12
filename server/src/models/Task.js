@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const taskSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true, maxlength: 180 },
+  patient: { type: mongoose.Schema.Types.ObjectId, ref: "Patient" },
   department: { type: String, enum: ["front-desk", "clinical", "accounts", "outreach", "operations"], default: "operations" },
   assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   dueDate: Date,
@@ -10,6 +11,7 @@ const taskSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 taskSchema.index({ status: 1, dueDate: 1 });
+taskSchema.index({ patient: 1, status: 1 });
 taskSchema.index({ department: 1, priority: 1 });
 taskSchema.index({ assignedTo: 1, status: 1, dueDate: 1 });
 export const Task = mongoose.model("Task", taskSchema);
