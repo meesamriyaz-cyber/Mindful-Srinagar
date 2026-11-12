@@ -5941,3 +5941,149 @@ mark.risk {
     padding: 12px 15px 15px;
   }
 }
+
+
+/* Clinical records: distinct editorial hierarchy for each clinical workflow. */
+.dashboard-role-admin .clinical-board-heading,
+.dashboard-role-director .clinical-board-heading {
+  align-items: flex-start;
+}
+.dashboard-role-admin .clinical-record-meta,
+.dashboard-role-director .clinical-record-meta {
+  display: block;
+  color: #71838c;
+  font-size: .71rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .clinical-record-card,
+.dashboard-role-director .clinical-record-card {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 16px;
+  border: 1px solid #e0e9eb;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(20,54,70,.035);
+}
+.dashboard-role-admin .clinical-record-card .record-main,
+.dashboard-role-director .clinical-record-card .record-main {
+  align-items: flex-start;
+  gap: 12px;
+}
+.dashboard-role-admin .clinical-record-card .record-main > div,
+.dashboard-role-director .clinical-record-card .record-main > div {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+.dashboard-role-admin .clinical-record-card .record-main strong,
+.dashboard-role-director .clinical-record-card .record-main strong {
+  color: #193d50;
+  font-size: .87rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .clinical-record-card .record-main mark,
+.dashboard-role-director .clinical-record-card .record-main mark {
+  flex: 0 0 auto;
+}
+.dashboard-role-admin .clinical-record-card .clinical-record-detail,
+.dashboard-role-director .clinical-record-card .clinical-record-detail {
+  flex: 1;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .clinical-record-card .record-actions,
+.dashboard-role-director .clinical-record-card .record-actions {
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+.dashboard-role-admin .clinical-resource-panel .empty-state,
+.dashboard-role-director .clinical-resource-panel .empty-state {
+  padding: 24px 16px;
+  border: 1px dashed #d7e2e5;
+  border-radius: 9px;
+  color: #6c818a;
+  background: #fafcfc;
+  text-align: center;
+}
+.dashboard-role-admin .clinical-editor-modal,
+.dashboard-role-director .clinical-editor-modal,
+.dashboard-role-admin .clinical-billing-modal,
+.dashboard-role-director .clinical-billing-modal {
+  width: min(100% - 28px, 640px);
+  max-height: min(88vh, 820px);
+  overflow-y: auto;
+  border: 1px solid #dce7e9;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(10,35,48,.22);
+}
+.dashboard-role-admin .clinical-editor-modal .modal-header,
+.dashboard-role-director .clinical-editor-modal .modal-header,
+.dashboard-role-admin .clinical-billing-modal .modal-header,
+.dashboard-role-director .clinical-billing-modal .modal-header {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  padding: 18px 22px;
+  border-bottom: 1px solid #e7edef;
+  background: rgba(255,255,255,.97);
+  backdrop-filter: blur(10px);
+}
+.dashboard-role-admin .clinical-editor-modal .clinical-form,
+.dashboard-role-director .clinical-editor-modal .clinical-form,
+.dashboard-role-admin .clinical-billing-modal .clinical-form,
+.dashboard-role-director .clinical-billing-modal .clinical-form {
+  gap: 15px;
+  padding: 20px 22px 22px;
+}
+.dashboard-role-admin .clinical-editor-modal .clinical-form label,
+.dashboard-role-director .clinical-editor-modal .clinical-form label {
+  color: #405b68;
+  font-size: .75rem;
+  font-weight: 780;
+}
+.dashboard-role-admin .clinical-editor-modal .clinical-form input,
+.dashboard-role-director .clinical-editor-modal .clinical-form input,
+.dashboard-role-admin .clinical-editor-modal .clinical-form select,
+.dashboard-role-director .clinical-editor-modal .clinical-form select,
+.dashboard-role-admin .clinical-editor-modal .clinical-form textarea,
+.dashboard-role-director .clinical-editor-modal .clinical-form textarea,
+.dashboard-role-admin .clinical-billing-modal .billing-item-row input,
+.dashboard-role-director .clinical-billing-modal .billing-item-row input {
+  min-height: 42px;
+  border-color: #d8e3e6;
+  border-radius: 8px;
+  background: #fbfdfd;
+  font-size: .8rem;
+}
+.dashboard-role-admin .clinical-editor-modal .modal-actions,
+.dashboard-role-director .clinical-editor-modal .modal-actions,
+.dashboard-role-admin .clinical-billing-modal .modal-actions,
+.dashboard-role-director .clinical-billing-modal .modal-actions {
+  position: sticky;
+  bottom: -22px;
+  margin: 4px -22px -22px;
+  padding: 14px 22px 18px;
+  border-top: 1px solid #e8eef0;
+  background: rgba(255,255,255,.97);
+}
+@media (max-width: 560px) {
+  .dashboard-role-admin .clinical-editor-modal .clinical-form,
+  .dashboard-role-director .clinical-editor-modal .clinical-form,
+  .dashboard-role-admin .clinical-billing-modal .clinical-form,
+  .dashboard-role-director .clinical-billing-modal .clinical-form {
+    padding: 15px;
+  }
+  .dashboard-role-admin .clinical-editor-modal .modal-actions,
+  .dashboard-role-director .clinical-editor-modal .modal-actions,
+  .dashboard-role-admin .clinical-billing-modal .modal-actions,
+  .dashboard-role-director .clinical-billing-modal .modal-actions {
+    margin: 4px -15px -15px;
+    padding: 12px 15px 15px;
+  }
+}
