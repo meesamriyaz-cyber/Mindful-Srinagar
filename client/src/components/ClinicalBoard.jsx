@@ -22,7 +22,8 @@ import {
   updateProgressNote,
   listPrescriptions,
   createPrescription,
-  updatePrescription
+  updatePrescription,
+  approveTreatmentPlan
 } from "../lib/api.js";
 import { ChipInput } from "./ChipInput.jsx";
 import { services, serviceCharges } from "../data/centreData.js";
@@ -50,11 +51,12 @@ const CONFIGS = {
     updateFn: updateTreatmentPlan,
     fields: [
       { name: "patient", label: "Patient", type: "patient" },
+      { name: "assessment", label: "Completed assessment", type: "assessment" },
       { name: "goals", label: "Goals", type: "textarea" },
       { name: "interventions", label: "Interventions", type: "chips", suggestions: services },
       { name: "frequency", label: "Frequency", type: "text", placeholder: "Weekly" },
       { name: "duration", label: "Duration", type: "text", placeholder: "45 minutes" },
-      { name: "status", label: "Status", type: "select", options: ["active", "completed", "on-hold"] }
+      { name: "status", label: "Status", type: "select", options: ["planned", "active", "on-hold", "completed"] }
     ]
   },
   "progress-notes": {
@@ -107,7 +109,7 @@ function describeRecord(resource, record) {
     return {
       title: `Plan - ${(record.goals || "").slice(0, 50) || "Untitled"}`,
       meta: `Frequency: ${record.frequency || "Not set"} | ${record.duration || ""}`,
-      detail: `Status: ${record.status || "pending"}`,
+      detail: `Assessment: ${record.assessment?.assessedAt ? new Date(record.assessment.assessedAt).toLocaleDateString("en-IN") : "Legacy / not linked"} · Approved: ${record.approvedAt ? new Date(record.approvedAt).toLocaleDateString("en-IN") : "Not yet"}`,
       status: record.status
     };
   }
@@ -152,6 +154,8 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   const [billingItems, setBillingItems] = useState([]);
   const [billingSaving, setBillingSaving] = useState(false);
   const [billingError, setBillingError] = useState("");
+  const [completedAssessments, setCompletedAssessments] = useState([]);
+  const [approvingId, setApprovingId] = useState("");
 
   React.useEffect(() => {
     if (!token || !config) return;
@@ -169,6 +173,31 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
     return () => { active = false; window.clearTimeout(timeoutId); };
   }, [token, config, query, refreshSignal]);
 
+  React.useEffect(() => {
+    if (activeView !== "treatment-plans" || !token) {
+      setCompletedAssessments([]);
+      return undefined;
+    }
+    let active = true;
+    listAssessments({ token, status: "completed", limit: 100 })
+      .then((items) => { if (active) setCompletedAssessments(items || []); })
+      .catch((err) => { if (active) setError(err.message); });
+    return () => { active = false; };
+  }, [activeView, token, refreshSignal]);
+
+  async function handleApprove(record) {
+    setApprovingId(record._id);
+    setError("");
+    try {
+      const approved = await approveTreatmentPlan(record._id, { token });
+      setRecords((current) => current.map((item) => item._id === record._id ? approved : item));
+    } catch (err) {
+      setError(err.message || "Treatment plan could not be approved");
+    } finally {
+      setApprovingId("");
+    }
+  }
+
   function openCreate() {
     setForm({ patient: patientId || "" });
     setEditingId(null);
@@ -181,6 +210,8 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
       let val = record[f.name];
       if (f.name === "patient") {
         val = typeof val === "object" && val !== null ? val._id : val;
+      } else if (f.name === "assessment" && val && typeof val === "object") {
+        val = val._id;
       } else if (f.type === "chips") {
         val = Array.isArray(val) ? val : (typeof val === "string" ? val.split(",").map(s => s.trim()).filter(Boolean) : []);
       } else if (Array.isArray(val)) val = val.join(", ");
@@ -315,6 +346,11 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                       >
                         Update
                       </button>
+                      {activeView === "treatment-plans" && record.status === "planned" && ["director", "admin", "doctor"].includes(userRole) && (
+                        <button className="primary-button compact-button" type="button" disabled={approvingId === record._id} onClick={() => handleApprove(record)}>
+                          {approvingId === record._id ? "Approving..." : "Approve & activate"}
+                        </button>
+                      )}
                       {activeView !== "prescriptions" && ["director", "admin", "accounts"].includes(userRole) && (
                         <button
                           className="primary-button compact-button"
@@ -378,6 +414,19 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                         <option value="">Select...</option>
                         {field.options.map(opt => (
                           <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    ) : field.type === "assessment" ? (
+                      <select
+                        value={form[field.name] || ""}
+                        onChange={(e) => setForm({ ...form, [field.name]: e.target.value })}
+                        required
+                      >
+                        <option value="">Select completed assessment...</option>
+                        {completedAssessments.filter((item) => item.patient?._id === (form.patient || patientId) || item.patient === (form.patient || patientId)).map((item) => (
+                          <option key={item._id} value={item._id}>
+                            {item.patient?.fullName || "Patient"} · {(item.domains || []).join(", ") || "Assessment"} · {new Date(item.assessedAt).toLocaleDateString("en-IN")}
+                          </option>
                         ))}
                       </select>
                     ) : field.type === "patient" ? (
