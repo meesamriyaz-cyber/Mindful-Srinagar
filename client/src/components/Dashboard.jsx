@@ -33,6 +33,7 @@ import { PractitionerBoard } from "./PractitionerBoard.jsx";
 import { PractitionerDashboard } from "./PractitionerDashboard.jsx";
 import { StaffBoard } from "./StaffBoard.jsx";
 import { ChipInput } from "./ChipInput.jsx";
+import { useAccessibleDialog } from "../hooks/useAccessibleDialog.js";
 import { serviceCharges, services } from "../data/centreData.js";
 
 const INR = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
@@ -1080,6 +1081,11 @@ export function Dashboard() {
   const [convertReferral, setConvertReferral] = useState(null);
   const [convertForm, setConvertForm] = useState({});
   const [convertSaving, setConvertSaving] = useState(false);
+  const convertDialogRef = useAccessibleDialog(Boolean(convertReferral), () => setConvertReferral(null));
+  const appointmentDialogRef = useAccessibleDialog(showAppointmentForm, () => setShowAppointmentForm(false));
+  const operationDialogRef = useAccessibleDialog(Boolean(operationModal), () => setOperationModal(null));
+  const historyDialogRef = useAccessibleDialog(Boolean(operationHistory), () => setOperationHistory(null));
+  const billingDialogRef = useAccessibleDialog(showBilling, () => setShowBilling(false));
 
   useEffect(() => {
     if (!session.token) return;
@@ -1473,13 +1479,18 @@ export function Dashboard() {
         >
           <motion.div
             className="modal"
+            ref={convertDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="convert-referral-title"
+            tabIndex={-1}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h3>Convert Enquiry to Patient</h3>
+              <h3 id="convert-referral-title">Convert Enquiry to Patient</h3>
               <button className="icon-button" type="button" onClick={() => setConvertReferral(null)}>✕</button>
             </div>
             <form onSubmit={handleConvertSubmit} className="clinical-form">
@@ -1547,9 +1558,9 @@ export function Dashboard() {
 
       {showAppointmentForm && (
         <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAppointmentForm(false)}>
-          <motion.div className="modal modal-appointment" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()}>
+          <motion.div className="modal modal-appointment" ref={appointmentDialogRef} role="dialog" aria-modal="true" aria-labelledby="appointment-dialog-title" tabIndex={-1} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>Schedule appointment</h3>
+              <h3 id="appointment-dialog-title">Schedule appointment</h3>
               <button className="icon-button" type="button" onClick={() => setShowAppointmentForm(false)}>✕</button>
             </div>
             <form className="clinical-form" onSubmit={handleAppointmentSubmit}>
@@ -1603,9 +1614,9 @@ export function Dashboard() {
 
       {operationModal && (
         <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOperationModal(null)}>
-          <motion.div className="modal modal-operation" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
+          <motion.div className="modal modal-operation" ref={operationDialogRef} role="dialog" aria-modal="true" aria-labelledby="operation-dialog-title" tabIndex={-1} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
-              <h3>{operationModal.type === "payment" ? "Record invoice payment" : "Record stock movement"}</h3>
+              <h3 id="operation-dialog-title">{operationModal.type === "payment" ? "Record invoice payment" : "Record stock movement"}</h3>
               <button className="icon-button" type="button" onClick={() => setOperationModal(null)} aria-label="Close">✕</button>
             </div>
             {actionError && <p className="form-status error-status">{actionError}</p>}
@@ -1653,9 +1664,9 @@ export function Dashboard() {
       )}
       {operationHistory && (
         <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOperationHistory(null)}>
-          <motion.div className="modal" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
+          <motion.div className="modal" ref={historyDialogRef} role="dialog" aria-modal="true" aria-labelledby="operation-history-title" tabIndex={-1} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
-              <h3>{operationHistory.type === "payment" ? "Payment history" : "Stock movement history"}</h3>
+              <h3 id="operation-history-title">{operationHistory.type === "payment" ? "Payment history" : "Stock movement history"}</h3>
               <button className="icon-button" type="button" onClick={() => setOperationHistory(null)} aria-label="Close">✕</button>
             </div>
             <p>{operationHistory.record?.invoiceNo || operationHistory.record?.name || "Record"}</p>
@@ -1696,13 +1707,18 @@ export function Dashboard() {
         >
           <motion.div
             className="modal"
+            ref={billingDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dashboard-billing-title"
+            tabIndex={-1}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h3>Generate Invoice</h3>
+              <h3 id="dashboard-billing-title">Generate Invoice</h3>
               <button className="icon-button" type="button" onClick={() => setShowBilling(false)}>✕</button>
             </div>
             <form onSubmit={async (e) => {
