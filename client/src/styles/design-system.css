@@ -4803,3 +4803,471 @@ mark.risk {
     padding: 16px;
   }
 }
+
+
+/* Admin / Director management suite — workspace, forms and interaction hierarchy */
+.dashboard-role-admin .console-header,
+.dashboard-role-director .console-header {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 22px;
+  margin: -2px 0 24px;
+  padding: 4px 0 21px;
+  border-bottom: 1px solid #dce7ea;
+}
+
+.dashboard-role-admin .console-header > div:first-child,
+.dashboard-role-director .console-header > div:first-child {
+  min-width: 220px;
+  display: grid;
+  gap: 5px;
+}
+
+.dashboard-role-admin .console-header .eyebrow,
+.dashboard-role-director .console-header .eyebrow {
+  margin: 0;
+  color: #247f83;
+  font-size: 0.67rem;
+  font-weight: 850;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.dashboard-role-admin .console-header h2,
+.dashboard-role-director .console-header h2 {
+  margin: 0;
+  color: #173f59;
+  font-size: clamp(1.45rem, 2vw, 1.9rem);
+  line-height: 1.15;
+  letter-spacing: -0.045em;
+}
+
+.dashboard-role-admin .console-user,
+.dashboard-role-director .console-user {
+  margin: 2px 0 0;
+  color: #71838d;
+  font-size: 0.76rem;
+}
+
+.dashboard-role-admin .console-tools,
+.dashboard-role-director .console-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.dashboard-role-admin .console-tools .search-box,
+.dashboard-role-director .console-tools .search-box {
+  min-width: 230px;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #d7e3e6;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 2px 7px rgba(23,63,89,0.025);
+}
+
+.dashboard-role-admin .console-tools .icon-button,
+.dashboard-role-director .console-tools .icon-button {
+  width: 42px;
+  height: 42px;
+  border: 1px solid #d7e3e6;
+  border-radius: 10px;
+  color: #496675;
+  background: #fff;
+}
+
+.dashboard-role-admin .console-tools .icon-button:hover,
+.dashboard-role-director .console-tools .icon-button:hover {
+  color: #17666b;
+  border-color: #9fc9c7;
+  background: #f2f9f8;
+}
+
+.dashboard-role-admin .sidebar,
+.dashboard-role-director .sidebar {
+  background: linear-gradient(180deg, #102f45 0%, #153e53 58%, #174b59 100%);
+  border-right: 0;
+}
+
+.dashboard-role-admin .sidebar-brand,
+.dashboard-role-director .sidebar-brand {
+  border-bottom-color: rgba(224,241,242,0.15);
+}
+
+.dashboard-role-admin .sidebar-brand .brand strong,
+.dashboard-role-director .sidebar-brand .brand strong {
+  color: #fff;
+}
+
+.dashboard-role-admin .sidebar-brand .brand small,
+.dashboard-role-director .sidebar-brand .brand small,
+.dashboard-role-admin .sidebar-context-label,
+.dashboard-role-director .sidebar-context-label {
+  color: #a9c6cd;
+}
+
+.dashboard-role-admin .sidebar-context,
+.dashboard-role-director .sidebar-context {
+  border-color: rgba(218,239,240,0.15);
+  background: rgba(255,255,255,0.07);
+}
+
+.dashboard-role-admin .sidebar-context strong,
+.dashboard-role-director .sidebar-context strong {
+  color: #f4fbfb;
+}
+
+.dashboard-role-admin .sidebar-context > span:last-child,
+.dashboard-role-director .sidebar-context > span:last-child {
+  color: #bfd4d9;
+}
+
+.dashboard-role-admin .sidebar-section-title,
+.dashboard-role-director .sidebar-section-title {
+  color: #8eafb9;
+}
+
+.dashboard-role-admin .side-link,
+.dashboard-role-director .side-link {
+  color: #d5e5e8;
+  border: 1px solid transparent;
+  background: transparent;
+}
+
+.dashboard-role-admin .side-link:hover,
+.dashboard-role-director .side-link:hover {
+  color: #fff;
+  border-color: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.08);
+}
+
+.dashboard-role-admin .side-link.active,
+.dashboard-role-director .side-link.active {
+  color: #fff;
+  border-color: rgba(130,211,201,0.28);
+  background: linear-gradient(100deg, rgba(36,127,131,0.52), rgba(36,127,131,0.2));
+  box-shadow: inset 3px 0 #79c7bd, 0 5px 14px rgba(5,22,34,0.16);
+}
+
+.dashboard-role-admin .sidebar-footer,
+.dashboard-role-director .sidebar-footer {
+  color: #a9c6cd;
+  border-top-color: rgba(224,241,242,0.15);
+}
+
+.dashboard-role-admin .resource-panel,
+.dashboard-role-director .resource-panel {
+  background: linear-gradient(180deg, #fff 0%, #fcfefe 100%);
+}
+
+.dashboard-role-admin .resource-title > svg,
+.dashboard-role-director .resource-title > svg {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  padding: 10px;
+  border: 1px solid #d7e9e8;
+  border-radius: 11px;
+  color: #17666b;
+  background: #eff8f7;
+}
+
+.dashboard-role-admin .resource-title .resource-count,
+.dashboard-role-director .resource-title .resource-count {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  padding: 5px 9px;
+  border: 1px solid #e0e9ec;
+  border-radius: 999px;
+  color: #58717e;
+  background: #f7fafb;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.dashboard-role-admin .clinical-form,
+.dashboard-role-director .clinical-form,
+.dashboard-role-admin .practitioner-form,
+.dashboard-role-director .practitioner-form,
+.dashboard-role-admin .journey-create-form,
+.dashboard-role-director .journey-create-form {
+  gap: 17px;
+}
+
+.dashboard-role-admin .clinical-form label,
+.dashboard-role-director .clinical-form label,
+.dashboard-role-admin .practitioner-form label,
+.dashboard-role-director .practitioner-form label {
+  display: grid;
+  gap: 7px;
+  color: #385363;
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.dashboard-role-admin .clinical-form input,
+.dashboard-role-admin .clinical-form select,
+.dashboard-role-admin .clinical-form textarea,
+.dashboard-role-director .clinical-form input,
+.dashboard-role-director .clinical-form select,
+.dashboard-role-director .clinical-form textarea,
+.dashboard-role-admin .practitioner-form input,
+.dashboard-role-admin .practitioner-form select,
+.dashboard-role-admin .practitioner-form textarea,
+.dashboard-role-director .practitioner-form input,
+.dashboard-role-director .practitioner-form select,
+.dashboard-role-director .practitioner-form textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 45px;
+  padding: 10px 12px;
+  border: 1px solid #d4e0e4;
+  border-radius: 9px;
+  color: #263f4e;
+  background: #fff;
+  font: inherit;
+  font-size: 0.82rem;
+  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+.dashboard-role-admin .clinical-form textarea,
+.dashboard-role-director .clinical-form textarea {
+  min-height: 96px;
+  line-height: 1.55;
+}
+
+.dashboard-role-admin .clinical-form input::placeholder,
+.dashboard-role-admin .clinical-form textarea::placeholder,
+.dashboard-role-director .clinical-form input::placeholder,
+.dashboard-role-director .clinical-form textarea::placeholder {
+  color: #9aaab2;
+}
+
+.dashboard-role-admin .clinical-form input:focus,
+.dashboard-role-admin .clinical-form select:focus,
+.dashboard-role-admin .clinical-form textarea:focus,
+.dashboard-role-director .clinical-form input:focus,
+.dashboard-role-director .clinical-form select:focus,
+.dashboard-role-director .clinical-form textarea:focus {
+  outline: none;
+  border-color: #368f90;
+  box-shadow: 0 0 0 3px rgba(36,127,131,0.12);
+}
+
+.dashboard-role-admin .form-row,
+.dashboard-role-director .form-row {
+  gap: 14px;
+}
+
+.dashboard-role-admin .modal-overlay,
+.dashboard-role-director .modal-overlay {
+  z-index: 120;
+  padding: 24px;
+  background: rgba(9,29,42,0.62);
+  backdrop-filter: blur(5px);
+}
+
+.dashboard-role-admin .modal,
+.dashboard-role-director .modal {
+  width: min(100%, 660px);
+  max-width: 660px;
+  max-height: min(88dvh, 900px);
+  overflow: auto;
+  border: 1px solid rgba(224,235,238,0.9);
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 28px 90px rgba(5,24,36,0.32);
+}
+
+.dashboard-role-admin .modal-header,
+.dashboard-role-director .modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 19px 23px;
+  border-bottom: 1px solid #e3ebed;
+  background: rgba(250,252,252,0.97);
+  backdrop-filter: blur(10px);
+}
+
+.dashboard-role-admin .modal-header h3,
+.dashboard-role-director .modal-header h3 {
+  margin: 0;
+  color: #173f59;
+  font-size: 1.08rem;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+}
+
+.dashboard-role-admin .modal-header .icon-button,
+.dashboard-role-director .modal-header .icon-button {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border: 1px solid #dce6e9;
+  border-radius: 9px;
+  color: #536c79;
+  background: #fff;
+}
+
+.dashboard-role-admin .modal > .clinical-form,
+.dashboard-role-director .modal > .clinical-form {
+  padding: 22px 23px 23px;
+}
+
+.dashboard-role-admin .modal-actions,
+.dashboard-role-director .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 7px;
+  margin-top: 3px;
+  border-top: 1px solid #e8eef0;
+}
+
+.dashboard-role-admin .primary-button,
+.dashboard-role-director .primary-button {
+  border-radius: 9px;
+  box-shadow: 0 4px 10px rgba(23,63,89,0.12);
+  font-weight: 800;
+}
+
+.dashboard-role-admin .secondary-button,
+.dashboard-role-director .secondary-button {
+  border-radius: 9px;
+  font-weight: 750;
+}
+
+.dashboard-role-admin .record-actions .secondary-button,
+.dashboard-role-director .record-actions .secondary-button {
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: 0.69rem;
+}
+
+.dashboard-role-admin .billing-item-row,
+.dashboard-role-director .billing-item-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 84px 120px 38px;
+  gap: 8px;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #e2eaed;
+  border-radius: 11px;
+  background: #f8fbfb;
+}
+
+.dashboard-role-admin .history-entry,
+.dashboard-role-director .history-entry {
+  display: grid;
+  gap: 5px;
+  padding: 13px 15px;
+  border: 1px solid #e1e9ec;
+  border-radius: 10px;
+  background: #fbfdfd;
+}
+
+.dashboard-role-admin .history-entry strong,
+.dashboard-role-director .history-entry strong {
+  color: #173f59;
+}
+
+.dashboard-role-admin .history-entry span,
+.dashboard-role-director .history-entry span {
+  color: #637985;
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.dashboard-role-admin .empty-state,
+.dashboard-role-director .empty-state {
+  padding: 18px;
+  border: 1px dashed #d5e2e6;
+  border-radius: 11px;
+  background: #f8fbfb;
+}
+
+.dashboard-role-admin button:disabled,
+.dashboard-role-director button:disabled {
+  cursor: wait;
+  opacity: .62;
+}
+
+@media (max-width: 900px) {
+  .dashboard-role-admin .console-header,
+  .dashboard-role-director .console-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .dashboard-role-admin .console-tools,
+  .dashboard-role-director .console-tools {
+    justify-content: flex-start;
+  }
+  .dashboard-role-admin .console-tools .search-box,
+  .dashboard-role-director .console-tools .search-box {
+    flex: 1 1 220px;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-role-admin .console-header,
+  .dashboard-role-director .console-header {
+    gap: 14px;
+    margin-bottom: 17px;
+    padding-bottom: 16px;
+  }
+  .dashboard-role-admin .console-tools,
+  .dashboard-role-director .console-tools {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 42px 42px;
+  }
+  .dashboard-role-admin .console-tools .sync-pill,
+  .dashboard-role-director .console-tools .sync-pill {
+    grid-column: 1 / -1;
+    width: fit-content;
+  }
+  .dashboard-role-admin .console-tools .search-box,
+  .dashboard-role-director .console-tools .search-box {
+    min-width: 0;
+    width: 100%;
+  }
+  .dashboard-role-admin .modal-overlay,
+  .dashboard-role-director .modal-overlay {
+    padding: 10px;
+  }
+  .dashboard-role-admin .modal,
+  .dashboard-role-director .modal {
+    max-height: calc(100dvh - 20px);
+    border-radius: 13px;
+  }
+  .dashboard-role-admin .modal-header,
+  .dashboard-role-director .modal-header {
+    padding: 15px 16px;
+  }
+  .dashboard-role-admin .modal > .clinical-form,
+  .dashboard-role-director .modal > .clinical-form {
+    padding: 16px;
+  }
+  .dashboard-role-admin .modal-actions,
+  .dashboard-role-director .modal-actions {
+    flex-direction: column-reverse;
+  }
+  .dashboard-role-admin .modal-actions > button,
+  .dashboard-role-director .modal-actions > button {
+    width: 100%;
+  }
+  .dashboard-role-admin .billing-item-row,
+  .dashboard-role-director .billing-item-row {
+    grid-template-columns: minmax(0, 1fr) 1fr;
+  }
+}
