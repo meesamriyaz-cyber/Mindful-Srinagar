@@ -8007,3 +8007,209 @@ mark.risk {
   background: rgba(255, 255, 255, .075);
   border-color: rgba(230, 246, 247, .3);
 }
+
+
+/* Admin/Director final screen-wide consistency pass: forms, dialogs, data and small screens. */
+.dashboard-role-admin .management-workspace-view,
+.dashboard-role-director .management-workspace-view,
+.dashboard-role-admin .management-journey-modal,
+.dashboard-role-director .management-journey-modal {
+  min-width: 0;
+}
+.dashboard-role-admin .management-workspace-view .action-panel,
+.dashboard-role-director .management-workspace-view .action-panel {
+  color: #294653;
+  background: #fff;
+}
+.dashboard-role-admin .management-workspace-view .action-panel > p,
+.dashboard-role-director .management-workspace-view .action-panel > p,
+.dashboard-role-admin .management-workspace-view .action-panel .helper-text,
+.dashboard-role-director .management-workspace-view .action-panel .helper-text {
+  color: #4b626e;
+}
+.dashboard-role-admin .management-workspace-view .clinical-form,
+.dashboard-role-director .management-workspace-view .clinical-form {
+  color: #294653;
+}
+.dashboard-role-admin .management-workspace-view .clinical-form label,
+.dashboard-role-director .management-workspace-view .clinical-form label {
+  color: #294c5b;
+}
+.dashboard-role-admin .management-workspace-view .clinical-form input,
+.dashboard-role-director .management-workspace-view .clinical-form input,
+.dashboard-role-admin .management-workspace-view .clinical-form select,
+.dashboard-role-director .management-workspace-view .clinical-form select,
+.dashboard-role-admin .management-workspace-view .clinical-form textarea,
+.dashboard-role-director .management-workspace-view .clinical-form textarea {
+  min-width: 0;
+  color: #203f4c;
+  background: #fff;
+  border: 1px solid #bdcdd1;
+}
+.dashboard-role-admin .management-workspace-view .clinical-form input::placeholder,
+.dashboard-role-director .management-workspace-view .clinical-form input::placeholder,
+.dashboard-role-admin .management-workspace-view .clinical-form textarea::placeholder,
+.dashboard-role-director .management-workspace-view .clinical-form textarea::placeholder {
+  color: #687d86;
+  opacity: 1;
+}
+.dashboard-role-admin .management-workspace-view .clinical-form input:disabled,
+.dashboard-role-director .management-workspace-view .clinical-form input:disabled,
+.dashboard-role-admin .management-workspace-view .clinical-form select:disabled,
+.dashboard-role-director .management-workspace-view .clinical-form select:disabled,
+.dashboard-role-admin .management-workspace-view .clinical-form textarea:disabled,
+.dashboard-role-director .management-workspace-view .clinical-form textarea:disabled {
+  color: #526873;
+  background: #edf2f3;
+}
+.dashboard-role-admin .management-workspace-view .form-status,
+.dashboard-role-director .management-workspace-view .form-status {
+  color: #294653;
+}
+.dashboard-role-admin .management-workspace-view .error-status,
+.dashboard-role-director .management-workspace-view .error-status {
+  color: #8b2929;
+  background: #fff1ef;
+  border-color: #e8bcb6;
+}
+.dashboard-role-admin .management-workspace-view .modal-actions,
+.dashboard-role-director .management-workspace-view .modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.dashboard-role-admin .management-workspace-view .modal-actions button,
+.dashboard-role-director .management-workspace-view .modal-actions button {
+  min-height: 39px;
+}
+.dashboard-role-admin .management-workspace-view .record-card mark,
+.dashboard-role-director .management-workspace-view .record-card mark {
+  border: 1px solid #d8e3e5;
+  color: #405b67;
+  background: #edf2f3;
+}
+.dashboard-role-admin .management-workspace-view .record-card mark.good,
+.dashboard-role-director .management-workspace-view .record-card mark.good {
+  border-color: #b8dfca;
+  color: #176044;
+  background: #e7f5ed;
+}
+.dashboard-role-admin .management-workspace-view .record-card mark.risk,
+.dashboard-role-director .management-workspace-view .record-card mark.risk {
+  border-color: #f0d0bd;
+  color: #8a3c24;
+  background: #fff0e8;
+}
+.dashboard-role-admin .management-workspace-view .record-card mark:not(.good):not(.risk),
+.dashboard-role-director .management-workspace-view .record-card mark:not(.good):not(.risk) {
+  color: #355765;
+}
+.dashboard-role-admin .management-workspace-view .history-entry,
+.dashboard-role-director .management-workspace-view .history-entry {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .management-workspace-view .history-entry span,
+.dashboard-role-director .management-workspace-view .history-entry span,
+.dashboard-role-admin .management-workspace-view .history-entry small,
+.dashboard-role-director .management-workspace-view .history-entry small {
+  color: #526873;
+}
+.dashboard-role-admin .management-workspace-view pre,
+.dashboard-role-director .management-workspace-view pre {
+  max-width: 100%;
+  overflow-x: auto;
+  color: #294653;
+  background: #f3f7f8;
+}
+.dashboard-role-admin .management-workspace-view table,
+.dashboard-role-director .management-workspace-view table {
+  color: #294653;
+}
+.dashboard-role-admin .management-workspace-view th,
+.dashboard-role-director .management-workspace-view th {
+  color: #294c5b;
+}
+.dashboard-role-admin .management-workspace-view td,
+.dashboard-role-director .management-workspace-view td {
+  color: #405b67;
+}
+.dashboard-role-admin .management-workspace-view .empty-state,
+.dashboard-role-director .management-workspace-view .empty-state {
+  color: #405b67;
+}
+.dashboard-role-admin .management-workspace-view button:focus-visible,
+.dashboard-role-director .management-workspace-view button:focus-visible,
+.dashboard-role-admin .management-journey-modal button:focus-visible,
+.dashboard-role-director .management-journey-modal button:focus-visible,
+.dashboard-role-admin .management-journey-modal input:focus-visible,
+.dashboard-role-director .management-journey-modal input:focus-visible,
+.dashboard-role-admin .management-journey-modal select:focus-visible,
+.dashboard-role-director .management-journey-modal select:focus-visible,
+.dashboard-role-admin .management-journey-modal textarea:focus-visible,
+.dashboard-role-director .management-journey-modal textarea:focus-visible {
+  outline: 3px solid rgba(39, 126, 124, .32);
+  outline-offset: 2px;
+}
+.dashboard-role-admin .management-journey-modal .journey-audit-history pre,
+.dashboard-role-director .management-journey-modal .journey-audit-history pre {
+  max-width: 100%;
+  overflow-x: auto;
+  color: #294653;
+  background: #f2f6f7;
+}
+.dashboard-role-admin .management-journey-modal .journey-audit-history small,
+.dashboard-role-director .management-journey-modal .journey-audit-history small {
+  color: #526873;
+}
+.dashboard-role-admin .management-workspace-view .resource-panel,
+.dashboard-role-director .management-workspace-view .resource-panel {
+  min-width: 0;
+}
+.dashboard-role-admin .management-workspace-view .management-record-card,
+.dashboard-role-director .management-workspace-view .management-record-card {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .dashboard-role-admin .management-workspace-view .modal,
+  .dashboard-role-director .management-workspace-view .modal,
+  .dashboard-role-admin .management-journey-modal,
+  .dashboard-role-director .management-journey-modal {
+    width: min(100% - 20px, 620px);
+    max-height: calc(100dvh - 20px);
+    overflow-y: auto;
+  }
+  .dashboard-role-admin .management-workspace-view .form-row,
+  .dashboard-role-director .management-workspace-view .form-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard-role-admin .management-workspace-view .modal-actions button,
+  .dashboard-role-director .management-workspace-view .modal-actions button {
+    flex: 1 1 140px;
+  }
+  .dashboard-role-admin .management-workspace-view .resource-panel,
+  .dashboard-role-director .management-workspace-view .resource-panel,
+  .dashboard-role-admin .management-journey-modal .journey-content,
+  .dashboard-role-director .management-journey-modal .journey-content {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+}
+@media (max-width: 480px) {
+  .dashboard-role-admin .management-workspace-view .modal,
+  .dashboard-role-director .management-workspace-view .modal,
+  .dashboard-role-admin .management-journey-modal,
+  .dashboard-role-director .management-journey-modal {
+    width: calc(100% - 12px);
+    padding: 14px;
+    border-radius: 12px;
+  }
+  .dashboard-role-admin .management-workspace-view .modal-header,
+  .dashboard-role-director .management-workspace-view .modal-header {
+    gap: 10px;
+  }
+  .dashboard-role-admin .management-workspace-view .modal-header h3,
+  .dashboard-role-director .management-workspace-view .modal-header h3 {
+    font-size: 1rem;
+  }
+}
