@@ -191,49 +191,6 @@ function LoginPanel({ onLogin }) {
 }
 
 function useResourceRecords({ activeView, token, query, refreshSignal }) {
-  useEffect(() => {
-    if (activeView !== "tasks" || !token) { setTaskPatients([]); return undefined; }
-    let active = true;
-    listRecords("patients", { token, limit: 100 }).then((items) => {
-      if (active) setTaskPatients(items || []);
-    }).catch(() => {
-      if (active) setTaskPatients([]);
-    });
-    return () => { active = false; };
-  }, [activeView, token]);
-
-  useEffect(() => {
-    if (activeView !== "tasks" || !token) { setTaskAssignees([]); return undefined; }
-    let active = true;
-    listTaskAssignees({ token }).then((items) => { if (active) setTaskAssignees(items || []); })
-      .catch(() => { if (active) setTaskAssignees([]); });
-    return () => { active = false; };
-  }, [activeView, token]);
-
-  async function submitTask(event) {
-    event.preventDefault();
-    setTaskSaving(true);
-    setTaskError("");
-    try {
-      await createRecord("tasks", {
-        title: taskForm.title.trim(),
-        ...(taskForm.patient ? { patient: taskForm.patient } : {}),
-        department: taskForm.department,
-        priority: taskForm.priority,
-        ...(taskForm.assignedTo ? { assignedTo: taskForm.assignedTo } : {}),
-        ...(taskForm.dueDate ? { dueDate: new Date(taskForm.dueDate).toISOString() } : {}),
-        status: "todo"
-      }, { token });
-      setTaskForm({ title: "", patient: "", department: "clinical", priority: "medium", dueDate: "", assignedTo: "" });
-      setShowTaskCreate(false);
-      onRefreshRecords?.();
-    } catch (error) {
-      setTaskError(error.message || "Unable to create task");
-    } finally {
-      setTaskSaving(false);
-    }
-  }
-
   const config = getViewConfig(activeView);
   const resource = config.resource;
   const [state, setState] = useState({ records: [], loading: false, error: "" });
@@ -849,6 +806,17 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
       if (active) setTaskPatients(items || []);
     }).catch(() => {
       if (active) setTaskPatients([]);
+    });
+    return () => { active = false; };
+  }, [activeView, token]);
+
+  useEffect(() => {
+    if (activeView !== "tasks" || !token) { setTaskAssignees([]); return undefined; }
+    let active = true;
+    listTaskAssignees({ token }).then((items) => {
+      if (active) setTaskAssignees(items || []);
+    }).catch(() => {
+      if (active) setTaskAssignees([]);
     });
     return () => { active = false; };
   }, [activeView, token]);
