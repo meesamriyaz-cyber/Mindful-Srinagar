@@ -1491,7 +1491,7 @@ export function Dashboard() {
           >
             <div className="modal-header">
               <h3 id="convert-referral-title">Convert Enquiry to Patient</h3>
-              <button className="icon-button" type="button" onClick={() => setConvertReferral(null)}>✕</button>
+              <button className="icon-button" type="button" aria-label="Close convert enquiry dialog" onClick={() => setConvertReferral(null)}>✕</button>
             </div>
             <form onSubmit={handleConvertSubmit} className="clinical-form">
               <label>
@@ -1561,7 +1561,7 @@ export function Dashboard() {
           <motion.div className="modal modal-appointment" ref={appointmentDialogRef} role="dialog" aria-modal="true" aria-labelledby="appointment-dialog-title" tabIndex={-1} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3 id="appointment-dialog-title">Schedule appointment</h3>
-              <button className="icon-button" type="button" onClick={() => setShowAppointmentForm(false)}>✕</button>
+              <button className="icon-button" type="button" aria-label="Close appointment dialog" onClick={() => setShowAppointmentForm(false)}>✕</button>
             </div>
             <form className="clinical-form" onSubmit={handleAppointmentSubmit}>
               {appointmentError && <p className="form-status error-status">{appointmentError}</p>}
@@ -1719,7 +1719,7 @@ export function Dashboard() {
           >
             <div className="modal-header">
               <h3 id="dashboard-billing-title">Generate Invoice</h3>
-              <button className="icon-button" type="button" onClick={() => setShowBilling(false)}>✕</button>
+              <button className="icon-button" type="button" aria-label="Close invoice dialog" onClick={() => setShowBilling(false)}>✕</button>
             </div>
             <form onSubmit={async (e) => {
               e.preventDefault();
