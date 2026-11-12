@@ -130,7 +130,13 @@ router.post("/patients/:id/discharge-close", permit("director", "admin", "recept
       { new: true, runValidators: true }
     ).populate("dischargeApprovedBy", "name role").populate("dischargeClosedBy", "name role");
     if (!updated) return res.status(409).json({ message: "Patient discharge was already closed. Reload the record." });
-    return res.json(updated);
+    const response = updated.toObject();
+    if (["reception", "coordinator"].includes(req.user.role)) {
+      delete response.dischargeSummary;
+      delete response.dischargeOutcome;
+      delete response.dischargeRecommendations;
+    }
+    return res.json(response);
   } catch (error) { return next(error); }
 });
 
