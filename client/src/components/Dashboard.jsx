@@ -250,8 +250,8 @@ function DirectorView({ data }) {
   const collectionRate = billed > 0 ? Math.min(Math.round((collected / billed) * 100), 100) : 0;
 
   return (
-    <div className="director-view" aria-label="Director performance overview">
-      <header className="director-heading">
+    <div className="director-view management-director-view" aria-label="Director performance overview">
+      <header className="director-heading management-director-heading">
         <div>
           <p className="director-section-kicker">Executive overview</p>
           <h3>Centre performance</h3>
@@ -260,7 +260,7 @@ function DirectorView({ data }) {
         <span className="director-period-label">Current month</span>
       </header>
 
-      <article className="action-panel director-panel">
+      <article className="action-panel director-panel management-financial-panel">
         <div className="director-panel-heading">
           <div className="panel-title">
             <TrendingUp size={21} />
@@ -314,7 +314,7 @@ function DirectorView({ data }) {
         )}
       </article>
 
-      <article className="table-panel director-demand-panel">
+      <article className="table-panel director-demand-panel management-analytics-panel">
         <div className="panel-title">
           <BarChart3 size={21} />
           <div>
@@ -337,7 +337,7 @@ function DirectorView({ data }) {
         </div>
       </article>
 
-      <article className="table-panel director-mix-panel">
+      <article className="table-panel director-mix-panel management-analytics-panel">
         <div className="panel-title">
           <UsersRound size={21} />
           <div>
@@ -352,7 +352,7 @@ function DirectorView({ data }) {
         </div>
       </article>
 
-      <article className="table-panel director-referral-panel">
+      <article className="table-panel director-referral-panel management-analytics-panel">
         <div className="panel-title">
           <ClipboardCheck size={21} />
           <div>
@@ -371,7 +371,7 @@ function DirectorView({ data }) {
 }
 function AppointmentList({ appointments = [] }) {
   return (
-    <div className="appointment-list">
+    <div className="appointment-list management-appointment-list">
       {appointments.length ? appointments.map((appointment) => (
         <div className="appointment-row" key={appointment._id}>
           <time>{formatTime(appointment.startsAt)}</time>
@@ -453,7 +453,7 @@ function CashWatch({ data }) {
 function OverviewWorkspace({ data, isDirector }) {
   return (
     <>
-      <div className="stats-grid">
+      <div className="stats-grid management-stats-grid">
         <StatCard
           label="Active patients"
           value={data.metrics.activePatients ?? "--"}
@@ -484,7 +484,7 @@ function OverviewWorkspace({ data, isDirector }) {
 
       {isDirector && <DirectorView data={data} />}
 
-      <div className="console-grid">
+      <div className="console-grid management-console-grid">
         <article className="table-panel">
           <div className="panel-title">
             <CalendarClock size={21} />
@@ -495,7 +495,7 @@ function OverviewWorkspace({ data, isDirector }) {
         <PriorityWork data={data} />
       </div>
 
-      <div className="console-grid lower-console-grid">
+      <div className="console-grid lower-console-grid management-console-grid">
         <CashWatch data={data} />
         <article className="action-panel">
           <div className="panel-title">
