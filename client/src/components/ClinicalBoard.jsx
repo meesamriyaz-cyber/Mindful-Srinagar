@@ -27,6 +27,7 @@ import {
   approveTreatmentPlan
 } from "../lib/api.js";
 import { ChipInput } from "./ChipInput.jsx";
+import { useAccessibleDialog } from "../hooks/useAccessibleDialog.js";
 import { services, serviceCharges } from "../data/centreData.js";
 
 const CONFIGS = {
@@ -164,6 +165,8 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   const [completedAssessments, setCompletedAssessments] = useState([]);
   const [approvingId, setApprovingId] = useState("");
   const [availableAppointments, setAvailableAppointments] = useState([]);
+  const editorDialogRef = useAccessibleDialog(showForm, () => setShowForm(false));
+  const billingDialogRef = useAccessibleDialog(showBilling, () => setShowBilling(false));
 
   React.useEffect(() => {
     if (!token || !config) return;
@@ -414,14 +417,19 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
           >
             <motion.div
               className="modal clinical-editor-modal"
+              ref={editorDialogRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="clinical-editor-title"
+              tabIndex={-1}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="modal-header">
-                <h3>{editingId ? `Update ${config.title}` : `New ${config.title}`}</h3>
-                <button className="icon-button" type="button" onClick={() => setShowForm(false)}>
+                <h3 id="clinical-editor-title">{editingId ? `Update ${config.title}` : `New ${config.title}`}</h3>
+                <button className="icon-button" type="button" aria-label="Close clinical record dialog" onClick={() => setShowForm(false)}>
                   <X size={18} />
                 </button>
               </div>
@@ -527,14 +535,19 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
           >
             <motion.div
               className="modal clinical-billing-modal"
+              ref={billingDialogRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="clinical-billing-title"
+              tabIndex={-1}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="modal-header">
-                <h3>Generate Invoice</h3>
-                <button className="icon-button" type="button" onClick={() => setShowBilling(false)}>
+                <h3 id="clinical-billing-title">Generate Invoice</h3>
+                <button className="icon-button" type="button" aria-label="Close invoice dialog" onClick={() => setShowBilling(false)}>
                   <X size={18} />
                 </button>
               </div>
