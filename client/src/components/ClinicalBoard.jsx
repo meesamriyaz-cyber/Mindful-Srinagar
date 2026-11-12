@@ -212,7 +212,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   }
 
   function openCreate() {
-    setForm({ patient: patientId || "", ...(activeView === "treatment-plans" ? { status: "planned" } : {}), ...(activeView === "progress-notes" ? { noteType: "session" } : {}) });
+    setForm({ patient: patientId || "", ...(activeView === "assessments" ? { assessmentType: "initial" } : {}), ...(activeView === "treatment-plans" ? { status: "planned" } : {}), ...(activeView === "progress-notes" ? { noteType: "session" } : {}) });
     setEditingId(null);
     setShowForm(true);
   }
@@ -439,7 +439,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                         required
                       >
                         <option value="">Select...</option>
-                        {field.options.filter((opt) => opt !== "active" || (editingId && records.find((item) => item._id === editingId)?.approvedAt)).map(opt => (
+                        {(activeView === "treatment-plans" && field.name === "status" ? field.options.filter((opt) => !editingId ? opt === "planned" : opt !== "active" || records.find((item) => item._id === editingId)?.approvedAt) : field.options).map(opt => (
                           <option key={opt} value={opt}>{opt}</option>
                         ))}
                       </select>
