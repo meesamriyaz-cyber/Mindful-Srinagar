@@ -202,6 +202,14 @@ function useResourceRecords({ activeView, token, query, refreshSignal }) {
     return () => { active = false; };
   }, [activeView, token]);
 
+  useEffect(() => {
+    if (activeView !== "tasks" || !token) { setTaskAssignees([]); return undefined; }
+    let active = true;
+    listTaskAssignees({ token }).then((items) => { if (active) setTaskAssignees(items || []); })
+      .catch(() => { if (active) setTaskAssignees([]); });
+    return () => { active = false; };
+  }, [activeView, token]);
+
   async function submitTask(event) {
     event.preventDefault();
     setTaskSaving(true);
@@ -825,7 +833,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
   const [showTaskCreate, setShowTaskCreate] = useState(false);
   const [taskSaving, setTaskSaving] = useState(false);
   const [taskError, setTaskError] = useState("");
-  const [taskForm, setTaskForm] = useState({ title: "", patient: "", department: "clinical", priority: "medium", dueDate: "" });
+  const [taskForm, setTaskForm] = useState({ title: "", patient: "", department: "clinical", priority: "medium", dueDate: "", assignedTo: "" });
   useEffect(() => {
     if (activeView !== "referrals" || !token) { setReferralOwners([]); return undefined; }
     let active = true;
@@ -855,6 +863,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
         ...(taskForm.patient ? { patient: taskForm.patient } : {}),
         department: taskForm.department,
         priority: taskForm.priority,
+        ...(taskForm.assignedTo ? { assignedTo: taskForm.assignedTo } : {}),
         ...(taskForm.dueDate ? { dueDate: new Date(taskForm.dueDate).toISOString() } : {}),
         status: "todo"
       }, { token });
