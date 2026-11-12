@@ -4321,3 +4321,287 @@ mark.risk {
     grid-template-columns: minmax(84px, 1fr) minmax(58px, 1fr) 22px;
   }
 }
+
+
+/* Admin workspace quality pass — authoritative dashboard component styling.
+   These scoped rules intentionally follow the older shared panel rules so that
+   role-specific panel themes and readable foreground colours cannot be reset. */
+.dashboard-role-admin .console,
+.dashboard-role-director .console {
+  color: #243b4a;
+  background:
+    radial-gradient(ellipse at 92% 0%, rgba(36,127,131,0.055), transparent 34%),
+    #f4f8f9;
+}
+
+.dashboard-role-admin .workspace-view,
+.dashboard-role-director .workspace-view {
+  gap: 18px;
+}
+
+.dashboard-role-admin .table-panel,
+.dashboard-role-admin .action-panel,
+.dashboard-role-director .table-panel,
+.dashboard-role-director .action-panel {
+  min-width: 0;
+  color: #314b5a;
+  border: 1px solid #dce7ea;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(23,63,89,0.045);
+}
+
+.dashboard-role-admin .panel-title,
+.dashboard-role-director .panel-title {
+  color: #247f83;
+}
+
+.dashboard-role-admin .panel-title h3,
+.dashboard-role-director .panel-title h3 {
+  color: #173f59;
+  font-size: 0.96rem;
+  line-height: 1.35;
+}
+
+.dashboard-role-admin .panel-title > svg,
+.dashboard-role-director .panel-title > svg {
+  color: #247f83;
+}
+
+.dashboard-role-admin .empty-state,
+.dashboard-role-director .empty-state {
+  color: #617582;
+  line-height: 1.55;
+}
+
+.dashboard-role-admin .record-card,
+.dashboard-role-director .record-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+  color: #334d5b;
+  border: 1px solid #dfe8eb;
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 3px 12px rgba(23,63,89,0.035);
+}
+
+.dashboard-role-admin .record-main strong,
+.dashboard-role-director .record-main strong {
+  color: #173f59;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.dashboard-role-admin .record-main span,
+.dashboard-role-director .record-main span,
+.dashboard-role-admin .record-card > p,
+.dashboard-role-director .record-card > p {
+  color: #637985;
+  font-size: 0.77rem;
+  line-height: 1.55;
+}
+
+.dashboard-role-admin .resource-panel,
+.dashboard-role-director .resource-panel {
+  padding: clamp(18px, 2vw, 25px);
+}
+
+.dashboard-role-admin .resource-title,
+.dashboard-role-director .resource-title {
+  align-items: center;
+  gap: 14px;
+  min-height: 0;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e8eef0;
+}
+
+.dashboard-role-admin .resource-title > div,
+.dashboard-role-director .resource-title > div {
+  display: grid;
+  gap: 4px;
+}
+
+.dashboard-role-admin .resource-title h3,
+.dashboard-role-director .resource-title h3 {
+  margin: 0;
+  color: #173f59;
+  font-size: 1.08rem;
+  font-weight: 850;
+  letter-spacing: -0.025em;
+}
+
+.dashboard-role-admin .resource-title .resource-description,
+.dashboard-role-director .resource-title .resource-description {
+  margin: 0;
+  color: #637985;
+  font-size: 0.76rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.dashboard-role-admin .resource-title .resource-count,
+.dashboard-role-director .resource-title .resource-count {
+  color: #55727f;
+  font-size: 0.7rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.dashboard-role-admin .appointment-row,
+.dashboard-role-director .appointment-row,
+.dashboard-role-admin .compact-record,
+.dashboard-role-director .compact-record,
+.dashboard-role-admin .priority-list > li,
+.dashboard-role-director .priority-list > li,
+.dashboard-role-admin .insight-list > *,
+.dashboard-role-director .insight-list > * {
+  color: #405a68;
+  border-color: #e1e9ec;
+  background: #f8fbfb;
+}
+
+.dashboard-role-admin .appointment-row strong,
+.dashboard-role-director .appointment-row strong,
+.dashboard-role-admin .compact-record strong,
+.dashboard-role-director .compact-record strong,
+.dashboard-role-admin .priority-list strong,
+.dashboard-role-director .priority-list strong {
+  color: #173f59;
+}
+
+.dashboard-role-admin .appointment-row span,
+.dashboard-role-director .appointment-row span,
+.dashboard-role-admin .compact-record span,
+.dashboard-role-director .compact-record span,
+.dashboard-role-admin .priority-list span,
+.dashboard-role-director .priority-list span {
+  color: #637985;
+}
+
+.dashboard-role-admin .mix-list > span,
+.dashboard-role-director .mix-list > span {
+  color: #405b68;
+  border-color: #e0e9ec;
+  background: #f7fafb;
+}
+
+.dashboard-role-admin .mix-list > span strong,
+.dashboard-role-director .mix-list > span strong {
+  color: #17666b;
+}
+
+.dashboard-role-admin .risk-stack span,
+.dashboard-role-director .risk-stack span {
+  color: #526d79;
+  border-color: #e0e9ec;
+  background: #f8fbfb;
+}
+
+.dashboard-role-admin .risk-stack strong,
+.dashboard-role-director .risk-stack strong {
+  color: #173f59;
+}
+
+.dashboard-role-admin .director-panel.action-panel,
+.dashboard-role-director .director-panel.action-panel {
+  color: #fff;
+  border-color: #1b5966;
+  background:
+    radial-gradient(circle at 94% 0%, rgba(104,191,181,0.23), transparent 34%),
+    linear-gradient(135deg, #173f59 0%, #1e5d68 100%);
+  box-shadow: 0 12px 28px rgba(23,63,89,0.14);
+}
+
+.dashboard-role-admin .director-panel.action-panel .panel-title,
+.dashboard-role-admin .director-panel.action-panel .panel-title h3,
+.dashboard-role-admin .director-panel.action-panel .panel-title svg,
+.dashboard-role-director .director-panel.action-panel .panel-title,
+.dashboard-role-director .director-panel.action-panel .panel-title h3,
+.dashboard-role-director .director-panel.action-panel .panel-title svg {
+  color: #f5fbfb;
+}
+
+.dashboard-role-admin .director-panel.action-panel .director-panel-kicker,
+.dashboard-role-director .director-panel.action-panel .director-panel-kicker {
+  color: #a9d9d2;
+}
+
+.dashboard-role-admin .director-panel.action-panel .business-grid span,
+.dashboard-role-director .director-panel.action-panel .business-grid span {
+  color: #d2e5e8;
+}
+
+.dashboard-role-admin .director-panel.action-panel .business-grid strong,
+.dashboard-role-director .director-panel.action-panel .business-grid strong {
+  color: #fff;
+}
+
+.dashboard-role-admin .director-panel.action-panel .director-insights p,
+.dashboard-role-director .director-panel.action-panel .director-insights p {
+  color: #eaf4f5;
+  border-color: rgba(255,255,255,0.16);
+  border-left: 3px solid #79c7bd;
+  background: rgba(255,255,255,0.09);
+}
+
+.dashboard-role-admin .director-panel.action-panel .director-collection-label,
+.dashboard-role-director .director-panel.action-panel .director-collection-label {
+  color: #d2e5e8;
+}
+
+.dashboard-role-admin .director-panel.action-panel .director-period-label-dark,
+.dashboard-role-director .director-panel.action-panel .director-period-label-dark {
+  color: #e5f2f2;
+}
+
+.dashboard-role-admin .director-view > .table-panel,
+.dashboard-role-director .director-view > .table-panel {
+  min-height: 210px;
+  align-content: start;
+}
+
+.dashboard-role-admin .director-view .bar-row,
+.dashboard-role-director .director-view .bar-row {
+  color: #425d6b;
+}
+
+.dashboard-role-admin .director-view .bar-row b,
+.dashboard-role-director .director-view .bar-row b {
+  color: #173f59;
+}
+
+.dashboard-role-admin .director-view .mix-list > span,
+.dashboard-role-director .director-view .mix-list > span {
+  color: #425d6b;
+}
+
+.dashboard-role-admin .form-status,
+.dashboard-role-director .form-status {
+  color: #8b3e35;
+}
+
+@media (max-width: 820px) {
+  .dashboard-role-admin .resource-title,
+  .dashboard-role-director .resource-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .dashboard-role-admin .resource-title .resource-count,
+  .dashboard-role-director .resource-title .resource-count {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 560px) {
+  .dashboard-role-admin .resource-panel,
+  .dashboard-role-director .resource-panel {
+    padding: 15px;
+  }
+  .dashboard-role-admin .record-card,
+  .dashboard-role-director .record-card {
+    padding: 15px;
+  }
+}
