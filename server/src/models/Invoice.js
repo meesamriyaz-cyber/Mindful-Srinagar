@@ -94,5 +94,5 @@ invoiceSchema.pre("findOneAndUpdate", async function validateInvoiceUpdate() {
 });
 invoiceSchema.index({ status: 1, createdAt: -1 });
 invoiceSchema.index({ patient: 1, createdAt: -1 });
-invoiceSchema.index({ "items.appointment": 1 }, { unique: true, partialFilterExpression: { "items.appointment": { $type: "objectId" } } });
+invoiceSchema.index({ "items.appointment": 1 }, { unique: true, partialFilterExpression: { status: { $in: ["draft", "paid", "partial"] }, "items.appointment": { $type: "objectId" } } });
 export const Invoice = mongoose.model("Invoice", invoiceSchema);
