@@ -4,6 +4,7 @@ import { getDashboard } from "../controllers/dashboardController.js";
 import { getPractitionerDashboard } from "../controllers/practitionerDashboardController.js";
 import { makeCrudController } from "../controllers/crudController.js";
 import { createEnquiry, convertReferralToPatient } from "../controllers/enquiryController.js";
+import { logReferralFollowUp } from "../controllers/referralController.js";
 import { permit, protect } from "../middleware/auth.js";
 import { createRateLimiter } from "../middleware/rateLimiter.js";
 import { Appointment } from "../models/Appointment.js";
@@ -30,6 +31,7 @@ import { escapeRegex } from "../utils/query.js";
 import { canTransitionPatientStatus, validateDischargeDetails } from "../security/patientLifecycle.js";
 import { validateAppointmentShape, canTransitionAppointment, findAppointmentConflict, isWithinPractitionerAvailability } from "../security/appointmentRules.js";
 import { createPractitionerPatientScope } from "../security/practitionerPatientScope.js";
+import { getNextWorkingDayDeadline } from "../security/referralRules.js";
 const router = express.Router();
 const management = ["director", "admin"];
 const reception = ["director", "admin", "reception", "coordinator"];
@@ -152,7 +154,7 @@ router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo"],
   },
   filterFields: ["status","sourceType","urgency","assignedTo"], searchableFields: ["patientName","sourceName","phone","concern"]
 }), { read: reception, write: reception, remove: management }));
-router.post("/referrals/:id/convert", permit(...reception), convertReferralToPatient);
+router.get("/referral-owners", permit(...reception), async (_req, res, next) => {\n  try {\n    const owners = await User.find({ isActive: true, role: { $in: ["director", "admin", "reception", "coordinator"] } })\n      .select("_id name role")\n      .sort({ name: 1 })\n      .lean();\n    return res.json(owners);\n  } catch (error) { return next(error); }\n});\nrouter.post("/referrals/:id/follow-ups", permit(...reception), logReferralFollowUp);\nrouter.post("/referrals/:id/convert", permit(...reception), convertReferralToPatient);
 router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient","practitioner"], {
   createFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status"],
   updateFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status","clinicalNotes"],
