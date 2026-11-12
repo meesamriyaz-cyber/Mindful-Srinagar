@@ -9502,3 +9502,57 @@ mark.risk {
   }
 }
 
+/* D6 mobile console header: prevent intrinsic-width overflow and keep
+   status, search and action controls in a predictable phone layout. */
+@media (max-width: 620px) {
+  .dashboard-shell,
+  .dashboard-shell .console,
+  .dashboard-shell .management-console-header,
+  .dashboard-shell .management-console-header > div:first-child {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dashboard-shell .management-console-header {
+    align-items: stretch;
+    padding: 15px 13px;
+  }
+
+  .dashboard-shell .management-console-header .console-tools {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px 44px;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .dashboard-shell .management-console-header .sync-pill {
+    grid-column: 1 / -1;
+    justify-self: start;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .dashboard-shell .management-console-header .search-box {
+    grid-column: 1;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .dashboard-shell .management-console-header .icon-button {
+    width: 44px;
+    min-width: 44px;
+    justify-self: end;
+  }
+
+  .dashboard-shell .management-console-header h2,
+  .dashboard-shell .management-console-header .eyebrow,
+  .dashboard-shell .management-console-header .console-user {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
+
