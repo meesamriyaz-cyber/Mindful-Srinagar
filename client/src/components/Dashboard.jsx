@@ -650,9 +650,8 @@ function toDateTimeLocal(value) {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
 }
 
-function ReferralNotesEditor({ record, onSave, saving, token, onFollowUpLogged }) {
+function ReferralNotesEditor({ record, onSave, saving, token, owners, onFollowUpLogged }) {
   const [notes, setNotes] = useState(record.notes || "");
-  const [owners, setOwners] = useState([]);
   const [ownerId, setOwnerId] = useState(record.assignedTo?._id || record.assignedTo || "");
   const [followUpDate, setFollowUpDate] = useState(toDateTimeLocal(record.followUpDate));
   const [method, setMethod] = useState("phone");
@@ -667,16 +666,6 @@ function ReferralNotesEditor({ record, onSave, saving, token, onFollowUpLogged }
     setOwnerId(record.assignedTo?._id || record.assignedTo || "");
     setFollowUpDate(toDateTimeLocal(record.followUpDate));
   }, [record._id, record.notes, record.assignedTo, record.followUpDate]);
-
-  useEffect(() => {
-    let active = true;
-    listReferralOwners({ token }).then((items) => {
-      if (active) setOwners(items || []);
-    }).catch(() => {
-      if (active) setOwners([]);
-    });
-    return () => { active = false; };
-  }, [token]);
 
   async function submitFollowUp(event) {
     event.preventDefault();
@@ -794,6 +783,14 @@ function ReferralNotesEditor({ record, onSave, saving, token, onFollowUpLogged }
 }
 
 function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError, userRole, token, onRefreshRecords, onCreateAppointment }) {
+  const [referralOwners, setReferralOwners] = useState([]);
+  useEffect(() => {
+    if (activeView !== "referrals" || !token) { setReferralOwners([]); return undefined; }
+    let active = true;
+    listReferralOwners({ token }).then((items) => { if (active) setReferralOwners(items || []); })
+      .catch(() => { if (active) setReferralOwners([]); });
+    return () => { active = false; };
+  }, [activeView, token]);
   const config = getViewConfig(activeView);
   const Icon = config.icon;
 
@@ -848,6 +845,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                         record={record}
                         saving={actionId === record._id}
                         token={token}
+                        owners={referralOwners}
                         onFollowUpLogged={onRefreshRecords}
                         onSave={(updates) => onRecordAction(config.resource, record._id, updates, { action: "save-notes" })}
                       />
