@@ -304,3 +304,18 @@ export function approveTreatmentPlan(id, { token } = {}) {
     method: "POST"
   });
 }
+
+export function approvePatientDischarge(id, payload, { token } = {}) {
+  return apiRequest(`/patients/${id}/discharge-approval`, {
+    token,
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export function closePatientDischarge(id, { token } = {}) {
+  return apiRequest(`/patients/${id}/discharge-close`, {
+    token,
+    method: "POST"
+  });
+}
