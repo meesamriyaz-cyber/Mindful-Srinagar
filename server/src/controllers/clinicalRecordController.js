@@ -48,7 +48,7 @@ export function makeClinicalRecordController({
         const offset = parseOffset(skip);
         const [total, records] = await Promise.all([
           Model.countDocuments(filter),
-          populateQuery(Model.find(filter)).sort({ [sortField]: -1 }).skip(offset).limit(pageSize)
+          populateQuery(Model.find(filter)).sort({ [sortField]: -1, _id: -1 }).skip(offset).limit(pageSize)
         ]);
         res.set("X-Total-Count", String(total));
         res.set("X-Has-More", String(offset + records.length < total));
