@@ -883,7 +883,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
           <h3>{config.label}</h3>
           <span>{records.length} record(s) loaded</span>
         </div>
-        {activeView === "tasks" && ["director","admin","reception","coordinator","doctor","therapist"].includes(userRole) && (
+        {activeView === "tasks" && ["director","admin","reception","coordinator"].includes(userRole) && (
           <button className="primary-button compact-button" type="button" onClick={() => setShowTaskCreate((value) => !value)}><Plus size={15} /> New task</button>
         )}
         {activeView === "appointments" && ["director","admin","reception","coordinator"].includes(userRole) && (
