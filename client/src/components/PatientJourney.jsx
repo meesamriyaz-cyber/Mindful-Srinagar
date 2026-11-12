@@ -95,6 +95,9 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     prescriptions: [],
     invoices: []
   });
+  const [pageInfo, setPageInfo] = useState({});
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [timelineError, setTimelineError] = useState("");
   const [loading, setLoading] = useState(true);
   const [activeStep, setActiveStep] = useState(() => ["doctor", "therapist"].includes(userRole) ? "appointments" : "referral");
   const [showDischarge, setShowDischarge] = useState(false);
@@ -122,24 +125,8 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
 
     async function loadJourney() {
       try {
-        async function loadMoreHistory() {
-    const resource = activeStep;
-    const current = pageInfo[resource];
-    if (!current?.hasMore || loadingMore || resource === "referral") return;
-    setLoadingMore(true);
-    setTimelineError("");
-    try {
-      const page = await listRecordsPage(resource, { token, patientId: patient._id, limit: 20, skip: current.nextOffset });
-      setData((existing) => ({ ...existing, [resource]: [...(existing[resource] || []), ...page.records] }));
-      setPageInfo((existing) => ({ ...existing, [resource]: page }));
-    } catch (error) {
-      setTimelineError(error.message || "Unable to load more patient history");
-    } finally {
-      setLoadingMore(false);
-    }
-  }
+        const canViewClinical = ["director", "admin", "doctor", "therapist"].includes(userRole);
 
-  const canViewClinical = ["director", "admin", "doctor", "therapist"].includes(userRole);
         const canViewReferral = ["director", "admin", "reception", "coordinator"].includes(userRole);
         const canViewPrescriptions = ["director", "admin", "doctor"].includes(userRole);
         const canViewBilling = ["director", "admin", "accounts", "reception"].includes(userRole);
@@ -195,6 +182,23 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const isDischarged = patient?.status === "discharged";
   const canCreate = ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeStep);
   const canApprovePlans = ["director", "admin", "doctor"].includes(userRole);
+
+  async function loadMoreHistory() {
+    const resource = activeStep;
+    const current = pageInfo[resource];
+    if (!current?.hasMore || loadingMore || resource === "referral") return;
+    setLoadingMore(true);
+    setTimelineError("");
+    try {
+      const page = await listRecordsPage(resource, { token, patientId: patient._id, limit: 20, skip: current.nextOffset });
+      setData((existing) => ({ ...existing, [resource]: [...(existing[resource] || []), ...page.records] }));
+      setPageInfo((existing) => ({ ...existing, [resource]: page }));
+    } catch (error) {
+      setTimelineError(error.message || "Unable to load more patient history");
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   function formatDate(val) {
     if (!val) return "--";
