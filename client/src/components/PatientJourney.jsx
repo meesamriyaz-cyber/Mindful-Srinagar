@@ -362,21 +362,21 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           </div>
         )}
 
-        <div className="journey-steps">
+        <div className="journey-steps" role="group" aria-label="Patient journey sections">
           {steps.map((step) => {
             const Icon = STEP_ICONS[step];
             const selected = activeStep === step;
             const count = Array.isArray(data[step]) ? data[step].length : (data[step] ? 1 : 0);
             return (
-              <button
+              <div
                 key={step}
                 className={`journey-step ${selected ? "is-active" : ""}`}
-                type="button"
-                onClick={() => { setActiveStep(step); setCreateStep(null); }}
               >
+                <button className="journey-step-select" type="button" aria-pressed={selected} onClick={() => { setActiveStep(step); setCreateStep(null); }}>
                 <Icon size={18} />
                 <span>{STEP_LABELS[step]}</span>
                 <small>{count}</small>
+                </button>
                 {canCreate && activeStep === step && (
                   <button
                     className="journey-new-btn"
@@ -387,7 +387,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                     <Plus size={14} />
                   </button>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
