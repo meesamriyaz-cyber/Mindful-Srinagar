@@ -137,8 +137,20 @@ router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo", 
   updateFields: ["sourceType","sourceName","contactPerson","contactRelationship","phone","email","patientName","patientAge","guardianName","guardianRelationship","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
   validateUpdate: async ({ req, payload }) => {
     if (payload.status === "converted") return { statusCode: 409, message: "Use the Convert to Patient action to preserve referral and patient linkage" };
-    const current = await Referral.findById(req.params.id).select("status");
+    const current = await Referral.findById(req.params.id).select("status assignedTo followUpDate");
     if (!current) return { statusCode: 404, message: "Referral not found" };
+    if (payload.assignedTo) {
+      if (!mongoose.isValidObjectId(payload.assignedTo)) return { statusCode: 400, message: "Select a valid referral owner" };
+      const owner = await User.findOne({
+        _id: payload.assignedTo,
+        isActive: true,
+        role: { $in: ["director", "admin", "reception", "coordinator"] }
+      }).select("_id");
+      if (!owner) return { statusCode: 400, message: "Assign referrals only to active reception, coordinator or management staff" };
+    }
+    if (payload.followUpDate && !Number.isFinite(new Date(payload.followUpDate).getTime())) {
+      return { statusCode: 400, message: "Enter a valid follow-up date" };
+    }
     const allowed = {
       new: ["contacted", "scheduled", "lost"],
       contacted: ["scheduled", "lost"],
