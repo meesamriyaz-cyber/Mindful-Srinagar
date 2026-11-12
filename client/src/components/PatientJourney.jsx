@@ -591,7 +591,6 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                     <div className="discharge-approval-summary">
                       <p>Clinical approval recorded on {formatDate(patient.dischargeApprovedAt)} by {patient.dischargeApprovedBy?.name || "clinical lead"}.</p>
                       <p><strong>Reason:</strong> {patient.dischargeReason}</p>
-                      <p><strong>Outcome:</strong> {patient.dischargeOutcome}</p>
                       <p>Readiness checks will be repeated before the patient is closed.</p>
                     </div>
                   ) : (
