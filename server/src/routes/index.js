@@ -31,7 +31,7 @@ import { canTransitionTask, validateTaskPayload } from "../security/taskRules.js
 import { taskManagers, taskScope } from "../security/taskAccess.js";
 import { calculateOutstandingBalance } from "../utils/invoiceBalance.js";
 import { escapeRegex } from "../utils/query.js";
-import { canTransitionPatientStatus, validateDischargeDetails } from "../security/patientLifecycle.js";
+import { canTransitionPatientStatus } from "../security/patientLifecycle.js";
 import { canActivatePatient } from "../security/carePlanRules.js";
 import { validateDischargeApprovalPayload, validateDischargeReadiness, canCloseDischarge } from "../security/dischargeRules.js";
 import { validateAppointmentShape, canTransitionAppointment, findAppointmentConflict, isWithinPractitionerAvailability } from "../security/appointmentRules.js";
@@ -382,10 +382,6 @@ router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo", "patient
       const linkedPatient = await Patient.findOne({ _id: payload.patient, status: { $ne: "discharged" }, dischargeApprovedAt: null }).select("_id");
       if (!linkedPatient) return { statusCode: 409, message: "Link tasks only to patients who are open and not awaiting discharge closure" };
     }
-    if (payload.patient) {
-      const linkedPatient = await Patient.findOne({ _id: payload.patient, status: { $ne: "discharged" }, dischargeApprovedAt: null }).select("_id");
-      if (!linkedPatient) return { statusCode: 409, message: "Link tasks only to patients who are open and not awaiting discharge closure" };
-    }
     if (payload.assignedTo) {
       const assignee = await User.findOne({ _id: payload.assignedTo, isActive: true }).select("_id");
       if (!assignee) return { statusCode: 400, message: "Assign tasks only to an active staff account" };
@@ -400,6 +396,10 @@ router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo", "patient
     if (!current) return { statusCode: 404, message: "Task not found" };
     if (payload.status && !canTransitionTask(current.status, payload.status)) {
       return { statusCode: 409, message: "Task cannot move from " + current.status + " to " + payload.status };
+    }
+    if (payload.patient) {
+      const linkedPatient = await Patient.findOne({ _id: payload.patient, status: { $ne: "discharged" }, dischargeApprovedAt: null }).select("_id");
+      if (!linkedPatient) return { statusCode: 409, message: "Link tasks only to patients who are open and not awaiting discharge closure" };
     }
     if (payload.assignedTo) {
       const assignee = await User.findOne({ _id: payload.assignedTo, isActive: true }).select("_id");
