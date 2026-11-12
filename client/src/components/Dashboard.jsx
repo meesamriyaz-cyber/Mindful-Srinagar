@@ -457,28 +457,25 @@ function DirectorWelcome({ data }) {
     day: "numeric",
     month: "long"
   }).format(new Date());
-  const appointmentCount = Number(metrics.appointmentsToday || 0);
-  const urgentReferralCount = Number(metrics.urgentReferrals || 0);
-  const overdueTaskCount = Number(metrics.overdueTasks || 0);
   const pulseItems = [
     {
       label: "Appointments today",
-      value: appointmentCount >= 12 ? "12+" : appointmentCount,
-      note: appointmentCount >= 12 ? "12 or more scheduled" : `${metrics.checkedInToday ?? 0} checked in so far`,
+      value: metrics.appointmentsToday ?? 0,
+      note: `${metrics.checkedInToday ?? 0} checked in so far`,
       icon: CalendarClock,
       tone: "teal"
     },
     {
       label: "Urgent referrals",
-      value: urgentReferralCount >= 8 ? "8+" : urgentReferralCount,
-      note: urgentReferralCount >= 8 ? "Priority list reached its 8-item limit" : "Require priority contact",
+      value: metrics.urgentReferrals ?? 0,
+      note: "Require priority contact",
       icon: AlertTriangle,
       tone: "amber"
     },
     {
       label: "Overdue tasks",
-      value: overdueTaskCount >= 8 ? "8+" : overdueTaskCount,
-      note: overdueTaskCount >= 8 ? "At least 8 need follow-up" : "Need an owner and next step",
+      value: metrics.overdueTasks ?? 0,
+      note: "Need an owner and next step",
       icon: ClipboardCheck,
       tone: "coral"
     }
@@ -1374,7 +1371,7 @@ export function Dashboard() {
   }
 
   return (
-    <section className="dashboard-section dashboard-app-section" id="dashboard">
+    <section className="dashboard-section" id="dashboard">
       <div className={`dashboard-shell dashboard-role-${session.user?.role || "staff"}`}>
         <aside className="sidebar" aria-label="Staff workspace navigation">
           <div className="sidebar-brand">
