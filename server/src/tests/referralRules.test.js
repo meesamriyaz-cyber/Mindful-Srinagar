@@ -12,7 +12,7 @@ test("referral follow-up deadline is the next working day at 5 PM India time", (
 
 test("referral follow-up deadline respects India local date around UTC midnight", () => {
   const utcPreviousDay = new Date("2026-11-12T20:00:00.000Z");
-  assert.equal(getNextWorkingDayDeadline(utcPreviousDay).toISOString(), "2026-11-13T11:30:00.000Z");
+  assert.equal(getNextWorkingDayDeadline(utcPreviousDay).toISOString(), "2026-11-16T11:30:00.000Z");
 });
 
 test("open referral is overdue only after its follow-up deadline", () => {
