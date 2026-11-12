@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const taskSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true, maxlength: 180 },
+  patient: { type: mongoose.Schema.Types.ObjectId, ref: "Patient" },
   department: { type: String, enum: ["front-desk", "clinical", "accounts", "outreach", "operations"], default: "operations" },
   assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   dueDate: Date,
