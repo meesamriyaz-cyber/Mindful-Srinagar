@@ -4605,3 +4605,201 @@ mark.risk {
     padding: 15px;
   }
 }
+
+
+/* Admin data cards and reporting surfaces: final content-density pass */
+.dashboard-role-admin .record-grid,
+.dashboard-role-director .record-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 285px), 1fr));
+  align-items: stretch;
+  gap: 13px;
+}
+
+.dashboard-role-admin .record-card,
+.dashboard-role-director .record-card {
+  min-height: 156px;
+  padding: 17px;
+  grid-template-rows: auto 1fr auto;
+}
+
+.dashboard-role-admin .record-main,
+.dashboard-role-director .record-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dashboard-role-admin .record-main > div,
+.dashboard-role-director .record-main > div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.dashboard-role-admin .record-main strong,
+.dashboard-role-director .record-main strong {
+  overflow-wrap: anywhere;
+  letter-spacing: -0.012em;
+}
+
+.dashboard-role-admin .record-main span,
+.dashboard-role-director .record-main span {
+  overflow-wrap: anywhere;
+}
+
+.dashboard-role-admin .record-card > p,
+.dashboard-role-director .record-card > p {
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid #edf1f2;
+}
+
+.dashboard-role-admin .record-card mark,
+.dashboard-role-director .record-card mark {
+  flex: 0 0 auto;
+  max-width: 42%;
+  padding: 5px 8px;
+  border: 1px solid #dce8e9;
+  border-radius: 6px;
+  color: #55717c;
+  background: #f3f7f8;
+  font-size: 0.62rem;
+  font-weight: 850;
+  line-height: 1.2;
+  text-transform: capitalize;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-role-admin .record-card mark.good,
+.dashboard-role-director .record-card mark.good {
+  border-color: #cce7dc;
+  color: #267253;
+  background: #eff9f4;
+}
+
+.dashboard-role-admin .record-card mark.risk,
+.dashboard-role-director .record-card mark.risk {
+  border-color: #f0d4cf;
+  color: #a04439;
+  background: #fff4f1;
+}
+
+.dashboard-role-admin .record-actions,
+.dashboard-role-director .record-actions {
+  align-items: center;
+  padding-top: 4px;
+}
+
+.dashboard-role-admin .referral-notes-editor,
+.dashboard-role-director .referral-notes-editor {
+  display: grid;
+  gap: 9px;
+  padding: 12px;
+  border: 1px solid #e2eaed;
+  border-radius: 10px;
+  background: #f8fbfb;
+}
+
+.dashboard-role-admin .referral-notes-editor label,
+.dashboard-role-director .referral-notes-editor label {
+  display: grid;
+  gap: 7px;
+  color: #365363;
+  font-size: 0.73rem;
+  font-weight: 750;
+}
+
+.dashboard-role-admin .referral-notes-editor textarea,
+.dashboard-role-director .referral-notes-editor textarea {
+  width: 100%;
+  min-height: 76px;
+  padding: 10px 11px;
+  border: 1px solid #d4e0e4;
+  border-radius: 8px;
+  color: #243f4e;
+  background: #fff;
+  font: inherit;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.dashboard-role-admin .reports-grid,
+.dashboard-role-director .reports-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: stretch;
+}
+
+.dashboard-role-admin .reports-grid > article,
+.dashboard-role-director .reports-grid > article {
+  min-width: 0;
+  min-height: 190px;
+  padding: 20px;
+  border: 1px solid #dce7ea;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(23,63,89,0.04);
+}
+
+.dashboard-role-admin .reports-grid .panel-title,
+.dashboard-role-director .reports-grid .panel-title {
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.dashboard-role-admin .reports-grid .panel-title > div,
+.dashboard-role-director .reports-grid .panel-title > div {
+  display: grid;
+  gap: 4px;
+}
+
+.dashboard-role-admin .reports-grid .panel-title h3,
+.dashboard-role-director .reports-grid .panel-title h3 {
+  margin: 0;
+  color: #173f59;
+  font-size: 0.96rem;
+}
+
+.dashboard-role-admin .reports-grid .director-panel,
+.dashboard-role-director .reports-grid .director-panel {
+  color: #fff;
+  border-color: #1b5966;
+  background: linear-gradient(135deg, #173f59, #1e5d68);
+}
+
+.dashboard-role-admin .reports-grid .director-panel .panel-title,
+.dashboard-role-admin .reports-grid .director-panel .panel-title h3,
+.dashboard-role-director .reports-grid .director-panel .panel-title,
+.dashboard-role-director .reports-grid .director-panel .panel-title h3 {
+  color: #fff;
+}
+
+.dashboard-role-admin .reports-grid .insight-list p,
+.dashboard-role-director .reports-grid .insight-list p {
+  color: #eaf4f5;
+  border-left: 3px solid #79c7bd;
+  background: rgba(255,255,255,0.09);
+}
+
+@media (max-width: 760px) {
+  .dashboard-role-admin .reports-grid,
+  .dashboard-role-director .reports-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .dashboard-role-admin .record-card,
+  .dashboard-role-director .record-card {
+    min-height: 0;
+    padding: 14px;
+  }
+  .dashboard-role-admin .reports-grid > article,
+  .dashboard-role-director .reports-grid > article {
+    min-height: 0;
+    padding: 16px;
+  }
+}
