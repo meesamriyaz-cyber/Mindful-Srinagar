@@ -8921,7 +8921,7 @@ mark.risk {
 
 /* Homepage header: avoid repeating the centre identity already shown in the hero. */
 .site-header-home .brand {
-  display: none;
+  visibility: hidden;
 }
 
 .hero-identity-line .hero-identity-location {
