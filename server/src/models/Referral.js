@@ -13,6 +13,7 @@ const referralSchema = new mongoose.Schema(
     phone: { type: String, trim: true },
     email: { type: String, trim: true, lowercase: true },
     patientName: { type: String, required: true, trim: true },
+    patientAge: { type: Number, min: 0, max: 120 },
     guardianName: { type: String, trim: true },
     guardianRelationship: { type: String, trim: true, maxlength: 80 },
     concern: { type: String, required: true, trim: true },
