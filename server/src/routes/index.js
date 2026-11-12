@@ -378,6 +378,16 @@ router.use("/inventory", crudRoutes(makeCrudController(InventoryItem, [], {
   updateFields: ["name","category","reorderLevel","unit","vendor","notes"],
   filterFields: ["category"], searchableFields: ["name","category","vendor"]
 }), { read: ["director","admin","coordinator"], write: management, remove: management }));
+router.get("/task-assignees", permit("director", "admin", "reception", "coordinator"), async (_req, res, next) => {
+  try {
+    const assignees = await User.find({
+      isActive: true,
+      role: { $in: ["director", "admin", "reception", "coordinator", "doctor", "therapist", "accounts"] }
+    }).select("_id name role").sort({ name: 1 }).lean();
+    return res.json(assignees);
+  } catch (error) { return next(error); }
+});
+
 router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo", "patient"], {
   createFields: ["title","patient","department","assignedTo","dueDate","priority","status"],
   updateFields: ["title","patient","department","assignedTo","dueDate","priority","status"],
@@ -387,6 +397,7 @@ router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo", "patient
   validateCreate: async ({ payload }) => {
     const error = validateTaskPayload(payload);
     if (error) return { statusCode: 400, message: error };
+    if (payload.patient && !payload.assignedTo) return { statusCode: 400, message: "Assign a patient-linked task to a responsible staff member" };
     if (payload.patient) {
       const linkedPatient = await Patient.findOne({ _id: payload.patient, status: { $ne: "discharged" }, dischargeApprovedAt: null }).select("_id");
       if (!linkedPatient) return { statusCode: 409, message: "Link tasks only to patients who are open and not awaiting discharge closure" };
