@@ -31,7 +31,6 @@ import { escapeRegex } from "../utils/query.js";
 import { canTransitionPatientStatus, validateDischargeDetails } from "../security/patientLifecycle.js";
 import { validateAppointmentShape, canTransitionAppointment, findAppointmentConflict, isWithinPractitionerAvailability } from "../security/appointmentRules.js";
 import { createPractitionerPatientScope } from "../security/practitionerPatientScope.js";
-import { getNextWorkingDayDeadline } from "../security/referralRules.js";
 const router = express.Router();
 const management = ["director", "admin"];
 const reception = ["director", "admin", "reception", "coordinator"];
