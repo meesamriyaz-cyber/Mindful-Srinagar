@@ -11,6 +11,7 @@ const taskSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 taskSchema.index({ status: 1, dueDate: 1 });
+taskSchema.index({ patient: 1, status: 1 });
 taskSchema.index({ department: 1, priority: 1 });
 taskSchema.index({ assignedTo: 1, status: 1, dueDate: 1 });
 export const Task = mongoose.model("Task", taskSchema);
