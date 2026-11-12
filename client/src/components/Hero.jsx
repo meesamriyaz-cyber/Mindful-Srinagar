@@ -16,7 +16,7 @@ export function Hero() {
           <p className="hero-identity-name">Mindful</p>
           <p className="hero-identity-description">
             <span className="hero-identity-line">Centre for Rehabilitation Research &amp; Training Foundation</span>
-            <span className="hero-identity-line">for <strong>Persons with Disabilities</strong>, <span className="hero-identity-location">Srinagar</span></span>
+            <span className="hero-identity-line">For <strong>Persons with Disabilities</strong>, <span className="hero-identity-location">Srinagar</span></span>
           </p>
         </div>
         <p className="hero-lede">
