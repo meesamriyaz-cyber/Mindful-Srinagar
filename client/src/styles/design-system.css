@@ -8567,3 +8567,26 @@ mark.risk {
   border-left: 3px solid #79c7bd;
   background: #f4f9f8;
 }
+
+
+/* Doctor/Therapist sidebar context: light card requires dark, readable typography. */
+.dashboard-role-doctor .sidebar .sidebar-context,
+.dashboard-role-therapist .sidebar .sidebar-context {
+  border: 1px solid rgba(220, 235, 238, .9);
+  background: #eaf1f3;
+  box-shadow: 0 8px 18px rgba(5, 25, 38, .12);
+}
+.dashboard-role-doctor .sidebar .sidebar-context .sidebar-context-label,
+.dashboard-role-therapist .sidebar .sidebar-context .sidebar-context-label {
+  color: #42616c;
+  font-weight: 900;
+}
+.dashboard-role-doctor .sidebar .sidebar-context strong,
+.dashboard-role-therapist .sidebar .sidebar-context strong {
+  color: #173f59;
+  font-weight: 850;
+}
+.dashboard-role-doctor .sidebar .sidebar-context > span:last-child,
+.dashboard-role-therapist .sidebar .sidebar-context > span:last-child {
+  color: #526873;
+}
