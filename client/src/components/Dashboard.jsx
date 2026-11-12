@@ -761,7 +761,7 @@ function ReferralNotesEditor({ record, onSave, saving, token, owners, onFollowUp
           <textarea rows={2} minLength={3} maxLength={1000} value={followUpNote} onChange={(event) => setFollowUpNote(event.target.value)} required placeholder="Who was contacted, what was discussed and the agreed next step..." />
         </label>
         <label>Next follow-up (if needed)
-          <input type="datetime-local" value={nextFollowUpAt} onChange={(event) => setNextFollowUpAt(event.target.value)} />
+          <input type="datetime-local" value={nextFollowUpAt} onChange={(event) => setNextFollowUpAt(event.target.value)} required={!["appointment-booked", "not-interested"].includes(outcome)} />
         </label>
         {error && <p className="form-status error-status">{error}</p>}
         <button className="secondary-button compact-button" type="submit" disabled={logging}>{logging ? "Saving..." : "Add follow-up to history"}</button>
