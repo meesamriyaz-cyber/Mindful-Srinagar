@@ -936,8 +936,9 @@ export function Dashboard() {
         setConvertForm({
           fullName: referral.patientName || "",
           phone: referral.phone || "",
-          guardianName: "",
-          age: "",
+          guardianName: referral.guardianName || "",
+          guardianRelationship: referral.guardianRelationship || "",
+          age: referral.patientAge == null ? "" : String(referral.patientAge),
           gender: "",
           address: "",
           primaryConcern: referral.concern || "",
@@ -991,6 +992,7 @@ export function Dashboard() {
           fullName: convertForm.fullName,
           phone: convertForm.phone,
           guardianName: convertForm.guardianName || undefined,
+          guardianRelationship: convertForm.guardianRelationship || undefined,
           age: convertForm.age ? Number(convertForm.age) : undefined,
           gender: convertForm.gender || undefined,
           address: convertForm.address || undefined,
@@ -1187,10 +1189,16 @@ export function Dashboard() {
                 Phone
                 <input type="text" value={convertForm.phone || ""} onChange={(e) => setConvertForm({ ...convertForm, phone: e.target.value })} required />
               </label>
-              <label>
-                Guardian Name
-                <input type="text" value={convertForm.guardianName || ""} onChange={(e) => setConvertForm({ ...convertForm, guardianName: e.target.value })} />
-              </label>
+              <div className="form-row">
+                <label>
+                  Guardian Name
+                  <input type="text" value={convertForm.guardianName || ""} onChange={(e) => setConvertForm({ ...convertForm, guardianName: e.target.value })} />
+                </label>
+                <label>
+                  Guardian Relationship
+                  <input type="text" value={convertForm.guardianRelationship || ""} onChange={(e) => setConvertForm({ ...convertForm, guardianRelationship: e.target.value })} placeholder="Parent, uncle, spouse..." />
+                </label>
+              </div>
               <div className="form-row">
                 <label>
                   Age
