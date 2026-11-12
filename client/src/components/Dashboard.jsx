@@ -667,7 +667,7 @@ function ReportsView({ data }) {
   const appointmentStatus = Object.entries(data?.analytics?.appointmentStatusToday || {});
 
   return (
-    <div className="reports-grid">
+    <div className="reports-grid management-reports-grid">
       <article className="action-panel director-panel">
         <div className="panel-title">
           <FileText size={21} />
@@ -751,13 +751,13 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
   const records = state.records || [];
 
   return (
-    <article className="table-panel resource-panel">
-      <div className="panel-title resource-title">
+    <article className={`table-panel resource-panel resource-panel-${activeView}`}>
+      <div className="panel-title resource-title management-resource-heading">
         <Icon size={21} />
         <div>
           <h3>{config.label}</h3>
           <p className="resource-description">{viewDescriptions[activeView]}</p>
-          <span className="resource-count">{records.length} {records.length === 1 ? "record" : "records"} loaded</span>
+          <span className="resource-count" aria-live="polite">{records.length} {records.length === 1 ? "record" : "records"} loaded</span>
         </div>
         {activeView === "appointments" && ["director","admin","reception","coordinator"].includes(userRole) && (
           <button className="primary-button compact-button" type="button" onClick={onCreateAppointment}><Plus size={15} /> New appointment</button>
@@ -769,13 +769,13 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
       {!state.loading && !state.error && (
         <AnimatePresence mode="popLayout">
           {records.length ? (
-            <div className="record-grid">
+            <div className={`record-grid management-record-grid management-record-grid-${activeView}`}>
               {records.map((record) => {
                 const summary = describeRecord(activeView, record);
                 const actions = recordActions(activeView, record, userRole);
                 return (
                   <motion.div
-                    className="record-card"
+                    className={`record-card management-record-card management-record-card-${activeView}`}
                     key={record._id}
                     layout
                     initial={{ opacity: 0, y: 8 }}
@@ -783,14 +783,14 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="record-main">
+                    <div className="record-main management-record-main">
                       <div>
                         <strong>{summary.title || "Untitled record"}</strong>
-                        <span>{summary.meta}</span>
+                        <span className="management-record-meta">{summary.meta}</span>
                       </div>
                       <mark className={statusClass(summary.status)}>{summary.status || "open"}</mark>
                     </div>
-                    <p>{summary.detail}</p>
+                    <p className="management-record-detail">{summary.detail}</p>
                     {activeView === "referrals" && (
                       <ReferralNotesEditor
                         record={record}
@@ -799,7 +799,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                       />
                     )}
                     {actions.length > 0 && (
-                      <div className="record-actions">
+                      <div className="record-actions management-record-actions">
                         {actions.map((action) => (
                           <button
                             className="secondary-button compact-button"
