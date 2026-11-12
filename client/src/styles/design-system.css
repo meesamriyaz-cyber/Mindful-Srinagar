@@ -6186,3 +6186,249 @@ mark.risk {
     padding: 14px;
   }
 }
+
+
+/* Patient journey: an intentional clinical timeline rather than a generic modal. */
+.dashboard-role-admin .management-journey-modal,
+.dashboard-role-director .management-journey-modal {
+  width: min(1120px, calc(100vw - 36px));
+  max-width: 1120px;
+  max-height: min(90vh, 920px);
+  overflow: hidden;
+  border: 1px solid #dce7e9;
+  border-radius: 15px;
+  background: #f9fbfb;
+  box-shadow: 0 28px 80px rgba(10,35,48,.24);
+}
+.dashboard-role-admin .journey-header,
+.dashboard-role-director .journey-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e3ebed;
+  background: #fff;
+}
+.dashboard-role-admin .journey-header h3,
+.dashboard-role-director .journey-header h3 {
+  margin: 0 0 5px;
+  color: #17384c;
+  font-size: 1.12rem;
+  letter-spacing: -.025em;
+}
+.dashboard-role-admin .journey-header small,
+.dashboard-role-director .journey-header small {
+  color: #71838c;
+  font-size: .73rem;
+}
+.dashboard-role-admin .journey-discharged-banner,
+.dashboard-role-director .journey-discharged-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 14px 20px 0;
+  padding: 12px 15px;
+  border: 1px solid #cfe4df;
+  border-radius: 9px;
+  color: #286a62;
+  background: #f0f8f5;
+}
+.dashboard-role-admin .journey-discharged-banner p,
+.dashboard-role-director .journey-discharged-banner p {
+  width: 100%;
+  margin: 0;
+  color: #58756e;
+  font-size: .76rem;
+  line-height: 1.5;
+}
+.dashboard-role-admin .journey-steps,
+.dashboard-role-director .journey-steps {
+  display: flex;
+  gap: 7px;
+  padding: 13px 20px;
+  overflow-x: auto;
+  background: #fff;
+  scrollbar-width: thin;
+}
+.dashboard-role-admin .journey-step,
+.dashboard-role-director .journey-step {
+  flex: 0 0 auto;
+  border: 1px solid #e1e9eb;
+  border-radius: 8px;
+  background: #f8fbfb;
+}
+.dashboard-role-admin .journey-step.is-active,
+.dashboard-role-director .journey-step.is-active {
+  border-color: #247f83;
+  background: #1d555e;
+  box-shadow: 0 3px 10px rgba(29,85,94,.15);
+}
+.dashboard-role-admin .management-journey-content,
+.dashboard-role-director .management-journey-content {
+  min-height: 250px;
+  max-height: min(54vh, 580px);
+  padding: 20px 24px;
+  overflow-y: auto;
+  background: #f9fbfb;
+}
+.dashboard-role-admin .journey-list,
+.dashboard-role-director .journey-list {
+  display: grid;
+  gap: 13px;
+}
+.dashboard-role-admin .journey-card,
+.dashboard-role-director .journey-card {
+  overflow: hidden;
+  border: 1px solid #dfe8ea;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(20,54,70,.035);
+}
+.dashboard-role-admin .journey-card-header,
+.dashboard-role-director .journey-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 13px;
+  padding: 13px 16px;
+  border-bottom: 1px solid #edf1f2;
+  background: #fbfdfd;
+}
+.dashboard-role-admin .journey-card-header strong,
+.dashboard-role-director .journey-card-header strong {
+  margin-right: auto;
+  color: #193d50;
+  font-size: .82rem;
+}
+.dashboard-role-admin .journey-card-header > span,
+.dashboard-role-director .journey-card-header > span {
+  color: #7a8c94;
+  font-size: .69rem;
+}
+.dashboard-role-admin .management-journey-card-body,
+.dashboard-role-director .management-journey-card-body {
+  display: grid;
+  gap: 13px;
+  padding: 16px;
+}
+.dashboard-role-admin .management-journey-card-body > div:first-child,
+.dashboard-role-director .management-journey-card-body > div:first-child {
+  display: grid;
+  gap: 8px;
+}
+.dashboard-role-admin .management-journey-card-body p,
+.dashboard-role-director .management-journey-card-body p {
+  margin: 0;
+  color: #5a707b;
+  font-size: .76rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .management-journey-card-body p strong,
+.dashboard-role-director .management-journey-card-body p strong {
+  color: #294d5c;
+}
+.dashboard-role-admin .management-audit-history,
+.dashboard-role-director .management-audit-history {
+  display: grid;
+  gap: 12px;
+  padding: 15px;
+  border: 1px solid #dce8e9;
+  border-radius: 9px;
+  background: #f7faf9;
+}
+.dashboard-role-admin .management-audit-history > strong,
+.dashboard-role-director .management-audit-history > strong {
+  color: #1b4c56;
+  font-size: .8rem;
+}
+.dashboard-role-admin .management-audit-history > div,
+.dashboard-role-director .management-audit-history > div {
+  display: grid;
+  gap: 7px;
+  padding: 12px;
+  border: 1px solid #e3ebec;
+  border-radius: 8px;
+  background: #fff;
+}
+.dashboard-role-admin .management-audit-history pre,
+.dashboard-role-director .management-audit-history pre {
+  max-width: 100%;
+  padding: 11px;
+  overflow: auto;
+  border-radius: 7px;
+  color: #d9eeee;
+  background: #17384c;
+  font-size: .68rem;
+  line-height: 1.5;
+}
+.dashboard-role-admin .journey-create-form,
+.dashboard-role-director .journey-create-form {
+  display: grid;
+  gap: 14px;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #dfe8ea;
+  border-radius: 11px;
+  background: #fff;
+}
+.dashboard-role-admin .journey-create-form h4,
+.dashboard-role-director .journey-create-form h4 {
+  margin: 0;
+  color: #193d50;
+  font-size: .96rem;
+}
+.dashboard-role-admin .management-journey-footer,
+.dashboard-role-director .management-journey-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 13px 22px;
+  border-top: 1px solid #e3ebed;
+  background: #fff;
+}
+.dashboard-role-admin .journey-discharge-modal,
+.dashboard-role-director .journey-discharge-modal {
+  width: min(100% - 28px, 540px);
+  max-height: 88vh;
+  overflow-y: auto;
+  border: 1px solid #dce7e9;
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(10,35,48,.22);
+}
+.dashboard-role-admin .journey-discharge-modal .modal-header,
+.dashboard-role-director .journey-discharge-modal .modal-header {
+  padding: 18px 22px;
+  border-bottom: 1px solid #e7edef;
+}
+.dashboard-role-admin .journey-discharge-modal .clinical-form,
+.dashboard-role-director .journey-discharge-modal .clinical-form {
+  gap: 15px;
+  padding: 20px 22px 22px;
+}
+@media (max-width: 680px) {
+  .dashboard-role-admin .management-journey-modal,
+  .dashboard-role-director .management-journey-modal {
+    width: calc(100vw - 16px);
+    max-height: 94vh;
+    border-radius: 11px;
+  }
+  .dashboard-role-admin .management-journey-content,
+  .dashboard-role-director .management-journey-content {
+    max-height: 58vh;
+    padding: 14px;
+  }
+  .dashboard-role-admin .journey-header,
+  .dashboard-role-director .journey-header {
+    padding: 15px;
+  }
+  .dashboard-role-admin .journey-steps,
+  .dashboard-role-director .journey-steps {
+    padding: 10px;
+  }
+  .dashboard-role-admin .journey-step-select,
+  .dashboard-role-director .journey-step-select {
+    min-height: 36px;
+    padding: 6px 8px;
+    font-size: .66rem;
+  }
+}
