@@ -9268,3 +9268,167 @@ mark.risk {
     transition: none;
   }
 }
+
+/* D5 — responsive and accessibility hardening across role workspaces. */
+.dashboard-section,
+.dashboard-section > *,
+.dashboard-section .resource-panel,
+.dashboard-section .record-card {
+  min-width: 0;
+}
+
+.dashboard-section :is(button, a, input, select, textarea) {
+  scroll-margin-block: 6rem;
+}
+
+.dashboard-section button,
+.dashboard-section a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dashboard-section button:not(.icon-button) {
+  min-height: 40px;
+}
+
+.dashboard-section .icon-button {
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-grid;
+  place-items: center;
+}
+
+.dashboard-section .form-row,
+.dashboard-section .billing-item-row {
+  min-width: 0;
+}
+
+.dashboard-section .form-row > *,
+.dashboard-section .billing-item-row > * {
+  min-width: 0;
+}
+
+.dashboard-section :is(input, select, textarea) {
+  max-width: 100%;
+}
+
+.dashboard-section :is(p, span, strong, small, label, a) {
+  overflow-wrap: anywhere;
+}
+
+.dashboard-section [role="dialog"] {
+  overscroll-behavior: contain;
+}
+
+.dashboard-section .modal,
+.dashboard-section .journey-modal {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dashboard-section .modal-header {
+  flex: 0 0 auto;
+}
+
+.dashboard-section .clinical-form,
+.dashboard-section .journey-create-form {
+  min-width: 0;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+.dashboard-section :focus:not(:focus-visible) {
+  outline: none;
+}
+
+.booking-form {
+  min-width: 0;
+}
+
+.booking-form input,
+.booking-form select,
+.booking-form textarea {
+  min-width: 0;
+  max-width: 100%;
+  font-size: 16px;
+}
+
+.booking-form button {
+  min-height: 48px;
+}
+
+@media (max-width: 900px) {
+  .dashboard-section .form-row,
+  .dashboard-section .billing-item-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-section .resource-panel,
+  .dashboard-section .dashboard-card,
+  .dashboard-section .record-card {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 620px) {
+  .dashboard-section {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dashboard-section .modal-overlay,
+  .dashboard-section .journey-overlay {
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(8px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+  }
+
+  .dashboard-section .modal,
+  .dashboard-section .journey-modal {
+    max-height: calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+
+  .dashboard-section .clinical-form input,
+  .dashboard-section .clinical-form select,
+  .dashboard-section .clinical-form textarea,
+  .dashboard-section .journey-create-form input,
+  .dashboard-section .journey-create-form select,
+  .dashboard-section .journey-create-form textarea {
+    min-height: 46px;
+    font-size: 16px;
+  }
+
+  .dashboard-section .modal-header .icon-button {
+    flex: 0 0 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .booking-form {
+    padding-inline: 0;
+  }
+
+  .booking-form label {
+    min-width: 0;
+  }
+
+  .booking-form input,
+  .booking-form select,
+  .booking-form textarea {
+    min-height: 46px;
+  }
+}
+
+@media (forced-colors: active) {
+  .dashboard-section :is(button, a, input, select, textarea):focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 3px;
+  }
+
+  .dashboard-section .form-status {
+    border: 1px solid CanvasText;
+  }
+}
