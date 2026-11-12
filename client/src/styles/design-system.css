@@ -7175,3 +7175,151 @@ mark.risk {
     padding: 16px;
   }
 }
+
+
+/* Contrast and legibility pass: Admin/Director management surfaces. */
+.dashboard-role-admin .management-workspace-view,
+.dashboard-role-director .management-workspace-view {
+  color: #294653;
+}
+.dashboard-role-admin .management-workspace-view p,
+.dashboard-role-director .management-workspace-view p,
+.dashboard-role-admin .management-workspace-view li,
+.dashboard-role-director .management-workspace-view li,
+.dashboard-role-admin .management-workspace-view label,
+.dashboard-role-director .management-workspace-view label,
+.dashboard-role-admin .management-workspace-view small,
+.dashboard-role-director .management-workspace-view small {
+  color: #526873;
+}
+.dashboard-role-admin .management-workspace-view h3,
+.dashboard-role-director .management-workspace-view h3,
+.dashboard-role-admin .management-workspace-view h4,
+.dashboard-role-director .management-workspace-view h4,
+.dashboard-role-admin .management-workspace-view strong,
+.dashboard-role-director .management-workspace-view strong {
+  color: #193f50;
+}
+.dashboard-role-admin .management-workspace-view .resource-description,
+.dashboard-role-director .management-workspace-view .resource-description,
+.dashboard-role-admin .management-workspace-view .management-record-meta,
+.dashboard-role-director .management-workspace-view .management-record-meta,
+.dashboard-role-admin .management-workspace-view .console-user,
+.dashboard-role-director .management-workspace-view .console-user {
+  color: #536a75;
+}
+.dashboard-role-admin .management-workspace-view input,
+.dashboard-role-director .management-workspace-view input,
+.dashboard-role-admin .management-workspace-view select,
+.dashboard-role-director .management-workspace-view select,
+.dashboard-role-admin .management-workspace-view textarea,
+.dashboard-role-director .management-workspace-view textarea {
+  color: #203f4c;
+  background-color: #fff;
+  border-color: #bdcdd1;
+}
+.dashboard-role-admin .management-workspace-view input::placeholder,
+.dashboard-role-director .management-workspace-view input::placeholder,
+.dashboard-role-admin .management-workspace-view textarea::placeholder,
+.dashboard-role-director .management-workspace-view textarea::placeholder {
+  color: #687d86;
+  opacity: 1;
+}
+.dashboard-role-admin .management-workspace-view input:focus-visible,
+.dashboard-role-director .management-workspace-view input:focus-visible,
+.dashboard-role-admin .management-workspace-view select:focus-visible,
+.dashboard-role-director .management-workspace-view select:focus-visible,
+.dashboard-role-admin .management-workspace-view textarea:focus-visible,
+.dashboard-role-director .management-workspace-view textarea:focus-visible,
+.dashboard-role-admin .management-workspace-view button:focus-visible,
+.dashboard-role-director .management-workspace-view button:focus-visible {
+  outline: 3px solid rgba(39, 126, 124, .28);
+  outline-offset: 2px;
+}
+.dashboard-role-admin .management-workspace-view .empty-state,
+.dashboard-role-director .management-workspace-view .empty-state {
+  color: #526873;
+}
+.dashboard-role-admin .management-workspace-view .form-status,
+.dashboard-role-director .management-workspace-view .form-status {
+  color: #294653;
+}
+.dashboard-role-admin .management-workspace-view .sync-pill,
+.dashboard-role-director .management-workspace-view .sync-pill {
+  color: #245b5b;
+  background: #edf7f5;
+}
+.dashboard-role-admin .management-workspace-view .sync-pill.sync-error,
+.dashboard-role-director .management-workspace-view .sync-pill.sync-error {
+  color: #8c2f2f;
+  background: #fff1ef;
+  border-color: #efc5bf;
+}
+.dashboard-role-admin .management-workspace-view .record-card mark,
+.dashboard-role-director .management-workspace-view .record-card mark {
+  color: #415963;
+  background: #edf2f3;
+}
+.dashboard-role-admin .management-workspace-view .record-card mark.good,
+.dashboard-role-director .management-workspace-view .record-card mark.good {
+  color: #176044;
+  background: #e7f5ed;
+}
+.dashboard-role-admin .management-workspace-view .record-card mark.risk,
+.dashboard-role-director .management-workspace-view .record-card mark.risk {
+  color: #8a3c24;
+  background: #fff0e8;
+}
+.dashboard-role-admin .management-workspace-view .secondary-button,
+.dashboard-role-director .management-workspace-view .secondary-button {
+  color: #245364;
+  border-color: #b8cdd2;
+  background: #f7fbfb;
+}
+.dashboard-role-admin .management-workspace-view .secondary-button:hover,
+.dashboard-role-director .management-workspace-view .secondary-button:hover {
+  color: #173f4e;
+  border-color: #78aaa5;
+  background: #edf6f5;
+}
+.dashboard-role-admin .management-workspace-view button:disabled,
+.dashboard-role-director .management-workspace-view button:disabled {
+  color: #62747b;
+  opacity: .78;
+}
+.dashboard-section .modal {
+  color: #294653;
+  background: #fff;
+}
+.dashboard-section .modal h3,
+.dashboard-section .modal strong {
+  color: #193f50;
+}
+.dashboard-section .modal p,
+.dashboard-section .modal label,
+.dashboard-section .modal .empty-state {
+  color: #526873;
+}
+.dashboard-section .modal input,
+.dashboard-section .modal select,
+.dashboard-section .modal textarea {
+  color: #203f4c;
+  background: #fff;
+  border: 1px solid #bdcdd1;
+}
+.dashboard-section .modal input::placeholder,
+.dashboard-section .modal textarea::placeholder {
+  color: #687d86;
+  opacity: 1;
+}
+.dashboard-section .modal input:focus-visible,
+.dashboard-section .modal select:focus-visible,
+.dashboard-section .modal textarea:focus-visible {
+  outline: 3px solid rgba(39, 126, 124, .28);
+  outline-offset: 1px;
+}
+.dashboard-section .modal .secondary-button {
+  color: #245364;
+  border-color: #b8cdd2;
+  background: #f7fbfb;
+}
