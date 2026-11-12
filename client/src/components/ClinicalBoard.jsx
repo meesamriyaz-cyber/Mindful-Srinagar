@@ -21,6 +21,7 @@ import {
   createProgressNote,
   updateProgressNote,
   listPrescriptions,
+  listRecords,
   createPrescription,
   updatePrescription,
   approveTreatmentPlan
@@ -68,6 +69,7 @@ const CONFIGS = {
     fields: [
       { name: "patient", label: "Patient", type: "patient" },
       { name: "noteType", label: "Note Type", type: "select", options: ["session", "review", "incident"] },
+      { name: "appointment", label: "Session appointment", type: "appointment" },
       { name: "subjective", label: "Subjective", type: "textarea" },
       { name: "objective", label: "Objective", type: "textarea" },
       { name: "assessment", label: "Assessment", type: "textarea" },
@@ -117,7 +119,7 @@ function describeRecord(resource, record) {
     return {
       title: `Note - ${record.noteType || "General"} (${new Date(record.notedAt).toLocaleDateString("en-IN")})`,
       meta: `Objective: ${(record.objective || "").slice(0, 60)}...`,
-      detail: `Assessment: ${(record.assessment || "").slice(0, 60)}...`,
+      detail: `Appointment: ${record.appointment?.service || "Not linked"} · ${record.appointment?.startsAt ? new Date(record.appointment.startsAt).toLocaleString("en-IN") : ""} · ${record.appointment?.practitioner?.name || ""}`,
       status: "completed"
     };
   }
@@ -156,6 +158,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   const [billingError, setBillingError] = useState("");
   const [completedAssessments, setCompletedAssessments] = useState([]);
   const [approvingId, setApprovingId] = useState("");
+  const [availableAppointments, setAvailableAppointments] = useState([]);
 
   React.useEffect(() => {
     if (!token || !config) return;
@@ -172,6 +175,15 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
     }, 220);
     return () => { active = false; window.clearTimeout(timeoutId); };
   }, [token, config, query, refreshSignal]);
+
+  React.useEffect(() => {
+    if (activeView !== "progress-notes" || !token) { setAvailableAppointments([]); return undefined; }
+    let active = true;
+    listRecords("appointments", { token, limit: 100 }).then((items) => {
+      if (active) setAvailableAppointments((items || []).filter((item) => ["checked-in", "completed"].includes(item.status)));
+    }).catch((err) => { if (active) setError(err.message); });
+    return () => { active = false; };
+  }, [activeView, token, refreshSignal]);
 
   React.useEffect(() => {
     if (activeView !== "treatment-plans" || !token) {
@@ -199,7 +211,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   }
 
   function openCreate() {
-    setForm({ patient: patientId || "", ...(activeView === "treatment-plans" ? { status: "planned" } : {}) });
+    setForm({ patient: patientId || "", ...(activeView === "treatment-plans" ? { status: "planned" } : {}), ...(activeView === "progress-notes" ? { noteType: "session" } : {}) });
     setEditingId(null);
     setShowForm(true);
   }
@@ -210,6 +222,8 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
       let val = record[f.name];
       if (f.name === "patient") {
         val = typeof val === "object" && val !== null ? val._id : val;
+      } else if (f.name === "appointment" && val && typeof val === "object") {
+        val = val._id;
       } else if (f.name === "assessment" && val && typeof val === "object") {
         val = val._id;
       } else if (f.type === "chips") {
@@ -416,6 +430,17 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                         <option value="">Select...</option>
                         {field.options.filter((opt) => opt !== "active" || (editingId && records.find((item) => item._id === editingId)?.approvedAt)).map(opt => (
                           <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
+                    ) : field.type === "appointment" ? (
+                      <select
+                        value={form[field.name] || ""}
+                        onChange={(e) => setForm({ ...form, [field.name]: e.target.value })}
+                        required={form.noteType === "session" || !form.noteType}
+                      >
+                        <option value="">Select checked-in session...</option>
+                        {availableAppointments.filter((item) => item.patient?._id === (form.patient || patientId) || item.patient === (form.patient || patientId)).map((item) => (
+                          <option key={item._id} value={item._id}>{item.service} · {new Date(item.startsAt).toLocaleString("en-IN")}</option>
                         ))}
                       </select>
                     ) : field.type === "assessment" ? (
