@@ -914,3 +914,86 @@ footer {
     font-size: 0.66rem;
   }
 }
+
+
+/* Public hero identity hierarchy */
+.hero-copy .hero-identity {
+  display: grid;
+  justify-items: start;
+  gap: 5px;
+  margin: 0 0 clamp(22px, 2.6vw, 34px);
+  max-width: 680px;
+}
+
+.hero-identity-name {
+  margin: 0;
+  color: #173f59;
+  font-size: clamp(1.8rem, 2.6vw, 2.45rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.hero-identity-description {
+  max-width: 620px;
+  margin: 0;
+  color: #547080;
+  font-size: clamp(0.78rem, 1vw, 0.92rem);
+  font-weight: 650;
+  line-height: 1.45;
+  letter-spacing: 0.015em;
+}
+
+.hero-identity-location {
+  margin-top: 2px;
+  color: #247f83;
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+
+.hero-copy h1 {
+  max-width: 760px;
+  margin-bottom: 17px;
+  font-size: clamp(2.55rem, 4.15vw, 3.65rem);
+  line-height: 1.06;
+  letter-spacing: -0.045em;
+}
+
+.hero-copy .hero-lede {
+  max-width: 650px;
+  font-size: clamp(1rem, 1.25vw, 1.14rem);
+  line-height: 1.62;
+}
+
+@media (max-width: 1120px) {
+  .hero-copy h1 {
+    font-size: clamp(2.45rem, 5.4vw, 3.35rem);
+  }
+}
+
+@media (max-width: 620px) {
+  .hero-copy .hero-identity {
+    margin-bottom: 22px;
+  }
+
+  .hero-identity-name {
+    font-size: 1.75rem;
+  }
+
+  .hero-identity-description {
+    max-width: 100%;
+    font-size: 0.78rem;
+  }
+
+  .hero-copy h1 {
+    max-width: 100%;
+    font-size: clamp(2.1rem, 9vw, 2.7rem);
+    line-height: 1.08;
+  }
+
+  .hero-copy .hero-lede {
+    font-size: 0.98rem;
+  }
+}
