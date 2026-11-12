@@ -8590,3 +8590,292 @@ mark.risk {
 .dashboard-role-therapist .sidebar .sidebar-context > span:last-child {
   color: #526873;
 }
+
+
+/* D3 refinement — clearer staff and practitioner directory controls. */
+.dashboard-role-doctor .staff-console-view,
+.dashboard-role-therapist .staff-console-view {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+.dashboard-role-admin .staff-board-summary,
+.dashboard-role-director .staff-board-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 11px;
+  padding: 16px 18px 4px;
+}
+
+.dashboard-role-admin .staff-summary-card,
+.dashboard-role-director .staff-summary-card {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 14px 15px;
+  border: 1px solid #e2ebed;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #fff, #f8fbfb);
+}
+
+.dashboard-role-admin .staff-summary-card > span,
+.dashboard-role-director .staff-summary-card > span {
+  color: #526b76;
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.dashboard-role-admin .staff-summary-card > strong,
+.dashboard-role-director .staff-summary-card > strong {
+  color: #193f50;
+  font-size: 1.45rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard-role-admin .staff-summary-card > small,
+.dashboard-role-director .staff-summary-card > small {
+  color: #73858d;
+  font-size: .64rem;
+}
+
+.dashboard-role-admin .staff-summary-card.is-active > strong,
+.dashboard-role-director .staff-summary-card.is-active > strong {
+  color: #16746d;
+}
+
+.dashboard-role-admin .staff-summary-card.is-inactive > strong,
+.dashboard-role-director .staff-summary-card.is-inactive > strong {
+  color: #a35b45;
+}
+
+.dashboard-role-admin .staff-summary-card.is-clinical > strong,
+.dashboard-role-director .staff-summary-card.is-clinical > strong {
+  color: #426b9a;
+}
+
+.dashboard-role-admin .staff-board-toolbar,
+.dashboard-role-director .staff-board-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(145px, 190px) minmax(155px, 190px);
+  gap: 11px;
+  align-items: end;
+  padding: 13px 18px 8px;
+}
+
+.dashboard-role-admin .staff-board-search,
+.dashboard-role-director .staff-board-search {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.dashboard-role-admin .staff-search-label,
+.dashboard-role-director .staff-search-label,
+.dashboard-role-admin .staff-filter-control > span,
+.dashboard-role-director .staff-filter-control > span {
+  color: #405b67;
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.dashboard-role-admin .staff-board-search input,
+.dashboard-role-director .staff-board-search input,
+.dashboard-role-admin .staff-filter-control select,
+.dashboard-role-director .staff-filter-control select {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #cbdadd;
+  border-radius: 7px;
+  color: #203f4c;
+  background: #fff;
+  font: inherit;
+  font-size: .76rem;
+}
+
+.dashboard-role-admin .staff-filter-control,
+.dashboard-role-director .staff-filter-control {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dashboard-role-admin .staff-board-search input:focus,
+.dashboard-role-director .staff-board-search input:focus,
+.dashboard-role-admin .staff-filter-control select:focus,
+.dashboard-role-director .staff-filter-control select:focus {
+  outline: 0;
+  border-color: #287b7a;
+  box-shadow: 0 0 0 3px rgba(40, 123, 122, .12);
+}
+
+.dashboard-role-admin .staff-results-line,
+.dashboard-role-director .staff-results-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 3px 18px 0;
+  color: #687d86;
+  font-size: .68rem;
+  font-weight: 700;
+}
+
+.dashboard-role-admin .staff-filter-reset,
+.dashboard-role-director .staff-filter-reset,
+.dashboard-role-admin .practitioner-filter-reset,
+.dashboard-role-director .practitioner-filter-reset {
+  border: 0;
+  padding: 5px 8px;
+  border-radius: 6px;
+  color: #23696b;
+  background: #edf7f6;
+  font: inherit;
+  font-size: .68rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.dashboard-role-admin .staff-no-results,
+.dashboard-role-director .staff-no-results,
+.dashboard-role-admin .practitioner-no-results,
+.dashboard-role-director .practitioner-no-results {
+  margin: 14px 18px 18px;
+}
+
+.dashboard-role-admin .practitioner-toolbar,
+.dashboard-role-director .practitioner-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(165px, 210px) auto;
+  gap: 11px;
+  align-items: end;
+  margin: 16px 0 0;
+}
+
+.dashboard-role-admin .practitioner-search,
+.dashboard-role-director .practitioner-search {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.dashboard-role-admin .practitioner-search-label,
+.dashboard-role-director .practitioner-search-label,
+.dashboard-role-admin .practitioner-status-filter > span,
+.dashboard-role-director .practitioner-status-filter > span {
+  color: #405b67;
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.dashboard-role-admin .practitioner-search input,
+.dashboard-role-director .practitioner-search input,
+.dashboard-role-admin .practitioner-status-filter select,
+.dashboard-role-director .practitioner-status-filter select {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #cbdadd;
+  border-radius: 7px;
+  color: #203f4c;
+  background: #fff;
+  font: inherit;
+  font-size: .76rem;
+}
+
+.dashboard-role-admin .practitioner-status-filter,
+.dashboard-role-director .practitioner-status-filter {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dashboard-role-admin .practitioner-search input:focus,
+.dashboard-role-director .practitioner-search input:focus,
+.dashboard-role-admin .practitioner-status-filter select:focus,
+.dashboard-role-director .practitioner-status-filter select:focus {
+  outline: 0;
+  border-color: #287b7a;
+  box-shadow: 0 0 0 3px rgba(40, 123, 122, .12);
+}
+
+.dashboard-role-admin .practitioner-filter-reset,
+.dashboard-role-director .practitioner-filter-reset {
+  min-height: 40px;
+  padding: 0 11px;
+}
+
+.dashboard-role-admin .practitioner-results-line,
+.dashboard-role-director .practitioner-results-line {
+  margin: 8px 0 2px;
+  color: #687d86;
+  font-size: .68rem;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .dashboard-role-admin .staff-board-summary,
+  .dashboard-role-director .staff-board-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dashboard-role-admin .staff-board-toolbar,
+  .dashboard-role-director .staff-board-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(130px, .7fr);
+  }
+  .dashboard-role-admin .staff-board-search,
+  .dashboard-role-director .staff-board-search {
+    grid-column: 1 / -1;
+  }
+  .dashboard-role-admin .practitioner-toolbar,
+  .dashboard-role-director .practitioner-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(135px, .7fr);
+  }
+  .dashboard-role-admin .practitioner-search,
+  .dashboard-role-director .practitioner-search {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-role-admin .staff-board-summary,
+  .dashboard-role-director .staff-board-summary {
+    gap: 8px;
+    padding: 13px 12px 3px;
+  }
+  .dashboard-role-admin .staff-summary-card,
+  .dashboard-role-director .staff-summary-card {
+    padding: 12px;
+  }
+  .dashboard-role-admin .staff-board-toolbar,
+  .dashboard-role-director .staff-board-toolbar,
+  .dashboard-role-admin .practitioner-toolbar,
+  .dashboard-role-director .practitioner-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+  .dashboard-role-admin .staff-board-search,
+  .dashboard-role-director .staff-board-search,
+  .dashboard-role-admin .practitioner-search,
+  .dashboard-role-director .practitioner-search {
+    grid-column: auto;
+  }
+  .dashboard-role-admin .staff-results-line,
+  .dashboard-role-director .staff-results-line {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+}
