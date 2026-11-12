@@ -1024,12 +1024,19 @@ export function Dashboard() {
     <section className="dashboard-section" id="dashboard">
       <div className="dashboard-shell">
         <aside className="sidebar">
-          <div className="brand compact">
-            <span className="brand-mark">M</span>
-            <span>
-              <strong>Mindful</strong>
-              <small>{isDirector ? "Director console" : "Staff console"}</small>
-            </span>
+          <div className="sidebar-brand">
+            <div className="brand compact">
+              <span className="brand-mark">M</span>
+              <span>
+                <strong>Mindful</strong>
+                <small>{isDirector ? "Director console" : "Staff console"}</small>
+              </span>
+            </div>
+            <div className="sidebar-context">
+              <span className="sidebar-context-label">WORKSPACE</span>
+              <strong>Centre operations</strong>
+              <span>Care • Coordination • Outcomes</span>
+            </div>
           </div>
           {Object.entries(
             visibleViewItems.reduce((acc, item) => {
@@ -1061,6 +1068,10 @@ export function Dashboard() {
               })}
             </div>
           ))}
+          <div className="sidebar-footer">
+            <span className="sidebar-footer-indicator" />
+            <span>Mindful Centre · Srinagar</span>
+          </div>
         </aside>
         <div className="console">
           <div className="console-header">
