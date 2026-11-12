@@ -6432,3 +6432,257 @@ mark.risk {
     font-size: .66rem;
   }
 }
+
+
+/* Director command centre: executive-level hierarchy and operational scanability. */
+.dashboard-role-admin .management-director-view,
+.dashboard-role-director .management-director-view {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+  margin: 4px 0 18px;
+}
+.dashboard-role-admin .management-director-heading,
+.dashboard-role-director .management-director-heading {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 5px 2px 7px;
+}
+.dashboard-role-admin .management-director-heading h3,
+.dashboard-role-director .management-director-heading h3 {
+  margin: 3px 0 5px;
+  color: #17384c;
+  font-size: 1.18rem;
+  letter-spacing: -.035em;
+}
+.dashboard-role-admin .management-director-heading > div > p:last-child,
+.dashboard-role-director .management-director-heading > div > p:last-child {
+  max-width: 600px;
+  margin: 0;
+  color: #6b808a;
+  font-size: .76rem;
+  line-height: 1.55;
+}
+.dashboard-role-admin .management-financial-panel,
+.dashboard-role-director .management-financial-panel {
+  grid-column: 1 / -1;
+  padding: 20px;
+  border: 1px solid #dce8e9;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fff 0%, #f7fbfa 100%);
+  box-shadow: 0 4px 14px rgba(20,54,70,.045);
+}
+.dashboard-role-admin .management-financial-panel .director-panel-heading,
+.dashboard-role-director .management-financial-panel .director-panel-heading {
+  align-items: center;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e7edef;
+}
+.dashboard-role-admin .management-financial-panel .business-grid,
+.dashboard-role-director .management-financial-panel .business-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+.dashboard-role-admin .management-financial-panel .business-grid > div,
+.dashboard-role-director .management-financial-panel .business-grid > div {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+  padding: 13px;
+  border: 1px solid #e6edef;
+  border-radius: 9px;
+  background: #fff;
+}
+.dashboard-role-admin .management-financial-panel .business-grid span,
+.dashboard-role-director .management-financial-panel .business-grid span {
+  color: #758892;
+  font-size: .67rem;
+  line-height: 1.4;
+}
+.dashboard-role-admin .management-financial-panel .business-grid strong,
+.dashboard-role-director .management-financial-panel .business-grid strong {
+  color: #193d50;
+  font-size: clamp(.9rem, 1.7vw, 1.18rem);
+  font-weight: 850;
+  letter-spacing: -.025em;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-role-admin .management-analytics-panel,
+.dashboard-role-director .management-analytics-panel {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #e0e9eb;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 2px 9px rgba(20,54,70,.035);
+}
+.dashboard-role-admin .management-analytics-panel .panel-title,
+.dashboard-role-director .management-analytics-panel .panel-title {
+  align-items: flex-start;
+  padding-bottom: 13px;
+  border-bottom: 1px solid #edf1f2;
+}
+.dashboard-role-admin .management-analytics-panel .panel-title > svg,
+.dashboard-role-director .management-analytics-panel .panel-title > svg {
+  flex: 0 0 auto;
+  color: #247f83;
+}
+.dashboard-role-admin .management-analytics-panel .panel-title h3,
+.dashboard-role-director .management-analytics-panel .panel-title h3 {
+  margin: 2px 0 0;
+  color: #193d50;
+  font-size: .9rem;
+}
+.dashboard-role-admin .management-analytics-panel .bar-list,
+.dashboard-role-director .management-analytics-panel .bar-list,
+.dashboard-role-admin .management-analytics-panel .mix-list,
+.dashboard-role-director .management-analytics-panel .mix-list {
+  display: grid;
+  gap: 10px;
+  padding-top: 14px;
+}
+.dashboard-role-admin .management-analytics-panel .bar-row,
+.dashboard-role-director .management-analytics-panel .bar-row {
+  gap: 10px;
+}
+.dashboard-role-admin .management-analytics-panel .bar-row > span,
+.dashboard-role-director .management-analytics-panel .bar-row > span {
+  color: #607681;
+  font-size: .71rem;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .management-analytics-panel .bar-row > b,
+.dashboard-role-director .management-analytics-panel .bar-row > b {
+  color: #245d65;
+  font-size: .72rem;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-role-admin .management-analytics-panel .mix-list > span,
+.dashboard-role-director .management-analytics-panel .mix-list > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 10px;
+  border: 1px solid #edf1f2;
+  border-radius: 7px;
+  color: #667c86;
+  background: #fafcfc;
+  font-size: .73rem;
+  text-transform: capitalize;
+}
+.dashboard-role-admin .management-analytics-panel .mix-list strong,
+.dashboard-role-director .management-analytics-panel .mix-list strong {
+  color: #245d65;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-role-admin .management-stats-grid,
+.dashboard-role-director .management-stats-grid {
+  margin-bottom: 17px;
+}
+.dashboard-role-admin .management-console-grid,
+.dashboard-role-director .management-console-grid {
+  gap: 15px;
+  margin-top: 15px;
+}
+.dashboard-role-admin .management-appointment-list,
+.dashboard-role-director .management-appointment-list {
+  display: grid;
+  gap: 0;
+}
+.dashboard-role-admin .management-appointment-list .appointment-row,
+.dashboard-role-director .management-appointment-list .appointment-row {
+  min-width: 0;
+  padding: 13px 2px;
+  border-bottom: 1px solid #edf1f2;
+}
+.dashboard-role-admin .management-appointment-list .appointment-row:last-child,
+.dashboard-role-director .management-appointment-list .appointment-row:last-child {
+  border-bottom: 0;
+}
+.dashboard-role-admin .management-appointment-list .appointment-row > div,
+.dashboard-role-director .management-appointment-list .appointment-row > div {
+  min-width: 0;
+}
+.dashboard-role-admin .management-appointment-list .appointment-row strong,
+.dashboard-role-director .management-appointment-list .appointment-row strong {
+  color: #244555;
+  font-size: .78rem;
+}
+.dashboard-role-admin .management-appointment-list .appointment-row span,
+.dashboard-role-director .management-appointment-list .appointment-row span {
+  color: #7a8c94;
+  font-size: .68rem;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .management-priority-panel,
+.dashboard-role-director .management-priority-panel,
+.dashboard-role-admin .management-cash-panel,
+.dashboard-role-director .management-cash-panel {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #e0e9eb;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 2px 9px rgba(20,54,70,.035);
+}
+.dashboard-role-admin .management-priority-panel .priority-list,
+.dashboard-role-director .management-priority-panel .priority-list {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  list-style: none;
+}
+.dashboard-role-admin .management-priority-panel .priority-list li,
+.dashboard-role-director .management-priority-panel .priority-list li {
+  display: grid;
+  gap: 4px;
+  padding: 11px 0;
+  border-bottom: 1px solid #edf1f2;
+}
+.dashboard-role-admin .management-priority-panel .priority-list li strong,
+.dashboard-role-director .management-priority-panel .priority-list li strong {
+  color: #244555;
+  font-size: .76rem;
+}
+.dashboard-role-admin .management-priority-panel .priority-list li span,
+.dashboard-role-director .management-priority-panel .priority-list li span {
+  color: #7a8c94;
+  font-size: .68rem;
+}
+.dashboard-role-admin .management-cash-panel .compact-record,
+.dashboard-role-director .management-cash-panel .compact-record {
+  padding: 11px 0;
+  border-bottom: 1px solid #edf1f2;
+}
+@media (max-width: 760px) {
+  .dashboard-role-admin .management-director-view,
+  .dashboard-role-director .management-director-view {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard-role-admin .management-director-heading,
+  .dashboard-role-director .management-director-heading {
+    align-items: flex-start;
+  }
+  .dashboard-role-admin .management-financial-panel .business-grid,
+  .dashboard-role-director .management-financial-panel .business-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 480px) {
+  .dashboard-role-admin .management-financial-panel,
+  .dashboard-role-director .management-financial-panel,
+  .dashboard-role-admin .management-analytics-panel,
+  .dashboard-role-director .management-analytics-panel {
+    padding: 14px;
+  }
+  .dashboard-role-admin .management-financial-panel .business-grid,
+  .dashboard-role-director .management-financial-panel .business-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
