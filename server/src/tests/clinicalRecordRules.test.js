@@ -8,12 +8,14 @@ test("assessment lifecycle permits draft completion and makes completed terminal
   assert.equal(canTransitionClinicalStatus("assessment", "completed", "completed"), true);
 });
 
-test("treatment plan lifecycle supports planned, active, on-hold and completion", () => {
+test("treatment plan lifecycle supports planned, active, on-hold, completion and cancellation", () => {
   assert.equal(canTransitionClinicalStatus("treatment-plan", "planned", "active"), true);
   assert.equal(canTransitionClinicalStatus("treatment-plan", "active", "on-hold"), true);
   assert.equal(canTransitionClinicalStatus("treatment-plan", "on-hold", "active"), true);
   assert.equal(canTransitionClinicalStatus("treatment-plan", "completed", "active"), false);
-  assert.equal(canTransitionClinicalStatus("treatment-plan", "planned", "cancelled"), false);
+  assert.equal(canTransitionClinicalStatus("treatment-plan", "planned", "cancelled"), true);
+  assert.equal(canTransitionClinicalStatus("treatment-plan", "active", "cancelled"), true);
+  assert.equal(canTransitionClinicalStatus("treatment-plan", "cancelled", "active"), false);
 });
 
 test("prescription lifecycle allows cancellation or completion but no reactivation", () => {
