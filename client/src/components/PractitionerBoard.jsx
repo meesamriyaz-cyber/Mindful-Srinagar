@@ -58,7 +58,7 @@ function PractitionerForm({ initial, staffAccounts, saving, onCancel, onSave }) 
 
   return (
     <form className="clinical-form practitioner-form" onSubmit={submit}>
-      {error && <p className="form-status error-status">{error}</p>}
+      {error && <p className="form-status error-status" role="alert" aria-live="assertive">{error}</p>}
       <div className="form-row">
         <label>Practitioner name
           <input required maxLength={120} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -184,7 +184,7 @@ export function PractitionerBoard({ token, staffAccounts = [], onChanged }) {
         </div>
         {!editing && <button className="primary-button compact-button" type="button" onClick={() => setEditing({})}>+ Add practitioner</button>}
       </div>
-      {error && <p className="form-status error-status">{error}</p>}
+      {error && <p className="form-status error-status" role="alert" aria-live="assertive">{error}</p>}
       {editing && (
         <section className="action-panel practitioner-editor-panel">
           <h3>{editing._id ? "Edit practitioner" : "New practitioner"}</h3>
