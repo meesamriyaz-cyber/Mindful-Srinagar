@@ -74,7 +74,7 @@ export function StaffBoard({ token, currentRole, onChanged }) {
       <div className="panel-title resource-title">
         <div>
           <h3>Staff accounts</h3>
-          <span>Create staff login credentials and review account access</span>
+          <p className="resource-description">Create staff login credentials and review account access.</p>
         </div>
         {!showForm && <button className="primary-button compact-button" type="button" onClick={() => setShowForm(true)}>+ Add staff account</button>}
       </div>
