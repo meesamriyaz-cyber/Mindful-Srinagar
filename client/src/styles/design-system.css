@@ -5271,3 +5271,301 @@ mark.risk {
     grid-template-columns: minmax(0, 1fr) 1fr;
   }
 }
+
+
+/* Individual Admin management screens — role-specific visual language */
+.dashboard-role-admin .staff-board-heading,
+.dashboard-role-director .staff-board-heading,
+.dashboard-role-admin .practitioner-board-heading,
+.dashboard-role-director .practitioner-board-heading,
+.dashboard-role-admin .clinical-board-heading,
+.dashboard-role-director .clinical-board-heading {
+  align-items: center;
+}
+
+.dashboard-role-admin .staff-record-card,
+.dashboard-role-director .staff-record-card,
+.dashboard-role-admin .practitioner-record-card,
+.dashboard-role-director .practitioner-record-card,
+.dashboard-role-admin .clinical-record-card,
+.dashboard-role-director .clinical-record-card {
+  min-height: 0;
+  gap: 13px;
+  padding: 18px;
+}
+
+.dashboard-role-admin .staff-role-line,
+.dashboard-role-director .staff-role-line,
+.dashboard-role-admin .staff-created-line,
+.dashboard-role-director .staff-created-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid #edf1f2;
+}
+
+.dashboard-role-admin .staff-role-line span,
+.dashboard-role-director .staff-role-line span,
+.dashboard-role-admin .staff-created-line span,
+.dashboard-role-director .staff-created-line span {
+  color: #7a8d96;
+  font-size: 0.64rem;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.dashboard-role-admin .staff-role-line strong,
+.dashboard-role-director .staff-role-line strong,
+.dashboard-role-admin .staff-created-line strong,
+.dashboard-role-director .staff-created-line strong {
+  color: #345362;
+  font-size: 0.75rem;
+  text-align: right;
+}
+
+.dashboard-role-admin .staff-record-card .record-main,
+.dashboard-role-director .staff-record-card .record-main {
+  align-items: center;
+}
+
+.dashboard-role-admin .practitioner-contact,
+.dashboard-role-director .practitioner-contact {
+  display: grid;
+  gap: 5px;
+  color: #5d7480;
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-role-admin .practitioner-link-state,
+.dashboard-role-director .practitioner-link-state {
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid #e0e9ec;
+  border-radius: 8px;
+  color: #4d6875;
+  background: #f7fafb;
+  font-size: 0.72rem;
+}
+
+.dashboard-role-admin .practitioner-availability,
+.dashboard-role-director .practitioner-availability {
+  display: grid;
+  gap: 8px;
+  padding-top: 11px;
+  border-top: 1px solid #edf1f2;
+}
+
+.dashboard-role-admin .availability-caption,
+.dashboard-role-director .availability-caption {
+  color: #7b9099;
+  font-size: 0.62rem;
+  font-weight: 850;
+  letter-spacing: .09em;
+}
+
+.dashboard-role-admin .practitioner-availability > div,
+.dashboard-role-director .practitioner-availability > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dashboard-role-admin .availability-chip,
+.dashboard-role-director .availability-chip {
+  display: inline-flex;
+  padding: 5px 8px;
+  border: 1px solid #d9e9e7;
+  border-radius: 7px;
+  color: #286c6d;
+  background: #f0f8f7;
+  font-size: 0.65rem;
+  font-weight: 750;
+}
+
+.dashboard-role-admin .availability-unset,
+.dashboard-role-director .availability-unset {
+  color: #8b7770;
+  font-size: 0.72rem;
+}
+
+.dashboard-role-admin .availability-editor,
+.dashboard-role-director .availability-editor {
+  display: grid;
+  gap: 10px;
+  margin: 2px 0 0;
+  padding: 16px;
+  border: 1px solid #dfe9eb;
+  border-radius: 12px;
+  background: #f8fbfb;
+}
+
+.dashboard-role-admin .availability-editor legend,
+.dashboard-role-director .availability-editor legend {
+  padding: 0 7px;
+  color: #173f59;
+  font-size: 0.8rem;
+  font-weight: 850;
+}
+
+.dashboard-role-admin .availability-row,
+.dashboard-role-director .availability-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 1fr) minmax(95px, .8fr) 20px minmax(95px, .8fr);
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  border: 1px solid #e4ecee;
+  border-radius: 9px;
+  background: #fff;
+}
+
+.dashboard-role-admin .availability-row .availability-day,
+.dashboard-role-director .availability-row .availability-day {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #3f5967;
+}
+
+.dashboard-role-admin .availability-row input[type="checkbox"],
+.dashboard-role-director .availability-row input[type="checkbox"] {
+  width: 16px;
+  min-height: 16px;
+  height: 16px;
+  accent-color: #247f83;
+}
+
+.dashboard-role-admin .availability-row input[type="time"],
+.dashboard-role-director .availability-row input[type="time"] {
+  min-height: 36px;
+  padding: 6px;
+}
+
+.dashboard-role-admin .clinical-record-detail,
+.dashboard-role-director .clinical-record-detail {
+  min-height: 42px;
+  margin: 0;
+  padding: 10px 11px;
+  border-left: 3px solid #8fc5bf;
+  border-radius: 0 8px 8px 0;
+  color: #526d79;
+  background: #f6faf9;
+  font-size: 0.74rem;
+}
+
+.dashboard-role-admin .clinical-record-card .record-main,
+.dashboard-role-director .clinical-record-card .record-main {
+  min-height: 56px;
+}
+
+.dashboard-role-admin .clinical-record-card .record-actions,
+.dashboard-role-director .clinical-record-card .record-actions {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #edf1f2;
+}
+
+.dashboard-role-admin .journey-steps,
+.dashboard-role-director .journey-steps {
+  gap: 8px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e4ecee;
+  background: #f8fbfb;
+}
+
+.dashboard-role-admin .journey-step,
+.dashboard-role-director .journey-step {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.dashboard-role-admin .journey-step-select,
+.dashboard-role-director .journey-step-select {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 11px;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.dashboard-role-admin .journey-step.is-active .journey-step-select,
+.dashboard-role-director .journey-step.is-active .journey-step-select {
+  color: #fff;
+}
+
+.dashboard-role-admin .journey-step-select small,
+.dashboard-role-director .journey-step-select small {
+  display: inline-grid;
+  min-width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 6px;
+  color: #55717d;
+  background: #eaf1f2;
+  font-size: 0.62rem;
+  font-weight: 850;
+}
+
+.dashboard-role-admin .journey-step.is-active .journey-step-select small,
+.dashboard-role-director .journey-step.is-active .journey-step-select small {
+  color: #174e58;
+  background: #d9f0eb;
+}
+
+.dashboard-role-admin .journey-new-btn,
+.dashboard-role-director .journey-new-btn {
+  display: inline-grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  margin-right: 6px;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 7px;
+  color: #fff;
+  background: rgba(255,255,255,.12);
+}
+
+.dashboard-role-admin .journey-record-card,
+.dashboard-role-director .journey-record-card {
+  border-left: 3px solid #82bdb7;
+}
+
+@media (max-width: 620px) {
+  .dashboard-role-admin .availability-row,
+  .dashboard-role-director .availability-row {
+    grid-template-columns: minmax(0, 1fr) minmax(90px, 1fr);
+  }
+  .dashboard-role-admin .availability-row > span,
+  .dashboard-role-director .availability-row > span {
+    display: none;
+  }
+  .dashboard-role-admin .journey-steps,
+  .dashboard-role-director .journey-steps {
+    padding: 10px;
+  }
+  .dashboard-role-admin .journey-step-select,
+  .dashboard-role-director .journey-step-select {
+    gap: 5px;
+    padding: 7px;
+    font-size: 0.66rem;
+  }
+}
