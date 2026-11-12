@@ -514,11 +514,20 @@ function OverviewWorkspace({ data, isDirector }) {
 }
 
 function describeRecord(viewId, record) {
+  const excerpt = (value, limit = 90) => {
+    const text = String(value || "").trim();
+    if (!text) return "Not provided";
+    return text.length > limit ? `${text.slice(0, limit).trimEnd()}…` : text;
+  };
+  const displayDate = (value) => value
+    ? new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value))
+    : "Date not recorded";
+
   if (viewId === "patients") {
     return {
       title: record.fullName,
-      meta: `${record.mrn || "No MRN"} - ${record.phone || "No phone"}`,
-      detail: `${record.guardianName || "Guardian not listed"} - ${(record.services || []).join(", ") || record.primaryConcern}`,
+      meta: `MRN: ${record.mrn || "Not assigned"} · Phone: ${record.phone || "Not provided"}`,
+      detail: `Guardian: ${record.guardianName || "Not listed"} · Services: ${(record.services || []).join(", ") || excerpt(record.primaryConcern, 100)}`,
       status: record.status
     };
   }
@@ -526,8 +535,8 @@ function describeRecord(viewId, record) {
   if (viewId === "referrals") {
     return {
       title: record.patientName,
-      meta: `${record.sourceName || record.sourceType} - ${record.phone || "No phone"}`,
-      detail: `${record.concern || "No concern noted"} - preferred ${record.preferredContact || "phone"}`,
+      meta: `Source: ${record.sourceName || record.sourceType || "Not recorded"} · Phone: ${record.phone || "Not provided"}`,
+      detail: `Concern: ${excerpt(record.concern, 100)} · Preferred contact: ${record.preferredContact || "Phone"}`,
       status: record.urgency === "urgent" ? "urgent" : record.status
     };
   }
@@ -535,8 +544,8 @@ function describeRecord(viewId, record) {
   if (viewId === "appointments") {
     return {
       title: formatPatient(record),
-      meta: `${formatDateTime(record.startsAt)} - ${record.room || "Room not set"}`,
-      detail: `${record.service} with ${formatPractitioner(record)}`,
+      meta: `${formatDateTime(record.startsAt)} · Room: ${record.room || "Not assigned"}`,
+      detail: `Service: ${record.service || "Not specified"} · Practitioner: ${formatPractitioner(record)}`,
       status: record.status
     };
   }
@@ -546,8 +555,8 @@ function describeRecord(viewId, record) {
     const due = Math.max(total - (record.paidAmount || 0), 0);
     return {
       title: record.invoiceNo,
-      meta: `${record.patient?.fullName || "Patient"} - ${INR.format(total)} total`,
-      detail: `${INR.format(record.paidAmount || 0)} paid - ${INR.format(due)} due`,
+      meta: `Patient: ${record.patient?.fullName || "Not linked"} · Total: ${INR.format(total)}`,
+      detail: `Paid: ${INR.format(record.paidAmount || 0)} · Outstanding: ${INR.format(due)}`,
       status: record.status
     };
   }
@@ -555,8 +564,8 @@ function describeRecord(viewId, record) {
   if (viewId === "inventory") {
     return {
       title: record.name,
-      meta: `${record.category} - ${record.quantity} ${record.unit || "pcs"} available`,
-      detail: `Reorder at ${record.reorderLevel}; ${record.vendor || "vendor not listed"}`,
+      meta: `Category: ${record.category || "Uncategorised"} · Available: ${record.quantity} ${record.unit || "pcs"}`,
+      detail: `Reorder threshold: ${record.reorderLevel} · Vendor: ${record.vendor || "Not listed"}`,
       status: record.quantity <= record.reorderLevel ? "low stock" : "ready"
     };
   }
@@ -564,7 +573,7 @@ function describeRecord(viewId, record) {
   if (viewId === "assessments") {
     return {
       title: `Assessment - ${(record.domains || []).join(", ") || "General"}`,
-      meta: `Findings: ${(record.findings || "").slice(0, 80)}...`,
+      meta: `Recorded findings: ${excerpt(record.findings, 90)}`,
       detail: `Status: ${record.status || "pending"}`,
       status: record.status
     };
@@ -573,7 +582,7 @@ function describeRecord(viewId, record) {
   if (viewId === "treatment-plans") {
     return {
       title: `Plan - ${(record.goals || "").slice(0, 50) || "Untitled"}`,
-      meta: `Frequency: ${record.frequency || "Not set"} | ${record.duration || ""}`,
+      meta: `Frequency: ${record.frequency || "Not set"} · Duration: ${record.duration || "Not set"}`,
       detail: `Status: ${record.status || "pending"}`,
       status: record.status
     };
@@ -581,9 +590,9 @@ function describeRecord(viewId, record) {
 
   if (viewId === "progress-notes") {
     return {
-      title: `Note - ${record.noteType || "General"} (${new Date(record.notedAt).toLocaleDateString("en-IN")})`,
-      meta: `Objective: ${(record.objective || "").slice(0, 60)}...`,
-      detail: `Assessment: ${(record.assessment || "").slice(0, 60)}...`,
+      title: `Progress note · ${record.noteType || "General"}`,
+      meta: `Objective: ${excerpt(record.objective, 80)}`,
+      detail: `Assessment: ${excerpt(record.assessment, 80)}`,
       status: "completed"
     };
   }
@@ -591,15 +600,15 @@ function describeRecord(viewId, record) {
   if (viewId === "prescriptions") {
     return {
       title: `Rx - ${(record.medications || []).map(m => m.name).join(", ") || "No medications"}`,
-      meta: `Prescribed: ${new Date(record.prescribedAt).toLocaleDateString("en-IN")}`,
-      detail: `Notes: ${(record.notes || "").slice(0, 80)}...`,
+      meta: `Prescribed: ${displayDate(record.prescribedAt)}`,
+      detail: `Notes: ${excerpt(record.notes, 90)}`,
       status: record.status
     };
   }
 
   return {
     title: record.title,
-    meta: `${record.department} - due ${formatDate(record.dueDate)}`,
+    meta: `Department: ${record.department || "Unassigned"} · Due: ${formatDate(record.dueDate)}`,
     detail: `Priority: ${record.priority}`,
     status: record.status === "todo" && record.dueDate && new Date(record.dueDate) < new Date() ? "overdue" : record.status
   };
