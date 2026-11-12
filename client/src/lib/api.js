@@ -319,3 +319,7 @@ export function closePatientDischarge(id, { token } = {}) {
     method: "POST"
   });
 }
+
+export function listTaskAssignees({ token } = {}) {
+  return apiRequest("/task-assignees", { token });
+}
