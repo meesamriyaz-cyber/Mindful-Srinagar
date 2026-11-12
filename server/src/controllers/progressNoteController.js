@@ -15,9 +15,15 @@ const validateRelations = async (payload, req) => {
     }
     appointment = await Appointment.findById(payload.appointment).select("patient practitioner status");
   }
+  if (payload.appointment && !appointment) {
+    const error = new Error("Appointment not found");
+    error.statusCode = 404;
+    throw error;
+  }
+  const noteType = payload.noteType || "session";
   const alreadyHasSessionNote = Boolean(
     req.method === "POST" &&
-    payload.noteType === "session" &&
+    noteType === "session" &&
     payload.appointment &&
     await ProgressNote.exists({ appointment: payload.appointment, noteType: "session" })
   );
@@ -27,7 +33,7 @@ const validateRelations = async (payload, req) => {
     practitionerMatches = Boolean(practitioner && String(practitioner._id) === String(appointment.practitioner));
   }
   const errorMessage = validateSessionNoteLink({
-    noteType: payload.noteType || "session",
+    noteType,
     appointment: appointment ? { patient: appointment.patient } : null,
     patient: payload.patient,
     appointmentStatus: appointment?.status,
