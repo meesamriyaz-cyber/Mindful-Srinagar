@@ -37,6 +37,14 @@ const referralSchema = new mongoose.Schema(
     },
     assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     followUpDate: Date,
+    followUpHistory: [{
+      contactMethod: { type: String, enum: ["phone", "whatsapp", "email", "in-person", "other"], required: true },
+      outcome: { type: String, enum: ["reached", "no-answer", "left-message", "callback-requested", "appointment-booked", "not-interested", "other"], required: true },
+      note: { type: String, required: true, trim: true, maxlength: 1000 },
+      nextFollowUpAt: Date,
+      loggedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+      createdAt: { type: Date, default: Date.now }
+    }],
     notes: { type: String, trim: true }
   },
   { timestamps: true }

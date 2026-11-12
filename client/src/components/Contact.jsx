@@ -79,7 +79,7 @@ export function Contact() {
           Share a few details and the team will guide you to the right assessment or service.
         </p>
         <div className="booking-promises">
-          <span><Clock3 size={16} /> Response within 1 working day</span>
+          <span><Clock3 size={16} /> Follow-up by 5 PM next weekday</span>
           <span><MessageCircle size={16} /> WhatsApp or phone follow-up</span>
           <span><CheckCircle2 size={16} /> Clear next step</span>
         </div>

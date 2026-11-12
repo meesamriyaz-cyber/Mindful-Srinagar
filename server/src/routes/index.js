@@ -4,6 +4,7 @@ import { getDashboard } from "../controllers/dashboardController.js";
 import { getPractitionerDashboard } from "../controllers/practitionerDashboardController.js";
 import { makeCrudController } from "../controllers/crudController.js";
 import { createEnquiry, convertReferralToPatient } from "../controllers/enquiryController.js";
+import { logReferralFollowUp } from "../controllers/referralController.js";
 import { permit, protect } from "../middleware/auth.js";
 import { createRateLimiter } from "../middleware/rateLimiter.js";
 import { Appointment } from "../models/Appointment.js";
@@ -131,27 +132,42 @@ router.use("/doctors", crudRoutes(makeCrudController(Doctor, [], {
   },
   filterFields: ["status","discipline"], searchableFields: ["name","discipline","phone","email"]
 }), { read: patientReaders, write: management, remove: management }));
-router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo"], {
+router.use("/referrals", crudRoutes(makeCrudController(Referral, ["assignedTo", "followUpHistory.loggedBy"], {
   createFields: ["sourceType","sourceName","contactPerson","contactRelationship","phone","email","patientName","patientAge","guardianName","guardianRelationship","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
   updateFields: ["sourceType","sourceName","contactPerson","contactRelationship","phone","email","patientName","patientAge","guardianName","guardianRelationship","concern","preferredContact","urgency","status","assignedTo","followUpDate","notes"],
   validateUpdate: async ({ req, payload }) => {
     if (payload.status === "converted") return { statusCode: 409, message: "Use the Convert to Patient action to preserve referral and patient linkage" };
-    const current = await Referral.findById(req.params.id).select("status");
+    const current = await Referral.findById(req.params.id).select("status assignedTo followUpDate");
     if (!current) return { statusCode: 404, message: "Referral not found" };
-    const allowed = {
-      new: ["contacted", "scheduled", "lost"],
-      contacted: ["scheduled", "lost"],
-      scheduled: ["contacted", "lost"],
-      converted: [],
-      lost: ["contacted"]
-    };
-    if (payload.status && payload.status !== current.status && !allowed[current.status]?.includes(payload.status)) {
-      return { statusCode: 409, message: `Referral status cannot move from ${current.status} to ${payload.status}` };
+    if (payload.assignedTo) {
+      if (!mongoose.isValidObjectId(payload.assignedTo)) return { statusCode: 400, message: "Select a valid referral owner" };
+      const owner = await User.findOne({
+        _id: payload.assignedTo,
+        isActive: true,
+        role: { $in: ["director", "admin", "reception", "coordinator"] }
+      }).select("_id");
+      if (!owner) return { statusCode: 400, message: "Assign referrals only to active reception, coordinator or management staff" };
+    }
+    if (payload.followUpDate && !Number.isFinite(new Date(payload.followUpDate).getTime())) {
+      return { statusCode: 400, message: "Enter a valid follow-up date" };
+    }
+    if (payload.status && payload.status !== current.status) {
+      return { statusCode: 409, message: "Use the Log Contact Attempt action to advance a referral. Use Convert to Patient for registration." };
     }
     return null;
   },
   filterFields: ["status","sourceType","urgency","assignedTo"], searchableFields: ["patientName","sourceName","phone","concern"]
 }), { read: reception, write: reception, remove: management }));
+router.get("/referral-owners", permit(...reception), async (_req, res, next) => {
+  try {
+    const owners = await User.find({ isActive: true, role: { $in: ["director", "admin", "reception", "coordinator"] } })
+      .select("_id name role")
+      .sort({ name: 1 })
+      .lean();
+    return res.json(owners);
+  } catch (error) { return next(error); }
+});
+router.post("/referrals/:id/follow-ups", permit(...reception), logReferralFollowUp);
 router.post("/referrals/:id/convert", permit(...reception), convertReferralToPatient);
 router.use("/appointments", crudRoutes(makeCrudController(Appointment, ["patient","practitioner"], {
   createFields: ["patient","practitioner","service","startsAt","durationMinutes","room","status"],

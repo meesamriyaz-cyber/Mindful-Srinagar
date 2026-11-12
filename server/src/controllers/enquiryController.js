@@ -2,6 +2,8 @@ import { z } from "zod";
 import { Referral } from "../models/Referral.js";
 import { Patient } from "../models/Patient.js";
 import mongoose from "mongoose";
+import { User } from "../models/User.js";
+import { getNextWorkingDayDeadline } from "../security/referralRules.js";
 
 export const PRIVACY_NOTICE_VERSION = "2026-11-12-v1";
 
@@ -65,6 +67,14 @@ export async function createEnquiry(req, res, next) {
       preferredContact, urgency, privacyConsent
     } = parsed.data;
 
+    const defaultOwner = await User.findOne({ isActive: true, role: { $in: ["reception", "coordinator"] } })
+      .sort({ createdAt: 1 })
+      .select("_id")
+      .lean() || await User.findOne({ isActive: true, role: { $in: ["director", "admin"] } })
+      .sort({ createdAt: 1 })
+      .select("_id")
+      .lean();
+
     const referral = await Referral.create({
       sourceType: source,
       sourceName: sourceLabels[source],
@@ -83,6 +93,8 @@ export async function createEnquiry(req, res, next) {
       privacyConsentAt: new Date(),
       privacyNoticeVersion: PRIVACY_NOTICE_VERSION,
       status: "new",
+      ...(defaultOwner ? { assignedTo: defaultOwner._id } : {}),
+      followUpDate: getNextWorkingDayDeadline(),
       notes: `Preferred contact: ${preferredContact}. Urgency: ${urgency}.`
     });
 
