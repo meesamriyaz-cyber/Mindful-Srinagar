@@ -218,6 +218,9 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
       const payload = { patient: patient._id };
       fields.forEach(f => {
         let val = parseValue(f.type, createForm[f.name] || "");
+        if (f.name === "domains" && typeof val === "string") {
+          val = val.split(",").map((item) => item.trim()).filter(Boolean);
+        }
         if (f.name === "interventions" && typeof val === "string") {
           val = val.split(",").map(s => s.trim()).filter(Boolean);
         }
