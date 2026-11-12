@@ -70,6 +70,9 @@ export async function createEnquiry(req, res, next) {
     const defaultOwner = await User.findOne({ isActive: true, role: { $in: ["reception", "coordinator"] } })
       .sort({ createdAt: 1 })
       .select("_id")
+      .lean() || await User.findOne({ isActive: true, role: { $in: ["director", "admin"] } })
+      .sort({ createdAt: 1 })
+      .select("_id")
       .lean();
 
     const referral = await Referral.create({
