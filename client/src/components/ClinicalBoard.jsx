@@ -199,7 +199,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   }
 
   function openCreate() {
-    setForm({ patient: patientId || "" });
+    setForm({ patient: patientId || "", ...(activeView === "treatment-plans" ? { status: "planned" } : {}) });
     setEditingId(null);
     setShowForm(true);
   }
@@ -232,6 +232,8 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
         let val = form[f.name] ?? "";
         if (f.type === "chips") {
           val = Array.isArray(val) ? val : [];
+        } else if (f.name === "domains" && typeof val === "string") {
+          val = val.split(",").map((item) => item.trim()).filter(Boolean);
         } else if (f.type === "textarea" && typeof val === "string" && val.startsWith("[") && val.endsWith("]")) {
           try { val = JSON.parse(val); } catch { /* keep as string */ }
         }
@@ -412,7 +414,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                         required
                       >
                         <option value="">Select...</option>
-                        {field.options.map(opt => (
+                        {field.options.filter((opt) => opt !== "active" || (editingId && records.find((item) => item._id === editingId)?.approvedAt)).map(opt => (
                           <option key={opt} value={opt}>{opt}</option>
                         ))}
                       </select>
