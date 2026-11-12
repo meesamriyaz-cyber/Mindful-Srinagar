@@ -9556,3 +9556,60 @@ mark.risk {
   }
 }
 
+/* D6 — prevent viewport-level horizontal scrolling on narrow screens.
+   Keep page sections constrained; retain horizontal scrolling only inside
+   intentionally scrollable data/timeline regions. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+#root,
+#root > main,
+#root > footer {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 820px) {
+  .site-header,
+  .hero,
+  .section,
+  footer {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .hero,
+  .services-section,
+  .operations-section,
+  .referral-section,
+  #contact {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero-copy,
+  .hero-visual,
+  .services-intro,
+  .services-visual,
+  .service-group-grid,
+  .care-process-header,
+  .care-timeline,
+  .referral-copy,
+  .referral-action,
+  #contact .contact-copy,
+  #contact .booking-form,
+  #contact .contact-strip {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .hero-visual,
+  .services-visual {
+    overflow: hidden;
+  }
+}
