@@ -76,6 +76,11 @@ async function getPatientDischargeReadiness(patientId) {
   };
 }
 
+router.get("/health", (_req, res) => res.json({ status: "ok", service: "mindful-api" }));
+router.use("/auth", authRoutes);
+router.post("/enquiries", createRateLimiter({ windowMs: 900000, max: 8, message: "Too many enquiries from this connection. Please try again later." }), createEnquiry);
+router.use(protect);
+
 router.post("/patients/:id/discharge-approval", permit("director", "admin", "doctor"), async (req, res, next) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid patient ID is required" });
@@ -130,10 +135,7 @@ router.post("/patients/:id/discharge-close", permit("director", "admin", "recept
 });
 
 
-router.get("/health", (_req, res) => res.json({ status: "ok", service: "mindful-api" }));
-router.use("/auth", authRoutes);
-router.post("/enquiries", createRateLimiter({ windowMs: 900000, max: 8, message: "Too many enquiries from this connection. Please try again later." }), createEnquiry);
-router.use(protect);
+
 router.get("/dashboard", permit("director", "admin", "reception"), getDashboard);
 router.get("/dashboard/practitioner", permit("doctor", "therapist"), getPractitionerDashboard);
 router.get("/staff", permit(...management), async (_req, res, next) => {
