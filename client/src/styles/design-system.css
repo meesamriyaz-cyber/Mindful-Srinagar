@@ -7397,3 +7397,139 @@ mark.risk {
 .dashboard-role-director .management-director-view .director-period-label {
   color: #365762;
 }
+
+
+/* Admin/Director screen audit — readable hierarchy across clinical, people and journey boards. */
+.dashboard-role-admin .resource-panel .resource-description,
+.dashboard-role-director .resource-panel .resource-description,
+.dashboard-role-admin .resource-panel .empty-state,
+.dashboard-role-director .resource-panel .empty-state,
+.dashboard-role-admin .resource-panel > p:not(.form-status),
+.dashboard-role-director .resource-panel > p:not(.form-status) {
+  color: #4c626e;
+}
+.dashboard-role-admin .resource-panel .resource-count,
+.dashboard-role-director .resource-panel .resource-count {
+  color: #365e69;
+  font-weight: 750;
+}
+.dashboard-role-admin .record-card,
+.dashboard-role-director .record-card {
+  color: #294653;
+}
+.dashboard-role-admin .record-card .record-main strong,
+.dashboard-role-director .record-card .record-main strong,
+.dashboard-role-admin .record-card h3,
+.dashboard-role-director .record-card h3 {
+  color: #193f50;
+}
+.dashboard-role-admin .record-card .record-main span,
+.dashboard-role-director .record-card .record-main span,
+.dashboard-role-admin .record-card p,
+.dashboard-role-director .record-card p,
+.dashboard-role-admin .record-card .clinical-record-meta,
+.dashboard-role-director .record-card .clinical-record-meta,
+.dashboard-role-admin .record-card .clinical-record-detail,
+.dashboard-role-director .record-card .clinical-record-detail {
+  color: #4e6570;
+}
+.dashboard-role-admin .record-card .staff-role-line > span,
+.dashboard-role-director .record-card .staff-role-line > span,
+.dashboard-role-admin .record-card .staff-created-line > span,
+.dashboard-role-director .record-card .staff-created-line > span,
+.dashboard-role-admin .record-card .availability-caption,
+.dashboard-role-director .record-card .availability-caption {
+  color: #526b76;
+}
+.dashboard-role-admin .record-card .staff-role-line strong,
+.dashboard-role-director .record-card .staff-role-line strong,
+.dashboard-role-admin .record-card .staff-created-line strong,
+.dashboard-role-director .record-card .staff-created-line strong {
+  color: #244b5b;
+}
+.dashboard-role-admin .record-card .practitioner-contact,
+.dashboard-role-director .record-card .practitioner-contact,
+.dashboard-role-admin .record-card .practitioner-link-state,
+.dashboard-role-director .record-card .practitioner-link-state {
+  color: #435e6a;
+}
+.dashboard-role-admin .record-card .availability-chip,
+.dashboard-role-director .record-card .availability-chip {
+  color: #185e5d;
+  background: #eaf5f3;
+}
+.dashboard-role-admin .record-card .availability-unset,
+.dashboard-role-director .record-card .availability-unset {
+  color: #526873;
+}
+.dashboard-role-admin .clinical-resource-panel .clinical-record-detail,
+.dashboard-role-director .clinical-resource-panel .clinical-record-detail {
+  color: #405b67;
+}
+.dashboard-role-admin .practitioner-editor-panel > h3,
+.dashboard-role-director .practitioner-editor-panel > h3,
+.dashboard-role-admin .resource-panel .action-panel > h3,
+.dashboard-role-director .resource-panel .action-panel > h3 {
+  color: #193f50;
+}
+.dashboard-role-admin .resource-panel .clinical-form label,
+.dashboard-role-director .resource-panel .clinical-form label,
+.dashboard-role-admin .resource-panel .availability-editor legend,
+.dashboard-role-director .resource-panel .availability-editor legend {
+  color: #294c5b;
+}
+.dashboard-role-admin .resource-panel .clinical-form input,
+.dashboard-role-director .resource-panel .clinical-form input,
+.dashboard-role-admin .resource-panel .clinical-form select,
+.dashboard-role-director .resource-panel .clinical-form select,
+.dashboard-role-admin .resource-panel .clinical-form textarea,
+.dashboard-role-director .resource-panel .clinical-form textarea {
+  color: #203f4c;
+  background: #fff;
+}
+.dashboard-role-admin .resource-panel .clinical-form input::placeholder,
+.dashboard-role-director .resource-panel .clinical-form input::placeholder,
+.dashboard-role-admin .resource-panel .clinical-form textarea::placeholder,
+.dashboard-role-director .resource-panel .clinical-form textarea::placeholder {
+  color: #687d86;
+  opacity: 1;
+}
+.dashboard-role-admin .management-journey-modal .journey-card,
+.dashboard-role-director .management-journey-modal .journey-card {
+  color: #294653;
+  background: #fff;
+}
+.dashboard-role-admin .management-journey-modal .journey-card strong,
+.dashboard-role-director .management-journey-modal .journey-card strong,
+.dashboard-role-admin .management-journey-modal .journey-card h4,
+.dashboard-role-director .management-journey-modal .journey-card h4 {
+  color: #193f50;
+}
+.dashboard-role-admin .management-journey-modal .journey-card p,
+.dashboard-role-director .management-journey-modal .journey-card p,
+.dashboard-role-admin .management-journey-modal .journey-card li,
+.dashboard-role-director .management-journey-modal .journey-card li,
+.dashboard-role-admin .management-journey-modal .journey-card-body,
+.dashboard-role-director .management-journey-modal .journey-card-body,
+.dashboard-role-admin .management-journey-modal .journey-audit-history,
+.dashboard-role-director .management-journey-modal .journey-audit-history {
+  color: #405b67;
+}
+.dashboard-role-admin .management-journey-modal .journey-step,
+.dashboard-role-director .management-journey-modal .journey-step {
+  color: #345461;
+  background: #f6f9fa;
+}
+.dashboard-role-admin .management-journey-modal .journey-step.is-active,
+.dashboard-role-director .management-journey-modal .journey-step.is-active {
+  color: #fff;
+  background: #173f59;
+}
+.dashboard-role-admin .dashboard-section .modal .history-entry,
+.dashboard-role-director .dashboard-section .modal .history-entry {
+  color: #405b67;
+}
+.dashboard-role-admin .dashboard-section .modal .history-entry strong,
+.dashboard-role-director .dashboard-section .modal .history-entry strong {
+  color: #193f50;
+}
