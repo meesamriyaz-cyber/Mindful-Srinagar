@@ -1,6 +1,8 @@
 import { Invoice } from "../models/Invoice.js";
 import { Appointment } from "../models/Appointment.js";
 import { Patient } from "../models/Patient.js";
+import { ProgressNote } from "../models/ProgressNote.js";
+import { getInvoiceAppointmentIds, validateInvoiceAppointmentItems } from "../security/invoiceSessionRules.js";
 import { isValidObjectId, sanitizePayload } from "../utils/query.js";
 
 function validateItems(items) {
@@ -11,10 +13,41 @@ function validateItems(items) {
     }
     const quantity = item.quantity === undefined ? 1 : Number(item.quantity);
     const rate = Number(item.rate);
+    if (item.appointment && !isValidObjectId(item.appointment)) return "Each linked session must reference a valid appointment";
     if (!Number.isFinite(quantity) || quantity <= 0 || quantity > 100000 || !Number.isFinite(rate) || rate < 0 || rate > 100000000) {
       return "Invoice quantities and rates must be valid non-negative amounts";
     }
   }
+  return null;
+}
+
+export async function validateInvoiceAppointmentLinks(patientId, items, excludeInvoiceId = null) {
+  const inputError = validateInvoiceAppointmentItems(items);
+  if (inputError) return inputError;
+  const appointmentIds = getInvoiceAppointmentIds(items);
+  if (!appointmentIds.length) return null;
+
+  const appointments = await Appointment.find({ _id: { $in: appointmentIds } }).select("patient status").lean();
+  if (appointments.length !== appointmentIds.length) return "One or more linked appointments could not be found";
+  for (const appointment of appointments) {
+    if (String(appointment.patient) !== String(patientId)) return "Every billed appointment must belong to the invoice patient";
+    if (appointment.status !== "completed") return "Only completed appointments can be billed";
+  }
+
+  const notedAppointments = await ProgressNote.distinct("appointment", {
+    appointment: { $in: appointmentIds },
+    noteType: "session"
+  });
+  const notedIds = new Set(notedAppointments.map(String));
+  if (appointmentIds.some((id) => !notedIds.has(id))) return "A completed session note is required before its appointment can be billed";
+
+  const existingInvoiceFilter = {
+    status: { $ne: "void" },
+    "items.appointment": { $in: appointmentIds }
+  };
+  if (excludeInvoiceId) existingInvoiceFilter._id = { $ne: excludeInvoiceId };
+  const alreadyBilled = await Invoice.exists(existingInvoiceFilter);
+  if (alreadyBilled) return "One or more appointments have already been billed";
   return null;
 }
 
@@ -26,7 +59,8 @@ function normalizeItems(items) {
   return items.map((item) => ({
     description: item.description.trim(),
     quantity: item.quantity === undefined ? 1 : Number(item.quantity),
-    rate: Number(item.rate)
+    rate: Number(item.rate),
+    ...(item.appointment ? { appointment: item.appointment } : {})
   }));
 }
 
@@ -39,6 +73,8 @@ export async function createInvoice(req, res, next) {
     }
     const itemError = validateItems(payload.items);
     if (itemError) return res.status(400).json({ message: itemError });
+    const appointmentError = await validateInvoiceAppointmentLinks(payload.patient, payload.items);
+    if (appointmentError) return res.status(409).json({ message: appointmentError });
     const discount = payload.discount === undefined ? 0 : Number(payload.discount);
     if (!Number.isFinite(discount) || discount < 0) return res.status(400).json({ message: "Discount must be a valid non-negative amount" });
     const invoice = await Invoice.create({
@@ -61,12 +97,16 @@ export async function generateInvoiceFromAppointment(req, res, next) {
     if (!isValidObjectId(req.params.appointmentId)) return res.status(400).json({ message: "A valid appointment ID is required" });
     const appointment = await Appointment.findById(req.params.appointmentId).populate("patient", "fullName mrn");
     if (!appointment || !appointment.patient) return res.status(404).json({ message: "Appointment or linked patient not found" });
+    if (appointment.status !== "completed") return res.status(409).json({ message: "Only completed appointments can be invoiced" });
     const itemError = validateItems(req.body?.items);
     if (itemError) return res.status(400).json({ message: itemError });
+    const linkedItems = req.body.items.map((item) => ({ ...item, appointment: appointment._id }));
+    const appointmentError = await validateInvoiceAppointmentLinks(appointment.patient._id, linkedItems);
+    if (appointmentError) return res.status(409).json({ message: appointmentError });
     const invoice = await Invoice.create({
       patient: appointment.patient._id,
       invoiceNo: createInvoiceNumber(),
-      items: normalizeItems(req.body.items),
+      items: normalizeItems(linkedItems),
       status: "draft"
     });
     return res.status(201).json(await Invoice.findById(invoice._id).populate("patient", "fullName mrn"));
