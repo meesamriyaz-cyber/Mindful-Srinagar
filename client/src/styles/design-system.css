@@ -6772,3 +6772,233 @@ mark.risk {
     padding: 13px;
   }
 }
+
+
+/* Admin/Director: finance, stock, task and reporting workspaces. */
+.dashboard-role-admin .resource-panel-billing,
+.dashboard-role-director .resource-panel-billing,
+.dashboard-role-admin .resource-panel-inventory,
+.dashboard-role-director .resource-panel-inventory,
+.dashboard-role-admin .resource-panel-tasks,
+.dashboard-role-director .resource-panel-tasks {
+  overflow: hidden;
+  border: 1px solid #dfe9eb;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 3px 14px rgba(20, 54, 70, .045);
+}
+.dashboard-role-admin .resource-panel-billing .management-resource-heading,
+.dashboard-role-director .resource-panel-billing .management-resource-heading,
+.dashboard-role-admin .resource-panel-inventory .management-resource-heading,
+.dashboard-role-director .resource-panel-inventory .management-resource-heading,
+.dashboard-role-admin .resource-panel-tasks .management-resource-heading,
+.dashboard-role-director .resource-panel-tasks .management-resource-heading {
+  align-items: flex-start;
+  padding: 20px 22px;
+  border-bottom: 1px solid #eaf0f1;
+  background: linear-gradient(110deg, #f7fbfb 0%, #fff 72%);
+}
+.dashboard-role-admin .resource-panel-billing .management-resource-heading > svg,
+.dashboard-role-director .resource-panel-billing .management-resource-heading > svg,
+.dashboard-role-admin .resource-panel-inventory .management-resource-heading > svg,
+.dashboard-role-director .resource-panel-inventory .management-resource-heading > svg,
+.dashboard-role-admin .resource-panel-tasks .management-resource-heading > svg,
+.dashboard-role-director .resource-panel-tasks .management-resource-heading > svg {
+  flex: 0 0 auto;
+  margin-top: 3px;
+  color: #287b7a;
+}
+.dashboard-role-admin .management-record-grid-billing,
+.dashboard-role-director .management-record-grid-billing,
+.dashboard-role-admin .management-record-grid-inventory,
+.dashboard-role-director .management-record-grid-inventory,
+.dashboard-role-admin .management-record-grid-tasks,
+.dashboard-role-director .management-record-grid-tasks {
+  gap: 12px;
+  padding: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.dashboard-role-admin .management-record-card-billing,
+.dashboard-role-director .management-record-card-billing,
+.dashboard-role-admin .management-record-card-inventory,
+.dashboard-role-director .management-record-card-inventory,
+.dashboard-role-admin .management-record-card-tasks,
+.dashboard-role-director .management-record-card-tasks {
+  min-width: 0;
+  padding: 16px 17px;
+  border: 1px solid #e5edef;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(20, 54, 70, .025);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.dashboard-role-admin .management-record-card-billing:hover,
+.dashboard-role-director .management-record-card-billing:hover,
+.dashboard-role-admin .management-record-card-inventory:hover,
+.dashboard-role-director .management-record-card-inventory:hover,
+.dashboard-role-admin .management-record-card-tasks:hover,
+.dashboard-role-director .management-record-card-tasks:hover {
+  border-color: #c5dcdd;
+  box-shadow: 0 7px 20px rgba(20, 54, 70, .065);
+  transform: translateY(-1px);
+}
+.dashboard-role-admin .management-record-card-billing .management-record-main strong,
+.dashboard-role-director .management-record-card-billing .management-record-main strong,
+.dashboard-role-admin .management-record-card-inventory .management-record-main strong,
+.dashboard-role-director .management-record-card-inventory .management-record-main strong,
+.dashboard-role-admin .management-record-card-tasks .management-record-main strong,
+.dashboard-role-director .management-record-card-tasks .management-record-main strong {
+  color: #193f50;
+  font-size: .88rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .management-record-card-billing .management-record-meta,
+.dashboard-role-director .management-record-card-billing .management-record-meta,
+.dashboard-role-admin .management-record-card-inventory .management-record-meta,
+.dashboard-role-director .management-record-card-inventory .management-record-meta,
+.dashboard-role-admin .management-record-card-tasks .management-record-meta,
+.dashboard-role-director .management-record-card-tasks .management-record-meta {
+  margin-top: 5px;
+  color: #71838c;
+  font-size: .7rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.dashboard-role-admin .management-record-card-billing .management-record-detail,
+.dashboard-role-director .management-record-card-billing .management-record-detail,
+.dashboard-role-admin .management-record-card-inventory .management-record-detail,
+.dashboard-role-director .management-record-card-inventory .management-record-detail,
+.dashboard-role-admin .management-record-card-tasks .management-record-detail,
+.dashboard-role-director .management-record-card-tasks .management-record-detail {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid #edf2f3;
+  color: #506873;
+  font-size: .72rem;
+  line-height: 1.6;
+}
+.dashboard-role-admin .management-record-card-billing mark,
+.dashboard-role-director .management-record-card-billing mark,
+.dashboard-role-admin .management-record-card-inventory mark,
+.dashboard-role-director .management-record-card-inventory mark,
+.dashboard-role-admin .management-record-card-tasks mark,
+.dashboard-role-director .management-record-card-tasks mark {
+  flex: 0 0 auto;
+  border-radius: 5px;
+  padding: 5px 8px;
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .025em;
+}
+.dashboard-role-admin .management-record-card-billing .management-record-actions,
+.dashboard-role-director .management-record-card-billing .management-record-actions,
+.dashboard-role-admin .management-record-card-inventory .management-record-actions,
+.dashboard-role-director .management-record-card-inventory .management-record-actions,
+.dashboard-role-admin .management-record-card-tasks .management-record-actions,
+.dashboard-role-director .management-record-card-tasks .management-record-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 13px;
+}
+.dashboard-role-admin .management-record-card-billing .management-record-actions button,
+.dashboard-role-director .management-record-card-billing .management-record-actions button,
+.dashboard-role-admin .management-record-card-inventory .management-record-actions button,
+.dashboard-role-director .management-record-card-inventory .management-record-actions button,
+.dashboard-role-admin .management-record-card-tasks .management-record-actions button,
+.dashboard-role-director .management-record-card-tasks .management-record-actions button {
+  min-height: 32px;
+  border-radius: 6px;
+  font-size: .67rem;
+  font-weight: 750;
+}
+.dashboard-role-admin .management-reports-grid,
+.dashboard-role-director .management-reports-grid {
+  align-items: stretch;
+  gap: 15px;
+}
+.dashboard-role-admin .management-reports-grid > article,
+.dashboard-role-director .management-reports-grid > article {
+  min-width: 0;
+  padding: 19px;
+  border: 1px solid #e1eaec;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(20, 54, 70, .035);
+}
+.dashboard-role-admin .management-reports-grid .panel-title,
+.dashboard-role-director .management-reports-grid .panel-title {
+  align-items: flex-start;
+  gap: 11px;
+  padding-bottom: 13px;
+  border-bottom: 1px solid #edf2f3;
+}
+.dashboard-role-admin .management-reports-grid .panel-title > svg,
+.dashboard-role-director .management-reports-grid .panel-title > svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #287b7a;
+}
+.dashboard-role-admin .management-reports-grid .panel-title h3,
+.dashboard-role-director .management-reports-grid .panel-title h3 {
+  margin: 0 0 4px;
+  color: #1d4353;
+  font-size: .9rem;
+  font-weight: 800;
+}
+.dashboard-role-admin .management-reports-grid .insight-list,
+.dashboard-role-director .management-reports-grid .insight-list,
+.dashboard-role-admin .management-reports-grid .mix-list,
+.dashboard-role-director .management-reports-grid .mix-list {
+  display: grid;
+  gap: 0;
+  padding-top: 8px;
+}
+.dashboard-role-admin .management-reports-grid .insight-list > p:not(.empty-state),
+.dashboard-role-director .management-reports-grid .insight-list > p:not(.empty-state) {
+  margin: 0;
+  padding: 11px 0 11px 13px;
+  border-bottom: 1px solid #edf2f3;
+  border-left: 2px solid #78aaa5;
+  color: #49616c;
+  font-size: .74rem;
+  line-height: 1.6;
+}
+.dashboard-role-admin .management-reports-grid .mix-list > span,
+.dashboard-role-director .management-reports-grid .mix-list > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #edf2f3;
+  color: #607680;
+  font-size: .73rem;
+  text-transform: capitalize;
+}
+.dashboard-role-admin .management-reports-grid .mix-list > span strong,
+.dashboard-role-director .management-reports-grid .mix-list > span strong {
+  color: #1e4d59;
+  font-size: .82rem;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 760px) {
+  .dashboard-role-admin .management-record-grid-billing,
+  .dashboard-role-director .management-record-grid-billing,
+  .dashboard-role-admin .management-record-grid-inventory,
+  .dashboard-role-director .management-record-grid-inventory,
+  .dashboard-role-admin .management-record-grid-tasks,
+  .dashboard-role-director .management-record-grid-tasks {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 12px;
+  }
+  .dashboard-role-admin .resource-panel-billing .management-resource-heading,
+  .dashboard-role-director .resource-panel-billing .management-resource-heading,
+  .dashboard-role-admin .resource-panel-inventory .management-resource-heading,
+  .dashboard-role-director .resource-panel-inventory .management-resource-heading,
+  .dashboard-role-admin .resource-panel-tasks .management-resource-heading,
+  .dashboard-role-director .resource-panel-tasks .management-resource-heading {
+    padding: 16px;
+  }
+}
