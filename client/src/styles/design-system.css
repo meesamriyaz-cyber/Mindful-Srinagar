@@ -6686,3 +6686,89 @@ mark.risk {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/* Shared Admin/Director workspace framing. */
+.dashboard-role-admin .management-console-header,
+.dashboard-role-director .management-console-header {
+  align-items: center;
+  gap: 20px;
+  padding: 22px 26px;
+  border-bottom: 1px solid #e5edef;
+  background: linear-gradient(115deg, #fff 0%, #f8fbfb 100%);
+}
+.dashboard-role-admin .management-console-header > div:first-child,
+.dashboard-role-director .management-console-header > div:first-child {
+  min-width: 0;
+}
+.dashboard-role-admin .management-console-header h2,
+.dashboard-role-director .management-console-header h2 {
+  margin: 3px 0 5px;
+  color: #17384c;
+  font-size: clamp(1.15rem, 2vw, 1.55rem);
+  font-weight: 850;
+  letter-spacing: -.04em;
+}
+.dashboard-role-admin .management-console-header .console-user,
+.dashboard-role-director .management-console-header .console-user {
+  margin: 0;
+  color: #71838c;
+  font-size: .71rem;
+}
+.dashboard-role-admin .management-console-header .console-tools,
+.dashboard-role-director .management-console-header .console-tools {
+  gap: 9px;
+}
+.dashboard-role-admin .management-console-header .search-box,
+.dashboard-role-director .management-console-header .search-box {
+  min-width: min(250px, 25vw);
+  border: 1px solid #dce7e9;
+  border-radius: 8px;
+  background: #fff;
+}
+.dashboard-role-admin .management-console-header .sync-pill,
+.dashboard-role-director .management-console-header .sync-pill {
+  border: 1px solid #dce9e9;
+  border-radius: 7px;
+  color: #356d70;
+  background: #f1f8f7;
+  font-size: .67rem;
+  font-weight: 800;
+}
+.dashboard-role-admin .management-workspace-view,
+.dashboard-role-director .management-workspace-view {
+  min-width: 0;
+  padding: 22px 26px 30px;
+}
+@media (max-width: 900px) {
+  .dashboard-role-admin .management-console-header,
+  .dashboard-role-director .management-console-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 18px;
+  }
+  .dashboard-role-admin .management-console-header .console-tools,
+  .dashboard-role-director .management-console-header .console-tools {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .dashboard-role-admin .management-console-header .search-box,
+  .dashboard-role-director .management-console-header .search-box {
+    min-width: min(250px, 100%);
+    flex: 1;
+  }
+  .dashboard-role-admin .management-workspace-view,
+  .dashboard-role-director .management-workspace-view {
+    padding: 18px;
+  }
+}
+@media (max-width: 520px) {
+  .dashboard-role-admin .management-console-header,
+  .dashboard-role-director .management-console-header {
+    padding: 15px;
+  }
+  .dashboard-role-admin .management-workspace-view,
+  .dashboard-role-director .management-workspace-view {
+    padding: 13px;
+  }
+}
