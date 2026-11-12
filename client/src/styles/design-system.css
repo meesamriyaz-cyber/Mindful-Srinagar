@@ -9613,3 +9613,15 @@ body {
     overflow: hidden;
   }
 }
+
+/* D6 — remove viewport-centering whitespace above the public hero on phones.
+   The desktop hero remains vertically balanced; mobile content starts directly
+   beneath the sticky navigation. */
+@media (max-width: 620px) {
+  .hero {
+    min-height: 0;
+    height: auto;
+    align-content: start;
+    padding-top: 26px;
+  }
+}
