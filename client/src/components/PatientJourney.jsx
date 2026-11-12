@@ -122,6 +122,9 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     if (!patient || !token) return;
     let active = true;
     setLoading(true);
+    setData({ referral: null, appointments: [], assessments: [], treatmentPlans: [], progressNotes: [], prescriptions: [], invoices: [] });
+    setPageInfo({});
+    setTimelineError("");
 
     async function loadJourney() {
       try {
