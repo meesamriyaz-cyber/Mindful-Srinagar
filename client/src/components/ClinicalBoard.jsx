@@ -31,6 +31,7 @@ const CONFIGS = {
   assessments: {
     icon: ClipboardCheck,
     title: "Assessments",
+    description: "Capture structured findings, developmental domains and clinical recommendations.",
     listFn: listAssessments,
     createFn: createAssessment,
     updateFn: updateAssessment,
@@ -45,6 +46,7 @@ const CONFIGS = {
   "treatment-plans": {
     icon: FileText,
     title: "Treatment Plans",
+    description: "Define therapy goals, interventions, session frequency and care-plan status.",
     listFn: listTreatmentPlans,
     createFn: createTreatmentPlan,
     updateFn: updateTreatmentPlan,
@@ -60,6 +62,7 @@ const CONFIGS = {
   "progress-notes": {
     icon: ClipboardList,
     title: "Progress Notes",
+    description: "Document session observations, outcomes and the next clinical steps.",
     listFn: listProgressNotes,
     createFn: createProgressNote,
     updateFn: updateProgressNote,
@@ -75,6 +78,7 @@ const CONFIGS = {
   prescriptions: {
     icon: HeartPulse,
     title: "Prescriptions",
+    description: "Maintain medication instructions and prescription status for patient records.",
     listFn: listPrescriptions,
     createFn: createPrescription,
     updateFn: updatePrescription,
@@ -275,6 +279,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
         <Icon size={21} />
         <div>
           <h3>{config.title}</h3>
+          <p className="resource-description">{config.description}</p>
           <span>{records.length} record(s) loaded</span>
         </div>
         <button className="primary-button compact-button" type="button" onClick={openCreate}>
