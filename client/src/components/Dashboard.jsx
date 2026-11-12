@@ -197,7 +197,7 @@ function LoginPanel({ onLogin }) {
               required
             />
           </label>
-          {error && <p className="form-status error-status">{error}</p>}
+          {error && <p className="form-status error-status" role="alert" aria-live="assertive">{error}</p>}
           <button className="primary-button full" type="submit" disabled={loading}>
             <ShieldCheck size={18} />
             {loading ? "Signing in..." : "Sign in"}
@@ -834,7 +834,7 @@ function ReferralNotesEditor({ record, onSave, saving, token, owners, onFollowUp
         <label>Next follow-up (if needed)
           <input type="datetime-local" value={nextFollowUpAt} onChange={(event) => setNextFollowUpAt(event.target.value)} required={!["appointment-booked", "not-interested"].includes(outcome)} />
         </label>
-        {error && <p className="form-status error-status">{error}</p>}
+        {error && <p className="form-status error-status" role="alert" aria-live="assertive">{error}</p>}
         <button className="secondary-button compact-button" type="submit" disabled={logging}>{logging ? "Saving..." : "Add follow-up to history"}</button>
       </form>
       {history.length > 0 && (
@@ -942,7 +942,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
         )}
       </div>
       {state.loading && <p className="empty-state">Loading {config.label.toLowerCase()}...</p>}
-      {state.error && <p className="form-status error-status">{state.error}</p>}
+      {state.error && <p className="form-status error-status" role="alert" aria-live="assertive">{state.error}</p>}
       {activeView === "tasks" && showTaskCreate && (
         <form className="clinical-form task-create-form" onSubmit={submitTask}>
           <label>Task title
@@ -977,14 +977,14 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
               <input type="date" value={taskForm.dueDate} onChange={(event) => setTaskForm({ ...taskForm, dueDate: event.target.value })} />
             </label>
           </div>
-          {taskError && <p className="form-status error-status">{taskError}</p>}
+          {taskError && <p className="form-status error-status" role="alert" aria-live="assertive">{taskError}</p>}
           <div className="modal-actions">
             <button className="primary-button" type="submit" disabled={taskSaving}>{taskSaving ? "Creating..." : "Create task"}</button>
             <button className="secondary-button" type="button" onClick={() => setShowTaskCreate(false)}>Cancel</button>
           </div>
         </form>
       )}
-      {actionError && <p className="form-status error-status">{actionError}</p>}
+      {actionError && <p className="form-status error-status" role="alert" aria-live="assertive">{actionError}</p>}
       {!state.loading && !state.error && (
         <AnimatePresence mode="popLayout">
           {records.length ? (
@@ -1404,7 +1404,7 @@ export function Dashboard() {
           </div>
 
           {loading && <p className="empty-state">Loading live centre data...</p>}
-          {error && <p className="form-status error-status">{error}</p>}
+          {error && <p className="form-status error-status" role="alert" aria-live="assertive">{error}</p>}
 
           {(!canViewOverview || data) && (
             <AnimatePresence mode="wait">
@@ -1564,7 +1564,7 @@ export function Dashboard() {
               <button className="icon-button" type="button" aria-label="Close appointment dialog" onClick={() => setShowAppointmentForm(false)}>✕</button>
             </div>
             <form className="clinical-form" onSubmit={handleAppointmentSubmit}>
-              {appointmentError && <p className="form-status error-status">{appointmentError}</p>}
+              {appointmentError && <p className="form-status error-status" role="alert" aria-live="assertive">{appointmentError}</p>}
               <label>Patient
                 <select required value={appointmentForm.patient} onChange={(e) => setAppointmentForm({ ...appointmentForm, patient: e.target.value })}>
                   <option value="">Select patient</option>
@@ -1619,7 +1619,7 @@ export function Dashboard() {
               <h3 id="operation-dialog-title">{operationModal.type === "payment" ? "Record invoice payment" : "Record stock movement"}</h3>
               <button className="icon-button" type="button" onClick={() => setOperationModal(null)} aria-label="Close">✕</button>
             </div>
-            {actionError && <p className="form-status error-status">{actionError}</p>}
+            {actionError && <p className="form-status error-status" role="alert" aria-live="assertive">{actionError}</p>}
             <form className="clinical-form" onSubmit={handleOperationSubmit}>
               {operationModal.type === "payment" ? (
                 <>
@@ -1754,7 +1754,7 @@ export function Dashboard() {
                 setBillingSaving(false);
               }
             }} className="clinical-form">
-              {billingError && <p className="form-status error-status">{billingError}</p>}
+              {billingError && <p className="form-status error-status" role="alert" aria-live="assertive">{billingError}</p>}
               <div className="billing-items">
                 {billingItems.map((item, idx) => (
                   <div key={idx} className="billing-item-row">
