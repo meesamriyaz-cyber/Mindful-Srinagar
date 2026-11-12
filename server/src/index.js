@@ -24,7 +24,8 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin.replace(/\/+$/, ""))) return callback(null, true);
     return callback(new Error("Origin is not allowed by CORS"));
   },
-  optionsSuccessStatus: 204
+  optionsSuccessStatus: 204,
+  exposedHeaders: ["X-Total-Count", "X-Has-More", "X-Next-Offset"]
 }));
 app.use(express.json({ limit: "1mb" }));
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
