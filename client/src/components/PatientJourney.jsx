@@ -399,12 +399,12 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="modal journey-modal"
+        className="modal journey-modal management-journey-modal"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
       >
-        <div className="modal-header">
+        <div className="modal-header journey-header">
           <div>
             <h3>Patient Journey & History</h3>
             <small>{patient?.fullName} (MRN: {patient?.mrn})</small>
@@ -422,21 +422,21 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           </div>
         )}
 
-        <div className="journey-steps">
+        <div className="journey-steps" role="group" aria-label="Patient journey sections">
           {steps.map((step) => {
             const Icon = STEP_ICONS[step];
             const selected = activeStep === step;
             const count = Array.isArray(data[step]) ? data[step].length : (data[step] ? 1 : 0);
             return (
-              <button
+              <div
                 key={step}
                 className={`journey-step ${selected ? "is-active" : ""}`}
-                type="button"
-                onClick={() => { setActiveStep(step); setCreateStep(null); }}
               >
+                <button className="journey-step-select" type="button" aria-pressed={selected} onClick={() => { setActiveStep(step); setCreateStep(null); }}>
                 <Icon size={18} />
                 <span>{STEP_LABELS[step]}</span>
                 <small>{count}</small>
+                </button>
                 {canCreate && activeStep === step && (
                   <button
                     className="journey-new-btn"
@@ -447,14 +447,14 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                     <Plus size={14} />
                   </button>
                 )}
-              </button>
+              </div>
             );
           })}
         </div>
 
-        <div className="journey-content">
+        <div className="journey-content management-journey-content">
           {createStep ? (
-            <form onSubmit={handleCreateSubmit} className="journey-create-form">
+            <form onSubmit={handleCreateSubmit} className="journey-create-form management-journey-create-form">
               <h4>New {STEP_LABELS[createStep]}</h4>
               {createError && <p className="form-status error-status">{createError}</p>}
               {(CREATE_FIELDS[createStep] || []).map((field) => (
@@ -538,7 +538,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                     <span>{formatDateTime(record?.createdAt)}</span>
                     {record?.status && <mark className={["completed", "active", "paid", "converted", "ready"].includes(record.status) ? "good" : ""}>{record.status}</mark>}
                   </div>
-                  <div className="journey-card-body">
+                  <div className="journey-card-body management-journey-card-body">
                     {describeRecord(record)}
                     {planApprovalError && activeStep === "treatment-plans" && <p className="form-status error-status">{planApprovalError}</p>}
                     {activeStep === "treatment-plans" && record.status === "planned" && canApprovePlans && (
@@ -557,7 +557,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                       }}>View amendment history</button>
                     )}
                     {auditRecordId === record._id && (
-                      <div className="journey-audit-history">
+                      <div className="journey-audit-history management-audit-history">
                         <strong>Amendment history</strong>
                         {auditHistory.length ? auditHistory.map(item => (
                           <div key={item._id}>
@@ -590,8 +590,8 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           )}
         </div>
 
-        {!isDischarged && !createStep && ((patient.dischargeApprovedAt && canCloseDischarge) || (!patient.dischargeApprovedAt && canApproveDischarge)) && (
-          <div className="journey-footer">
+        {!isDischarged && !createStep && canDischarge && (
+          <div className="journey-footer management-journey-footer">
             <button className="primary-button" type="button" onClick={() => setShowDischarge(true)}>
               {patient.dischargeApprovedAt ? "Close approved discharge" : "Prepare discharge"}
             </button>
@@ -608,7 +608,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
               onClick={() => setShowDischarge(false)}
             >
               <motion.div
-                className="modal"
+                className="modal journey-discharge-modal"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}

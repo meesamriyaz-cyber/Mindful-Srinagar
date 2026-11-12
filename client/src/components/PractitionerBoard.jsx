@@ -174,16 +174,17 @@ export function PractitionerBoard({ token, staffAccounts = [], onChanged }) {
 
   return (
     <article className="table-panel resource-panel">
-      <div className="panel-title resource-title">
+      <div className="panel-title resource-title practitioner-board-heading">
         <div>
           <h3>Practitioners & doctors</h3>
-          <span>Manage clinical profiles, staff account links and appointment availability</span>
+          <span className="resource-count" aria-live="polite">{records.length} profiles · {records.filter(record => record.status === "active").length} active</span>
+          <p className="resource-description">Manage clinical profiles, staff account links and appointment availability.</p>
         </div>
         {!editing && <button className="primary-button compact-button" type="button" onClick={() => setEditing({})}>+ Add practitioner</button>}
       </div>
       {error && <p className="form-status error-status">{error}</p>}
       {editing && (
-        <section className="action-panel">
+        <section className="action-panel practitioner-editor-panel">
           <h3>{editing._id ? "Edit practitioner" : "New practitioner"}</h3>
           <PractitionerForm
             key={editing._id || "new"}
@@ -199,18 +200,18 @@ export function PractitionerBoard({ token, staffAccounts = [], onChanged }) {
         <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search practitioners by name, speciality or contact" />
       </label>
       {loading ? <p className="empty-state">Loading practitioners...</p> : visible.length ? (
-        <div className="record-grid">
+        <div className="record-grid practitioner-record-grid">
           {visible.map((record) => {
             const linked = staffAccounts.find((staff) => staff._id === (record.user?._id || record.user));
             return (
-              <div className="record-card" key={record._id}>
+              <div className="record-card practitioner-record-card" key={record._id}>
                 <div className="record-main">
                   <div><strong>{record.name}</strong><span>{record.discipline}</span></div>
                   <mark className={record.status === "active" ? "good" : ""}>{record.status}</mark>
                 </div>
-                <p>{record.phone || "No phone"} · {record.email || "No email"}</p>
-                <p>{linked ? `Linked staff: ${linked.name} (${linked.role})` : "No staff login linked"}</p>
-                <p>{record.availability?.length ? record.availability.map((slot) => `${slot.day} ${slot.from}–${slot.to}`).join(" · ") : "Availability not configured"}</p>
+                <div className="practitioner-contact"><span>{record.phone || "No phone"}</span><span>{record.email || "No email"}</span></div>
+                <p className="practitioner-link-state">{linked ? `Linked staff account · ${linked.name} (${linked.role})` : "No staff login linked"}</p>
+                <div className="practitioner-availability"><span className="availability-caption">WEEKLY AVAILABILITY</span><div>{record.availability?.length ? record.availability.map((slot) => <span className="availability-chip" key={slot.day}>{slot.day.slice(0, 3)} · {slot.from}–{slot.to}</span>) : <span className="availability-unset">Not configured</span>}</div></div>
                 <div className="record-actions">
                   <button className="secondary-button compact-button" type="button" onClick={() => setEditing(record)}>Edit practitioner</button>
                 </div>

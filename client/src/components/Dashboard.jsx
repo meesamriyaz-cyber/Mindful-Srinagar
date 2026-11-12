@@ -57,6 +57,23 @@ const viewItems = [
 function getViewConfig(id) {
   return viewItems.find((item) => item.id === id) || viewItems[0];
 }
+
+const viewDescriptions = {
+  overview: "A live summary of centre activity, care delivery and operational priorities.",
+  patients: "Review patient records, care status and the next step in each patient journey.",
+  practitioners: "Manage the practitioners delivering services across the centre.",
+  staff: "Maintain staff access, roles and day-to-day team responsibilities.",
+  referrals: "Track incoming enquiries from first contact through appointment conversion.",
+  appointments: "Coordinate the centre schedule, attendance and practitioner availability.",
+  assessments: "Review clinical assessments and the findings recorded for each patient.",
+  "treatment-plans": "Monitor agreed goals, therapy frequency and active care plans.",
+  "progress-notes": "Review session notes and the documented progress of ongoing care.",
+  prescriptions: "Review prescriptions and medication instructions recorded by clinicians.",
+  billing: "Track invoices, payments received and outstanding patient balances.",
+  inventory: "Monitor stock levels, reorder thresholds and stock movement.",
+  tasks: "Coordinate follow-ups and operational work across the centre.",
+  reports: "Understand service activity, referral movement and daily operating patterns."
+};
 function getVisibleViewItems(role) {
   const allowed = {
     reception: ["overview","patients","referrals","appointments","billing","tasks","reports"],
@@ -228,43 +245,82 @@ function DirectorView({ data }) {
   const referralMix = Object.entries(data.analytics?.referralMix || {});
   const patientStatus = Object.entries(data.analytics?.patientStatus || {});
   const maxDemand = Math.max(...serviceDemand.map((item) => item.count), 1);
+  const billed = Number(metrics.billedThisMonth || 0);
+  const collected = Number(metrics.revenueThisMonth || 0);
+  const collectionRate = billed > 0 ? Math.min(Math.round((collected / billed) * 100), 100) : 0;
 
   return (
-    <div className="director-view">
-      <article className="action-panel director-panel">
-        <div className="panel-title">
-          <TrendingUp size={21} />
-          <h3>Director business view</h3>
+    <div className="director-view management-director-view" aria-label="Director performance overview">
+      <header className="director-heading management-director-heading">
+        <div>
+          <p className="director-section-kicker">Executive overview</p>
+          <h3>Centre performance</h3>
+          <p>Financial health, service demand and patient acquisition in one operating view.</p>
+        </div>
+        <span className="director-period-label">Current month</span>
+      </header>
+
+      <article className="action-panel director-panel management-financial-panel">
+        <div className="director-panel-heading">
+          <div className="panel-title">
+            <TrendingUp size={21} />
+            <div>
+              <span className="director-panel-kicker">Financial performance</span>
+              <h3>Revenue & collections</h3>
+            </div>
+          </div>
+          <span className="director-period-label director-period-label-dark">Monthly</span>
         </div>
         <div className="business-grid">
           <div>
             <span>Monthly billed</span>
-            <strong>{INR.format(metrics.billedThisMonth || 0)}</strong>
+            <strong>{INR.format(billed)}</strong>
           </div>
           <div>
-            <span>Collections</span>
-            <strong>{INR.format(metrics.revenueThisMonth || 0)}</strong>
+            <span>Collections received</span>
+            <strong>{INR.format(collected)}</strong>
           </div>
           <div>
-            <span>Outstanding</span>
+            <span>Outstanding balance</span>
             <strong>{INR.format(metrics.outstanding || 0)}</strong>
           </div>
           <div>
-            <span>Monthly conversion</span>
+            <span>Referral conversion</span>
             <strong>{metrics.conversionRate || 0}%</strong>
           </div>
         </div>
-        <div className="insight-list">
-          {(data.businessInsights || []).map((insight) => (
-            <p key={insight}>{insight}</p>
-          ))}
+        <div className="director-collection">
+          <div className="director-collection-label">
+            <span>Collection against billed amount</span>
+            <strong>{collectionRate}%</strong>
+          </div>
+          <div
+            className="director-collection-track"
+            role="progressbar"
+            aria-label="Collection against billed amount"
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={collectionRate}
+          >
+            <span style={{ width: `${collectionRate}%` }} />
+          </div>
         </div>
+        {(data.businessInsights || []).length > 0 && (
+          <div className="insight-list director-insights" aria-label="Business insights">
+            {(data.businessInsights || []).map((insight) => (
+              <p key={insight}>{insight}</p>
+            ))}
+          </div>
+        )}
       </article>
 
-      <article className="table-panel">
+      <article className="table-panel director-demand-panel management-analytics-panel">
         <div className="panel-title">
           <BarChart3 size={21} />
-          <h3>Service demand</h3>
+          <div>
+            <span className="director-card-kicker">Service portfolio</span>
+            <h3>Appointment demand</h3>
+          </div>
         </div>
         <div className="bar-list">
           {serviceDemand.length ? (
@@ -281,10 +337,13 @@ function DirectorView({ data }) {
         </div>
       </article>
 
-      <article className="table-panel">
+      <article className="table-panel director-mix-panel management-analytics-panel">
         <div className="panel-title">
           <UsersRound size={21} />
-          <h3>Patient mix</h3>
+          <div>
+            <span className="director-card-kicker">Care activity</span>
+            <h3>Patient mix</h3>
+          </div>
         </div>
         <div className="mix-list">
           {patientStatus.length ? patientStatus.map(([status, count]) => (
@@ -293,10 +352,13 @@ function DirectorView({ data }) {
         </div>
       </article>
 
-      <article className="table-panel">
+      <article className="table-panel director-referral-panel management-analytics-panel">
         <div className="panel-title">
           <ClipboardCheck size={21} />
-          <h3>Referral channels</h3>
+          <div>
+            <span className="director-card-kicker">Acquisition channels</span>
+            <h3>Referral sources</h3>
+          </div>
         </div>
         <div className="mix-list">
           {referralMix.length ? referralMix.map(([source, count]) => (
@@ -307,10 +369,9 @@ function DirectorView({ data }) {
     </div>
   );
 }
-
 function AppointmentList({ appointments = [] }) {
   return (
-    <div className="appointment-list">
+    <div className="appointment-list management-appointment-list">
       {appointments.length ? appointments.map((appointment) => (
         <div className="appointment-row" key={appointment._id}>
           <time>{formatTime(appointment.startsAt)}</time>
@@ -331,7 +392,7 @@ function PriorityWork({ data }) {
   const lowStock = data.lowStock || [];
 
   return (
-    <article className="action-panel">
+    <article className="action-panel management-priority-panel">
       <div className="panel-title">
         <ClipboardCheck size={21} />
         <h3>Priority work</h3>
@@ -365,7 +426,7 @@ function CashWatch({ data }) {
   const invoices = data.unpaidInvoices || [];
 
   return (
-    <article className="table-panel">
+    <article className="table-panel management-cash-panel">
       <div className="panel-title">
         <IndianRupee size={21} />
         <h3>Cash watch</h3>
@@ -392,7 +453,7 @@ function CashWatch({ data }) {
 function OverviewWorkspace({ data, isDirector }) {
   return (
     <>
-      <div className="stats-grid">
+      <div className="stats-grid management-stats-grid">
         <StatCard
           label="Active patients"
           value={data.metrics.activePatients ?? "--"}
@@ -423,7 +484,7 @@ function OverviewWorkspace({ data, isDirector }) {
 
       {isDirector && <DirectorView data={data} />}
 
-      <div className="console-grid">
+      <div className="console-grid management-console-grid">
         <article className="table-panel">
           <div className="panel-title">
             <CalendarClock size={21} />
@@ -434,7 +495,7 @@ function OverviewWorkspace({ data, isDirector }) {
         <PriorityWork data={data} />
       </div>
 
-      <div className="console-grid lower-console-grid">
+      <div className="console-grid lower-console-grid management-console-grid">
         <CashWatch data={data} />
         <article className="action-panel">
           <div className="panel-title">
@@ -453,11 +514,20 @@ function OverviewWorkspace({ data, isDirector }) {
 }
 
 function describeRecord(viewId, record) {
+  const excerpt = (value, limit = 90) => {
+    const text = String(value || "").trim();
+    if (!text) return "Not provided";
+    return text.length > limit ? `${text.slice(0, limit).trimEnd()}…` : text;
+  };
+  const displayDate = (value) => value
+    ? new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value))
+    : "Date not recorded";
+
   if (viewId === "patients") {
     return {
       title: record.fullName,
-      meta: `${record.mrn || "No MRN"} - ${record.phone || "No phone"}`,
-      detail: `${record.guardianName || "Guardian not listed"} - ${(record.services || []).join(", ") || record.primaryConcern}`,
+      meta: `MRN: ${record.mrn || "Not assigned"} · Phone: ${record.phone || "Not provided"}`,
+      detail: `Guardian: ${record.guardianName || "Not listed"} · Services: ${(record.services || []).join(", ") || excerpt(record.primaryConcern, 100)}`,
       status: record.status
     };
   }
@@ -469,17 +539,23 @@ function describeRecord(viewId, record) {
     const dueLabel = record.followUpDate ? formatDateTime(record.followUpDate) : "No follow-up due";
     return {
       title: record.patientName,
+<<<<<<< HEAD
       meta: `${record.sourceName || record.sourceType} - ${record.phone || "No phone"}`,
       detail: `${record.concern || "No concern noted"} · Contact: ${record.contactPerson || "Not recorded"} · Owner: ${ownerName} · Follow-up: ${dueLabel}`,
       status: overdue ? "overdue" : record.urgency === "urgent" ? "urgent" : record.status
+=======
+      meta: `Source: ${record.sourceName || record.sourceType || "Not recorded"} · Phone: ${record.phone || "Not provided"}`,
+      detail: `Concern: ${excerpt(record.concern, 100)} · Preferred contact: ${record.preferredContact || "Phone"}`,
+      status: record.urgency === "urgent" ? "urgent" : record.status
+>>>>>>> ui/frontend-design-refresh
     };
   }
 
   if (viewId === "appointments") {
     return {
       title: formatPatient(record),
-      meta: `${formatDateTime(record.startsAt)} - ${record.room || "Room not set"}`,
-      detail: `${record.service} with ${formatPractitioner(record)}`,
+      meta: `${formatDateTime(record.startsAt)} · Room: ${record.room || "Not assigned"}`,
+      detail: `Service: ${record.service || "Not specified"} · Practitioner: ${formatPractitioner(record)}`,
       status: record.status
     };
   }
@@ -489,8 +565,8 @@ function describeRecord(viewId, record) {
     const due = Math.max(total - (record.paidAmount || 0), 0);
     return {
       title: record.invoiceNo,
-      meta: `${record.patient?.fullName || "Patient"} - ${INR.format(total)} total`,
-      detail: `${INR.format(record.paidAmount || 0)} paid - ${INR.format(due)} due`,
+      meta: `Patient: ${record.patient?.fullName || "Not linked"} · Total: ${INR.format(total)}`,
+      detail: `Paid: ${INR.format(record.paidAmount || 0)} · Outstanding: ${INR.format(due)}`,
       status: record.status
     };
   }
@@ -498,8 +574,8 @@ function describeRecord(viewId, record) {
   if (viewId === "inventory") {
     return {
       title: record.name,
-      meta: `${record.category} - ${record.quantity} ${record.unit || "pcs"} available`,
-      detail: `Reorder at ${record.reorderLevel}; ${record.vendor || "vendor not listed"}`,
+      meta: `Category: ${record.category || "Uncategorised"} · Available: ${record.quantity} ${record.unit || "pcs"}`,
+      detail: `Reorder threshold: ${record.reorderLevel} · Vendor: ${record.vendor || "Not listed"}`,
       status: record.quantity <= record.reorderLevel ? "low stock" : "ready"
     };
   }
@@ -507,7 +583,7 @@ function describeRecord(viewId, record) {
   if (viewId === "assessments") {
     return {
       title: `Assessment - ${(record.domains || []).join(", ") || "General"}`,
-      meta: `Findings: ${(record.findings || "").slice(0, 80)}...`,
+      meta: `Recorded findings: ${excerpt(record.findings, 90)}`,
       detail: `Status: ${record.status || "pending"}`,
       status: record.status
     };
@@ -516,7 +592,7 @@ function describeRecord(viewId, record) {
   if (viewId === "treatment-plans") {
     return {
       title: `Plan - ${(record.goals || "").slice(0, 50) || "Untitled"}`,
-      meta: `Frequency: ${record.frequency || "Not set"} | ${record.duration || ""}`,
+      meta: `Frequency: ${record.frequency || "Not set"} · Duration: ${record.duration || "Not set"}`,
       detail: `Status: ${record.status || "pending"}`,
       status: record.status
     };
@@ -524,9 +600,9 @@ function describeRecord(viewId, record) {
 
   if (viewId === "progress-notes") {
     return {
-      title: `Note - ${record.noteType || "General"} (${new Date(record.notedAt).toLocaleDateString("en-IN")})`,
-      meta: `Objective: ${(record.objective || "").slice(0, 60)}...`,
-      detail: `Assessment: ${(record.assessment || "").slice(0, 60)}...`,
+      title: `Progress note · ${record.noteType || "General"}`,
+      meta: `Objective: ${excerpt(record.objective, 80)}`,
+      detail: `Assessment: ${excerpt(record.assessment, 80)}`,
       status: "completed"
     };
   }
@@ -534,16 +610,21 @@ function describeRecord(viewId, record) {
   if (viewId === "prescriptions") {
     return {
       title: `Rx - ${(record.medications || []).map(m => m.name).join(", ") || "No medications"}`,
-      meta: `Prescribed: ${new Date(record.prescribedAt).toLocaleDateString("en-IN")}`,
-      detail: `Notes: ${(record.notes || "").slice(0, 80)}...`,
+      meta: `Prescribed: ${displayDate(record.prescribedAt)}`,
+      detail: `Notes: ${excerpt(record.notes, 90)}`,
       status: record.status
     };
   }
 
   return {
     title: record.title,
+<<<<<<< HEAD
     meta: `${record.department} - due ${formatDate(record.dueDate)}`,
     detail: `Priority: ${record.priority} · Patient: ${record.patient?.fullName || "General task"}`,
+=======
+    meta: `Department: ${record.department || "Unassigned"} · Due: ${formatDate(record.dueDate)}`,
+    detail: `Priority: ${record.priority}`,
+>>>>>>> ui/frontend-design-refresh
     status: record.status === "todo" && record.dueDate && new Date(record.dueDate) < new Date() ? "overdue" : record.status
   };
 }
@@ -598,20 +679,20 @@ function ReportsView({ data }) {
   const appointmentStatus = Object.entries(data?.analytics?.appointmentStatusToday || {});
 
   return (
-    <div className="reports-grid">
+    <div className="reports-grid management-reports-grid">
       <article className="action-panel director-panel">
         <div className="panel-title">
           <FileText size={21} />
-          <h3>Business diagnosis</h3>
+          <div><h3>Business diagnosis</h3><p className="resource-description">Signals and recommended actions based on current centre activity.</p></div>
         </div>
         <div className="insight-list">
-          {(data?.businessInsights || []).map((insight) => <p key={insight}>{insight}</p>)}
+          {(data?.businessInsights || []).length ? data.businessInsights.map((insight) => <p key={insight}>{insight}</p>) : <p className="empty-state">Business insights will appear as centre activity is recorded.</p>}
         </div>
       </article>
       <article className="table-panel">
         <div className="panel-title">
           <TrendingUp size={21} />
-          <h3>Referral funnel</h3>
+          <div><h3>Referral funnel</h3><p className="resource-description">Track how incoming enquiries progress through the referral journey.</p></div>
         </div>
         <div className="mix-list">
           {referralStatus.length ? referralStatus.map(([status, count]) => (
@@ -622,7 +703,7 @@ function ReportsView({ data }) {
       <article className="table-panel">
         <div className="panel-title">
           <CalendarClock size={21} />
-          <h3>Today by status</h3>
+          <div><h3>Today by status</h3><p className="resource-description">A snapshot of today's appointment outcomes.</p></div>
         </div>
         <div className="mix-list">
           {appointmentStatus.length ? appointmentStatus.map(([status, count]) => (
@@ -633,7 +714,7 @@ function ReportsView({ data }) {
       <article className="table-panel">
         <div className="panel-title">
           <BarChart3 size={21} />
-          <h3>Service mix</h3>
+          <div><h3>Service mix</h3><p className="resource-description">Compare the services represented in recorded activity.</p></div>
         </div>
         <div className="mix-list">
           {serviceMix.length ? serviceMix.map(([service, count]) => (
@@ -855,12 +936,13 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
   const records = state.records || [];
 
   return (
-    <article className="table-panel resource-panel">
-      <div className="panel-title resource-title">
+    <article className={`table-panel resource-panel resource-panel-${activeView}`}>
+      <div className="panel-title resource-title management-resource-heading">
         <Icon size={21} />
         <div>
           <h3>{config.label}</h3>
-          <span>{records.length} record(s) loaded</span>
+          <p className="resource-description">{viewDescriptions[activeView]}</p>
+          <span className="resource-count" aria-live="polite">{records.length} {records.length === 1 ? "record" : "records"} loaded</span>
         </div>
         {activeView === "tasks" && ["director","admin","reception","coordinator"].includes(userRole) && (
           <button className="primary-button compact-button" type="button" onClick={() => setShowTaskCreate((value) => !value)}><Plus size={15} /> New task</button>
@@ -916,13 +998,13 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
       {!state.loading && !state.error && (
         <AnimatePresence mode="popLayout">
           {records.length ? (
-            <div className="record-grid">
+            <div className={`record-grid management-record-grid management-record-grid-${activeView}`}>
               {records.map((record) => {
                 const summary = describeRecord(activeView, record);
                 const actions = recordActions(activeView, record, userRole);
                 return (
                   <motion.div
-                    className="record-card"
+                    className={`record-card management-record-card management-record-card-${activeView}`}
                     key={record._id}
                     layout
                     initial={{ opacity: 0, y: 8 }}
@@ -930,14 +1012,14 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <div className="record-main">
+                    <div className="record-main management-record-main">
                       <div>
                         <strong>{summary.title || "Untitled record"}</strong>
-                        <span>{summary.meta}</span>
+                        <span className="management-record-meta">{summary.meta}</span>
                       </div>
                       <mark className={statusClass(summary.status)}>{summary.status || "open"}</mark>
                     </div>
-                    <p>{summary.detail}</p>
+                    <p className="management-record-detail">{summary.detail}</p>
                     {activeView === "referrals" && (
                       <ReferralNotesEditor
                         record={record}
@@ -949,7 +1031,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                       />
                     )}
                     {actions.length > 0 && (
-                      <div className="record-actions">
+                      <div className="record-actions management-record-actions">
                         {actions.map((action) => (
                           <button
                             className="secondary-button compact-button"
@@ -1245,14 +1327,21 @@ export function Dashboard() {
 
   return (
     <section className="dashboard-section" id="dashboard">
-      <div className="dashboard-shell">
-        <aside className="sidebar">
-          <div className="brand compact">
-            <span className="brand-mark">M</span>
-            <span>
-              <strong>Mindful</strong>
-              <small>{isDirector ? "Director console" : "Staff console"}</small>
-            </span>
+      <div className={`dashboard-shell dashboard-role-${session.user?.role || "staff"}`}>
+        <aside className="sidebar" aria-label="Staff workspace navigation">
+          <div className="sidebar-brand">
+            <div className="brand compact">
+              <span className="brand-mark">M</span>
+              <span>
+                <strong>Mindful</strong>
+                <small>{isDirector ? "Director console" : "Staff console"}</small>
+              </span>
+            </div>
+            <div className="sidebar-context">
+              <span className="sidebar-context-label">WORKSPACE</span>
+              <strong>Centre operations</strong>
+              <span>Care • Coordination • Outcomes</span>
+            </div>
           </div>
           {Object.entries(
             visibleViewItems.reduce((acc, item) => {
@@ -1271,6 +1360,7 @@ export function Dashboard() {
                     className={item.id === activeView ? "side-link active" : "side-link"}
                     type="button"
                     key={item.id}
+                    aria-current={item.id === activeView ? "page" : undefined}
                     onClick={() => {
                       setActiveView(item.id);
                       setQuery("");
@@ -1284,9 +1374,13 @@ export function Dashboard() {
               })}
             </div>
           ))}
+          <div className="sidebar-footer">
+            <span className="sidebar-footer-indicator" />
+            <span>Mindful Centre · Srinagar</span>
+          </div>
         </aside>
         <div className="console">
-          <div className="console-header">
+          <div className="console-header management-console-header">
             <div>
               <p className="eyebrow">{isDirector ? "Director command centre" : "Operations dashboard"}</p>
               <h2>{activeView === "overview" ? (["doctor","therapist"].includes(session.user?.role) ? "My clinical activity" : "Whole-centre operating view") : activeConfig.label}</h2>
@@ -1321,7 +1415,7 @@ export function Dashboard() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeView}
-                className="workspace-view"
+                className="workspace-view management-workspace-view"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
@@ -1464,7 +1558,7 @@ export function Dashboard() {
 
       {showAppointmentForm && (
         <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAppointmentForm(false)}>
-          <motion.div className="modal" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()}>
+          <motion.div className="modal modal-appointment" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3>Schedule appointment</h3>
               <button className="icon-button" type="button" onClick={() => setShowAppointmentForm(false)}>✕</button>
@@ -1520,7 +1614,7 @@ export function Dashboard() {
 
       {operationModal && (
         <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOperationModal(null)}>
-          <motion.div className="modal" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
+          <motion.div className="modal modal-operation" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
               <h3>{operationModal.type === "payment" ? "Record invoice payment" : "Record stock movement"}</h3>
               <button className="icon-button" type="button" onClick={() => setOperationModal(null)} aria-label="Close">✕</button>
