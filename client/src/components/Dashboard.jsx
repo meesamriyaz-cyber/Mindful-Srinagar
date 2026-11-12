@@ -457,25 +457,28 @@ function DirectorWelcome({ data }) {
     day: "numeric",
     month: "long"
   }).format(new Date());
+  const appointmentCount = Number(metrics.appointmentsToday || 0);
+  const urgentReferralCount = Number(metrics.urgentReferrals || 0);
+  const overdueTaskCount = Number(metrics.overdueTasks || 0);
   const pulseItems = [
     {
       label: "Appointments today",
-      value: metrics.appointmentsToday ?? 0,
-      note: `${metrics.checkedInToday ?? 0} checked in so far`,
+      value: appointmentCount >= 12 ? "12+" : appointmentCount,
+      note: appointmentCount >= 12 ? "12 or more scheduled" : `${metrics.checkedInToday ?? 0} checked in so far`,
       icon: CalendarClock,
       tone: "teal"
     },
     {
       label: "Urgent referrals",
-      value: metrics.urgentReferrals ?? 0,
-      note: "Require priority contact",
+      value: urgentReferralCount >= 8 ? "8+" : urgentReferralCount,
+      note: urgentReferralCount >= 8 ? "Priority list reached its 8-item limit" : "Require priority contact",
       icon: AlertTriangle,
       tone: "amber"
     },
     {
       label: "Overdue tasks",
-      value: metrics.overdueTasks ?? 0,
-      note: "Need an owner and next step",
+      value: overdueTaskCount >= 8 ? "8+" : overdueTaskCount,
+      note: overdueTaskCount >= 8 ? "At least 8 need follow-up" : "Need an owner and next step",
       icon: ClipboardCheck,
       tone: "coral"
     }
