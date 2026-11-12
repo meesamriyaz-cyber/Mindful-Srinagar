@@ -14,11 +14,7 @@ import {
   X
 } from "lucide-react";
 import {
-  listAssessments,
-  listTreatmentPlans,
-  listProgressNotes,
-  listPrescriptions,
-  listRecords,
+  listRecordsPage,
   createAssessment,
   createTreatmentPlan,
   createProgressNote,
@@ -99,6 +95,9 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     prescriptions: [],
     invoices: []
   });
+  const [pageInfo, setPageInfo] = useState({});
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [timelineError, setTimelineError] = useState("");
   const [loading, setLoading] = useState(true);
   const [activeStep, setActiveStep] = useState(() => ["doctor", "therapist"].includes(userRole) ? "appointments" : "referral");
   const [showDischarge, setShowDischarge] = useState(false);
@@ -123,34 +122,47 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     if (!patient || !token) return;
     let active = true;
     setLoading(true);
+    setData({ referral: null, appointments: [], assessments: [], treatmentPlans: [], progressNotes: [], prescriptions: [], invoices: [] });
+    setPageInfo({});
+    setTimelineError("");
 
     async function loadJourney() {
       try {
         const canViewClinical = ["director", "admin", "doctor", "therapist"].includes(userRole);
+
         const canViewReferral = ["director", "admin", "reception", "coordinator"].includes(userRole);
         const canViewPrescriptions = ["director", "admin", "doctor"].includes(userRole);
         const canViewBilling = ["director", "admin", "accounts", "reception"].includes(userRole);
-        const [referral, appointments, assessments, treatmentPlans, progressNotes, prescriptions, invoices] = await Promise.all([
-          canViewReferral && patient.referral ? fetch(`${API_BASE_URL}/referrals/${patient.referral}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          }).then(r => r.ok ? r.json() : null).catch(() => null) : Promise.resolve(null),
-          listRecords("appointments", { token, patientId: patient._id, limit: 20 }),
-          canViewClinical ? listAssessments({ token, patientId: patient._id, limit: 20 }) : Promise.resolve([]),
-          canViewClinical ? listTreatmentPlans({ token, patientId: patient._id, limit: 20 }) : Promise.resolve([]),
-          canViewClinical ? listProgressNotes({ token, patientId: patient._id, limit: 20 }) : Promise.resolve([]),
-          canViewPrescriptions ? listPrescriptions({ token, patientId: patient._id, limit: 20 }) : Promise.resolve([]),
-          canViewBilling ? listRecords("invoices", { token, patientId: patient._id, limit: 20 }) : Promise.resolve([])
+        const [referral, appointmentsPage, assessmentsPage, treatmentPlansPage, progressNotesPage, prescriptionsPage, invoicesPage] = await Promise.all([
+          canViewReferral && patient.referral ? fetch(API_BASE_URL + "/referrals/" + patient.referral, {
+            headers: { Authorization: "Bearer " + token }
+          }).then((response) => response.ok ? response.json() : null).catch(() => null) : Promise.resolve(null),
+          listRecordsPage("appointments", { token, patientId: patient._id, limit: 20 }),
+          canViewClinical ? listRecordsPage("assessments", { token, patientId: patient._id, limit: 20 }) : Promise.resolve({ records: [], total: 0, hasMore: false, nextOffset: 0 }),
+          canViewClinical ? listRecordsPage("treatment-plans", { token, patientId: patient._id, limit: 20 }) : Promise.resolve({ records: [], total: 0, hasMore: false, nextOffset: 0 }),
+          canViewClinical ? listRecordsPage("progress-notes", { token, patientId: patient._id, limit: 20 }) : Promise.resolve({ records: [], total: 0, hasMore: false, nextOffset: 0 }),
+          canViewPrescriptions ? listRecordsPage("prescriptions", { token, patientId: patient._id, limit: 20 }) : Promise.resolve({ records: [], total: 0, hasMore: false, nextOffset: 0 }),
+          canViewBilling ? listRecordsPage("invoices", { token, patientId: patient._id, limit: 20 }) : Promise.resolve({ records: [], total: 0, hasMore: false, nextOffset: 0 })
         ]);
         if (active) {
           setData({
             referral,
-            appointments: appointments || [],
-            assessments: assessments || [],
-            treatmentPlans: treatmentPlans || [],
-            progressNotes: progressNotes || [],
-            prescriptions: prescriptions || [],
-            invoices: invoices || []
+            appointments: appointmentsPage.records,
+            assessments: assessmentsPage.records,
+            treatmentPlans: treatmentPlansPage.records,
+            progressNotes: progressNotesPage.records,
+            prescriptions: prescriptionsPage.records,
+            invoices: invoicesPage.records
           });
+          setPageInfo({
+            appointments: appointmentsPage,
+            assessments: assessmentsPage,
+            "treatment-plans": treatmentPlansPage,
+            "progress-notes": progressNotesPage,
+            prescriptions: prescriptionsPage,
+            invoices: invoicesPage
+          });
+          setTimelineError("");
           setLoading(false);
         }
       } catch {
@@ -173,6 +185,23 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const isDischarged = patient?.status === "discharged";
   const canCreate = ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeStep);
   const canApprovePlans = ["director", "admin", "doctor"].includes(userRole);
+
+  async function loadMoreHistory() {
+    const resource = activeStep;
+    const current = pageInfo[resource];
+    if (!current?.hasMore || loadingMore || resource === "referral") return;
+    setLoadingMore(true);
+    setTimelineError("");
+    try {
+      const page = await listRecordsPage(resource, { token, patientId: patient._id, limit: 20, skip: current.nextOffset });
+      setData((existing) => ({ ...existing, [resource]: [...(existing[resource] || []), ...page.records] }));
+      setPageInfo((existing) => ({ ...existing, [resource]: page }));
+    } catch (error) {
+      setTimelineError(error.message || "Unable to load more patient history");
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   function formatDate(val) {
     if (!val) return "--";
@@ -500,6 +529,8 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
             <p className="empty-state">No {STEP_LABELS[activeStep].toLowerCase()} recorded yet.</p>
           ) : (
             <div className="journey-list">
+              {pageInfo[activeStep]?.total > 0 && <p className="history-count">Showing {activeRecords.length} of {pageInfo[activeStep].total} records</p>}
+              {timelineError && <p className="form-status error-status">{timelineError}</p>}
               {(activeStep === "referral" ? [data.referral] : activeRecords).map((record, idx) => (
                 <div key={record?._id || idx} className="journey-card">
                   <div className="journey-card-header">
@@ -550,6 +581,11 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                   </div>
                 </div>
               ))}
+              {pageInfo[activeStep]?.hasMore && (
+                <button className="secondary-button load-more-history" type="button" onClick={loadMoreHistory} disabled={loadingMore}>
+                  {loadingMore ? "Loading history..." : `Load more ${STEP_LABELS[activeStep].toLowerCase()} history`}
+                </button>
+              )}
             </div>
           )}
         </div>

@@ -30,3 +30,9 @@ export function sanitizePayload(body, allowedFields) {
   }
   return payload;
 }
+
+export function parseOffset(value, fallback = 0, maximum = 1000000) {
+  const parsed = Number.parseInt(value, 10);
+  if (Number.isNaN(parsed)) return fallback;
+  return Math.min(Math.max(parsed, 0), maximum);
+}

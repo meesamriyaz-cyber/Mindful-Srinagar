@@ -60,7 +60,7 @@ export function clearSession() {
   removeStorage(USER_KEY);
 }
 
-export async function apiRequest(path, { token, params, timeoutMs = 12000, ...options } = {}) {
+export async function apiRequest(path, { token, params, timeoutMs = 12000, returnMeta = false, ...options } = {}) {
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
   const url = buildApiUrl(path, params);
@@ -91,7 +91,7 @@ export async function apiRequest(path, { token, params, timeoutMs = 12000, ...op
     throw new Error(data.message || "Request failed");
   }
 
-  return data;
+  return returnMeta ? { data, headers: response.headers } : data;
 }
 
 export function loginStaff(credentials) {
@@ -113,6 +113,20 @@ export function listRecords(resource, { token, q, status, limit = 30, ...extraPa
     token,
     params: { q, status, limit, ...extraParams }
   });
+}
+
+export async function listRecordsPage(resource, { token, patientId, limit = 20, skip = 0, q, status } = {}) {
+  const result = await apiRequest(`/${resource}`, {
+    token,
+    params: { patientId, limit, skip, q, status },
+    returnMeta: true
+  });
+  return {
+    records: Array.isArray(result.data) ? result.data : [],
+    total: Number(result.headers.get("X-Total-Count") || 0),
+    hasMore: result.headers.get("X-Has-More") === "true",
+    nextOffset: Number(result.headers.get("X-Next-Offset") || skip)
+  };
 }
 
 export function updateRecord(resource, id, updates, { token } = {}) {

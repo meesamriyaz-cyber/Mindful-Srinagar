@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { Patient } from "../models/Patient.js";
 import { ClinicalRecordAmendment } from "../models/ClinicalRecordAmendment.js";
-import { escapeRegex, isValidObjectId, parseLimit, sanitizePayload } from "../utils/query.js";
+import { escapeRegex, isValidObjectId, parseLimit, parseOffset, sanitizePayload } from "../utils/query.js";
 import { canTransitionClinicalStatus, validateAmendmentInput } from "../security/clinicalRecordRules.js";
 const privilegedRoles = ["director", "admin"];
 function httpError(message, statusCode) {
@@ -29,7 +29,7 @@ export function makeClinicalRecordController({
   return {
     async list(req, res, next) {
       try {
-        const { patientId, status, q, limit = 50, appointmentId } = req.query;
+        const { patientId, status, q, limit = 50, skip = 0, appointmentId } = req.query;
         const filter = { ...ownerFilter(req) };
         if (patientId) {
           if (!isValidObjectId(patientId)) return res.status(400).json({ message: "A valid patient ID is required" });
@@ -44,7 +44,16 @@ export function makeClinicalRecordController({
           const expression = new RegExp(escapeRegex(String(q).trim().slice(0, 80)), "i");
           filter.$or = searchFields.map((field) => ({ [field]: expression }));
         }
-        return res.json(await populateQuery(Model.find(filter)).sort({ [sortField]: -1 }).limit(parseLimit(limit)));
+        const pageSize = parseLimit(limit);
+        const offset = parseOffset(skip);
+        const [total, records] = await Promise.all([
+          Model.countDocuments(filter),
+          populateQuery(Model.find(filter)).sort({ [sortField]: -1, _id: -1 }).skip(offset).limit(pageSize)
+        ]);
+        res.set("X-Total-Count", String(total));
+        res.set("X-Has-More", String(offset + records.length < total));
+        res.set("X-Next-Offset", String(offset + records.length));
+        return res.json(records);
       } catch (error) { return next(error); }
     },
     async create(req, res, next) {
