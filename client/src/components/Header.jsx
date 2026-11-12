@@ -1,5 +1,5 @@
 import { CalendarCheck, LockKeyhole, Menu, Phone, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const publicNavItems = [
   { label: "Services", href: "#services" },
@@ -10,10 +10,33 @@ const publicNavItems = [
 
 export function Header({ staffMode = false }) {
   const [open, setOpen] = useState(false);
+  const [heroVisible, setHeroVisible] = useState(!staffMode);
+
+  useEffect(() => {
+    if (staffMode) {
+      setHeroVisible(false);
+      return undefined;
+    }
+
+    const hero = document.getElementById("home");
+    if (!hero || typeof IntersectionObserver === "undefined") {
+      setHeroVisible(false);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { threshold: 0.15 }
+    );
+
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, [staffMode]);
+
   const navItems = staffMode ? [{ label: "Public website", href: "#home" }] : publicNavItems;
 
   return (
-    <header className={staffMode ? "site-header" : "site-header site-header-home"}>
+    <header className={staffMode ? "site-header" : `site-header site-header-home${heroVisible ? " is-hero-visible" : ""}`}>
       <a className="brand" href="#home" aria-label="Mindful Centre home">
         <span className="brand-mark">M</span>
         <span>
