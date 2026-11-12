@@ -6087,3 +6087,102 @@ mark.risk {
     padding: 12px 15px 15px;
   }
 }
+
+
+/* Practitioner administration: form-first editing with clear profile metadata. */
+.dashboard-role-admin .practitioner-editor-panel,
+.dashboard-role-director .practitioner-editor-panel {
+  margin: 16px 0 18px;
+  padding: 20px;
+  border: 1px solid #dce8e9;
+  border-radius: 12px;
+  background: #f8fbfb;
+}
+.dashboard-role-admin .practitioner-editor-panel > h3,
+.dashboard-role-director .practitioner-editor-panel > h3 {
+  margin: 0 0 14px;
+  color: #193d50;
+  font-size: .96rem;
+}
+.dashboard-role-admin .practitioner-board-heading,
+.dashboard-role-director .practitioner-board-heading {
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 17px;
+  border-bottom: 1px solid #e8eef0;
+}
+.dashboard-role-admin .practitioner-board-heading > div,
+.dashboard-role-director .practitioner-board-heading > div {
+  min-width: 0;
+  flex: 1;
+}
+.dashboard-role-admin .practitioner-board-heading .resource-count,
+.dashboard-role-director .practitioner-board-heading .resource-count {
+  display: inline-flex;
+  margin: 7px 0 3px;
+  padding: 4px 8px;
+  border: 1px solid #dce9e9;
+  border-radius: 6px;
+  color: #356d70;
+  background: #f1f8f7;
+  font-size: .67rem;
+  font-weight: 800;
+}
+.dashboard-role-admin .practitioner-search,
+.dashboard-role-director .practitioner-search {
+  max-width: 520px;
+  margin: 16px 0 4px;
+}
+.dashboard-role-admin .practitioner-record-card,
+.dashboard-role-director .practitioner-record-card {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 16px;
+  border: 1px solid #e0e9eb;
+  border-radius: 11px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(20,54,70,.035);
+}
+.dashboard-role-admin .practitioner-record-card .record-main,
+.dashboard-role-director .practitioner-record-card .record-main {
+  align-items: flex-start;
+}
+.dashboard-role-admin .practitioner-record-card .record-main > div,
+.dashboard-role-director .practitioner-record-card .record-main > div {
+  display: grid;
+  gap: 5px;
+}
+.dashboard-role-admin .practitioner-record-card .record-main strong,
+.dashboard-role-director .practitioner-record-card .record-main strong {
+  color: #193d50;
+  font-size: .9rem;
+}
+.dashboard-role-admin .practitioner-record-card .record-actions,
+.dashboard-role-director .practitioner-record-card .record-actions {
+  margin-top: auto;
+  padding-top: 11px;
+  border-top: 1px solid #edf1f2;
+}
+.dashboard-role-admin .practitioner-form,
+.dashboard-role-director .practitioner-form {
+  gap: 14px;
+}
+.dashboard-role-admin .practitioner-form .modal-actions,
+.dashboard-role-director .practitioner-form .modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  padding-top: 14px;
+  border-top: 1px solid #e5edef;
+}
+@media (max-width: 620px) {
+  .dashboard-role-admin .practitioner-board-heading,
+  .dashboard-role-director .practitioner-board-heading {
+    flex-wrap: wrap;
+  }
+  .dashboard-role-admin .practitioner-editor-panel,
+  .dashboard-role-director .practitioner-editor-panel {
+    padding: 14px;
+  }
+}
