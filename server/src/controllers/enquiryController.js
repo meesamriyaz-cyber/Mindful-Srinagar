@@ -7,6 +7,7 @@ export const PRIVACY_NOTICE_VERSION = "2026-11-12-v1";
 
 export const enquirySchema = z.object({
   patientName: z.string().trim().min(2, "Please enter the patient's full name").max(90),
+  patientAge: z.number().int().min(0).max(120).optional(),
   guardianName: z.string().trim().max(90).optional().default(""),
   guardianRelationship: z.string().trim().max(80).optional().default(""),
   contactName: z.string().trim().min(2, "Please enter the name of the person we should contact").max(90),
@@ -59,7 +60,7 @@ export async function createEnquiry(req, res, next) {
     }
 
     const {
-      patientName, guardianName, guardianRelationship, contactName,
+      patientName, patientAge, guardianName, guardianRelationship, contactName,
       contactRelationship, phone, email, source, concern,
       preferredContact, urgency, privacyConsent
     } = parsed.data;
@@ -72,6 +73,7 @@ export async function createEnquiry(req, res, next) {
       phone,
       ...(email ? { email } : {}),
       patientName,
+      ...(patientAge !== undefined ? { patientAge } : {}),
       ...(guardianName ? { guardianName } : {}),
       ...(guardianRelationship ? { guardianRelationship } : {}),
       concern,
@@ -123,7 +125,7 @@ export async function convertReferralToPatient(req, res, next) {
       fullName, phone, primaryConcern,
       guardianName: payload.guardianName ?? referral.guardianName,
       guardianRelationship: payload.guardianRelationship ?? referral.guardianRelationship,
-      age: payload.age === "" || payload.age == null ? undefined : Number(payload.age),
+      age: payload.age === "" || payload.age == null ? referral.patientAge : Number(payload.age),
       gender: payload.gender || undefined,
       address: payload.address,
       services: Array.isArray(payload.services) ? payload.services : [],
