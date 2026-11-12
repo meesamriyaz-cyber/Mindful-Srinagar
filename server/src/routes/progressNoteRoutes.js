@@ -3,9 +3,9 @@ import { listProgressNotes, createProgressNote, getProgressNote, updateProgressN
 import { permit } from "../middleware/auth.js";
 const router = express.Router();
 router.get("/", listProgressNotes);
-router.post("/", createProgressNote);
+router.post("/", permit("director", "admin", "doctor", "therapist"), createProgressNote);
 router.get("/:id/amendments", listProgressNoteAmendments);
 router.post("/:id/amendments", permit("director","admin"), amendProgressNote);
 router.get("/:id", getProgressNote);
-router.put("/:id", updateProgressNote);
+router.put("/:id", permit("director", "admin", "doctor", "therapist"), updateProgressNote);
 export default router;
