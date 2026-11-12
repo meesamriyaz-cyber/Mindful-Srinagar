@@ -7323,3 +7323,77 @@ mark.risk {
   border-color: #b8cdd2;
   background: #f7fbfb;
 }
+
+
+/* Dashboard contrast audit — correct high-specificity legacy light text on white KPI tiles. */
+.dashboard-role-admin .director-panel.action-panel.management-financial-panel .business-grid > div > span,
+.dashboard-role-director .director-panel.action-panel.management-financial-panel .business-grid > div > span {
+  color: #425b67;
+  font-size: .72rem;
+  font-weight: 750;
+  line-height: 1.45;
+}
+.dashboard-role-admin .director-panel.action-panel.management-financial-panel .business-grid > div > strong,
+.dashboard-role-director .director-panel.action-panel.management-financial-panel .business-grid > div > strong {
+  color: #173f59;
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  font-weight: 900;
+  line-height: 1.2;
+}
+.dashboard-role-admin .management-stats-grid .stat-topline,
+.dashboard-role-director .management-stats-grid .stat-topline {
+  color: #405b68;
+}
+.dashboard-role-admin .management-stats-grid .stat-card > small,
+.dashboard-role-director .management-stats-grid .stat-card > small {
+  color: #536a75;
+  font-size: .73rem;
+  font-weight: 700;
+}
+.dashboard-role-admin .management-stats-grid .stat-card > strong,
+.dashboard-role-director .management-stats-grid .stat-card > strong {
+  color: #173f59;
+}
+.dashboard-role-admin .management-director-heading .director-section-kicker,
+.dashboard-role-director .management-director-heading .director-section-kicker,
+.dashboard-role-admin .management-analytics-panel .director-card-kicker,
+.dashboard-role-director .management-analytics-panel .director-card-kicker {
+  color: #286d70;
+}
+.dashboard-role-admin .management-director-heading > div > p:last-child,
+.dashboard-role-director .management-director-heading > div > p:last-child {
+  color: #4c626d;
+}
+.dashboard-role-admin .management-analytics-panel .bar-row > span,
+.dashboard-role-director .management-analytics-panel .bar-row > span,
+.dashboard-role-admin .management-analytics-panel .mix-list > span,
+.dashboard-role-director .management-analytics-panel .mix-list > span {
+  color: #435d68;
+}
+.dashboard-role-admin .management-analytics-panel .empty-state,
+.dashboard-role-director .management-analytics-panel .empty-state,
+.dashboard-role-admin .management-priority-panel .empty-state,
+.dashboard-role-director .management-priority-panel .empty-state,
+.dashboard-role-admin .management-cash-panel .empty-state,
+.dashboard-role-director .management-cash-panel .empty-state {
+  color: #4e6570;
+}
+.dashboard-role-admin .management-priority-panel .priority-list li span,
+.dashboard-role-director .management-priority-panel .priority-list li span {
+  color: #526873;
+}
+.dashboard-role-admin .management-appointment-list .appointment-row time,
+.dashboard-role-director .management-appointment-list .appointment-row time {
+  color: #245d65;
+  font-weight: 850;
+}
+.dashboard-role-admin .management-appointment-list .appointment-row span,
+.dashboard-role-director .management-appointment-list .appointment-row span,
+.dashboard-role-admin .management-cash-panel .compact-record span,
+.dashboard-role-director .management-cash-panel .compact-record span {
+  color: #526873;
+}
+.dashboard-role-admin .management-director-view .director-period-label,
+.dashboard-role-director .management-director-view .director-period-label {
+  color: #365762;
+}
