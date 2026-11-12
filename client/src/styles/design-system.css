@@ -7969,3 +7969,41 @@ mark.risk {
     display: none;
   }
 }
+
+
+/* Reports: Business Diagnosis is intentionally dark teal; keep its entire content light. */
+.dashboard-role-admin .management-reports-grid > article:first-child,
+.dashboard-role-director .management-reports-grid > article:first-child {
+  color: #f3f8fa;
+  background: linear-gradient(145deg, #17465b 0%, #1d5b68 100%);
+  border-color: #245e6b;
+}
+.dashboard-role-admin .management-reports-grid > article:first-child .panel-title,
+.dashboard-role-director .management-reports-grid > article:first-child .panel-title {
+  border-bottom-color: rgba(230, 246, 247, .32);
+}
+.dashboard-role-admin .management-reports-grid > article:first-child .panel-title h3,
+.dashboard-role-director .management-reports-grid > article:first-child .panel-title h3 {
+  color: #fff;
+}
+.dashboard-role-admin .management-reports-grid > article:first-child .panel-title > svg,
+.dashboard-role-director .management-reports-grid > article:first-child .panel-title > svg {
+  color: #e6f5f4;
+}
+.dashboard-role-admin .management-reports-grid > article:first-child .resource-description,
+.dashboard-role-director .management-reports-grid > article:first-child .resource-description {
+  color: #e0eef1;
+}
+.dashboard-role-admin .management-reports-grid > article:first-child .insight-list > p:not(.empty-state),
+.dashboard-role-director .management-reports-grid > article:first-child .insight-list > p:not(.empty-state) {
+  color: #f1f7f8;
+  border-bottom-color: rgba(230, 246, 247, .24);
+  border-left-color: #9bd8ce;
+  background: rgba(255, 255, 255, .075);
+}
+.dashboard-role-admin .management-reports-grid > article:first-child .insight-list > p.empty-state,
+.dashboard-role-director .management-reports-grid > article:first-child .insight-list > p.empty-state {
+  color: #e0eef1;
+  background: rgba(255, 255, 255, .075);
+  border-color: rgba(230, 246, 247, .3);
+}
