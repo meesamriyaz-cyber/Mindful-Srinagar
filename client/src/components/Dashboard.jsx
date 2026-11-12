@@ -1146,7 +1146,7 @@ export function Dashboard() {
           </div>
         </aside>
         <div className="console">
-          <div className="console-header">
+          <div className="console-header management-console-header">
             <div>
               <p className="eyebrow">{isDirector ? "Director command centre" : "Operations dashboard"}</p>
               <h2>{activeView === "overview" ? (["doctor","therapist"].includes(session.user?.role) ? "My clinical activity" : "Whole-centre operating view") : activeConfig.label}</h2>
@@ -1181,7 +1181,7 @@ export function Dashboard() {
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeView}
-                className="workspace-view"
+                className="workspace-view management-workspace-view"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
