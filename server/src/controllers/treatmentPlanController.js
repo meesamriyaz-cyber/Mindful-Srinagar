@@ -26,6 +26,11 @@ const controller = makeClinicalRecordController({
       }
       return;
     }
+    if (!mongoose.isValidObjectId(payload.assessment)) {
+      const error = new Error("Select a valid assessment");
+      error.statusCode = 400;
+      throw error;
+    }
     const assessment = await Assessment.findById(payload.assessment).select("patient status");
     const errorMessage = validateTreatmentPlanAssessment({
       patient: payload.patient,
