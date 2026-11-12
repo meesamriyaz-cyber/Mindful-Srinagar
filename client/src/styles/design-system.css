@@ -3,34 +3,43 @@
 
 :root {
   color-scheme: light;
-  --teal: #247f83;
-  --teal-dark: #17666b;
-  --navy: #173f59;
-  --ink: #243342;
-  --muted: #667786;
-  --line: #dce5e9;
+  /* Invitation-inspired Mindful identity: midnight navy, royal blue, sky and champagne. */
+  --teal: #1f5da8;
+  --teal-dark: #174a91;
+  --navy: #102b68;
+  --ink: #172b4d;
+  --muted: #536985;
+  --line: #d7e5f2;
   --surface: #ffffff;
-  --soft: #f3f7f8;
-  --yellow: #d9a441;
-  --coral: #d87962;
-  --sage: #78968b;
-  --shadow: 0 16px 40px rgba(23, 63, 89, 0.09);
+  --soft: #f3f8fd;
+  --yellow: #d5ad55;
+  --coral: #c66b59;
+  --sage: #668ba9;
+  --shadow: 0 18px 44px rgba(16, 43, 104, 0.10);
 
-  --mindful-canvas: #f4f7f8;
+  --mindful-canvas: #f3f8fd;
   --mindful-panel: #ffffff;
-  --mindful-panel-muted: #f7fafb;
-  --mindful-border: #e1e8eb;
-  --mindful-text: #243342;
-  --mindful-text-muted: #697987;
-  --mindful-primary: #173f59;
-  --mindful-accent: #247f83;
-  --mindful-accent-soft: #eaf4f3;
-  --mindful-warning: #a66b16;
-  --mindful-warning-soft: #fff6e5;
-  --mindful-danger: #a74437;
-  --mindful-danger-soft: #fff0ed;
-  --mindful-success: #27745f;
-  --mindful-success-soft: #eaf5f0;
+  --mindful-panel-muted: #f7fbff;
+  --mindful-border: #d7e5f2;
+  --mindful-text: #172b4d;
+  --mindful-text-muted: #536985;
+  --mindful-primary: #102b68;
+  --mindful-accent: #1f5da8;
+  --mindful-accent-soft: #e8f2fb;
+  --mindful-warning: #805b17;
+  --mindful-warning-soft: #fbf4e5;
+  --mindful-danger: #a33e42;
+  --mindful-danger-soft: #fff0f0;
+  --mindful-success: #21634f;
+  --mindful-success-soft: #eaf5ef;
+
+  --mindful-midnight: #102b68;
+  --mindful-royal: #174a91;
+  --mindful-blue: #1f5da8;
+  --mindful-sky: #8ec5e8;
+  --mindful-ice: #f3f8fd;
+  --mindful-gold: #d5ad55;
+  --mindful-slate: #263f67;
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -8589,4 +8598,452 @@ mark.risk {
 .dashboard-role-doctor .sidebar .sidebar-context > span:last-child,
 .dashboard-role-therapist .sidebar .sidebar-context > span:last-child {
   color: #526873;
+}
+
+
+/* ================================================================
+   Mindful invitation-inspired theme — complete visual migration
+   Palette: midnight navy / royal blue / sky blue / ice white / gold.
+   This is a visual-only layer; workflows, data and permissions remain unchanged.
+   ================================================================ */
+
+:root {
+  --focus-ring: 0 0 0 3px rgba(31, 93, 168, .25);
+  --mindful-gradient-brand: linear-gradient(135deg, #102b68 0%, #174a91 58%, #2879b8 100%);
+  --mindful-gradient-soft: linear-gradient(135deg, #f3f8fd 0%, #e8f3fc 100%);
+  --mindful-gold-soft: #fbf5e8;
+}
+
+body {
+  color: #172b4d;
+  background: #f3f8fd;
+}
+
+::selection {
+  color: #fff;
+  background: #174a91;
+}
+
+/* Public website and shared header */
+.site-header {
+  color: #172b4d;
+  background: rgba(250, 253, 255, .96);
+  border-bottom-color: #d7e5f2;
+  box-shadow: 0 4px 18px rgba(16, 43, 104, .045);
+}
+.brand-mark {
+  color: #fff;
+  background: linear-gradient(145deg, #102b68, #2879b8);
+  box-shadow: 0 5px 14px rgba(16, 43, 104, .18);
+}
+.brand strong { color: #102b68; }
+.brand small { color: #536985; }
+.nav a { color: #263f67; }
+.nav a:hover, .nav a:focus-visible { color: #174a91; }
+.nav-staff-link { color: #174a91 !important; }
+.icon-button { color: #174a91; }
+.primary-button {
+  color: #fff;
+  background: linear-gradient(135deg, #102b68, #1f5da8);
+  border: 1px solid #174a91;
+  box-shadow: 0 7px 16px rgba(16, 43, 104, .16);
+}
+.primary-button:hover:not(:disabled) {
+  color: #fff;
+  background: #0b2258;
+  border-color: #0b2258;
+  box-shadow: 0 9px 20px rgba(16, 43, 104, .22);
+}
+.secondary-button {
+  color: #174a91;
+  background: #fff;
+  border: 1px solid #b9d2e8;
+}
+.secondary-button:hover:not(:disabled) {
+  color: #102b68;
+  background: #edf5fc;
+  border-color: #8ec5e8;
+}
+.site-header .secondary-button { color: #174a91; }
+
+/* Landing page: cool paper surfaces and restrained gold details */
+.hero {
+  color: #172b4d;
+  background:
+    radial-gradient(ellipse at 84% 10%, rgba(142, 197, 232, .32), transparent 34%),
+    linear-gradient(135deg, #f7fbff 0%, #eaf4fc 55%, #f5f9fd 100%);
+}
+.hero h1, .section-heading h2, .contact-copy h2,
+.referral-copy h2, .care-detail h3 {
+  color: #102b68;
+}
+.hero-lede, .section-heading > p:not(.eyebrow),
+.contact-copy > p:not(.eyebrow), .referral-copy > p:not(.eyebrow) {
+  color: #536985;
+}
+.hero-identity {
+  border-color: rgba(23, 74, 145, .18);
+  background: rgba(255,255,255,.78);
+}
+.hero-identity-name { color: #102b68; }
+.hero-identity-description, .hero-identity-location { color: #536985; }
+.hero-metrics {
+  color: #fff;
+  background: linear-gradient(135deg, #102b68, #174a91);
+  border-color: rgba(255,255,255,.22);
+}
+.hero-metrics strong { color: #f1d58e; }
+.hero-visual {
+  border-color: #c9deef;
+  background: linear-gradient(145deg, #e7f3fc, #f8fbff);
+  box-shadow: 0 22px 48px rgba(16, 43, 104, .12);
+}
+.hero-visual-fallback span {
+  color: #174a91;
+  background: rgba(255,255,255,.9);
+  border-color: #c9deef;
+}
+.eyebrow, .care-detail-kicker { color: #1f5da8; }
+.section { color: #172b4d; }
+.services-section, .contact-section { background: #f3f8fd; }
+.operations-section { background: #eaf3fb; }
+.service-group-card, .care-detail, .contact-form,
+.referral-partner-card, .services-visual {
+  color: #172b4d;
+  background: #fff;
+  border-color: #d7e5f2;
+  box-shadow: 0 12px 30px rgba(16, 43, 104, .06);
+}
+.service-group-card h3, .booking-form-header strong,
+.referral-partner-card strong { color: #102b68; }
+.service-group-card p, .service-group-card li,
+.care-detail p, .booking-form-header small { color: #536985; }
+.service-group-card li svg, .referral-partner-card svg { color: #1f5da8; }
+.care-outcomes span {
+  color: #174a91;
+  background: #fff;
+  border-color: #c8dced;
+}
+.care-step-card {
+  color: #405b7d;
+  background: #fff;
+  border-color: #d1e1ef;
+}
+.care-step-card svg { color: #1f5da8; }
+.care-step-card.is-active {
+  color: #fff;
+  background: linear-gradient(145deg, #102b68, #174a91);
+  border-color: #174a91;
+  box-shadow: 0 10px 22px rgba(16, 43, 104, .16);
+}
+.care-step-card.is-active svg,
+.care-step-card.is-active .care-step-number,
+.care-step-card.is-active .care-step-name,
+.care-step-card.is-active .care-step-owner { color: #fff; }
+.care-step-number { color: #1f5da8; }
+.care-step-name { color: #102b68; }
+.care-step-owner { color: #617995; }
+.care-detail { border-top: 3px solid #d5ad55; }
+.callout {
+  color: #174a91;
+  background: #e8f2fb;
+  border-color: #c8dced;
+}
+.referral-section {
+  color: #fff;
+  background: linear-gradient(125deg, #102b68 0%, #174a91 70%, #1e619f 100%);
+}
+.referral-copy h2, .referral-copy > p, .referral-copy .eyebrow { color: #fff; }
+.referral-copy .eyebrow { color: #f1d58e; }
+.referral-section .callout {
+  color: #f6faff;
+  background: rgba(255,255,255,.10);
+  border-color: rgba(255,255,255,.24);
+}
+.referral-partner-card {
+  color: #fff;
+  background: rgba(255,255,255,.10);
+  border-color: rgba(255,255,255,.28);
+}
+.referral-partner-card strong, .referral-partner-card svg { color: #fff; }
+.referral-section .primary-button {
+  color: #102b68;
+  background: #f0d58e;
+  border-color: #d5ad55;
+  box-shadow: 0 8px 18px rgba(0,0,0,.12);
+}
+.referral-section .primary-button:hover { color: #102b68; background: #f8e8b8; }
+.booking-form-header {
+  border-bottom-color: #e4edf5;
+}
+.booking-icon { color: #174a91; background: #e8f2fb; }
+.contact-form label { color: #263f67; }
+.contact-form input, .contact-form select, .contact-form textarea {
+  color: #172b4d;
+  background: #fff;
+  border-color: #bfd4e6;
+}
+.contact-form input::placeholder, .contact-form textarea::placeholder {
+  color: #71849a;
+  opacity: 1;
+}
+.contact-form input:focus, .contact-form select:focus, .contact-form textarea:focus {
+  border-color: #1f5da8;
+  box-shadow: 0 0 0 3px rgba(31,93,168,.14);
+}
+.booking-promises, .contact-strip { color: #536985; }
+.contact-strip { border-top-color: #d7e5f2; }
+footer {
+  color: #eaf3fb;
+  background: #102b68;
+}
+footer strong { color: #fff; }
+footer span { color: #c9dced; }
+
+/* Staff console shell, side navigation and role context */
+.dashboard-section { color: #172b4d; background: #f3f8fd; }
+.dashboard-section .sidebar {
+  color: #eaf3fb;
+  background: linear-gradient(180deg, #102b68 0%, #123b7d 60%, #174a91 100%);
+  border-right: 1px solid rgba(255,255,255,.1);
+}
+.dashboard-section .sidebar .brand strong { color: #fff; }
+.dashboard-section .sidebar .brand small { color: #c9dced; }
+.dashboard-section .sidebar .brand-mark {
+  color: #102b68;
+  background: linear-gradient(145deg, #dceefa, #8ec5e8);
+}
+.dashboard-section .sidebar-section-title,
+.dashboard-section .sidebar-context-label { color: #b8d5eb; }
+.dashboard-section .side-link { color: #e3eff9; }
+.dashboard-section .side-link svg { color: #a9cce7; }
+.dashboard-section .side-link:hover { color: #fff; background: rgba(255,255,255,.09); }
+.dashboard-section .side-link.active {
+  color: #102b68;
+  background: #eaf4fc;
+  box-shadow: inset 3px 0 #d5ad55;
+}
+.dashboard-section .side-link.active svg { color: #174a91; }
+.dashboard-section .sidebar-context {
+  color: #172b4d;
+  background: #eaf3fb;
+  border-color: #c5dced;
+}
+.dashboard-section .sidebar-context .sidebar-context-label { color: #536985; }
+.dashboard-section .sidebar-context strong { color: #102b68; }
+.dashboard-section .sidebar-context > span:last-child { color: #536985; }
+.dashboard-section .management-console-header {
+  color: #172b4d;
+  background: rgba(255,255,255,.94);
+  border-bottom-color: #d7e5f2;
+}
+.dashboard-section .management-console-header h1,
+.dashboard-section .management-console-header h2 { color: #102b68; }
+.dashboard-section .management-console-header p,
+.dashboard-section .management-console-header .console-user { color: #536985; }
+.dashboard-section .management-console-header input {
+  color: #172b4d;
+  background: #f7fbff;
+  border-color: #c7dced;
+}
+.dashboard-section .management-console-header input::placeholder { color: #71849a; opacity: 1; }
+
+/* Shared admin, director, practitioner and staff work surfaces */
+.dashboard-section .table-panel,
+.dashboard-section .action-panel,
+.dashboard-section .resource-panel,
+.dashboard-section .record-card,
+.dashboard-section .stat-card,
+.dashboard-section .management-analytics-panel,
+.dashboard-section .management-priority-panel,
+.dashboard-section .management-cash-panel,
+.dashboard-section .staff-console-panel {
+  color: #172b4d;
+  background: #fff;
+  border-color: #d7e5f2;
+  box-shadow: 0 8px 24px rgba(16, 43, 104, .055);
+}
+.dashboard-section h1, .dashboard-section h2, .dashboard-section h3,
+.dashboard-section h4, .dashboard-section .panel-title h3 {
+  color: #102b68;
+}
+.dashboard-section p, .dashboard-section label,
+.dashboard-section .resource-description, .dashboard-section .empty-state,
+.dashboard-section .management-record-meta {
+  color: #536985;
+}
+.dashboard-section .stat-topline,
+.dashboard-section .stat-card > small { color: #536985; }
+.dashboard-section .stat-card > strong { color: #102b68; }
+.dashboard-section .stat-topline svg,
+.dashboard-section .panel-title svg { color: #1f5da8; }
+.dashboard-section .resource-title,
+.dashboard-section .panel-title { border-bottom-color: #e4edf5; }
+.dashboard-section .record-card,
+.dashboard-section .management-record-card,
+.dashboard-section .staff-record-card { border-color: #d7e5f2; }
+.dashboard-section .record-card strong,
+.dashboard-section .management-record-card strong { color: #102b68; }
+.dashboard-section .record-card span,
+.dashboard-section .record-card p { color: #536985; }
+.dashboard-section .secondary-button { color: #174a91; }
+.dashboard-section .primary-button { color: #fff; }
+.dashboard-section .form-status { color: #174a91; }
+.dashboard-section .success-status { color: #21634f; background: #eaf5ef; }
+.dashboard-section .error-status { color: #963b3e; background: #fff0f0; }
+
+/* Financial performance / reports: keep the deliberately dark feature panels coherent. */
+.dashboard-section .management-financial-panel,
+.dashboard-section .management-reports-grid > article:first-child,
+.dashboard-section .management-director-view .management-financial-panel {
+  color: #f5f9ff;
+  background: linear-gradient(145deg, #102b68 0%, #174a91 72%, #1c5d9a 100%);
+  border-color: #174a91;
+}
+.dashboard-section .management-financial-panel h3,
+.dashboard-section .management-financial-panel .panel-title h3,
+.dashboard-section .management-financial-panel .director-panel-kicker,
+.dashboard-section .management-financial-panel .director-card-kicker {
+  color: #f4f8ff;
+}
+.dashboard-section .management-financial-panel p,
+.dashboard-section .management-financial-panel span,
+.dashboard-section .management-financial-panel .director-insights p {
+  color: #e1edf8;
+}
+.dashboard-section .management-financial-panel .business-grid > div,
+.dashboard-section .management-financial-panel .director-insights p {
+  border-color: rgba(255,255,255,.24);
+}
+.dashboard-section .management-financial-panel .business-grid > div > strong {
+  color: #fff;
+}
+.dashboard-section .management-financial-panel .director-collection-track { background: rgba(255,255,255,.24); }
+.dashboard-section .management-financial-panel .director-period-label-dark {
+  color: #fff;
+  background: rgba(255,255,255,.12);
+  border-color: rgba(255,255,255,.25);
+}
+.dashboard-section .management-reports-grid > article:not(:first-child) {
+  color: #172b4d;
+  background: #fff;
+  border-color: #d7e5f2;
+}
+.dashboard-section .management-reports-grid > article:not(:first-child) h3,
+.dashboard-section .management-reports-grid > article:not(:first-child) strong { color: #102b68; }
+.dashboard-section .management-reports-grid > article:not(:first-child) p,
+.dashboard-section .management-reports-grid > article:not(:first-child) span { color: #536985; }
+
+/* Clinical and patient journey records */
+.dashboard-section .clinical-resource-panel,
+.dashboard-section .practitioner-editor-panel,
+.dashboard-section .staff-account-editor,
+.dashboard-section .journey-card {
+  color: #172b4d;
+  background: #fff;
+  border-color: #d7e5f2;
+}
+.dashboard-section .clinical-resource-panel .clinical-record-detail,
+.dashboard-section .journey-card p,
+.dashboard-section .journey-card li,
+.dashboard-section .journey-audit-history { color: #536985; }
+.dashboard-section .journey-step { color: #263f67; background: #edf5fc; }
+.dashboard-section .journey-step.is-active { color: #fff; background: #102b68; }
+.dashboard-section .journey-step.is-active * { color: #fff; }
+.dashboard-section .availability-chip { color: #174a91; background: #e8f2fb; }
+.dashboard-section .availability-unset { color: #647b94; }
+
+/* Forms, controls and modals — explicit foreground/background pairing. */
+.dashboard-section input, .dashboard-section select, .dashboard-section textarea,
+.dashboard-section .clinical-form input, .dashboard-section .clinical-form select,
+.dashboard-section .clinical-form textarea {
+  color: #172b4d;
+  background-color: #fff;
+  border-color: #bfd4e6;
+}
+.dashboard-section input::placeholder, .dashboard-section textarea::placeholder {
+  color: #71849a;
+  opacity: 1;
+}
+.dashboard-section input:focus-visible, .dashboard-section select:focus-visible,
+.dashboard-section textarea:focus-visible, .dashboard-section button:focus-visible {
+  outline: 3px solid rgba(31,93,168,.28);
+  outline-offset: 2px;
+}
+.dashboard-section .modal {
+  color: #172b4d;
+  background: #fff;
+  border-color: #d7e5f2;
+}
+.dashboard-section .modal h3, .dashboard-section .modal h4,
+.dashboard-section .modal strong { color: #102b68; }
+.dashboard-section .modal p, .dashboard-section .modal label,
+.dashboard-section .modal small { color: #536985; }
+.dashboard-section .modal input, .dashboard-section .modal select,
+.dashboard-section .modal textarea {
+  color: #172b4d;
+  background: #fff;
+  border-color: #bfd4e6;
+}
+
+/* D3 practitioner workspace: navy identity panel with light copy; white data cards. */
+.dashboard-role-doctor .staff-console-identity,
+.dashboard-role-therapist .staff-console-identity {
+  color: #f5f9ff;
+  background: linear-gradient(125deg, #102b68 0%, #174a91 68%, #1f5da8 100%);
+  border-color: #174a91;
+}
+.dashboard-role-doctor .staff-console-identity .panel-title,
+.dashboard-role-therapist .staff-console-identity .panel-title,
+.dashboard-role-doctor .staff-console-identity .panel-title h3,
+.dashboard-role-therapist .staff-console-identity .panel-title h3 {
+  color: #fff;
+}
+.dashboard-role-doctor .staff-console-identity > p,
+.dashboard-role-therapist .staff-console-identity > p { color: #e1edf8; }
+.dashboard-role-doctor .staff-console-identity > p strong,
+.dashboard-role-therapist .staff-console-identity > p strong { color: #fff; }
+.dashboard-role-doctor .staff-console-metrics .stat-card,
+.dashboard-role-therapist .staff-console-metrics .stat-card,
+.dashboard-role-doctor .staff-console-panel,
+.dashboard-role-therapist .staff-console-panel {
+  color: #172b4d;
+  background: #fff;
+  border-color: #d7e5f2;
+}
+.dashboard-role-doctor .staff-console-metrics .stat-topline,
+.dashboard-role-therapist .staff-console-metrics .stat-topline { color: #536985; }
+.dashboard-role-doctor .staff-console-metrics .stat-card > strong,
+.dashboard-role-therapist .staff-console-metrics .stat-card > strong { color: #102b68; }
+
+/* Status colours remain semantic and are not replaced by decorative gold. */
+.dashboard-section mark,
+.dashboard-section .status-badge {
+  color: #263f67;
+  background: #edf4fa;
+}
+.dashboard-section mark.good, .dashboard-section .status-success {
+  color: #21634f;
+  background: #eaf5ef;
+}
+.dashboard-section mark.risk, .dashboard-section .status-warning {
+  color: #805b17;
+  background: #fbf4e5;
+}
+.dashboard-section .status-danger {
+  color: #963b3e;
+  background: #fff0f0;
+}
+
+/* Gold is reserved for small identity details, never body copy or large surfaces. */
+.dashboard-section .side-link.active { box-shadow: inset 3px 0 #d5ad55; }
+.dashboard-section .director-panel-kicker,
+.dashboard-section .director-card-kicker { letter-spacing: .12em; }
+.dashboard-section .director-collection-track > span { background: #d5ad55; }
+
+@media (max-width: 760px) {
+  .site-header { background: rgba(250,253,255,.98); }
+  .hero { background: linear-gradient(160deg, #f7fbff, #eaf4fc); }
+  .referral-section { background: linear-gradient(160deg, #102b68, #174a91); }
+  .dashboard-section .management-console-header { background: #fff; }
 }
