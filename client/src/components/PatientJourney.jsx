@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAccessibleDialog } from "../hooks/useAccessibleDialog.js";
 import {
   ArrowRight,
   CalendarClock,
@@ -117,6 +118,8 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const [amendmentSaving, setAmendmentSaving] = useState(false);
   const [approvingPlanId, setApprovingPlanId] = useState("");
   const [planApprovalError, setPlanApprovalError] = useState("");
+  const journeyDialogRef = useAccessibleDialog(true, onClose);
+  const dischargeDialogRef = useAccessibleDialog(showDischarge, () => setShowDischarge(false));
 
   useEffect(() => {
     if (!patient || !token) return;
@@ -400,16 +403,21 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     >
       <motion.div
         className="modal journey-modal management-journey-modal"
+        ref={journeyDialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="patient-journey-title"
+        tabIndex={-1}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
       >
         <div className="modal-header journey-header">
           <div>
-            <h3>Patient Journey & History</h3>
+            <h3 id="patient-journey-title">Patient Journey & History</h3>
             <small>{patient?.fullName} (MRN: {patient?.mrn})</small>
           </div>
-          <button className="icon-button" type="button" onClick={onClose}>
+          <button className="icon-button" type="button" aria-label="Close patient journey" onClick={onClose}>
             <X size={18} />
           </button>
         </div>
@@ -609,14 +617,19 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
             >
               <motion.div
                 className="modal journey-discharge-modal"
+                ref={dischargeDialogRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="patient-discharge-title"
+                tabIndex={-1}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="modal-header">
-                  <h3>Discharge {patient?.fullName}</h3>
-                  <button className="icon-button" type="button" onClick={() => setShowDischarge(false)}>
+                  <h3 id="patient-discharge-title">Discharge {patient?.fullName}</h3>
+                  <button className="icon-button" type="button" aria-label="Close discharge dialog" onClick={() => setShowDischarge(false)}>
                     <X size={18} />
                   </button>
                 </div>
