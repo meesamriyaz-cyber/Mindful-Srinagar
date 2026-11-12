@@ -31,6 +31,7 @@ import { taskManagers, taskScope } from "../security/taskAccess.js";
 import { calculateOutstandingBalance } from "../utils/invoiceBalance.js";
 import { escapeRegex } from "../utils/query.js";
 import { canTransitionPatientStatus, validateDischargeDetails } from "../security/patientLifecycle.js";
+import { canActivatePatient } from "../security/carePlanRules.js";
 import { validateAppointmentShape, canTransitionAppointment, findAppointmentConflict, isWithinPractitionerAvailability } from "../security/appointmentRules.js";
 import { createPractitionerPatientScope } from "../security/practitionerPatientScope.js";
 const router = express.Router();
@@ -100,8 +101,10 @@ router.use("/patients", crudRoutes(makeCrudController(Patient, ["referral"], {
         Assessment.exists({ patient: req.params.id, status: "completed" }),
         TreatmentPlan.exists({ patient: req.params.id, status: "active", approvedBy: { $ne: null }, approvedAt: { $ne: null } })
       ]);
-      if (!hasCompletedAssessment) return { statusCode: 409, message: "Complete an initial assessment before activating this patient's treatment episode" };
-      if (!hasApprovedActivePlan) return { statusCode: 409, message: "An approved active treatment plan is required before activating this patient" };
+      if (!canActivatePatient({ hasCompletedAssessment: Boolean(hasCompletedAssessment), hasApprovedActivePlan: Boolean(hasApprovedActivePlan) })) {
+        if (!hasCompletedAssessment) return { statusCode: 409, message: "Complete an initial assessment before activating this patient's treatment episode" };
+        return { statusCode: 409, message: "An approved active treatment plan is required before activating this patient" };
+      }
     }
     const dischargeError = validateDischargeDetails(payload);
     if (dischargeError) return { statusCode: 400, message: dischargeError };
