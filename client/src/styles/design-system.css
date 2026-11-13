@@ -10289,3 +10289,10 @@ body {
     background: #247f83;
   }
 }
+
+
+/* The hero already provides the Google Maps location preview; remove the
+   duplicate map panel beneath the Contact form while keeping contact details. */
+#contact .contact-map {
+  display: none !important;
+}
