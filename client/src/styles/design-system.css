@@ -10381,3 +10381,10 @@ body {
 .site-header-home .brand-logo-image {
   filter: saturate(1.28) hue-rotate(-7deg) contrast(1.04);
 }
+
+
+/* Stronger theme recolouring: convert the emblem to a coordinated teal treatment
+   rather than relying on the previous subtle saturation adjustment. */
+.site-header-home .brand-logo-image {
+  filter: grayscale(1) sepia(1) saturate(3.8) hue-rotate(126deg) brightness(0.82) contrast(1.12) !important;
+}
