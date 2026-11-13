@@ -10115,3 +10115,22 @@ body {
     text-align: center;
   }
 }
+
+/* Keep the mobile accent rule attached to the centred descriptor, not the full identity column. */
+@media (max-width: 620px) {
+  .hero-copy .hero-identity,
+  .hero-copy .hero-identity-name {
+    border-left: 0 !important;
+  }
+
+  .hero-copy .hero-identity-description {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 9px auto 0;
+    padding: 0 0 0 11px;
+    border-left: 3px solid var(--public-teal);
+    text-align: center;
+  }
+}
