@@ -1720,8 +1720,20 @@ footer span {
   }
 
   .site-header .brand small {
-    max-width: 220px;
+    display: block;
+    max-width: 240px;
     font-size: 0.62rem;
+    line-height: 1.2;
+  }
+
+  .site-header .brand-location {
+    display: block;
+    margin-top: 2px;
+    color: #82929c;
+    font-size: 0.48rem;
+    font-weight: 650;
+    line-height: 1.15;
+    letter-spacing: 0.015em;
   }
 
   .hero {
