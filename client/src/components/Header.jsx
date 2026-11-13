@@ -37,13 +37,19 @@ export function Header({ staffMode = false }) {
 
   return (
     <header className={staffMode ? "site-header" : `site-header site-header-home${heroVisible ? " is-hero-visible" : ""}`}>
-      <a className="brand" href="#home" aria-label="Mindful Centre home">
-        <span className="brand-mark">M</span>
-        <span>
-          <strong>Mindful</strong>
-          <small>Centre for Rehabilitation Research &amp; Training Foundation</small>
-          <span className="brand-location">For Persons with Disabilities, Srinagar</span>
-        </span>
+      <a className={heroVisible && !staffMode ? "brand brand-home-logo" : "brand"} href="#home" aria-label="Mindful Centre home">
+        {heroVisible && !staffMode ? (
+          <img className="brand-logo-image" src="/mindful-logo.svg" alt="Mindful Centre emblem" />
+        ) : (
+          <>
+            <span className="brand-mark">M</span>
+            <span>
+              <strong>Mindful</strong>
+              <small>Centre for Rehabilitation Research &amp; Training Foundation</small>
+              <span className="brand-location">For Persons with Disabilities, Srinagar</span>
+            </span>
+          </>
+        )}
       </a>
 
       <button
