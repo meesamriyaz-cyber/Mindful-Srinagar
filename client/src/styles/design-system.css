@@ -1721,9 +1721,11 @@ footer span {
 
   .site-header .brand small {
     display: block;
-    max-width: 240px;
-    font-size: 0.62rem;
+    max-width: none;
+    white-space: nowrap;
+    font-size: clamp(0.44rem, 2.2vw, 0.62rem);
     line-height: 1.2;
+    letter-spacing: -0.02em;
   }
 
   .site-header .brand-location {
@@ -9443,6 +9445,11 @@ mark.risk {
   .dashboard-section .form-status {
     border: 1px solid CanvasText;
   }
+}
+
+/* Keep the dashboard sidebar identity concise: the M mark plus console role is sufficient. */
+.sidebar-brand .brand strong {
+  display: none;
 }
 
 /* D6 mobile navigation repair — keep sidebar groups full-width so links
