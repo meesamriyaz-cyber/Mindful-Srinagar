@@ -10348,3 +10348,19 @@ body {
     height: 38px;
   }
 }
+
+
+/* Responsive navbar emblem: give the centre logo a stronger presence on desktop. */
+@media (min-width: 761px) {
+  .site-header-home .brand-logo-image {
+    width: clamp(88px, 7.5vw, 116px);
+    height: clamp(68px, 5.8vw, 90px);
+  }
+}
+
+@media (max-width: 760px) {
+  .site-header-home .brand-logo-image {
+    width: 48px;
+    height: 38px;
+  }
+}
