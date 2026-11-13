@@ -10318,3 +10318,33 @@ body {
     letter-spacing: -0.06em;
   }
 }
+
+
+/* Swap the text brand for the centre emblem while the homepage hero is in view. */
+.site-header-home.is-hero-visible .brand {
+  visibility: visible;
+}
+
+.site-header-home .brand-home-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: auto;
+  min-width: 0;
+  gap: 0;
+}
+
+.brand-logo-image {
+  display: block;
+  width: 64px;
+  height: 50px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 620px) {
+  .brand-logo-image {
+    width: 48px;
+    height: 38px;
+  }
+}
