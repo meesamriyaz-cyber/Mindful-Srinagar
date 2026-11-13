@@ -10087,3 +10087,31 @@ body {
     text-align: center;
   }
 }
+
+/* Final mobile wordmark alignment: the accent rule belongs only to the descriptor block. */
+@media (max-width: 620px) {
+  .hero-copy .hero-identity {
+    border-left: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  .hero-copy .hero-identity-name {
+    width: 100%;
+    font-size: clamp(3.65rem, 15vw, 4.8rem);
+    line-height: 0.94;
+    letter-spacing: -0.06em;
+    margin: 0;
+    text-align: center;
+  }
+
+  .hero-copy .hero-identity-description {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 9px auto 0;
+    padding: 0 0 0 11px;
+    border: 0;
+    border-left: 3px solid var(--public-teal);
+    text-align: center;
+  }
+}
