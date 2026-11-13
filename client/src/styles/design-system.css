@@ -10364,3 +10364,20 @@ body {
     height: 38px;
   }
 }
+
+
+/* Public homepage sections use a full-viewport canvas. Content can still
+   expand naturally on smaller screens or when a section is taller than one view. */
+.hero,
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  min-height: 100svh;
+  box-sizing: border-box;
+}
+
+/* Align the centre emblem with the site's navy-and-teal visual identity. */
+.site-header-home .brand-logo-image {
+  filter: saturate(1.28) hue-rotate(-7deg) contrast(1.04);
+}
