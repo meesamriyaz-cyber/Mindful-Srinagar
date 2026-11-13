@@ -10255,3 +10255,16 @@ body {
     background: #247f83;
   }
 }
+
+/* Desktop hero identity: restore the full-height vertical accent beside the
+   complete Mindful lockup. Mobile retains its centred wordmark underline. */
+@media (min-width: 761px) {
+  .hero-copy .hero-identity {
+    border-left: 4px solid #247f83;
+    padding-left: 19px;
+  }
+
+  .hero-copy .hero-identity-name::after {
+    display: none;
+  }
+}
