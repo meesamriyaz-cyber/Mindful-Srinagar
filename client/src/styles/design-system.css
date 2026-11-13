@@ -10058,3 +10058,32 @@ body {
 .hero-copy .hero-identity-name {
   margin-left: -3px;
 }
+
+/* Mobile hero identity: centre the wording and move the accent rule below the name. */
+@media (max-width: 620px) {
+  .hero-copy .hero-identity {
+    justify-items: center;
+    text-align: center;
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .hero-copy .hero-identity-name {
+    width: 100%;
+    margin-left: 0;
+    text-align: center;
+  }
+
+  .hero-copy .hero-identity-description {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    padding-left: 10px;
+    border-left: 3px solid var(--public-teal);
+    text-align: center;
+  }
+
+  .hero-copy .hero-identity-line {
+    text-align: center;
+  }
+}
