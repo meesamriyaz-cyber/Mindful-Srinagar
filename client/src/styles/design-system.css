@@ -9925,3 +9925,56 @@ body {
     font-size: 0.7rem;
   }
 }
+
+/* Reassuring non-blocking status toast while staff login waits for the API. */
+.login-wait-toast {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid rgba(36, 127, 131, 0.2);
+  border-radius: 11px;
+  color: #244b60;
+  background: #eff8f7;
+  box-shadow: 0 5px 16px rgba(23, 63, 89, 0.06);
+}
+
+.login-wait-toast > span:last-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.login-wait-toast strong {
+  color: #176f70;
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.login-wait-toast small {
+  color: #607783;
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.login-wait-spinner {
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  border: 2px solid rgba(36, 127, 131, 0.2);
+  border-top-color: #247f83;
+  border-radius: 50%;
+  animation: login-wait-spin 750ms linear infinite;
+}
+
+@keyframes login-wait-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-wait-spinner {
+    animation: none;
+    border-top-color: #247f83;
+  }
+}
