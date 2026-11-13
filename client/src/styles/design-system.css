@@ -9911,7 +9911,8 @@ body {
 
 @media (max-width: 620px) {
   .hero-location-map {
-    width: min(100%, 360px);
+    width: 100%;
+    max-width: none;
     margin-top: 11px;
   }
 
