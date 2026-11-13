@@ -10268,3 +10268,24 @@ body {
     display: none;
   }
 }
+
+
+/* Desktop hero accent refinement: a thicker, content-height teal rule.
+   The pseudo-element stretches with the complete identity text block. */
+@media (min-width: 761px) {
+  .hero-copy .hero-identity {
+    position: relative;
+    border-left: 0;
+    padding-left: 19px;
+  }
+
+  .hero-copy .hero-identity::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 6px;
+    border-radius: 999px;
+    background: #247f83;
+  }
+}
