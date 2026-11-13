@@ -10053,3 +10053,8 @@ body {
     line-height: 1.58;
   }
 }
+
+/* Align the visible left edge of the Mindful wordmark with the descriptor text. */
+.hero-copy .hero-identity-name {
+  margin-left: -3px;
+}
