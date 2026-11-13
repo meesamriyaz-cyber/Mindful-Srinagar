@@ -10177,3 +10177,65 @@ body {
     text-align: center;
   }
 }
+
+/* Homepage identity lockup: full-width wordmark underline and matching centre descriptor. */
+.hero-copy .hero-identity {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  max-width: min(100%, 940px);
+  padding-left: 0;
+  border-left: 0;
+}
+
+.hero-identity-name {
+  display: inline-block;
+  width: max-content;
+  max-width: 100%;
+  margin: 0;
+}
+
+.hero-identity-name::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 4px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: #247f83;
+}
+
+.hero-identity-description {
+  max-width: 100%;
+}
+
+.hero-identity-line:first-child {
+  color: #247f83;
+  font-weight: 800;
+}
+
+@media (max-width: 760px) {
+  .hero-copy .hero-identity {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 0;
+  }
+
+  .hero-identity-name {
+    width: max-content;
+    max-width: 100%;
+    font-size: clamp(2.7rem, 12vw, 3.35rem);
+  }
+
+  .hero-identity-name::after {
+    height: 4px;
+    margin-top: 9px;
+  }
+
+  .hero-identity-description {
+    width: 100%;
+    max-width: 100%;
+    font-size: clamp(0.94rem, 4vw, 1.08rem);
+  }
+}
+
