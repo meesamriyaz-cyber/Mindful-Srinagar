@@ -42,6 +42,31 @@ export function Hero() {
             Owaisabad Gousia Colony Bemina, Srinagar
           </span>
         </div>
+        <div className="hero-location-map">
+          <a
+            className="hero-location-map-preview"
+            href="https://www.google.com/maps/search/?api=1&query=Mindful%20Centre%2C%20Owaisabad%20Gousia%20Colony%2C%20Bemina%2C%20Srinagar%2C%20Jammu%20and%20Kashmir%20190018"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Open Mindful Centre location in Google Maps in a new tab"
+          >
+            <iframe
+              title="Map preview of Mindful Centre in Bemina, Srinagar"
+              src="https://maps.google.com/maps?q=Mindful%20Centre%2C%20Owaisabad%20Gousia%20Colony%2C%20Bemina%2C%20Srinagar%2C%20Jammu%20and%20Kashmir%20190018&t=&z=14&ie=UTF8&iwloc=&output=embed"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              tabIndex="-1"
+            />
+          </a>
+          <a
+            className="hero-location-map-link"
+            href="https://www.google.com/maps/search/?api=1&query=Mindful%20Centre%2C%20Owaisabad%20Gousia%20Colony%2C%20Bemina%2C%20Srinagar%2C%20Jammu%20and%20Kashmir%20190018"
+            target="_blank"
+            rel="noreferrer"
+          >
+            View larger map <ArrowRight size={13} />
+          </a>
+        </div>
       </div>
       <div className="hero-visual" aria-label="Centre operations summary">
         <div className={showScene ? "hero-visual-fallback is-hidden" : "hero-visual-fallback"}>
