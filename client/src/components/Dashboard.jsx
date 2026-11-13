@@ -151,6 +151,7 @@ function LoginPanel({ onLogin }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (loading) return;
     setError("");
     setLoading(true);
 
@@ -198,9 +199,15 @@ function LoginPanel({ onLogin }) {
             />
           </label>
           {error && <p className="form-status error-status" role="alert" aria-live="assertive">{error}</p>}
+          {loading && (
+            <div className="login-wait-toast" role="status" aria-live="polite">
+              <span className="login-wait-spinner" aria-hidden="true" />
+              <span><strong>Connecting securely…</strong><small>The server may be waking up. Please wait while we sign you in.</small></span>
+            </div>
+          )}
           <button className="primary-button full" type="submit" disabled={loading}>
             <ShieldCheck size={18} />
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Please wait..." : "Sign in"}
           </button>
         </form>
       </div>
