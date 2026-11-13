@@ -10296,3 +10296,25 @@ body {
 #contact .contact-map {
   display: none !important;
 }
+
+
+/* Authoritative hero wordmark sizing.
+   Preserve the preferred large desktop treatment above 960px and scale
+   smoothly below it, without competing declarations changing its weight. */
+@media (min-width: 961px) {
+  .hero-copy .hero-identity-name {
+    font-size: clamp(4.5rem, 7.2vw, 6rem);
+    font-weight: 950;
+    line-height: 0.94;
+    letter-spacing: -0.06em;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 960px) {
+  .hero-copy .hero-identity-name {
+    font-size: clamp(4rem, 7.5vw, 4.5rem);
+    font-weight: 950;
+    line-height: 0.94;
+    letter-spacing: -0.06em;
+  }
+}
