@@ -9978,3 +9978,58 @@ body {
     border-top-color: #247f83;
   }
 }
+
+/* Centre name is the primary brand identifier; keep it dominant at every width. */
+.hero-copy .hero-identity-name {
+  width: 100%;
+  font-size: clamp(3.75rem, 7.2vw, 6rem);
+  font-weight: 950;
+  line-height: 0.94;
+  letter-spacing: -0.06em;
+}
+
+.hero-copy .hero-identity-description {
+  max-width: 100%;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+@media (max-width: 820px) {
+  .hero-copy .hero-identity-name {
+    font-size: clamp(3.35rem, 10vw, 4.8rem);
+  }
+}
+
+@media (max-width: 620px) {
+  .hero-copy .hero-identity {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 12px;
+    gap: 7px;
+  }
+
+  .hero-copy .hero-identity-name {
+    font-size: clamp(3rem, 13vw, 4rem);
+    font-weight: 950;
+    line-height: 0.96;
+    letter-spacing: -0.055em;
+  }
+
+  .hero-copy .hero-identity-description {
+    width: 100%;
+    font-size: clamp(0.9rem, 4.1vw, 1.05rem);
+    line-height: 1.38;
+    overflow-wrap: anywhere;
+  }
+
+  .hero-copy .hero-identity-line {
+    display: block;
+  }
+
+  .hero-copy .hero-identity-location {
+    display: inline-block;
+    font-size: 0.66rem;
+    letter-spacing: 0.15em;
+  }
+}
