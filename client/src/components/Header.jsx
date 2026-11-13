@@ -41,7 +41,8 @@ export function Header({ staffMode = false }) {
         <span className="brand-mark">M</span>
         <span>
           <strong>Mindful</strong>
-          <small>Rehabilitation Research & Training Foundation</small>
+          <small>Centre for Rehabilitation Research &amp; Training Foundation</small>
+          <span className="brand-location">For Persons with Disabilities, Srinagar</span>
         </span>
       </a>
 
