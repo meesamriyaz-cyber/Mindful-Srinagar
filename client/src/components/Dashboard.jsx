@@ -1050,6 +1050,8 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
 
 export function Dashboard() {
   const [session, setSession] = useState(getStoredSession);
+  const consoleHeaderRef = React.useRef(null);
+  const [navigationScrollRequest, setNavigationScrollRequest] = useState(0);
   const [activeView, setActiveView] = useState(() => {
     const role = getStoredSession().user?.role;
     if (["doctor","therapist"].includes(role)) return "overview";
@@ -1057,6 +1059,15 @@ export function Dashboard() {
     if (role === "accounts") return "billing";
     return "overview";
   });
+  useEffect(() => {
+    if (navigationScrollRequest === 0 || typeof window === "undefined") return undefined;
+    if (!window.matchMedia("(max-width: 820px)").matches) return undefined;
+
+    const frame = window.requestAnimationFrame(() => {
+      consoleHeaderRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeView, navigationScrollRequest]);
   const [query, setQuery] = useState("");
   const [resourceRefresh, setResourceRefresh] = useState(0);
   const [actionId, setActionId] = useState("");
@@ -1360,6 +1371,7 @@ export function Dashboard() {
                       setActiveView(item.id);
                       setQuery("");
                       setActionError("");
+                      setNavigationScrollRequest((request) => request + 1);
                     }}
                   >
                     <Icon size={17} />
@@ -1375,7 +1387,7 @@ export function Dashboard() {
           </div>
         </aside>
         <div className="console">
-          <div className="console-header management-console-header">
+          <div ref={consoleHeaderRef} className="console-header management-console-header">
             <div>
               <p className="eyebrow">{isDirector ? "Director command centre" : "Operations dashboard"}</p>
               <h2>{activeView === "overview" ? (["doctor","therapist"].includes(session.user?.role) ? "My clinical activity" : "Whole-centre operating view") : activeConfig.label}</h2>
