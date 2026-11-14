@@ -39,7 +39,6 @@ export function validateMediaMetadata(payload = {}) {
   if (payload.identifiablePeople === true && payload.consentStatus === "not-required") errors.push("Identifiable people require a consent review");
   if (payload.consentStatus === "verified" && !payload.consentVerifiedAt) errors.push("Verified consent must include its verification date");
   if (payload.identifiablePeople === true && payload.consentStatus === "verified" && !["website", "website-and-social", "all-public"].includes(payload.consentScope)) errors.push("Verified consent must explicitly include public website use");
-  if (payload.identifiablePeople === true && payload.consentStatus === "verified" && !["website", "website-and-social", "all-public"].includes(payload.consentScope)) errors.push("Verified consent must explicitly include public website use");
   if (payload.consentVerifiedAt && !Number.isFinite(new Date(payload.consentVerifiedAt).getTime())) errors.push("Consent verification date is invalid");
   return errors;
 }
@@ -137,6 +136,9 @@ export function validatePublicationPayload(payload = {}, { creating = false } = 
   if (payload.identifiablePeople !== undefined && typeof payload.identifiablePeople !== "boolean") errors.push("identifiablePeople must be true or false");
   if (payload.consentStatus !== undefined && !CONSENT_STATUSES.has(payload.consentStatus)) errors.push("Select a valid consent status");
   if (payload.identifiablePeople === true && payload.consentStatus === "not-required") errors.push("Identifiable people require a consent review");
+  if (payload.consentScope !== undefined && !CONSENT_SCOPES.has(payload.consentScope)) errors.push("Select a valid consent scope");
+  if (payload.consentNotes !== undefined && (typeof payload.consentNotes !== "string" || payload.consentNotes.trim().length > 500)) errors.push("Consent notes must be no more than 500 characters");
+  if (payload.identifiablePeople === true && payload.consentStatus === "verified" && !["website", "website-and-social", "all-public"].includes(payload.consentScope)) errors.push("Verified consent must explicitly include public website use");
   if (payload.consentStatus === "verified" && !payload.consentVerifiedAt) errors.push("Verified consent must include its verification date");
   if (payload.consentVerifiedAt && !Number.isFinite(new Date(payload.consentVerifiedAt).getTime())) errors.push("Consent verification date is invalid");
   return errors;
