@@ -10388,3 +10388,45 @@ body {
 .site-header-home .brand-logo-image {
   filter: grayscale(1) sepia(1) saturate(3.8) hue-rotate(126deg) brightness(0.82) contrast(1.12) !important;
 }
+
+
+/* Full-screen section rhythm: account for the 82px site header so each
+   homepage panel occupies the remaining viewport without exposing a strip
+   of the preceding section during scroll transitions. */
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+  scroll-padding-top: 82px;
+}
+
+.hero,
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  min-height: calc(100svh - 82px);
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/* Let unusually tall content expand naturally rather than clipping forms/cards. */
+@media (max-width: 760px) {
+  .hero,
+  .services-section,
+  .operations-section,
+  .referral-section,
+  .contact-section {
+    min-height: calc(100svh - 72px);
+  }
+
+  html {
+    scroll-padding-top: 72px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
+}
