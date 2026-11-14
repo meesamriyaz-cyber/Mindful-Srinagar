@@ -3,13 +3,14 @@ import { MediaAsset } from "../models/MediaAsset.js";
 import { Publication } from "../models/Publication.js";
 import { canExposePublication, createPublicationSlug, validateEditorDocument, validatePublicationPayload } from "../security/mediaRules.js";
 
-const publicationFields = ["title", "type", "summary", "body", "category", "tags", "coverMedia", "mediaItems", "eventDate", "venue", "identifiablePeople", "consentStatus", "consentScope", "consentNotes", "consentVerifiedAt"];
+const publicationFields = ["title", "type", "summary", "body", "category", "tags", "coverMedia", "mediaItems", "eventDate", "venue", "identifiablePeople", "consentStatus", "consentScope", "consentNotes"];
 
 function validationResponse(res, errors) {
   return res.status(400).json({ message: errors[0], errors });
 }
 
 async function validateMediaReferences(payload) {
+  if (payload.mediaItems !== undefined && (!Array.isArray(payload.mediaItems) || payload.mediaItems.length > 50)) return "Related media must be an array containing no more than 50 assets";
   const ids = [...new Set([payload.coverMedia, ...(Array.isArray(payload.mediaItems) ? payload.mediaItems : [])].filter(Boolean).map(String))];
   if (ids.some((id) => !mongoose.isValidObjectId(id))) return "Cover or related media contains an invalid asset ID";
   if (!ids.length) return null;
@@ -29,7 +30,7 @@ function normalizePublicationPayload(payload) {
   if (normalized.tags !== undefined) normalized.tags = [...new Set(normalized.tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean))];
   if (normalized.venue !== undefined) normalized.venue = normalized.venue.trim();
   if (normalized.eventDate) normalized.eventDate = new Date(normalized.eventDate);
-  if (normalized.consentStatus === "verified") normalized.consentVerifiedAt = new Date(normalized.consentVerifiedAt);
+  if (normalized.consentStatus === "verified") normalized.consentVerifiedAt = new Date();
   if (normalized.identifiablePeople === true && !normalized.consentStatus) normalized.consentStatus = "pending";
   if (normalized.consentStatus === "withdrawn") normalized.consentWithdrawnAt = new Date();
   if (normalized.consentStatus && normalized.consentStatus !== "withdrawn") normalized.consentWithdrawnAt = null;
