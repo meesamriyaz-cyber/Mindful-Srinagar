@@ -86,8 +86,8 @@ export async function getPublication(req, res, next) {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid publication ID is required" });
     const publication = await Publication.findById(req.params.id)
-      .populate("coverMedia", "title secureUrl resourceType format")
-      .populate("mediaItems", "title secureUrl resourceType format")
+      .populate("coverMedia", "title secureUrl resourceType format identifiablePeople consentStatus consentScope")
+      .populate("mediaItems", "title secureUrl resourceType format identifiablePeople consentStatus consentScope")
       .populate("createdBy updatedBy", "name role");
     if (!publication) return res.status(404).json({ message: "Publication not found" });
     return res.json(publication);
@@ -143,8 +143,8 @@ export async function listPublicMedia(req, res, next) {
     if (typeof req.query.category === "string" && req.query.category.trim()) filter.category = req.query.category.trim();
     const [items, total] = await Promise.all([
       Publication.find(filter)
-        .select("title slug type summary category tags coverMedia mediaItems eventDate venue publishedAt identifiablePeople consentStatus")
-        .populate("coverMedia", "secureUrl resourceType format title identifiablePeople consentStatus")
+        .select("title slug type summary category tags coverMedia mediaItems eventDate venue publishedAt identifiablePeople consentStatus consentScope")
+        .populate("coverMedia", "secureUrl resourceType format title identifiablePeople consentStatus consentScope")
         .populate("mediaItems", "identifiablePeople consentStatus consentScope")
         .sort({ publishedAt: -1, createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
       Publication.countDocuments(filter)
@@ -161,7 +161,7 @@ export async function getPublicPublication(req, res, next) {
     const publication = await Publication.findOne({ slug: req.params.slug, status: "published", consentStatus: { $ne: "withdrawn" } })
       .select("title slug type summary body category tags coverMedia mediaItems eventDate venue publishedAt identifiablePeople consentStatus")
       .populate("coverMedia", "secureUrl resourceType format title identifiablePeople consentStatus")
-      .populate("mediaItems", "secureUrl resourceType format title caption altText identifiablePeople consentStatus");
+      .populate("mediaItems", "secureUrl resourceType format title caption altText identifiablePeople consentStatus consentScope");
     if (!canExposePublication(publication) || !hasSafeRelatedMedia(publication)) return res.status(404).json({ message: "Publication not found" });
     return res.json(publication);
   } catch (error) {
