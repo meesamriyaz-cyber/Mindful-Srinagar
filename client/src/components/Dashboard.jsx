@@ -33,6 +33,7 @@ import { PractitionerBoard } from "./PractitionerBoard.jsx";
 import { PractitionerDashboard } from "./PractitionerDashboard.jsx";
 import { StaffBoard } from "./StaffBoard.jsx";
 import { ChipInput } from "./ChipInput.jsx";
+import { useAccessibleDialog } from "../hooks/useAccessibleDialog.js";
 import { serviceCharges, services } from "../data/centreData.js";
 
 const INR = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
@@ -150,6 +151,7 @@ function LoginPanel({ onLogin }) {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (loading) return;
     setError("");
     setLoading(true);
 
@@ -196,10 +198,16 @@ function LoginPanel({ onLogin }) {
               required
             />
           </label>
-          {error && <p className="form-status error-status">{error}</p>}
+          {error && <p className="form-status error-status" role="alert" aria-live="assertive">{error}</p>}
+          {loading && (
+            <div className="login-wait-toast" role="status" aria-live="polite">
+              <span className="login-wait-spinner" aria-hidden="true" />
+              <span><strong>Connecting securely…</strong><small>The server may be waking up. Please wait while we sign you in.</small></span>
+            </div>
+          )}
           <button className="primary-button full" type="submit" disabled={loading}>
             <ShieldCheck size={18} />
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Please wait..." : "Sign in"}
           </button>
         </form>
       </div>
@@ -540,8 +548,13 @@ function describeRecord(viewId, record) {
     return {
       title: record.patientName,
 <<<<<<< HEAD
+<<<<<<< HEAD
       meta: `${record.sourceName || record.sourceType} - ${record.phone || "No phone"}`,
       detail: `${record.concern || "No concern noted"} · Contact: ${record.contactPerson || "Not recorded"} · Owner: ${ownerName} · Follow-up: ${dueLabel}`,
+=======
+      meta: `Source: ${record.sourceName || record.sourceType || "Not recorded"} · Phone: ${record.phone || "Not provided"}`,
+      detail: `Concern: ${excerpt(record.concern, 100)} · Preferred contact: ${record.preferredContact || "Phone"} · Owner: ${ownerName} · Follow-up: ${dueLabel}`,
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
       status: overdue ? "overdue" : record.urgency === "urgent" ? "urgent" : record.status
 =======
       meta: `Source: ${record.sourceName || record.sourceType || "Not recorded"} · Phone: ${record.phone || "Not provided"}`,
@@ -619,7 +632,11 @@ function describeRecord(viewId, record) {
   return {
     title: record.title,
 <<<<<<< HEAD
+<<<<<<< HEAD
     meta: `${record.department} - due ${formatDate(record.dueDate)}`,
+=======
+    meta: `Department: ${record.department || "Unassigned"} · Due: ${formatDate(record.dueDate)}`,
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
     detail: `Priority: ${record.priority} · Patient: ${record.patient?.fullName || "General task"}`,
 =======
     meta: `Department: ${record.department || "Unassigned"} · Due: ${formatDate(record.dueDate)}`,
@@ -844,7 +861,7 @@ function ReferralNotesEditor({ record, onSave, saving, token, owners, onFollowUp
         <label>Next follow-up (if needed)
           <input type="datetime-local" value={nextFollowUpAt} onChange={(event) => setNextFollowUpAt(event.target.value)} required={!["appointment-booked", "not-interested"].includes(outcome)} />
         </label>
-        {error && <p className="form-status error-status">{error}</p>}
+        {error && <p className="form-status error-status" role="alert" aria-live="assertive">{error}</p>}
         <button className="secondary-button compact-button" type="submit" disabled={logging}>{logging ? "Saving..." : "Add follow-up to history"}</button>
       </form>
       {history.length > 0 && (
@@ -952,7 +969,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
         )}
       </div>
       {state.loading && <p className="empty-state">Loading {config.label.toLowerCase()}...</p>}
-      {state.error && <p className="form-status error-status">{state.error}</p>}
+      {state.error && <p className="form-status error-status" role="alert" aria-live="assertive">{state.error}</p>}
       {activeView === "tasks" && showTaskCreate && (
         <form className="clinical-form task-create-form" onSubmit={submitTask}>
           <label>Task title
@@ -987,14 +1004,14 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
               <input type="date" value={taskForm.dueDate} onChange={(event) => setTaskForm({ ...taskForm, dueDate: event.target.value })} />
             </label>
           </div>
-          {taskError && <p className="form-status error-status">{taskError}</p>}
+          {taskError && <p className="form-status error-status" role="alert" aria-live="assertive">{taskError}</p>}
           <div className="modal-actions">
             <button className="primary-button" type="submit" disabled={taskSaving}>{taskSaving ? "Creating..." : "Create task"}</button>
             <button className="secondary-button" type="button" onClick={() => setShowTaskCreate(false)}>Cancel</button>
           </div>
         </form>
       )}
-      {actionError && <p className="form-status error-status">{actionError}</p>}
+      {actionError && <p className="form-status error-status" role="alert" aria-live="assertive">{actionError}</p>}
       {!state.loading && !state.error && (
         <AnimatePresence mode="popLayout">
           {records.length ? (
@@ -1060,6 +1077,8 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
 
 export function Dashboard() {
   const [session, setSession] = useState(getStoredSession);
+  const consoleHeaderRef = React.useRef(null);
+  const [navigationScrollRequest, setNavigationScrollRequest] = useState(0);
   const [activeView, setActiveView] = useState(() => {
     const role = getStoredSession().user?.role;
     if (["doctor","therapist"].includes(role)) return "overview";
@@ -1067,6 +1086,15 @@ export function Dashboard() {
     if (role === "accounts") return "billing";
     return "overview";
   });
+  useEffect(() => {
+    if (navigationScrollRequest === 0 || typeof window === "undefined") return undefined;
+    if (!window.matchMedia("(max-width: 820px)").matches) return undefined;
+
+    const frame = window.requestAnimationFrame(() => {
+      consoleHeaderRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [activeView, navigationScrollRequest]);
   const [query, setQuery] = useState("");
   const [resourceRefresh, setResourceRefresh] = useState(0);
   const [actionId, setActionId] = useState("");
@@ -1091,6 +1119,11 @@ export function Dashboard() {
   const [convertReferral, setConvertReferral] = useState(null);
   const [convertForm, setConvertForm] = useState({});
   const [convertSaving, setConvertSaving] = useState(false);
+  const convertDialogRef = useAccessibleDialog(Boolean(convertReferral), () => setConvertReferral(null));
+  const appointmentDialogRef = useAccessibleDialog(showAppointmentForm, () => setShowAppointmentForm(false));
+  const operationDialogRef = useAccessibleDialog(Boolean(operationModal), () => setOperationModal(null));
+  const historyDialogRef = useAccessibleDialog(Boolean(operationHistory), () => setOperationHistory(null));
+  const billingDialogRef = useAccessibleDialog(showBilling, () => setShowBilling(false));
 
   useEffect(() => {
     if (!session.token) return;
@@ -1351,7 +1384,7 @@ export function Dashboard() {
               return acc;
             }, {})
           ).map(([section, items]) => (
-            <div className="sidebar-section" key={section}>
+            <div className={`sidebar-section${items.length === 1 ? " sidebar-section-single" : ""}`} key={section}>
               <div className="sidebar-section-title">{section}</div>
               {items.map((item) => {
                 const Icon = item.icon;
@@ -1365,6 +1398,7 @@ export function Dashboard() {
                       setActiveView(item.id);
                       setQuery("");
                       setActionError("");
+                      setNavigationScrollRequest((request) => request + 1);
                     }}
                   >
                     <Icon size={17} />
@@ -1380,7 +1414,11 @@ export function Dashboard() {
           </div>
         </aside>
         <div className="console">
+<<<<<<< HEAD
           <div className="console-header management-console-header">
+=======
+          <div ref={consoleHeaderRef} className="console-header management-console-header">
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
             <div>
               <p className="eyebrow">{isDirector ? "Director command centre" : "Operations dashboard"}</p>
               <h2>{activeView === "overview" ? (["doctor","therapist"].includes(session.user?.role) ? "My clinical activity" : "Whole-centre operating view") : activeConfig.label}</h2>
@@ -1409,7 +1447,7 @@ export function Dashboard() {
           </div>
 
           {loading && <p className="empty-state">Loading live centre data...</p>}
-          {error && <p className="form-status error-status">{error}</p>}
+          {error && <p className="form-status error-status" role="alert" aria-live="assertive">{error}</p>}
 
           {(!canViewOverview || data) && (
             <AnimatePresence mode="wait">
@@ -1484,14 +1522,19 @@ export function Dashboard() {
         >
           <motion.div
             className="modal"
+            ref={convertDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="convert-referral-title"
+            tabIndex={-1}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h3>Convert Enquiry to Patient</h3>
-              <button className="icon-button" type="button" onClick={() => setConvertReferral(null)}>✕</button>
+              <h3 id="convert-referral-title">Convert Enquiry to Patient</h3>
+              <button className="icon-button" type="button" aria-label="Close convert enquiry dialog" onClick={() => setConvertReferral(null)}>✕</button>
             </div>
             <form onSubmit={handleConvertSubmit} className="clinical-form">
               <label>
@@ -1558,13 +1601,17 @@ export function Dashboard() {
 
       {showAppointmentForm && (
         <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAppointmentForm(false)}>
+<<<<<<< HEAD
           <motion.div className="modal modal-appointment" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()}>
+=======
+          <motion.div className="modal modal-appointment" ref={appointmentDialogRef} role="dialog" aria-modal="true" aria-labelledby="appointment-dialog-title" tabIndex={-1} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()}>
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
             <div className="modal-header">
-              <h3>Schedule appointment</h3>
-              <button className="icon-button" type="button" onClick={() => setShowAppointmentForm(false)}>✕</button>
+              <h3 id="appointment-dialog-title">Schedule appointment</h3>
+              <button className="icon-button" type="button" aria-label="Close appointment dialog" onClick={() => setShowAppointmentForm(false)}>✕</button>
             </div>
             <form className="clinical-form" onSubmit={handleAppointmentSubmit}>
-              {appointmentError && <p className="form-status error-status">{appointmentError}</p>}
+              {appointmentError && <p className="form-status error-status" role="alert" aria-live="assertive">{appointmentError}</p>}
               <label>Patient
                 <select required value={appointmentForm.patient} onChange={(e) => setAppointmentForm({ ...appointmentForm, patient: e.target.value })}>
                   <option value="">Select patient</option>
@@ -1614,12 +1661,16 @@ export function Dashboard() {
 
       {operationModal && (
         <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOperationModal(null)}>
+<<<<<<< HEAD
           <motion.div className="modal modal-operation" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
+=======
+          <motion.div className="modal modal-operation" ref={operationDialogRef} role="dialog" aria-modal="true" aria-labelledby="operation-dialog-title" tabIndex={-1} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
             <div className="modal-header">
-              <h3>{operationModal.type === "payment" ? "Record invoice payment" : "Record stock movement"}</h3>
+              <h3 id="operation-dialog-title">{operationModal.type === "payment" ? "Record invoice payment" : "Record stock movement"}</h3>
               <button className="icon-button" type="button" onClick={() => setOperationModal(null)} aria-label="Close">✕</button>
             </div>
-            {actionError && <p className="form-status error-status">{actionError}</p>}
+            {actionError && <p className="form-status error-status" role="alert" aria-live="assertive">{actionError}</p>}
             <form className="clinical-form" onSubmit={handleOperationSubmit}>
               {operationModal.type === "payment" ? (
                 <>
@@ -1664,9 +1715,9 @@ export function Dashboard() {
       )}
       {operationHistory && (
         <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOperationHistory(null)}>
-          <motion.div className="modal" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
+          <motion.div className="modal" ref={historyDialogRef} role="dialog" aria-modal="true" aria-labelledby="operation-history-title" tabIndex={-1} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
             <div className="modal-header">
-              <h3>{operationHistory.type === "payment" ? "Payment history" : "Stock movement history"}</h3>
+              <h3 id="operation-history-title">{operationHistory.type === "payment" ? "Payment history" : "Stock movement history"}</h3>
               <button className="icon-button" type="button" onClick={() => setOperationHistory(null)} aria-label="Close">✕</button>
             </div>
             <p>{operationHistory.record?.invoiceNo || operationHistory.record?.name || "Record"}</p>
@@ -1707,14 +1758,19 @@ export function Dashboard() {
         >
           <motion.div
             className="modal"
+            ref={billingDialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dashboard-billing-title"
+            tabIndex={-1}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h3>Generate Invoice</h3>
-              <button className="icon-button" type="button" onClick={() => setShowBilling(false)}>✕</button>
+              <h3 id="dashboard-billing-title">Generate Invoice</h3>
+              <button className="icon-button" type="button" aria-label="Close invoice dialog" onClick={() => setShowBilling(false)}>✕</button>
             </div>
             <form onSubmit={async (e) => {
               e.preventDefault();
@@ -1749,7 +1805,7 @@ export function Dashboard() {
                 setBillingSaving(false);
               }
             }} className="clinical-form">
-              {billingError && <p className="form-status error-status">{billingError}</p>}
+              {billingError && <p className="form-status error-status" role="alert" aria-live="assertive">{billingError}</p>}
               <div className="billing-items">
                 {billingItems.map((item, idx) => (
                   <div key={idx} className="billing-item-row">

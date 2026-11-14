@@ -12,7 +12,13 @@ function httpError(message, statusCode) {
 export function makeClinicalRecordController({
   Model, recordType, ownerField, createFields, updateFields, populate = [], sortField, searchFields = [], defaultValues = {}, validateRelations
 }) {
-  const populateQuery = (query) => populate.reduce((current, path) => current.populate(path), query);
+  const populateQuery = (query) => populate.reduce((current, instruction) => {
+    if (Array.isArray(instruction)) {
+      const [path, select] = instruction;
+      return current.populate(path, select);
+    }
+    return current.populate(instruction);
+  }, query);
   const amendmentFields = updateFields.filter((field) => field !== "status");
   async function validatePatient(patientId) {
     if (!isValidObjectId(patientId)) throw httpError("A valid patient ID is required", 400);

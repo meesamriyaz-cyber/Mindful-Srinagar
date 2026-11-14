@@ -24,9 +24,12 @@ import {
   listRecords,
   createPrescription,
   updatePrescription,
-  approveTreatmentPlan
+  approveTreatmentPlan,
+  createInvoice,
+  amendClinicalRecord
 } from "../lib/api.js";
 import { ChipInput } from "./ChipInput.jsx";
+import { useAccessibleDialog } from "../hooks/useAccessibleDialog.js";
 import { services, serviceCharges } from "../data/centreData.js";
 
 const CONFIGS = {
@@ -164,6 +167,13 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   const [completedAssessments, setCompletedAssessments] = useState([]);
   const [approvingId, setApprovingId] = useState("");
   const [availableAppointments, setAvailableAppointments] = useState([]);
+  const [viewingRecord, setViewingRecord] = useState(null);
+  const [amendingRecord, setAmendingRecord] = useState(null);
+  const [amendmentReason, setAmendmentReason] = useState("");
+  const [amendmentValues, setAmendmentValues] = useState({});
+  const [amendmentSaving, setAmendmentSaving] = useState(false);
+  const editorDialogRef = useAccessibleDialog(showForm, () => setShowForm(false));
+  const billingDialogRef = useAccessibleDialog(showBilling, () => setShowBilling(false));
 
   React.useEffect(() => {
     if (!token || !config) return;
@@ -221,6 +231,60 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
     setShowForm(true);
   }
 
+  function isImmutableRecord(record) {
+    return activeView === "progress-notes" || record.status === "completed";
+  }
+
+  function openView(record) {
+    setViewingRecord(record);
+  }
+
+  function openAmend(record) {
+    const values = {};
+    config.fields
+      .filter((field) => !["patient", "status"].includes(field.name) && !(activeView === "treatment-plans" && field.name === "assessment"))
+      .forEach((field) => {
+        let value = record[field.name];
+        if (["appointment", "assessment"].includes(field.name) && value && typeof value === "object") value = value._id;
+        if (field.type === "chips" && !Array.isArray(value)) value = [];
+        if (field.name === "domains" && Array.isArray(value)) value = value.join(", ");
+        if (field.name === "medications" && Array.isArray(value)) value = JSON.stringify(value, null, 2);
+        values[field.name] = value ?? "";
+      });
+    setAmendingRecord(record);
+    setAmendmentValues(values);
+    setAmendmentReason("");
+  }
+
+  async function handleAmendmentSubmit(event) {
+    event.preventDefault();
+    setAmendmentSaving(true);
+    setError("");
+    try {
+      const changes = { ...amendmentValues };
+      if (typeof changes.domains === "string") {
+        changes.domains = changes.domains.split(",").map((value) => value.trim()).filter(Boolean);
+      }
+      if (activeView === "prescriptions" && typeof changes.medications === "string") {
+        try { changes.medications = JSON.parse(changes.medications); }
+        catch { throw new Error("Medications must be a valid JSON array."); }
+      }
+      await amendClinicalRecord(activeView, amendingRecord._id, {
+        reason: amendmentReason,
+        changes
+      }, { token });
+      const refreshed = await config.listFn({ token, q: query, limit: 50 });
+      setRecords(refreshed || []);
+      setAmendingRecord(null);
+      setAmendmentReason("");
+      setAmendmentValues({});
+    } catch (err) {
+      setError(err.message || "The clinical amendment could not be saved");
+    } finally {
+      setAmendmentSaving(false);
+    }
+  }
+
   function openEdit(record) {
     const flat = {};
     config.fields.forEach(f => {
@@ -248,6 +312,11 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
     try {
       const payload = {};
       config.fields.forEach(f => {
+        // Patient ownership is immutable after creation. Treatment plans also
+        // keep their linked assessment immutable, matching the server allowlist.
+        if (editingId && (f.name === "patient" || (activeView === "treatment-plans" && f.name === "assessment"))) {
+          return;
+        }
         let val = form[f.name] ?? "";
         if (f.type === "chips") {
           val = Array.isArray(val) ? val : [];
@@ -300,22 +369,12 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
     setBillingError("");
     try {
       const patientId = billingRecord?.patient?._id || billingRecord?.patient;
-      const response = await fetch(`${API_BASE_URL}/invoices`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          patient: patientId,
-          items: billingItems.filter(i => i.description && i.rate),
-          status: "draft"
-        })
-      });
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.message || "Failed to create invoice");
-      }
+      if (!patientId) throw new Error("This clinical record is not linked to a patient.");
+      await createInvoice({
+        patient: patientId,
+        items: billingItems.filter((item) => item.description?.trim() && Number(item.rate) > 0),
+        status: "draft"
+      }, { token });
       setShowBilling(false);
       setBillingRecord(null);
       setBillingItems([]);
@@ -342,7 +401,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
         </button>
       </div>
       {loading && <p className="empty-state">Loading {config.title.toLowerCase()}...</p>}
-      {error && <p className="form-status error-status">{error}</p>}
+      {error && <p className="form-status error-status" role="alert" aria-live="assertive">{error}</p>}
       {!loading && !error && (
         <AnimatePresence>
           {records.length ? (
@@ -368,13 +427,22 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                     </div>
                     <p className="clinical-record-detail">{summary.detail}</p>
                     <div className="record-actions">
-                      <button
-                        className="secondary-button compact-button"
-                        type="button"
-                        onClick={() => openEdit(record)}
-                      >
-                        Update
-                      </button>
+                      {isImmutableRecord(record) ? (
+                        <>
+                          <button className="secondary-button compact-button" type="button" onClick={() => openView(record)}>
+                            View
+                          </button>
+                          {["director", "admin"].includes(userRole) && (
+                            <button className="secondary-button compact-button" type="button" onClick={() => openAmend(record)}>
+                              Amend
+                            </button>
+                          )}
+                        </>
+                      ) : (
+                        <button className="secondary-button compact-button" type="button" onClick={() => openEdit(record)}>
+                          Update
+                        </button>
+                      )}
                       {activeView === "treatment-plans" && record.status === "planned" && ["director", "admin", "doctor"].includes(userRole) && (
                         <button className="primary-button compact-button" type="button" disabled={approvingId === record._id} onClick={() => handleApprove(record)}>
                           {approvingId === record._id ? "Approving..." : "Approve & activate"}
@@ -404,24 +472,102 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
       )}
 
       <AnimatePresence>
+        {viewingRecord && (
+          <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setViewingRecord(null)}>
+            <motion.div className="modal clinical-editor-modal" role="dialog" aria-modal="true" aria-labelledby="clinical-view-title" onClick={(event) => event.stopPropagation()}>
+              <div className="modal-header">
+                <h3 id="clinical-view-title">View {config.title}</h3>
+                <button className="icon-button" type="button" aria-label="Close record view" onClick={() => setViewingRecord(null)}><X size={18} /></button>
+              </div>
+              <div className="clinical-form">
+                {config.fields.filter((field) => field.name !== "patient").map((field) => {
+                  const value = viewingRecord[field.name];
+                  const display = Array.isArray(value)
+                    ? value.map((item) => typeof item === "object" ? item.name || item._id : item).join(", ")
+                    : value && typeof value === "object"
+                      ? value.fullName || value.name || value._id
+                      : value;
+                  return <label key={field.name}>{field.label}<div className="form-readonly-value">{display === undefined || display === null || display === "" ? "—" : String(display)}</div></label>;
+                })}
+                <div className="modal-actions"><button className="secondary-button" type="button" onClick={() => setViewingRecord(null)}>Close</button></div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {amendingRecord && (
+          <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setAmendingRecord(null)}>
+            <motion.div className="modal clinical-editor-modal" role="dialog" aria-modal="true" aria-labelledby="clinical-amend-title" onClick={(event) => event.stopPropagation()}>
+              <div className="modal-header">
+                <h3 id="clinical-amend-title">Amend {config.title}</h3>
+                <button className="icon-button" type="button" aria-label="Close amendment dialog" onClick={() => setAmendingRecord(null)}><X size={18} /></button>
+              </div>
+              <form className="clinical-form" onSubmit={handleAmendmentSubmit}>
+                <p className="form-status">This correction will be recorded in the clinical audit history with your identity, timestamp and reason.</p>
+                {config.fields.filter((field) => !["patient", "status"].includes(field.name) && !(activeView === "treatment-plans" && field.name === "assessment")).map((field) => (
+                  <label key={field.name}>
+                    {field.label}
+                    {field.type === "textarea" ? (
+                      <textarea rows={4} value={amendmentValues[field.name] ?? ""} onChange={(event) => setAmendmentValues((current) => ({ ...current, [field.name]: event.target.value }))} />
+                    ) : field.type === "select" ? (
+                      <select value={amendmentValues[field.name] ?? ""} onChange={(event) => setAmendmentValues((current) => ({ ...current, [field.name]: event.target.value }))}>
+                        {field.options.map((option) => <option key={option} value={option}>{option}</option>)}
+                      </select>
+                    ) : field.type === "chips" ? (
+                      <ChipInput value={Array.isArray(amendmentValues[field.name]) ? amendmentValues[field.name] : []} onChange={(value) => setAmendmentValues((current) => ({ ...current, [field.name]: value }))} suggestions={field.suggestions || []} />
+                    ) : field.type === "appointment" ? (
+                      <select value={amendmentValues[field.name] ?? ""} onChange={(event) => setAmendmentValues((current) => ({ ...current, [field.name]: event.target.value }))}>
+                        <option value="">No appointment</option>
+                        {availableAppointments.map((appointment) => <option key={appointment._id} value={appointment._id}>{appointment.service} · {new Date(appointment.startsAt).toLocaleString("en-IN")}</option>)}
+                      </select>
+                    ) : (
+                      <input value={Array.isArray(amendmentValues[field.name]) ? amendmentValues[field.name].join(", ") : amendmentValues[field.name] ?? ""} onChange={(event) => setAmendmentValues((current) => ({ ...current, [field.name]: event.target.value }))} />
+                    )}
+                  </label>
+                ))}
+                <label>
+                  Reason for amendment (minimum 10 characters)
+                  <textarea rows={3} minLength={10} maxLength={1000} required value={amendmentReason} onChange={(event) => setAmendmentReason(event.target.value)} placeholder="Explain why this clinical record needs correction..." />
+                </label>
+                <div className="modal-actions">
+                  <button className="primary-button" type="submit" disabled={amendmentSaving || amendmentReason.trim().length < 10}>{amendmentSaving ? "Saving amendment..." : "Save audited amendment"}</button>
+                  <button className="secondary-button" type="button" onClick={() => setAmendingRecord(null)}>Cancel</button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {showForm && (
           <motion.div
             className="modal-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setShowForm(false)}
+            aria-label="Close clinical record dialog" onClick={() => setShowForm(false)}
           >
             <motion.div
               className="modal clinical-editor-modal"
+<<<<<<< HEAD
+=======
+              ref={editorDialogRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="clinical-editor-title"
+              tabIndex={-1}
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="modal-header">
-                <h3>{editingId ? `Update ${config.title}` : `New ${config.title}`}</h3>
-                <button className="icon-button" type="button" onClick={() => setShowForm(false)}>
+                <h3 id="clinical-editor-title">{editingId ? `Update ${config.title}` : `New ${config.title}`}</h3>
+                <button className="icon-button" type="button" aria-label="Close clinical record dialog" onClick={() => setShowForm(false)}>
                   <X size={18} />
                 </button>
               </div>
@@ -464,6 +610,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                         value={form[field.name] || ""}
                         onChange={(e) => setForm({ ...form, [field.name]: e.target.value })}
                         required
+                        disabled={!!editingId}
                       >
                         <option value="">Select completed assessment...</option>
                         {completedAssessments.filter((item) => item.patient?._id === (form.patient || patientId) || item.patient === (form.patient || patientId)).map((item) => (
@@ -477,7 +624,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                         value={form[field.name] || ""}
                         onChange={(e) => setForm({ ...form, [field.name]: e.target.value })}
                         required
-                        disabled={!!patientId}
+                        disabled={!!patientId || !!editingId}
                       >
                         <option value="">Select patient...</option>
                         {patients.map(p => (
@@ -523,23 +670,31 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setShowBilling(false)}
+            aria-label="Close invoice dialog" onClick={() => setShowBilling(false)}
           >
             <motion.div
               className="modal clinical-billing-modal"
+<<<<<<< HEAD
+=======
+              ref={billingDialogRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="clinical-billing-title"
+              tabIndex={-1}
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="modal-header">
-                <h3>Generate Invoice</h3>
-                <button className="icon-button" type="button" onClick={() => setShowBilling(false)}>
+                <h3 id="clinical-billing-title">Generate Invoice</h3>
+                <button className="icon-button" type="button" aria-label="Close invoice dialog" onClick={() => setShowBilling(false)}>
                   <X size={18} />
                 </button>
               </div>
               <form onSubmit={handleBillingSubmit} className="clinical-form">
-                {billingError && <p className="form-status error-status">{billingError}</p>}
+                {billingError && <p className="form-status error-status" role="alert" aria-live="assertive">{billingError}</p>}
                 <div className="billing-items">
                   {billingItems.map((item, idx) => (
                     <div key={idx} className="billing-item-row">

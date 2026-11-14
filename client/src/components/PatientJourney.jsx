@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAccessibleDialog } from "../hooks/useAccessibleDialog.js";
 import {
   ArrowRight,
   CalendarClock,
@@ -117,6 +118,8 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const [amendmentSaving, setAmendmentSaving] = useState(false);
   const [approvingPlanId, setApprovingPlanId] = useState("");
   const [planApprovalError, setPlanApprovalError] = useState("");
+  const journeyDialogRef = useAccessibleDialog(!showDischarge, onClose);
+  const dischargeDialogRef = useAccessibleDialog(showDischarge, () => setShowDischarge(false));
 
   useEffect(() => {
     if (!patient || !token) return;
@@ -400,16 +403,24 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     >
       <motion.div
         className="modal journey-modal management-journey-modal"
+<<<<<<< HEAD
+=======
+        ref={journeyDialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="patient-journey-title"
+        tabIndex={-1}
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
       >
         <div className="modal-header journey-header">
           <div>
-            <h3>Patient Journey & History</h3>
+            <h3 id="patient-journey-title">Patient Journey & History</h3>
             <small>{patient?.fullName} (MRN: {patient?.mrn})</small>
           </div>
-          <button className="icon-button" type="button" onClick={onClose}>
+          <button className="icon-button" type="button" aria-label="Close patient journey" onClick={onClose}>
             <X size={18} />
           </button>
         </div>
@@ -456,7 +467,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           {createStep ? (
             <form onSubmit={handleCreateSubmit} className="journey-create-form management-journey-create-form">
               <h4>New {STEP_LABELS[createStep]}</h4>
-              {createError && <p className="form-status error-status">{createError}</p>}
+              {createError && <p className="form-status error-status" role="alert" aria-live="assertive">{createError}</p>}
               {(CREATE_FIELDS[createStep] || []).map((field) => (
                 <label key={field.name}>
                   {field.label}
@@ -530,7 +541,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           ) : (
             <div className="journey-list">
               {pageInfo[activeStep]?.total > 0 && <p className="history-count">Showing {activeRecords.length} of {pageInfo[activeStep].total} records</p>}
-              {timelineError && <p className="form-status error-status">{timelineError}</p>}
+              {timelineError && <p className="form-status error-status" role="alert" aria-live="assertive">{timelineError}</p>}
               {(activeStep === "referral" ? [data.referral] : activeRecords).map((record, idx) => (
                 <div key={record?._id || idx} className="journey-card">
                   <div className="journey-card-header">
@@ -540,7 +551,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                   </div>
                   <div className="journey-card-body management-journey-card-body">
                     {describeRecord(record)}
-                    {planApprovalError && activeStep === "treatment-plans" && <p className="form-status error-status">{planApprovalError}</p>}
+                    {planApprovalError && activeStep === "treatment-plans" && <p className="form-status error-status" role="alert" aria-live="assertive">{planApprovalError}</p>}
                     {activeStep === "treatment-plans" && record.status === "planned" && canApprovePlans && (
                       <button className="primary-button" type="button" disabled={approvingPlanId === record._id} onClick={() => approvePlan(record._id)}>
                         {approvingPlanId === record._id ? "Approving..." : "Approve and activate plan"}
@@ -577,7 +588,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                         )}
                       </div>
                     )}
-                    {auditError && <p className="form-status error-status">{auditError}</p>}
+                    {auditError && <p className="form-status error-status" role="alert" aria-live="assertive">{auditError}</p>}
                   </div>
                 </div>
               ))}
@@ -590,7 +601,11 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           )}
         </div>
 
+<<<<<<< HEAD
         {!isDischarged && !createStep && canDischarge && (
+=======
+        {!isDischarged && !createStep && ((patient.dischargeApprovedAt && canCloseDischarge) || (!patient.dischargeApprovedAt && canApproveDischarge)) && (
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
           <div className="journey-footer management-journey-footer">
             <button className="primary-button" type="button" onClick={() => setShowDischarge(true)}>
               {patient.dischargeApprovedAt ? "Close approved discharge" : "Prepare discharge"}
@@ -609,19 +624,27 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
             >
               <motion.div
                 className="modal journey-discharge-modal"
+<<<<<<< HEAD
+=======
+                ref={dischargeDialogRef}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="patient-discharge-title"
+                tabIndex={-1}
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="modal-header">
-                  <h3>Discharge {patient?.fullName}</h3>
-                  <button className="icon-button" type="button" onClick={() => setShowDischarge(false)}>
+                  <h3 id="patient-discharge-title">Discharge {patient?.fullName}</h3>
+                  <button className="icon-button" type="button" aria-label="Close discharge dialog" onClick={() => setShowDischarge(false)}>
                     <X size={18} />
                   </button>
                 </div>
                 <form onSubmit={handleDischarge} className="clinical-form">
-                  {dischargeError && <p className="form-status error-status">{dischargeError}</p>}
+                  {dischargeError && <p className="form-status error-status" role="alert" aria-live="assertive">{dischargeError}</p>}
                   <h4>{patient.dischargeApprovedAt ? "Administrative discharge closure" : "Clinical discharge approval"}</h4>
                   {patient.dischargeApprovedAt ? (
                     <div className="discharge-approval-summary">

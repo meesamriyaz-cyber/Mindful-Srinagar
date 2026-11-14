@@ -1720,8 +1720,27 @@ footer span {
   }
 
   .site-header .brand small {
+<<<<<<< HEAD
     max-width: 220px;
     font-size: 0.62rem;
+=======
+    display: block;
+    max-width: none;
+    white-space: nowrap;
+    font-size: clamp(0.44rem, 2.2vw, 0.62rem);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  .site-header .brand-location {
+    display: block;
+    margin-top: 2px;
+    color: #82929c;
+    font-size: 0.48rem;
+    font-weight: 650;
+    line-height: 1.15;
+    letter-spacing: 0.015em;
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
   }
 
   .hero {
@@ -2484,7 +2503,10 @@ html {
 .sidebar-section {
   margin-top: 20px;
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
 .sidebar-section-title {
   padding: 0 10px 8px;
   color: #8999a2;
@@ -4983,8 +5005,12 @@ mark.risk {
   width: fit-content;
   align-items: center;
   padding: 5px 9px;
+<<<<<<< HEAD
   border: 1px solid #e0e9ec;
   border-radius: 999px;
+=======
+  border: 1px solid #e0e9ec;  border-radius: 999px;
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
   color: #58717e;
   background: #f7fafb;
   font-size: 0.68rem;
@@ -7483,8 +7509,12 @@ mark.risk {
 .dashboard-role-admin .resource-panel .clinical-form select,
 .dashboard-role-director .resource-panel .clinical-form select,
 .dashboard-role-admin .resource-panel .clinical-form textarea,
+<<<<<<< HEAD
 .dashboard-role-director .resource-panel .clinical-form textarea {
   color: #203f4c;
+=======
+.dashboard-role-director .resource-panel .clinical-form textarea {  color: #203f4c;
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
   background: #fff;
 }
 .dashboard-role-admin .resource-panel .clinical-form input::placeholder,
@@ -8590,3 +8620,2123 @@ mark.risk {
 .dashboard-role-therapist .sidebar .sidebar-context > span:last-child {
   color: #526873;
 }
+<<<<<<< HEAD
+=======
+
+
+/* D3 refinement — clearer staff and practitioner directory controls. */
+.dashboard-role-doctor .staff-console-view,
+.dashboard-role-therapist .staff-console-view {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+.dashboard-role-admin .staff-board-summary,
+.dashboard-role-director .staff-board-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 11px;
+  padding: 16px 18px 4px;
+}
+
+.dashboard-role-admin .staff-summary-card,
+.dashboard-role-director .staff-summary-card {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  padding: 14px 15px;
+  border: 1px solid #e2ebed;
+  border-radius: 10px;
+  background: linear-gradient(145deg, #fff, #f8fbfb);
+}
+
+.dashboard-role-admin .staff-summary-card > span,
+.dashboard-role-director .staff-summary-card > span {
+  color: #526b76;
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.dashboard-role-admin .staff-summary-card > strong,
+.dashboard-role-director .staff-summary-card > strong {
+  color: #193f50;
+  font-size: 1.45rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard-role-admin .staff-summary-card > small,
+.dashboard-role-director .staff-summary-card > small {
+  color: #73858d;
+  font-size: .64rem;
+}
+
+.dashboard-role-admin .staff-summary-card.is-active > strong,
+.dashboard-role-director .staff-summary-card.is-active > strong {
+  color: #16746d;
+}
+
+.dashboard-role-admin .staff-summary-card.is-inactive > strong,
+.dashboard-role-director .staff-summary-card.is-inactive > strong {
+  color: #a35b45;
+}
+
+.dashboard-role-admin .staff-summary-card.is-clinical > strong,
+.dashboard-role-director .staff-summary-card.is-clinical > strong {
+  color: #426b9a;
+}
+
+.dashboard-role-admin .staff-board-toolbar,
+.dashboard-role-director .staff-board-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(145px, 190px) minmax(155px, 190px);
+  gap: 11px;
+  align-items: end;
+  padding: 13px 18px 8px;
+}
+
+.dashboard-role-admin .staff-board-search,
+.dashboard-role-director .staff-board-search {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.dashboard-role-admin .staff-search-label,
+.dashboard-role-director .staff-search-label,
+.dashboard-role-admin .staff-filter-control > span,
+.dashboard-role-director .staff-filter-control > span {
+  color: #405b67;
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.dashboard-role-admin .staff-board-search input,
+.dashboard-role-director .staff-board-search input,
+.dashboard-role-admin .staff-filter-control select,
+.dashboard-role-director .staff-filter-control select {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #cbdadd;
+  border-radius: 7px;
+  color: #203f4c;
+  background: #fff;
+  font: inherit;
+  font-size: .76rem;
+}
+
+.dashboard-role-admin .staff-filter-control,
+.dashboard-role-director .staff-filter-control {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dashboard-role-admin .staff-board-search input:focus,
+.dashboard-role-director .staff-board-search input:focus,
+.dashboard-role-admin .staff-filter-control select:focus,
+.dashboard-role-director .staff-filter-control select:focus {
+  outline: 0;
+  border-color: #287b7a;
+  box-shadow: 0 0 0 3px rgba(40, 123, 122, .12);
+}
+
+.dashboard-role-admin .staff-results-line,
+.dashboard-role-director .staff-results-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 3px 18px 0;
+  color: #687d86;
+  font-size: .68rem;
+  font-weight: 700;
+}
+
+.dashboard-role-admin .staff-filter-reset,
+.dashboard-role-director .staff-filter-reset,
+.dashboard-role-admin .practitioner-filter-reset,
+.dashboard-role-director .practitioner-filter-reset {
+  border: 0;
+  padding: 5px 8px;
+  border-radius: 6px;
+  color: #23696b;
+  background: #edf7f6;
+  font: inherit;
+  font-size: .68rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.dashboard-role-admin .staff-no-results,
+.dashboard-role-director .staff-no-results,
+.dashboard-role-admin .practitioner-no-results,
+.dashboard-role-director .practitioner-no-results {
+  margin: 14px 18px 18px;
+}
+
+.dashboard-role-admin .practitioner-toolbar,
+.dashboard-role-director .practitioner-toolbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(165px, 210px) auto;
+  gap: 11px;
+  align-items: end;
+  margin: 16px 0 0;
+}
+
+.dashboard-role-admin .practitioner-search,
+.dashboard-role-director .practitioner-search {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.dashboard-role-admin .practitioner-search-label,
+.dashboard-role-director .practitioner-search-label,
+.dashboard-role-admin .practitioner-status-filter > span,
+.dashboard-role-director .practitioner-status-filter > span {
+  color: #405b67;
+  font-size: .68rem;
+  font-weight: 800;
+}
+
+.dashboard-role-admin .practitioner-search input,
+.dashboard-role-director .practitioner-search input,
+.dashboard-role-admin .practitioner-status-filter select,
+.dashboard-role-director .practitioner-status-filter select {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid #cbdadd;
+  border-radius: 7px;
+  color: #203f4c;
+  background: #fff;
+  font: inherit;
+  font-size: .76rem;
+}
+
+.dashboard-role-admin .practitioner-status-filter,
+.dashboard-role-director .practitioner-status-filter {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.dashboard-role-admin .practitioner-search input:focus,
+.dashboard-role-director .practitioner-search input:focus,
+.dashboard-role-admin .practitioner-status-filter select:focus,
+.dashboard-role-director .practitioner-status-filter select:focus {
+  outline: 0;
+  border-color: #287b7a;
+  box-shadow: 0 0 0 3px rgba(40, 123, 122, .12);
+}
+
+.dashboard-role-admin .practitioner-filter-reset,
+.dashboard-role-director .practitioner-filter-reset {
+  min-height: 40px;
+  padding: 0 11px;
+}
+
+.dashboard-role-admin .practitioner-results-line,
+.dashboard-role-director .practitioner-results-line {
+  margin: 8px 0 2px;
+  color: #687d86;
+  font-size: .68rem;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .dashboard-role-admin .staff-board-summary,
+  .dashboard-role-director .staff-board-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dashboard-role-admin .staff-board-toolbar,
+  .dashboard-role-director .staff-board-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(130px, .7fr);
+  }
+  .dashboard-role-admin .staff-board-search,
+  .dashboard-role-director .staff-board-search {
+    grid-column: 1 / -1;
+  }
+  .dashboard-role-admin .practitioner-toolbar,
+  .dashboard-role-director .practitioner-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(135px, .7fr);
+  }
+  .dashboard-role-admin .practitioner-search,
+  .dashboard-role-director .practitioner-search {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-role-admin .staff-board-summary,
+  .dashboard-role-director .staff-board-summary {
+    gap: 8px;
+    padding: 13px 12px 3px;
+  }
+  .dashboard-role-admin .staff-summary-card,
+  .dashboard-role-director .staff-summary-card {
+    padding: 12px;
+  }
+  .dashboard-role-admin .staff-board-toolbar,
+  .dashboard-role-director .staff-board-toolbar,
+  .dashboard-role-admin .practitioner-toolbar,
+  .dashboard-role-director .practitioner-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+  .dashboard-role-admin .staff-board-search,
+  .dashboard-role-director .staff-board-search,
+  .dashboard-role-admin .practitioner-search,
+  .dashboard-role-director .practitioner-search {
+    grid-column: auto;
+  }
+  .dashboard-role-admin .staff-results-line,
+  .dashboard-role-director .staff-results-line {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+}
+
+
+/* Homepage identity: preserve the requested three-line institutional name. */
+.hero-copy .hero-identity {
+  max-width: min(100%, 940px);
+}
+
+.hero-identity-description {
+  display: grid;
+  gap: 1px;
+  max-width: 900px;
+}
+
+.hero-identity-line {
+  display: block;
+}
+
+.hero-identity-line:first-child {
+  white-space: nowrap;
+}
+
+.hero-identity-line strong {
+  color: #365c70;
+  font-weight: 850;
+}
+
+@media (max-width: 760px) {
+  .hero-copy .hero-identity {
+    max-width: 100%;
+  }
+
+  .hero-identity-description {
+    max-width: 100%;
+  }
+
+  .hero-identity-line:first-child {
+    white-space: normal;
+  }
+}
+
+/* Homepage header: avoid repeating the centre identity already shown in the hero. */
+.site-header-home.is-hero-visible .brand {
+  visibility: hidden;
+}
+
+.hero-identity-line .hero-identity-location {
+  display: inline-block;
+  margin: 0 0 0 0.2em;
+  color: #247f83;
+  font-size: 0.72em;
+  letter-spacing: 0.12em;
+  vertical-align: baseline;
+}
+
+/* Hero typography and vertical balance refinement. */
+.hero-copy {
+  transform: translateY(-32px);
+}
+
+.hero-copy .hero-identity {
+  max-width: min(100%, 820px);
+  margin-bottom: clamp(24px, 2.8vw, 36px);
+}
+
+.hero-identity-name {
+  font-size: clamp(3.2rem, 5vw, 4.8rem);
+  line-height: 0.96;
+}
+
+.hero-identity-description {
+  max-width: 790px;
+  font-size: clamp(1.14rem, 1.7vw, 1.48rem);
+  line-height: 1.45;
+}
+
+.hero-copy .hero-lede {
+  font-size: clamp(1.1rem, 1.4vw, 1.3rem);
+  line-height: 1.68;
+}
+
+.hero-actions .primary-button,
+.hero-actions .secondary-button {
+  font-size: 0.98rem;
+}
+
+.trust-row {
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 820px) {
+  .hero-copy {
+    transform: translateY(-12px);
+  }
+
+  .hero-identity-name {
+    font-size: clamp(2.7rem, 7.2vw, 3.5rem);
+  }
+
+  .hero-identity-description {
+    font-size: clamp(1.04rem, 2.5vw, 1.22rem);
+  }
+
+  .hero-copy .hero-lede {
+    font-size: clamp(1.04rem, 2.3vw, 1.16rem);
+  }
+
+  .trust-row {
+    font-size: 0.86rem;
+  }
+}
+
+@media (max-width: 620px) {
+  .hero-copy {
+    transform: translateY(-7px);
+  }
+
+  .hero-copy .hero-identity {
+    max-width: 100%;
+    margin-bottom: 24px;
+    padding-left: 12px;
+  }
+
+  .hero-identity-name {
+    font-size: clamp(2.45rem, 10vw, 3.1rem);
+  }
+
+  .hero-identity-description {
+    font-size: clamp(0.96rem, 4vw, 1.08rem);
+    line-height: 1.48;
+  }
+
+  .hero-copy .hero-lede {
+    font-size: 1.02rem;
+    line-height: 1.62;
+  }
+
+  .hero-actions .primary-button,
+  .hero-actions .secondary-button {
+    min-height: 50px;
+    font-size: 0.94rem;
+  }
+
+  .trust-row {
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+}
+
+/* Match the hero trust statements to the teal italic location accent. */
+.hero-copy .trust-row span {
+  color: #247f83;
+  font-style: italic;
+}
+
+/* D4 — consistent interaction, form, dialog and feedback states. */
+.dashboard-section .modal-overlay,
+.dashboard-section .journey-overlay {
+  padding: clamp(14px, 3vw, 28px);
+  background: rgba(12, 31, 43, 0.58);
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+}
+
+.dashboard-section .modal,
+.dashboard-section .journey-modal {
+  max-height: min(90dvh, 920px);
+  border: 1px solid rgba(213, 228, 231, 0.95);
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 28px 90px rgba(12, 37, 51, 0.24);
+}
+
+.dashboard-section .modal-header,
+.dashboard-section .journey-header {
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5edef;
+  background: linear-gradient(120deg, #f7fbfb, #fff 78%);
+}
+
+.dashboard-section .modal-header h3,
+.dashboard-section .journey-header h3 {
+  color: #173f59;
+  font-size: clamp(1.02rem, 1.5vw, 1.2rem);
+  font-weight: 850;
+  letter-spacing: -0.02em;
+}
+
+.dashboard-section .modal-header small,
+.dashboard-section .journey-header small {
+  color: #607783;
+  line-height: 1.5;
+}
+
+.dashboard-section .clinical-form,
+.dashboard-section .journey-create-form {
+  gap: 16px;
+  padding: clamp(18px, 2.4vw, 26px);
+  color: #294653;
+}
+
+.dashboard-section .clinical-form label,
+.dashboard-section .journey-create-form label {
+  gap: 7px;
+  color: #294c5b;
+  font-size: 0.88rem;
+  font-weight: 750;
+}
+
+.dashboard-section .clinical-form input,
+.dashboard-section .clinical-form select,
+.dashboard-section .clinical-form textarea,
+.dashboard-section .journey-create-form input,
+.dashboard-section .journey-create-form select,
+.dashboard-section .journey-create-form textarea {
+  min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #cbdadd;
+  border-radius: 9px;
+  color: #203f4c;
+  background: #fff;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.dashboard-section .clinical-form textarea,
+.dashboard-section .journey-create-form textarea {
+  min-height: 112px;
+  line-height: 1.55;
+}
+
+.dashboard-section .clinical-form input::placeholder,
+.dashboard-section .clinical-form textarea::placeholder,
+.dashboard-section .journey-create-form input::placeholder,
+.dashboard-section .journey-create-form textarea::placeholder {
+  color: #84959e;
+  opacity: 1;
+}
+
+.dashboard-section .clinical-form input:focus-visible,
+.dashboard-section .clinical-form select:focus-visible,
+.dashboard-section .clinical-form textarea:focus-visible,
+.dashboard-section .journey-create-form input:focus-visible,
+.dashboard-section .journey-create-form select:focus-visible,
+.dashboard-section .journey-create-form textarea:focus-visible {
+  outline: none;
+  border-color: #247f83;
+  box-shadow: 0 0 0 3px rgba(36, 127, 131, 0.15);
+}
+
+.dashboard-section .clinical-form input:disabled,
+.dashboard-section .clinical-form select:disabled,
+.dashboard-section .clinical-form textarea:disabled,
+.dashboard-section .journey-create-form input:disabled,
+.dashboard-section .journey-create-form select:disabled,
+.dashboard-section .journey-create-form textarea:disabled {
+  color: #657984;
+  background: #f0f4f5;
+  border-color: #dce5e7;
+  cursor: not-allowed;
+}
+
+.dashboard-section .form-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 11px 13px;
+  border-radius: 9px;
+  font-size: 0.86rem;
+  font-weight: 650;
+  line-height: 1.5;
+}
+
+.dashboard-section .form-status.success-status {
+  color: #176044;
+  background: #eaf6ef;
+  border: 1px solid #c5e4d1;
+}
+
+.dashboard-section .form-status.error-status {
+  color: #8b2929;
+  background: #fff1ef;
+  border: 1px solid #e8c4bd;
+}
+
+.dashboard-section .modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px clamp(18px, 2.4vw, 26px) clamp(18px, 2.4vw, 24px);
+  border-top: 1px solid #edf2f3;
+  background: #fbfdfd;
+}
+
+.dashboard-section .modal-actions button {
+  min-height: 42px;
+  border-radius: 9px;
+  font-weight: 800;
+}
+
+.dashboard-section .modal-actions button:disabled,
+.dashboard-section button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  filter: saturate(0.65);
+  box-shadow: none;
+}
+
+.dashboard-section .empty-state {
+  margin: 14px 0;
+  padding: clamp(20px, 3vw, 30px);
+  border: 1px dashed #cbdcde;
+  border-radius: 12px;
+  color: #526b78;
+  background: linear-gradient(145deg, #f8fbfb, #f3f8f8);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.dashboard-section :is(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid rgba(36, 127, 131, 0.28);
+  outline-offset: 2px;
+}
+
+.booking-form input:focus-visible,
+.booking-form select:focus-visible,
+.booking-form textarea:focus-visible {
+  outline: none;
+  border-color: #247f83;
+  box-shadow: 0 0 0 3px rgba(36, 127, 131, 0.14);
+}
+
+.booking-form input:disabled,
+.booking-form select:disabled,
+.booking-form textarea:disabled {
+  color: #657984;
+  background: #f0f4f5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 620px) {
+  .dashboard-section .modal-overlay,
+  .dashboard-section .journey-overlay {
+    align-items: flex-end;
+    padding: 8px;
+  }
+
+  .dashboard-section .modal,
+  .dashboard-section .journey-modal {
+    width: 100%;
+    max-height: calc(100dvh - 16px);
+    border-radius: 16px 16px 12px 12px;
+  }
+
+  .dashboard-section .modal-header,
+  .dashboard-section .journey-header {
+    padding: 16px;
+  }
+
+  .dashboard-section .clinical-form,
+  .dashboard-section .journey-create-form {
+    gap: 14px;
+    padding: 16px;
+  }
+
+  .dashboard-section .modal-actions {
+    flex-direction: column-reverse;
+    padding: 14px 16px 16px;
+  }
+
+  .dashboard-section .modal-actions button {
+    width: 100%;
+    min-height: 46px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-section .clinical-form input,
+  .dashboard-section .clinical-form select,
+  .dashboard-section .clinical-form textarea,
+  .dashboard-section .journey-create-form input,
+  .dashboard-section .journey-create-form select,
+  .dashboard-section .journey-create-form textarea {
+    transition: none;
+  }
+}
+
+/* D5 — responsive and accessibility hardening across role workspaces. */
+.dashboard-section,
+.dashboard-section > *,
+.dashboard-section .resource-panel,
+.dashboard-section .record-card {
+  min-width: 0;
+}
+
+.dashboard-section :is(button, a, input, select, textarea) {
+  scroll-margin-block: 6rem;
+}
+
+.dashboard-section button,
+.dashboard-section a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dashboard-section button:not(.icon-button) {
+  min-height: 40px;
+}
+
+.dashboard-section .icon-button {
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-grid;
+  place-items: center;
+}
+
+.dashboard-section .form-row,
+.dashboard-section .billing-item-row {
+  min-width: 0;
+}
+
+.dashboard-section .form-row > *,
+.dashboard-section .billing-item-row > * {
+  min-width: 0;
+}
+
+.dashboard-section :is(input, select, textarea) {
+  max-width: 100%;
+}
+
+.dashboard-section :is(p, span, strong, small, label, a) {
+  overflow-wrap: anywhere;
+}
+
+.dashboard-section [role="dialog"] {
+  overscroll-behavior: contain;
+}
+
+.dashboard-section .modal,
+.dashboard-section .journey-modal {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.dashboard-section .modal-header {
+  flex: 0 0 auto;
+}
+
+.dashboard-section .clinical-form,
+.dashboard-section .journey-create-form {
+  min-width: 0;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+
+.dashboard-section :focus:not(:focus-visible) {
+  outline: none;
+}
+
+.booking-form {
+  min-width: 0;
+}
+
+.booking-form input,
+.booking-form select,
+.booking-form textarea {
+  min-width: 0;
+  max-width: 100%;
+  font-size: 16px;
+}
+
+.booking-form button {
+  min-height: 48px;
+}
+
+@media (max-width: 900px) {
+  .dashboard-section .form-row,
+  .dashboard-section .billing-item-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-section .resource-panel,
+  .dashboard-section .dashboard-card,
+  .dashboard-section .record-card {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 620px) {
+  .dashboard-section {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dashboard-section .modal-overlay,
+  .dashboard-section .journey-overlay {
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(8px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+  }
+
+  .dashboard-section .modal,
+  .dashboard-section .journey-modal {
+    max-height: calc(100dvh - 16px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+
+  .dashboard-section .clinical-form input,
+  .dashboard-section .clinical-form select,
+  .dashboard-section .clinical-form textarea,
+  .dashboard-section .journey-create-form input,
+  .dashboard-section .journey-create-form select,
+  .dashboard-section .journey-create-form textarea {
+    min-height: 46px;
+    font-size: 16px;
+  }
+
+  .dashboard-section .modal-header .icon-button {
+    flex: 0 0 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .booking-form {
+    padding-inline: 0;
+  }
+
+  .booking-form label {
+    min-width: 0;
+  }
+
+  .booking-form input,
+  .booking-form select,
+  .booking-form textarea {
+    min-height: 46px;
+  }
+}
+
+@media (forced-colors: active) {
+  .dashboard-section :is(button, a, input, select, textarea):focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 3px;
+  }
+
+  .dashboard-section .form-status {
+    border: 1px solid CanvasText;
+  }
+}
+
+/* Keep the dashboard sidebar identity concise: the M mark plus console role is sufficient. */
+.sidebar-brand .brand strong {
+  display: none;
+}
+
+/* D6 mobile navigation repair — keep sidebar groups full-width so links
+   have usable space on tablet and phone screens. */
+@media (max-width: 820px) {
+  .dashboard-shell .sidebar {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .dashboard-shell .sidebar-brand,
+  .dashboard-shell .sidebar-context,
+  .dashboard-shell .sidebar-footer,
+  .dashboard-shell .sidebar-section {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .dashboard-shell .sidebar-section {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-content: start;
+    gap: 6px 8px;
+    width: 100%;
+    margin: 4px 0;
+  }
+
+  .dashboard-shell .sidebar-section-title {
+    grid-column: 1 / -1;
+  }
+
+  .dashboard-shell .sidebar-section .side-link {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    width: 100%;
+    gap: 8px;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: normal;
+    font-size: 0.78rem;
+  }
+
+  .dashboard-shell .sidebar-section .side-link svg {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 420px) {
+  .dashboard-shell .sidebar {
+    padding: 12px;
+  }
+
+  .dashboard-shell .sidebar-section {
+    gap: 5px;
+  }
+
+  .dashboard-shell .sidebar-section .side-link {
+    min-height: 42px;
+    padding-inline: 8px;
+    gap: 7px;
+    font-size: 0.74rem;
+  }
+}
+
+@media (max-width: 820px) {
+  .dashboard-shell .sidebar-section-single .side-link {
+    grid-column: 1 / -1;
+  }
+}
+
+/* D6 mobile console header: prevent intrinsic-width overflow and keep
+   status, search and action controls in a predictable phone layout. */
+@media (max-width: 620px) {
+  .dashboard-shell,
+  .dashboard-shell .console,
+  .dashboard-shell .management-console-header,
+  .dashboard-shell .management-console-header > div:first-child {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dashboard-shell .management-console-header {
+    align-items: stretch;
+    padding: 15px 13px;
+  }
+
+  .dashboard-shell .management-console-header .console-tools {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px 44px;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .dashboard-shell .management-console-header .sync-pill {
+    grid-column: 1 / -1;
+    justify-self: start;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .dashboard-shell .management-console-header .search-box {
+    grid-column: 1;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .dashboard-shell .management-console-header .icon-button {
+    width: 44px;
+    min-width: 44px;
+    justify-self: end;
+  }
+
+  .dashboard-shell .management-console-header h2,
+  .dashboard-shell .management-console-header .eyebrow,
+  .dashboard-shell .management-console-header .console-user {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* D6 — prevent viewport-level horizontal scrolling on narrow screens.
+   Keep page sections constrained; retain horizontal scrolling only inside
+   intentionally scrollable data/timeline regions. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+#root,
+#root > main,
+#root > footer {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+@media (max-width: 820px) {
+  .site-header,
+  .hero,
+  .section,
+  footer {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .hero,
+  .services-section,
+  .operations-section,
+  .referral-section,
+  #contact {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero-copy,
+  .hero-visual,
+  .services-intro,
+  .services-visual,
+  .service-group-grid,
+  .care-process-header,
+  .care-timeline,
+  .referral-copy,
+  .referral-action,
+  #contact .contact-copy,
+  #contact .booking-form,
+  #contact .contact-strip {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .hero-visual,
+  .services-visual {
+    overflow: hidden;
+  }
+}
+
+/* D6 — remove viewport-centering whitespace above the public hero on phones.
+   The desktop hero remains vertically balanced; mobile content starts directly
+   beneath the sticky navigation. */
+@media (max-width: 620px) {
+  .hero {
+    min-height: 0;
+    height: auto;
+    align-content: start;
+    padding-top: 26px;
+  }
+}
+
+/* D6 mobile hero polish — clearer hierarchy, breathing room and compact trust cues.
+   These overrides are intentionally phone-only; tablet and desktop remain intact. */
+@media (max-width: 620px) {
+  .hero {
+    padding: 24px 18px 34px;
+    row-gap: 0;
+    background:
+      radial-gradient(circle at 92% 84%, rgba(36, 127, 131, 0.09), transparent 34%),
+      linear-gradient(160deg, #fbfcfd 0%, #fbfcfd 70%, #eef6f5 100%);
+  }
+
+  .hero-copy {
+    transform: none;
+  }
+
+  .hero-copy .hero-identity {
+    gap: 9px;
+    margin: 0 0 22px;
+    padding: 3px 0 3px 14px;
+    border-left-width: 4px;
+  }
+
+  .hero-identity-name {
+    font-size: clamp(2.55rem, 11vw, 3.05rem);
+    line-height: 1;
+    letter-spacing: -0.055em;
+  }
+
+  .hero-identity-description {
+    font-size: clamp(0.98rem, 4.1vw, 1.08rem);
+    line-height: 1.52;
+  }
+
+  .hero-identity-line + .hero-identity-line {
+    margin-top: 3px;
+  }
+
+  .hero-identity-location {
+    letter-spacing: 0.09em;
+  }
+
+  .hero-copy .hero-lede {
+    margin: 0 0 22px;
+    max-width: 38rem;
+    font-size: 1.02rem;
+    line-height: 1.65;
+    color: #526b7a;
+  }
+
+  .hero-actions {
+    gap: 11px;
+    margin-top: 0;
+  }
+
+  .hero-actions a {
+    min-height: 54px;
+    border-radius: 14px;
+  }
+
+  .trust-row {
+    gap: 9px;
+    margin-top: 19px;
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
+  .trust-row span {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid rgba(36, 127, 131, 0.13);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .trust-row span svg {
+    flex: 0 0 18px;
+    margin-top: 1px;
+  }
+}
+
+/* Enquiry consent: compact checkbox aligned beside its explanatory text. */
+#contact .booking-form label.privacy-consent {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  margin: 2px 0 4px;
+  color: #536b78;
+  font-size: 0.76rem;
+  font-weight: 500;
+  line-height: 1.55;
+  cursor: pointer;
+}
+
+#contact .booking-form .privacy-consent input[type="checkbox"] {
+  appearance: auto;
+  -webkit-appearance: checkbox;
+  flex: 0 0 16px;
+  width: 16px;
+  min-width: 16px;
+  max-width: 16px;
+  height: 16px;
+  min-height: 16px;
+  margin: 2px 0 0;
+  padding: 0;
+  accent-color: #247f83;
+}
+
+#contact .booking-form .privacy-consent span {
+  display: block;
+  min-width: 0;
+}
+
+#contact .contact-map {
+  grid-column: 1 / -1;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #dce7e8;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(23, 63, 89, 0.07);
+}
+
+#contact .contact-map-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 20px 22px;
+}
+
+#contact .contact-map-heading .eyebrow {
+  margin: 0 0 6px;
+  color: #247f83;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+#contact .contact-map-heading h3 {
+  margin: 0 0 5px;
+  color: #193f58;
+  font-size: 1.12rem;
+}
+
+#contact .contact-map-heading p:last-child {
+  margin: 0;
+  color: #617783;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+#contact .map-directions-link {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 42px;
+  padding: 9px 13px;
+  border-radius: 10px;
+  color: #fff;
+  background: #173f59;
+  font-size: 0.8rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+#contact .map-directions-link:hover {
+  background: #247f83;
+}
+
+#contact .contact-map iframe {
+  display: block;
+  width: 100%;
+  height: 340px;
+  border: 0;
+}
+
+@media (max-width: 620px) {
+  #contact .booking-form label.privacy-consent {
+    gap: 9px;
+    font-size: 0.72rem;
+    line-height: 1.5;
+  }
+
+  #contact .contact-map-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    padding: 17px;
+  }
+
+  #contact .contact-map iframe {
+    height: 270px;
+  }
+}
+
+/* Clickable Google Maps preview in the public hero's left column. */
+.hero-location-map {
+  width: min(100%, 430px);
+  margin-top: 14px;
+}
+
+.hero-location-map-preview {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 138px;
+  overflow: hidden;
+  border: 1px solid rgba(36, 127, 131, 0.2);
+  border-radius: 12px;
+  background: #eaf2f1;
+  box-shadow: 0 5px 16px rgba(23, 63, 89, 0.08);
+  cursor: pointer;
+}
+
+.hero-location-map-preview iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  pointer-events: none;
+}
+
+.hero-location-map-preview:focus-visible,
+.hero-location-map-link:focus-visible {
+  outline: 3px solid rgba(36, 127, 131, 0.5);
+  outline-offset: 3px;
+}
+
+.hero-location-map-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+  color: #247f83;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.hero-location-map-link:hover {
+  color: #173f59;
+  text-decoration: underline;
+}
+
+@media (max-width: 820px) {
+  .hero-location-map {
+    width: min(100%, 400px);
+    margin-top: 12px;
+  }
+
+  .hero-location-map-preview {
+    height: 128px;
+  }
+}
+
+@media (max-width: 620px) {
+  .hero-location-map {
+    width: 100%;
+    max-width: none;
+    margin-top: 11px;
+  }
+
+  .hero-location-map-preview {
+    height: 116px;
+    border-radius: 10px;
+  }
+
+  .hero-location-map-link {
+    font-size: 0.7rem;
+  }
+}
+
+/* Reassuring non-blocking status toast while staff login waits for the API. */
+.login-wait-toast {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid rgba(36, 127, 131, 0.2);
+  border-radius: 11px;
+  color: #244b60;
+  background: #eff8f7;
+  box-shadow: 0 5px 16px rgba(23, 63, 89, 0.06);
+}
+
+.login-wait-toast > span:last-child {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.login-wait-toast strong {
+  color: #176f70;
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.login-wait-toast small {
+  color: #607783;
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.login-wait-spinner {
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  border: 2px solid rgba(36, 127, 131, 0.2);
+  border-top-color: #247f83;
+  border-radius: 50%;
+  animation: login-wait-spin 750ms linear infinite;
+}
+
+@keyframes login-wait-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-wait-spinner {
+    animation: none;
+    border-top-color: #247f83;
+  }
+}
+
+/* Centre name is the primary brand identifier; keep it dominant at every width. */
+.hero-copy .hero-identity-name {
+  width: 100%;
+  font-size: clamp(3.75rem, 7.2vw, 6rem);
+  font-weight: 950;
+  line-height: 0.94;
+  letter-spacing: -0.06em;
+}
+
+.hero-copy .hero-identity-description {
+  max-width: 100%;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+@media (max-width: 820px) {
+  .hero-copy .hero-identity-name {
+    font-size: clamp(3.35rem, 10vw, 4.8rem);  }
+}
+
+@media (max-width: 620px) {
+  .hero-copy .hero-identity {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 12px;
+    gap: 7px;
+  }
+
+  .hero-copy .hero-identity-name {
+    font-size: clamp(3rem, 13vw, 4rem);
+    font-weight: 950;
+    line-height: 0.96;
+    letter-spacing: -0.055em;
+  }
+
+  .hero-copy .hero-identity-description {
+    width: 100%;
+    font-size: clamp(0.9rem, 4.1vw, 1.05rem);
+    line-height: 1.38;
+    overflow-wrap: anywhere;
+  }
+
+  .hero-copy .hero-identity-line {
+    display: block;
+  }
+
+  .hero-copy .hero-identity-location {
+    display: inline-block;
+    font-size: 0.66rem;
+    letter-spacing: 0.15em;
+  }
+}
+
+/* Keep the hero supporting statement subordinate to the centre identity. */
+.hero-copy .hero-lede {
+  font-size: clamp(0.98rem, 1.35vw, 1.12rem);
+  line-height: 1.65;
+}
+
+@media (max-width: 820px) {
+  .hero-copy .hero-lede {
+    font-size: 1.02rem;
+    line-height: 1.62;
+  }
+}
+
+@media (max-width: 620px) {
+  .hero-copy .hero-lede {
+    font-size: 0.92rem;
+    line-height: 1.58;
+  }
+}
+
+/* Align the visible left edge of the Mindful wordmark with the descriptor text. */
+.hero-copy .hero-identity-name {
+  margin-left: -3px;
+}
+
+/* Mobile hero identity: centre the wording and move the accent rule below the name. */
+@media (max-width: 620px) {
+  .hero-copy .hero-identity {
+    justify-items: center;
+    text-align: center;
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .hero-copy .hero-identity-name {
+    width: 100%;
+    margin-left: 0;
+    text-align: center;
+  }
+
+  .hero-copy .hero-identity-description {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    padding-left: 10px;
+    border-left: 3px solid var(--public-teal);
+    text-align: center;
+  }
+
+  .hero-copy .hero-identity-line {
+    text-align: center;
+  }
+}
+
+/* Final mobile wordmark alignment: the accent rule belongs only to the descriptor block. */
+@media (max-width: 620px) {
+  .hero-copy .hero-identity {
+    border-left: 0 !important;
+    padding-left: 0 !important;
+  }
+
+  .hero-copy .hero-identity-name {
+    width: 100%;
+    font-size: clamp(3.65rem, 15vw, 4.8rem);
+    line-height: 0.94;
+    letter-spacing: -0.06em;
+    margin: 0;
+    text-align: center;
+  }
+
+  .hero-copy .hero-identity-description {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 9px auto 0;
+    padding: 0 0 0 11px;
+    border: 0;
+    border-left: 3px solid var(--public-teal);
+    text-align: center;
+  }
+}
+
+/* Keep the mobile accent rule attached to the centred descriptor, not the full identity column. */
+@media (max-width: 620px) {
+  .hero-copy .hero-identity,
+  .hero-copy .hero-identity-name {
+    border-left: 0 !important;
+  }
+
+  .hero-copy .hero-identity-description {
+    display: inline-block;
+    width: auto;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin: 9px auto 0;
+    padding: 0 0 0 11px;
+    border-left: 3px solid var(--public-teal);
+    text-align: center;
+  }
+}
+
+/* Mobile brand accent: a centred horizontal rule directly beneath the Mindful wordmark. */
+@media (max-width: 620px) {
+  .hero-copy .hero-identity,
+  .hero-copy .hero-identity-name,
+  .hero-copy .hero-identity-description {
+    border-left: 0 !important;
+  }
+
+  .hero-copy .hero-identity {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 !important;
+  }
+
+  .hero-copy .hero-identity-name {
+    display: block;
+    width: 100%;
+    margin: 0 !important;
+    text-align: center;
+  }
+
+  .hero-copy .hero-identity-name::after {
+    content: "";
+    display: block;
+    width: clamp(76px, 24vw, 112px);
+    height: 3px;
+    margin: 8px auto 0;
+    border-radius: 999px;
+    background: var(--public-teal);
+  }
+
+  .hero-copy .hero-identity-description {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    margin: 8px auto 0 !important;
+    padding: 0 !important;
+    text-align: center;
+  }
+}
+
+/* Homepage identity lockup: full-width wordmark underline and matching centre descriptor. */
+.hero-copy .hero-identity {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
+  max-width: min(100%, 940px);
+  padding-left: 0;
+  border-left: 0;
+}
+
+.hero-identity-name {
+  display: inline-block;
+  width: max-content;
+  max-width: 100%;
+  margin: 0;
+}
+
+.hero-identity-name::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 4px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: #247f83;
+}
+
+.hero-identity-description {
+  max-width: 100%;
+}
+
+.hero-identity-line:first-child {
+  color: #247f83;
+  font-weight: 800;
+}
+
+@media (max-width: 760px) {
+  .hero-copy .hero-identity {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 0;
+  }
+
+  .hero-identity-name {
+    width: max-content;
+    max-width: 100%;
+    font-size: clamp(2.7rem, 12vw, 3.35rem);
+  }
+
+  .hero-identity-name::after {
+    height: 4px;
+    margin-top: 9px;
+  }
+
+  .hero-identity-description {
+    width: 100%;
+    max-width: 100%;
+    font-size: clamp(0.94rem, 4vw, 1.08rem);
+  }
+}
+
+/* Final centre identity refinement: teal designation at every size and a
+   wordmark underline sized to the actual “Mindful” text on mobile. */
+.hero-copy .hero-identity-description {
+  color: #247f83 !important;
+}
+
+@media (max-width: 760px) {
+  .hero-copy .hero-identity-name {
+    width: fit-content !important;
+    max-width: 100%;
+    margin-inline: auto !important;
+  }
+
+  .hero-copy .hero-identity-name::after {
+    width: 100%;
+    height: 4px;
+    margin: 9px 0 0;
+    background: #247f83;
+  }
+}
+
+/* Desktop hero identity: restore the full-height vertical accent beside the
+   complete Mindful lockup. Mobile retains its centred wordmark underline. */
+@media (min-width: 761px) {
+  .hero-copy .hero-identity {
+    border-left: 4px solid #247f83;
+    padding-left: 19px;
+  }
+
+  .hero-copy .hero-identity-name::after {
+    display: none;
+  }
+}
+
+
+/* Desktop hero accent refinement: a thicker, content-height teal rule.
+   The pseudo-element stretches with the complete identity text block. */
+@media (min-width: 761px) {
+  .hero-copy .hero-identity {
+    position: relative;
+    border-left: 0;
+    padding-left: 19px;
+  }
+
+  .hero-copy .hero-identity::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 6px;
+    border-radius: 999px;
+    background: #247f83;
+  }
+}
+
+
+/* The hero already provides the Google Maps location preview; remove the
+   duplicate map panel beneath the Contact form while keeping contact details. */
+#contact .contact-map {
+  display: none !important;
+}
+
+
+/* Authoritative hero wordmark sizing.
+   Preserve the preferred large desktop treatment above 960px and scale
+   smoothly below it, without competing declarations changing its weight. */
+@media (min-width: 961px) {
+  .hero-copy .hero-identity-name {
+    font-size: clamp(4.5rem, 7.2vw, 6rem);
+    font-weight: 950;
+    line-height: 0.94;
+    letter-spacing: -0.06em;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 960px) {
+  .hero-copy .hero-identity-name {
+    font-size: clamp(4rem, 7.5vw, 4.5rem);
+    font-weight: 950;
+    line-height: 0.94;
+    letter-spacing: -0.06em;
+  }
+}
+
+
+/* Swap the text brand for the centre emblem while the homepage hero is in view. */
+.site-header-home.is-hero-visible .brand {
+  visibility: visible;
+}
+
+.site-header-home .brand-home-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: auto;
+  min-width: 0;
+  gap: 0;
+}
+
+.brand-logo-image {
+  display: block;
+  width: 64px;
+  height: 50px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 620px) {
+  .brand-logo-image {
+    width: 48px;
+    height: 38px;
+  }
+}
+
+
+/* Responsive navbar emblem: give the centre logo a stronger presence on desktop. */
+@media (min-width: 761px) {
+  .site-header-home .brand-logo-image {
+    width: clamp(88px, 7.5vw, 116px);
+    height: clamp(68px, 5.8vw, 90px);
+  }
+}
+
+@media (max-width: 760px) {
+  .site-header-home .brand-logo-image {
+    width: 48px;
+    height: 38px;
+  }
+}
+
+
+/* Public homepage sections use a full-viewport canvas. Content can still
+   expand naturally on smaller screens or when a section is taller than one view. */
+.hero,
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  min-height: 100svh;
+  box-sizing: border-box;
+}
+
+/* Align the centre emblem with the site's navy-and-teal visual identity. */
+.site-header-home .brand-logo-image {
+  filter: saturate(1.28) hue-rotate(-7deg) contrast(1.04);
+}
+
+
+/* Stronger theme recolouring: convert the emblem to a coordinated teal treatment
+   rather than relying on the previous subtle saturation adjustment. */
+.site-header-home .brand-logo-image {
+  filter: grayscale(1) sepia(1) saturate(3.8) hue-rotate(126deg) brightness(0.82) contrast(1.12) !important;
+}
+
+
+/* Full-screen section rhythm: account for the 82px site header so each
+   homepage panel occupies the remaining viewport without exposing a strip
+   of the preceding section during scroll transitions. */
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+  scroll-padding-top: 82px;
+}
+
+.hero,
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  min-height: calc(100svh - 82px);
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/* Let unusually tall content expand naturally rather than clipping forms/cards. */
+@media (max-width: 760px) {
+  .hero,
+  .services-section,
+  .operations-section,
+  .referral-section,
+  .contact-section {
+    min-height: calc(100svh - 72px);
+  }
+
+  html {
+    scroll-padding-top: 72px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
+}
+
+
+/* The public header scrolls with the document, so each content section itself
+   must retain a full viewport height (rather than subtracting header height). */
+html {
+  scroll-padding-top: 0;
+}
+
+.hero,
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  min-height: 100svh;
+  scroll-margin-top: 0;
+}
+
+@media (max-width: 760px) {
+  .hero,
+  .services-section,
+  .operations-section,
+  .referral-section,
+  .contact-section {
+    min-height: 100svh;
+  }
+}
+
+
+/* Gentle section-to-section motion and a soft brand handoff in the navbar. */
+.hero,
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition:
+    opacity 520ms ease,
+    transform 620ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.hero.is-section-visible,
+.services-section.is-section-visible,
+.operations-section.is-section-visible,
+.referral-section.is-section-visible,
+.contact-section.is-section-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.site-header-home .brand-logo-image,
+.site-header-home .brand > span {
+  animation: mindful-brand-arrive 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes mindful-brand-arrive {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 5px, 0) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero,
+  .services-section,
+  .operations-section,
+  .referral-section,
+  .contact-section,
+  .site-header-home .brand-logo-image,
+  .site-header-home .brand > span {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    transition: none !important;
+    will-change: auto;
+  }
+}
+
+
+/* Keep sections visible by default; enable reveal motion only when the
+   IntersectionObserver enhancement is available in the browser. */
+.hero,
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  opacity: 1;
+  transform: none;
+}
+
+html.homepage-motion-enabled .hero,
+html.homepage-motion-enabled .services-section,
+html.homepage-motion-enabled .operations-section,
+html.homepage-motion-enabled .referral-section,
+html.homepage-motion-enabled .contact-section {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+}
+
+html.homepage-motion-enabled .hero.is-section-visible,
+html.homepage-motion-enabled .services-section.is-section-visible,
+html.homepage-motion-enabled .operations-section.is-section-visible,
+html.homepage-motion-enabled .referral-section.is-section-visible,
+html.homepage-motion-enabled .contact-section.is-section-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+
+/* Stabilize the navbar/hero handoff: the hero itself must not translate while
+   its visibility is being measured, and the brand must not restart keyframes
+   whenever React swaps the emblem and text lockup. */
+.hero,
+html.homepage-motion-enabled .hero,
+html.homepage-motion-enabled .hero.is-section-visible {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+.site-header-home .brand-logo-image,
+.site-header-home .brand > span {
+  animation: none !important;
+  transition: opacity 220ms ease;
+  will-change: auto;
+}
+
+/* Keep the other sections' reveal subtle without affecting header geometry. */
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  transition:
+    opacity 420ms ease,
+    transform 480ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .services-section,
+  .operations-section,
+  .referral-section,
+  .contact-section,
+  .site-header-home .brand-logo-image,
+  .site-header-home .brand > span {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+
+/* First-visit welcome celebration: branded confetti, never blocks interaction. */
+.mindful-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint;
+  opacity: 1;
+  transition: opacity 1500ms ease-out;
+}
+
+.mindful-confetti.is-fading {
+  opacity: 0;
+}
+
+.mindful-confetti-piece {
+  position: absolute;
+  top: -14px;
+  display: block;
+  width: 8px;
+  height: 13px;
+  opacity: 0;
+  background: #247f83;
+  animation-name: mindful-confetti-fall;
+  animation-timing-function: cubic-bezier(0.2, 0.65, 0.35, 1);
+  animation-fill-mode: both;
+}
+
+.mindful-confetti-piece:nth-child(4n + 1) { background: #173f59; }
+.mindful-confetti-piece:nth-child(4n + 2) { background: #247f83; }
+.mindful-confetti-piece:nth-child(4n + 3) { background: #d8a744; }
+.mindful-confetti-piece:nth-child(4n) { background: #8c78a8; }
+
+.mindful-confetti-piece.shape-1 {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.mindful-confetti-piece.shape-2 {
+  width: 6px;
+  height: 16px;
+  border-radius: 999px;
+}
+
+@keyframes mindful-confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -4vh, 0) rotate(0deg);
+  }
+  10% { opacity: 0.95; }
+  85% { opacity: 0.9; }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--confetti-drift), 110vh, 0) rotate(var(--confetti-rotation));
+  }
+}
+
+/* One-time, restrained entrance for the Mindful hero wordmark. */
+.hero-copy .hero-identity-name {
+  animation: mindful-wordmark-intro 950ms cubic-bezier(0.2, 0.75, 0.25, 1) 120ms both;
+}
+
+@keyframes mindful-wordmark-intro {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.97);
+    filter: blur(5px);
+  }
+  65% {
+    opacity: 1;
+    filter: blur(0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mindful-confetti {
+    display: none !important;
+  }
+
+  .hero-copy .hero-identity-name {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+
+/* Smoother, more deliberate Mindful wordmark entrance.
+   Avoid blur filters (which can look harsh or stutter on some GPUs); use
+   opacity and a restrained transform with a longer ease-out instead. */
+.hero-copy .hero-identity-name {
+  animation: mindful-wordmark-intro 1500ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
+  transform-origin: left center;
+  will-change: opacity, transform;
+}
+
+@keyframes mindful-wordmark-intro {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0) scale(0.985);
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@media (max-width: 620px) {
+  .hero-copy .hero-identity-name {
+    transform-origin: center center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-copy .hero-identity-name {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    will-change: auto;
+  }
+}
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088

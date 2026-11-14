@@ -95,8 +95,11 @@ export async function apiRequest(path, { token, params, timeoutMs = 12000, retur
 }
 
 export function loginStaff(credentials) {
+  // Render's free instance may need time to wake from an idle suspension.
+  // Allow the login request to wait for cold-start completion before timing out.
   return apiRequest("/auth/login", {
     method: "POST",
+    timeoutMs: 60000,
     body: JSON.stringify(credentials)
   });
 }

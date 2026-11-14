@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { apiRequest } from "../lib/api.js";
 
 const ROLES = [
@@ -17,8 +17,24 @@ export function StaffBoard({ token, currentRole, onChanged }) {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [form, setForm] = useState({ name: "", email: "", role: "reception", password: "", confirmPassword: "" });
   const availableRoles = currentRole === "director" ? ROLES : ROLES.filter(([role]) => !["director", "admin"].includes(role));
+  const activeCount = staff.filter((person) => person.isActive).length;
+  const inactiveCount = staff.length - activeCount;
+  const practitionerCount = staff.filter((person) => ["doctor", "therapist"].includes(person.role)).length;
+  const visibleStaff = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return staff.filter((person) => {
+      const matchesSearch = !term || [person.name, person.email, person.role]
+        .some((value) => String(value || "").toLowerCase().includes(term));
+      const matchesRole = roleFilter === "all" || person.role === roleFilter;
+      const matchesStatus = statusFilter === "all" || (statusFilter === "active" ? person.isActive : !person.isActive);
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+  }, [staff, search, roleFilter, statusFilter]);
 
   async function load() {
     setLoading(true);
@@ -74,7 +90,11 @@ export function StaffBoard({ token, currentRole, onChanged }) {
       <div className="panel-title resource-title staff-board-heading staff-management-heading">
         <div>
           <h3>Staff accounts</h3>
+<<<<<<< HEAD
           <span className="resource-count">{staff.length} {staff.length === 1 ? "account" : "accounts"} · {staff.filter(person => person.isActive).length} active</span>
+=======
+          <span className="resource-count">{staff.length} {staff.length === 1 ? "account" : "accounts"} · {activeCount} active</span>
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
           <p className="resource-description">Create staff login credentials and review account access.</p>
         </div>
         {!showForm && <button className="primary-button compact-button" type="button" onClick={() => setShowForm(true)}>+ Add staff account</button>}
@@ -113,9 +133,48 @@ export function StaffBoard({ token, currentRole, onChanged }) {
           </form>
         </section>
       )}
+<<<<<<< HEAD
       {loading ? <p className="empty-state">Loading staff accounts...</p> : staff.length ? (
         <div className="record-grid staff-record-grid staff-management-grid">
           {staff.map((person) => (
+=======
+      <div className="staff-board-summary" aria-label="Staff account summary">
+        <div className="staff-summary-card"><span>Total accounts</span><strong>{staff.length}</strong><small>All staff logins</small></div>
+        <div className="staff-summary-card is-active"><span>Active accounts</span><strong>{activeCount}</strong><small>Access enabled</small></div>
+        <div className="staff-summary-card is-inactive"><span>Inactive accounts</span><strong>{inactiveCount}</strong><small>Access disabled</small></div>
+        <div className="staff-summary-card is-clinical"><span>Clinical staff</span><strong>{practitionerCount}</strong><small>Doctors and therapists</small></div>
+      </div>
+      <div className="staff-board-toolbar">
+        <label className="search-box staff-board-search">
+          <span className="staff-search-label">Search staff</span>
+          <input aria-label="Search staff by name, email or role" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Name, email or role" />
+        </label>
+        <label className="staff-filter-control">
+          <span>Role</span>
+          <select aria-label="Filter staff by role" value={roleFilter} onChange={(event) => setRoleFilter(event.target.value)}>
+            <option value="all">All roles</option>
+            {ROLES.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+          </select>
+        </label>
+        <label className="staff-filter-control">
+          <span>Account status</span>
+          <select aria-label="Filter staff by account status" value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
+            <option value="all">All statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </label>
+      </div>
+      <div className="staff-results-line" aria-live="polite">
+        <span>{loading ? "Loading staff accounts..." : "Showing " + visibleStaff.length + " of " + staff.length + " accounts"}</span>
+        {(search || roleFilter !== "all" || statusFilter !== "all") && (
+          <button className="staff-filter-reset" type="button" onClick={() => { setSearch(""); setRoleFilter("all"); setStatusFilter("all"); }}>Clear filters</button>
+        )}
+      </div>
+      {loading ? <p className="empty-state">Loading staff accounts...</p> : visibleStaff.length ? (
+        <div className="record-grid staff-record-grid staff-management-grid">
+          {visibleStaff.map((person) => (
+>>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
             <div className="record-card staff-record-card" key={person._id}>
               <div className="record-main">
                 <div><strong>{person.name}</strong><span>{person.email}</span></div>
@@ -127,6 +186,8 @@ export function StaffBoard({ token, currentRole, onChanged }) {
             </div>
           ))}
         </div>
+      ) : staff.length ? (
+        <p className="empty-state staff-no-results">No staff accounts match these filters. Try changing the search or filter selection.</p>
       ) : <p className="empty-state">No staff accounts found.</p>}
     </article>
   );
