@@ -4,7 +4,6 @@ import { celebrationConfig, CELEBRATION_STORAGE_KEY } from "../config/celebratio
 export function CelebrationConfetti() {
   const [visible, setVisible] = useState(false);
   const [fading, setFading] = useState(false);
-  const [activeCount, setActiveCount] = useState(celebrationConfig.particleCount);
   // React StrictMode replays layout effects in development.
   const runCounted = useRef(false);
 
@@ -12,10 +11,10 @@ export function CelebrationConfetti() {
     () =>
       Array.from({ length: celebrationConfig.particleCount }, (_, index) => ({
         left: `${(index * 37 + 11) % 100}%`,
-        delay: `${(index % 7) * 0.035}s`,
-        duration: `${3.7 + (index % 7) * 0.22}s`,
-        drift: `${((index * 29) % 190) - 95}px`,
-        rotation: `${(index * 47) % 540}deg`,
+        delay: `${(index % 11) * 0.075}s`,
+        duration: `${2.35 + (index % 6) * 0.19}s`,
+        drift: `${((index * 29) % 150) - 75}px`,
+        rotation: `${(index * 47) % 360}deg`,
         shape: index % 3
       })),
     []
@@ -36,26 +35,19 @@ export function CelebrationConfetti() {
         runCounted.current = true;
       }
 
-      const startedAt = Date.now();
-      const fadeStartsAt = Math.max(0, celebrationConfig.durationMs - celebrationConfig.fadeOutMs);
-
-      setActiveCount(celebrationConfig.particleCount);
       setFading(false);
       setVisible(true);
 
-      // Begin with a full burst, then steadily reduce the number of visible
-      // pieces so the shower tapers off instead of stopping all at once.
-      const countTimer = window.setInterval(() => {
-        const elapsed = Date.now() - startedAt;
-        const remaining = Math.max(0, 1 - elapsed / celebrationConfig.durationMs);
-        setActiveCount(Math.ceil(celebrationConfig.particleCount * remaining));
-      }, 100);
-
-      const fadeTimer = window.setTimeout(() => setFading(true), fadeStartsAt);
-      const removeTimer = window.setTimeout(() => setVisible(false), celebrationConfig.durationMs);
+      const fadeTimer = window.setTimeout(
+        () => setFading(true),
+        Math.max(0, celebrationConfig.durationMs - celebrationConfig.fadeOutMs)
+      );
+      const removeTimer = window.setTimeout(
+        () => setVisible(false),
+        celebrationConfig.durationMs
+      );
 
       return () => {
-        window.clearInterval(countTimer);
         window.clearTimeout(fadeTimer);
         window.clearTimeout(removeTimer);
       };
@@ -71,7 +63,7 @@ export function CelebrationConfetti() {
       className={`mindful-confetti${fading ? " is-fading" : ""}`}
       aria-hidden="true"
     >
-      {pieces.slice(0, activeCount).map((piece, index) => (
+      {pieces.map((piece, index) => (
         <span
           className={`mindful-confetti-piece shape-${piece.shape}`}
           key={index}
