@@ -31,17 +31,21 @@ export function createGallerySlug(value) {
 }
 
 export function isGalleryAssetPublic(asset) {
-  if (!asset || asset.status === "archived" || asset.consentStatus === "withdrawn") return null;
-  if (asset.identifiablePeople && (asset.consentStatus !== "verified" || !["website", "website-and-social", "all-public"].includes(asset.consentScope))) return null;
+  return Boolean(asset && asset.status !== "archived" && asset.consentStatus !== "withdrawn" &&
+    (!asset.identifiablePeople || (asset.consentStatus === "verified" && ["website", "website-and-social", "all-public"].includes(asset.consentScope))));
+}
+
+function toPublicGalleryAsset(asset) {
+  if (!isGalleryAssetPublic(asset)) return null;
   return { _id: asset._id, title: asset.title, caption: asset.caption, altText: asset.altText, secureUrl: asset.secureUrl, resourceType: asset.resourceType, format: asset.format };
 }
 
 function publicGallery(gallery) {
   const value = typeof gallery.toObject === "function" ? gallery.toObject() : gallery;
-  const mediaItems = (value.mediaItems || []).filter(isGalleryAssetPublic).map((asset) => ({ _id: asset._id, title: asset.title, caption: asset.caption, altText: asset.altText, secureUrl: asset.secureUrl, resourceType: asset.resourceType, format: asset.format }));
+  const mediaItems = (value.mediaItems || []).map(toPublicGalleryAsset).filter(Boolean);
   return {
     _id: value._id, title: value.title, slug: value.slug, description: value.description,
-    category: value.category, coverMedia: (isGalleryAssetPublic(value.coverMedia) ? { _id: value.coverMedia._id, title: value.coverMedia.title, caption: value.coverMedia.caption, altText: value.coverMedia.altText, secureUrl: value.coverMedia.secureUrl, resourceType: value.coverMedia.resourceType, format: value.coverMedia.format } : null), mediaItems,
+    category: value.category, coverMedia: toPublicGalleryAsset(value.coverMedia), mediaItems,
     eventDate: value.eventDate, publishedAt: value.publishedAt
   };
 }
