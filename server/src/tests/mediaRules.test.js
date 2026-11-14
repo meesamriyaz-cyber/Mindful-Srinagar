@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createUploadSignature, signCloudinaryParams } from "../config/cloudinary.js";
-import { mediaUploadLimits } from "../config/env.js";
+import { mediaUploadLimits, validateRuntimeEnv } from "../config/env.js";
 import {
   canExposePublication,
   createPublicationSlug,
@@ -27,6 +27,9 @@ test("media upload limits use defaults and reject invalid configuration", () => 
     videoBatchLimit: 3
   });
   assert.throws(() => mediaUploadLimits({ MEDIA_IMAGE_MAX_BYTES: "NaN" }), /MEDIA_IMAGE_MAX_BYTES/);
+  const baseEnv = { MONGO_URI: "mongodb://127.0.0.1:27017/mindful_test", JWT_SECRET: "a".repeat(48) };
+  assert.equal(validateRuntimeEnv(baseEnv).valid, true, "Cloudinary must remain optional for non-media server workflows");
+  assert.equal(validateRuntimeEnv({ ...baseEnv, MEDIA_VIDEO_MAX_BYTES: "0" }).valid, false);
 });
 
 test("Cloudinary signatures are deterministic and do not expose the API secret", () => {
@@ -69,6 +72,12 @@ test("uploaded media must match the signed resource policy", () => {
 test("media metadata enforces consent review and safe field bounds", () => {
   assert.match(validateMediaMetadata({ identifiablePeople: true, consentStatus: "not-required" })[0], /consent review/);
   assert.deepEqual(validateMediaMetadata({ identifiablePeople: true, consentStatus: "pending" }), []);
+  assert.match(validateMediaMetadata({
+    identifiablePeople: true,
+    consentStatus: "verified",
+    consentScope: "website",
+    consentVerifiedAt: "2026-11-14T10:00:00Z"
+  })[0], /non-sensitive consent reference/);
   assert.match(validateMediaMetadata({ consentStatus: "verified" })[0], /verification date/);
   assert.deepEqual(validateMediaMetadata({ identifiablePeople: true, consentStatus: "verified", consentScope: "website", consentNotes: "Signed consent form recorded by Director", consentVerifiedAt: "2026-11-14T10:00:00Z" }), []);
   assert.match(validateMediaMetadata({ title: "x".repeat(121) })[0], /title/);
@@ -103,6 +112,14 @@ test("publication payloads require valid types and safe editor documents", () =>
   assert.deepEqual(validatePublicationPayload(valid, { creating: true }), []);
   assert.match(validatePublicationPayload({ ...valid, body: "<script>alert(1)</script>" }, { creating: true })[0], /rich-text editor document/);
   assert.match(validatePublicationPayload({ ...valid, type: "private" }, { creating: true })[0], /Publication type/);
+  assert.match(validatePublicationPayload({
+    ...valid,
+    identifiablePeople: true,
+    consentStatus: "verified",
+    consentScope: "internal-only",
+    consentNotes: "Consent record",
+    consentVerifiedAt: "2026-11-14T10:00:00Z"
+  }, { creating: true })[0], /public website use/);
 });
 
 test("publication slugs and public visibility respect consent and workflow state", () => {
@@ -111,5 +128,6 @@ test("publication slugs and public visibility respect consent and workflow state
   assert.equal(canExposePublication({ status: "draft", identifiablePeople: false, consentStatus: "not-required" }), false);
   assert.equal(canExposePublication({ status: "published", identifiablePeople: true, consentStatus: "pending" }), false);
   assert.equal(canExposePublication({ status: "published", identifiablePeople: true, consentStatus: "verified", consentScope: "website" }), true);
+  assert.equal(canExposePublication({ status: "published", identifiablePeople: true, consentStatus: "verified", consentScope: "internal-only" }), false);
   assert.equal(canExposePublication({ status: "published", identifiablePeople: false, consentStatus: "withdrawn" }), false);
 });
