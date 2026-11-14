@@ -30,6 +30,7 @@ function normalizePublicationPayload(payload) {
   if (normalized.venue !== undefined) normalized.venue = normalized.venue.trim();
   if (normalized.eventDate) normalized.eventDate = new Date(normalized.eventDate);
   if (normalized.consentStatus === "verified") normalized.consentVerifiedAt = new Date(normalized.consentVerifiedAt);
+  if (normalized.identifiablePeople === true && !normalized.consentStatus) normalized.consentStatus = "pending";
   if (normalized.consentStatus === "withdrawn") normalized.consentWithdrawnAt = new Date();
   if (normalized.consentStatus && normalized.consentStatus !== "withdrawn") normalized.consentWithdrawnAt = null;
   if (normalized.consentStatus && normalized.consentStatus !== "verified") normalized.consentVerifiedAt = null;
