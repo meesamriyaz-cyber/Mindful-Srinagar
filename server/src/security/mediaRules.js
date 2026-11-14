@@ -9,7 +9,7 @@ const CONSENT_SCOPES = new Set(["internal-only", "website", "website-and-social"
 export function validateMediaResource(resource, resourceType, env = process.env) {
   if (!resource || !["image", "video"].includes(resourceType)) return "A valid Cloudinary media resource is required";
   if (resource.resource_type !== resourceType || resource.type !== "upload") return "Cloudinary resource type does not match the upload request";
-  if (typeof resource.public_id !== "string" || !resource.public_id.startsWith("mindful/media/")) return "Media must be uploaded into the approved Mindful media folder";
+  if (typeof resource.public_id !== "string" || !(resource.public_id.startsWith("mindful/media/") || resource.asset_folder === "mindful/media")) return "Media must be uploaded into the approved Mindful media folder";
   if (typeof resource.asset_id !== "string" || !resource.asset_id) return "Cloudinary asset identity is missing";
   if (typeof resource.secure_url !== "string" || !resource.secure_url.startsWith("https://res.cloudinary.com/")) return "Cloudinary did not return a valid secure media URL";
   if (!Number.isSafeInteger(Number(resource.bytes)) || Number(resource.bytes) <= 0) return "Cloudinary returned an invalid file size";
