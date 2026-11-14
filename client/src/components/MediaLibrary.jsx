@@ -56,6 +56,7 @@ export function MediaLibrary({ token }) {
 
   useEffect(() => { load(1); }, [query, type, category, status, load]);
   useEffect(() => { if (selected) setMeta({ title: selected.title || "", caption: selected.caption || "", description: selected.description || "", altText: selected.altText || "", category: selected.category || "other", tags: (selected.tags || []).join(", "), identifiablePeople: Boolean(selected.identifiablePeople), consentStatus: selected.consentStatus || "not-required", consentScope: selected.consentScope || "internal-only", consentNotes: selected.consentNotes || "" }); }, [selected]);
+  useEffect(() => { if (!notice) return undefined; const timeout = window.setTimeout(() => setNotice(""), 1000); return () => window.clearTimeout(timeout); }, [notice]);
 
   const uploadFiles = async (event) => {
     const files = Array.from(event.target.files || []);
@@ -125,7 +126,6 @@ export function MediaLibrary({ token }) {
     finally { setBusyId(""); }
   };
   const deleteAsset = async (asset) => {
-    if (!window.confirm("Permanently delete this media from Cloudinary and the library? This cannot be undone.")) return;
     setBusyId(asset._id); setError("");
     try { await request(`/media/${asset._id}`, token, { method: "DELETE" }); setNotice("Media permanently deleted."); await load(page); }
     catch (err) { setError(err.message); }
@@ -143,7 +143,7 @@ export function MediaLibrary({ token }) {
       <div className="media-library-stats"><span><strong>{total}</strong> {status === "archived" ? "archived assets" : "available assets"}</span><span><strong>{imageCount}</strong> images on this page</span><span><strong>{pages}</strong> pages</span></div>
       {uploading && <div className="media-upload-progress" role="status"><LoaderCircle size={18} className="media-spin" /><div><strong>Uploading {progress.current} of {progress.total}</strong><span>{progress.name || "Preparing upload"}</span><div className="media-progress-track"><i style={{ width: `${progress.total ? progress.current / progress.total * 100 : 0}%` }} /></div></div></div>}
       {error && <p className="form-status error-status" role="alert">{error}</p>}
-      {notice && <p className="media-notice" role="status"><CheckCircle2 size={16} />{notice}<button type="button" aria-label="Dismiss" onClick={() => setNotice("")}><X size={15} /></button></p>}
+      {notice && <div className="media-toast" role="status" aria-live="polite"><CheckCircle2 size={17} />{notice}</div>}
       <div className="media-library-filters">
         <label className="search-box"><Search size={17}/><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search title, caption or tags" /></label>
         <select value={type} onChange={(e) => setType(e.target.value)} aria-label="Media type"><option value="">All media</option><option value="image">Images</option><option value="video">Videos</option></select>
