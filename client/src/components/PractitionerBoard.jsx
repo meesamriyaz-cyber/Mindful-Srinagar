@@ -179,11 +179,7 @@ export function PractitionerBoard({ token, staffAccounts = [], onChanged }) {
       <div className="panel-title resource-title practitioner-board-heading">
         <div>
           <h3>Practitioners & doctors</h3>
-<<<<<<< HEAD
-          <span className="resource-count" aria-live="polite">{records.length} profiles · {records.filter(record => record.status === "active").length} active</span>
-=======
           <span className="resource-count" aria-live="polite">{records.length} profiles · {records.filter(record => record.status === "active").length} active · {records.filter(record => record.status === "visiting").length} visiting</span>
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
           <p className="resource-description">Manage clinical profiles, staff account links and appointment availability.</p>
         </div>
         {!editing && <button className="primary-button compact-button" type="button" onClick={() => setEditing({})}>+ Add practitioner</button>}

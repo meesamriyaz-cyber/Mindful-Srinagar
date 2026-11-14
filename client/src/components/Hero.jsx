@@ -14,7 +14,6 @@ export function Hero() {
     <section className="hero" id="home">
       <CelebrationConfetti />
       <div className="hero-copy">
-<<<<<<< HEAD
         <div className="hero-identity" aria-label="Centre identity">
           <p className="hero-identity-name">Mindful Centre</p>
           <p className="hero-identity-description">
@@ -23,7 +22,6 @@ export function Hero() {
           <span className="hero-identity-location">Srinagar</span>
         </div>
         <h1>Rehabilitation care that helps people participate with confidence.</h1>
-=======
         <div className="hero-identity" aria-label="Mindful Centre for Rehabilitation Research and Training Foundation for Persons with Disabilities">
           <p className="hero-identity-name">Mindful</p>
           <p className="hero-identity-description">
@@ -31,7 +29,6 @@ export function Hero() {
             <span className="hero-identity-line">For <strong>Persons with Disabilities</strong>, <span className="hero-identity-location">Srinagar</span></span>
           </p>
         </div>
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
         <p className="hero-lede">
           One coordinated team for assessment, therapy, learning support and life skills for children, adolescents and
           adults with disabilities.

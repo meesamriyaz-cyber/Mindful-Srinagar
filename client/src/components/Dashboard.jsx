@@ -567,20 +567,15 @@ function describeRecord(viewId, record) {
     const dueLabel = record.followUpDate ? formatDateTime(record.followUpDate) : "No follow-up due";
     return {
       title: record.patientName,
-<<<<<<< HEAD
-<<<<<<< HEAD
+
       meta: `${record.sourceName || record.sourceType} - ${record.phone || "No phone"}`,
       detail: `${record.concern || "No concern noted"} · Contact: ${record.contactPerson || "Not recorded"} · Owner: ${ownerName} · Follow-up: ${dueLabel}`,
-=======
       meta: `Source: ${record.sourceName || record.sourceType || "Not recorded"} · Phone: ${record.phone || "Not provided"}`,
       detail: `Concern: ${excerpt(record.concern, 100)} · Preferred contact: ${record.preferredContact || "Phone"} · Owner: ${ownerName} · Follow-up: ${dueLabel}`,
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
-      status: overdue ? "overdue" : record.urgency === "urgent" ? "urgent" : record.status
-=======
+      status: overdue ? "overdue" : record.urgency === "urgent" ? "urgent" : record.status,
       meta: `Source: ${record.sourceName || record.sourceType || "Not recorded"} · Phone: ${record.phone || "Not provided"}`,
       detail: `Concern: ${excerpt(record.concern, 100)} · Preferred contact: ${record.preferredContact || "Phone"}`,
       status: record.urgency === "urgent" ? "urgent" : record.status
->>>>>>> ui/frontend-design-refresh
     };
   }
 
@@ -651,17 +646,12 @@ function describeRecord(viewId, record) {
 
   return {
     title: record.title,
-<<<<<<< HEAD
-<<<<<<< HEAD
     meta: `${record.department} - due ${formatDate(record.dueDate)}`,
-=======
     meta: `Department: ${record.department || "Unassigned"} · Due: ${formatDate(record.dueDate)}`,
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
+
     detail: `Priority: ${record.priority} · Patient: ${record.patient?.fullName || "General task"}`,
-=======
     meta: `Department: ${record.department || "Unassigned"} · Due: ${formatDate(record.dueDate)}`,
     detail: `Priority: ${record.priority}`,
->>>>>>> ui/frontend-design-refresh
     status: record.status === "todo" && record.dueDate && new Date(record.dueDate) < new Date() ? "overdue" : record.status
   };
 }
@@ -1444,11 +1434,7 @@ export function Dashboard() {
           </div>
         </aside>
         <div className="console">
-<<<<<<< HEAD
-          <div className="console-header management-console-header">
-=======
           <div ref={consoleHeaderRef} className="console-header management-console-header">
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
             <div>
               <p className="eyebrow">{isDirector ? "Director command centre" : "Operations dashboard"}</p>
               <h2>{activeView === "overview" ? (["doctor","therapist"].includes(session.user?.role) ? "My clinical activity" : "Whole-centre operating view") : activeConfig.label}</h2>
@@ -1635,11 +1621,7 @@ export function Dashboard() {
 
       {showAppointmentForm && (
         <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAppointmentForm(false)}>
-<<<<<<< HEAD
-          <motion.div className="modal modal-appointment" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()}>
-=======
           <motion.div className="modal modal-appointment" ref={appointmentDialogRef} role="dialog" aria-modal="true" aria-labelledby="appointment-dialog-title" tabIndex={-1} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} onClick={(e) => e.stopPropagation()}>
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
             <div className="modal-header">
               <h3 id="appointment-dialog-title">Schedule appointment</h3>
               <button className="icon-button" type="button" aria-label="Close appointment dialog" onClick={() => setShowAppointmentForm(false)}>✕</button>
@@ -1695,11 +1677,7 @@ export function Dashboard() {
 
       {operationModal && (
         <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setOperationModal(null)}>
-<<<<<<< HEAD
-          <motion.div className="modal modal-operation" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
-=======
           <motion.div className="modal modal-operation" ref={operationDialogRef} role="dialog" aria-modal="true" aria-labelledby="operation-dialog-title" tabIndex={-1} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 18 }} onClick={(event) => event.stopPropagation()}>
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
             <div className="modal-header">
               <h3 id="operation-dialog-title">{operationModal.type === "payment" ? "Record invoice payment" : "Record stock movement"}</h3>
               <button className="icon-button" type="button" onClick={() => setOperationModal(null)} aria-label="Close">✕</button>

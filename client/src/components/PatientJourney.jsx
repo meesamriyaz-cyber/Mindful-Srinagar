@@ -403,14 +403,11 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     >
       <motion.div
         className="modal journey-modal management-journey-modal"
-<<<<<<< HEAD
-=======
         ref={journeyDialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="patient-journey-title"
         tabIndex={-1}
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
@@ -601,11 +598,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           )}
         </div>
 
-<<<<<<< HEAD
-        {!isDischarged && !createStep && canDischarge && (
-=======
         {!isDischarged && !createStep && ((patient.dischargeApprovedAt && canCloseDischarge) || (!patient.dischargeApprovedAt && canApproveDischarge)) && (
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
           <div className="journey-footer management-journey-footer">
             <button className="primary-button" type="button" onClick={() => setShowDischarge(true)}>
               {patient.dischargeApprovedAt ? "Close approved discharge" : "Prepare discharge"}
@@ -624,14 +617,11 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
             >
               <motion.div
                 className="modal journey-discharge-modal"
-<<<<<<< HEAD
-=======
                 ref={dischargeDialogRef}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="patient-discharge-title"
                 tabIndex={-1}
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 20 }}

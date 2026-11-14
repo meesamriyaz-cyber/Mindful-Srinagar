@@ -90,11 +90,7 @@ export function StaffBoard({ token, currentRole, onChanged }) {
       <div className="panel-title resource-title staff-board-heading staff-management-heading">
         <div>
           <h3>Staff accounts</h3>
-<<<<<<< HEAD
-          <span className="resource-count">{staff.length} {staff.length === 1 ? "account" : "accounts"} · {staff.filter(person => person.isActive).length} active</span>
-=======
           <span className="resource-count">{staff.length} {staff.length === 1 ? "account" : "accounts"} · {activeCount} active</span>
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
           <p className="resource-description">Create staff login credentials and review account access.</p>
         </div>
         {!showForm && <button className="primary-button compact-button" type="button" onClick={() => setShowForm(true)}>+ Add staff account</button>}
@@ -133,11 +129,6 @@ export function StaffBoard({ token, currentRole, onChanged }) {
           </form>
         </section>
       )}
-<<<<<<< HEAD
-      {loading ? <p className="empty-state">Loading staff accounts...</p> : staff.length ? (
-        <div className="record-grid staff-record-grid staff-management-grid">
-          {staff.map((person) => (
-=======
       <div className="staff-board-summary" aria-label="Staff account summary">
         <div className="staff-summary-card"><span>Total accounts</span><strong>{staff.length}</strong><small>All staff logins</small></div>
         <div className="staff-summary-card is-active"><span>Active accounts</span><strong>{activeCount}</strong><small>Access enabled</small></div>
@@ -174,7 +165,6 @@ export function StaffBoard({ token, currentRole, onChanged }) {
       {loading ? <p className="empty-state">Loading staff accounts...</p> : visibleStaff.length ? (
         <div className="record-grid staff-record-grid staff-management-grid">
           {visibleStaff.map((person) => (
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
             <div className="record-card staff-record-card" key={person._id}>
               <div className="record-main">
                 <div><strong>{person.name}</strong><span>{person.email}</span></div>

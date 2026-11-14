@@ -552,14 +552,11 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
           >
             <motion.div
               className="modal clinical-editor-modal"
-<<<<<<< HEAD
-=======
               ref={editorDialogRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby="clinical-editor-title"
               tabIndex={-1}
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
@@ -674,14 +671,11 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
           >
             <motion.div
               className="modal clinical-billing-modal"
-<<<<<<< HEAD
-=======
               ref={billingDialogRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby="clinical-billing-title"
               tabIndex={-1}
->>>>>>> afe4f1e56193f2e8f2a9eac904496edcda4fe088
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
