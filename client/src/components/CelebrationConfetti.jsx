@@ -1,24 +1,27 @@
-import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
+import Confetti from "react-confetti";
 import { celebrationConfig, CELEBRATION_STORAGE_KEY } from "../config/celebration.js";
 
 export function CelebrationConfetti() {
   const [visible, setVisible] = useState(false);
   const [fading, setFading] = useState(false);
-  // React StrictMode replays layout effects in development.
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
   const runCounted = useRef(false);
 
-  const pieces = useMemo(
-    () =>
-      Array.from({ length: celebrationConfig.particleCount }, (_, index) => ({
-        left: `${(index * 37 + 11) % 100}%`,
-        delay: `${(index % 11) * 0.075}s`,
-        duration: `${2.35 + (index % 6) * 0.19}s`,
-        drift: `${((index * 29) % 150) - 75}px`,
-        rotation: `${(index * 47) % 360}deg`,
-        shape: index % 3
-      })),
-    []
-  );
+  useLayoutEffect(() => {
+    const handleResize = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useLayoutEffect(() => {
     if (!celebrationConfig.enabled || celebrationConfig.maxRuns <= 0) return undefined;
@@ -26,12 +29,18 @@ export function CelebrationConfetti() {
 
     try {
       if (!runCounted.current) {
-        const completedRuns = Number(window.localStorage.getItem(CELEBRATION_STORAGE_KEY) || 0);
+        const completedRuns = Number(
+          window.localStorage.getItem(CELEBRATION_STORAGE_KEY) || 0
+        );
+
         if (!Number.isFinite(completedRuns) || completedRuns >= celebrationConfig.maxRuns) {
           return undefined;
         }
 
-        window.localStorage.setItem(CELEBRATION_STORAGE_KEY, String(completedRuns + 1));
+        window.localStorage.setItem(
+          CELEBRATION_STORAGE_KEY,
+          String(completedRuns + 1)
+        );
         runCounted.current = true;
       }
 
@@ -63,19 +72,15 @@ export function CelebrationConfetti() {
       className={`mindful-confetti${fading ? " is-fading" : ""}`}
       aria-hidden="true"
     >
-      {pieces.map((piece, index) => (
-        <span
-          className={`mindful-confetti-piece shape-${piece.shape}`}
-          key={index}
-          style={{
-            left: piece.left,
-            animationDelay: piece.delay,
-            animationDuration: piece.duration,
-            "--confetti-drift": piece.drift,
-            "--confetti-rotation": piece.rotation
-          }}
-        />
-      ))}
+      <Confetti
+        width={dimensions.width}
+        height={dimensions.height}
+        numberOfPieces={celebrationConfig.numberOfPieces}
+        gravity={celebrationConfig.gravity}
+        recycle={celebrationConfig.recycle}
+        tweenDuration={celebrationConfig.tweenDuration}
+        colors={celebrationConfig.colors}
+      />
     </div>
   );
 }
