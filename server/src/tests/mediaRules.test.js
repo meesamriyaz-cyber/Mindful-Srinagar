@@ -70,7 +70,7 @@ test("media metadata enforces consent review and safe field bounds", () => {
   assert.match(validateMediaMetadata({ identifiablePeople: true, consentStatus: "not-required" })[0], /consent review/);
   assert.deepEqual(validateMediaMetadata({ identifiablePeople: true, consentStatus: "pending" }), []);
   assert.match(validateMediaMetadata({ consentStatus: "verified" })[0], /verification date/);
-  assert.deepEqual(validateMediaMetadata({ consentStatus: "verified", consentVerifiedAt: "2026-11-14T10:00:00Z" }), []);
+  assert.deepEqual(validateMediaMetadata({ consentStatus: "verified", consentScope: "website", consentVerifiedAt: "2026-11-14T10:00:00Z" }), []);
   assert.match(validateMediaMetadata({ title: "x".repeat(121) })[0], /title/);
 });
 
@@ -110,6 +110,6 @@ test("publication slugs and public visibility respect consent and workflow state
   assert.equal(canExposePublication({ status: "published", identifiablePeople: false, consentStatus: "not-required" }), true);
   assert.equal(canExposePublication({ status: "draft", identifiablePeople: false, consentStatus: "not-required" }), false);
   assert.equal(canExposePublication({ status: "published", identifiablePeople: true, consentStatus: "pending" }), false);
-  assert.equal(canExposePublication({ status: "published", identifiablePeople: true, consentStatus: "verified" }), true);
+  assert.equal(canExposePublication({ status: "published", identifiablePeople: true, consentStatus: "verified", consentScope: "website" }), true);
   assert.equal(canExposePublication({ status: "published", identifiablePeople: false, consentStatus: "withdrawn" }), false);
 });
