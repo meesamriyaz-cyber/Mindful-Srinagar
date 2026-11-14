@@ -10542,3 +10542,45 @@ html.homepage-motion-enabled .contact-section.is-section-visible {
   opacity: 1;
   transform: translate3d(0, 0, 0);
 }
+
+
+/* Stabilize the navbar/hero handoff: the hero itself must not translate while
+   its visibility is being measured, and the brand must not restart keyframes
+   whenever React swaps the emblem and text lockup. */
+.hero,
+html.homepage-motion-enabled .hero,
+html.homepage-motion-enabled .hero.is-section-visible {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+.site-header-home .brand-logo-image,
+.site-header-home .brand > span {
+  animation: none !important;
+  transition: opacity 220ms ease;
+  will-change: auto;
+}
+
+/* Keep the other sections' reveal subtle without affecting header geometry. */
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  transition:
+    opacity 420ms ease,
+    transform 480ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .services-section,
+  .operations-section,
+  .referral-section,
+  .contact-section,
+  .site-header-home .brand-logo-image,
+  .site-header-home .brand > span {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
