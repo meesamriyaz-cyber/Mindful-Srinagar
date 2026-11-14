@@ -660,7 +660,7 @@ function recordActions(viewId, record, userRole) {
     const actions = [];
     if (record.status === "scheduled") actions.push({ label: "Check in", updates: { status: "checked-in" } });
     if (record.status === "checked-in") actions.push({ label: "Complete", updates: { status: "completed" } });
-    if (["completed", "checked-in"].includes(record.status) && ["director", "admin", "accounts", "reception"].includes(userRole)) {
+    if (record.status === "completed" && ["director", "admin", "accounts", "reception"].includes(userRole)) {
       actions.push({ label: "Generate Bill", action: "bill" });
     }
     return actions;
@@ -1259,6 +1259,7 @@ export function Dashboard() {
         setBillingRecord(appointment);
         const defaultService = serviceCharges.find(s => s.service === appointment.service);
         setBillingItems([{
+          appointment: appointment._id,
           description: appointment.service || "Service",
           quantity: 1,
           rate: defaultService?.rate || 0
@@ -1772,6 +1773,7 @@ export function Dashboard() {
                   .filter((item) => item.description.trim() && Number.isFinite(Number(item.quantity)) && Number(item.quantity) > 0
                     && Number.isFinite(Number(item.rate)) && Number(item.rate) >= 0)
                   .map((item) => ({
+                    ...(item.appointment ? { appointment: item.appointment } : {}),
                     description: item.description.trim(),
                     quantity: Number(item.quantity),
                     rate: Number(item.rate)
