@@ -132,6 +132,20 @@ function isSafePublicAsset(asset) {
   return !asset || (!asset.identifiablePeople || (asset.consentStatus === "verified" && ["website", "website-and-social", "all-public"].includes(asset.consentScope))) && asset.consentStatus !== "withdrawn";
 }
 
+function toPublicMediaAsset(asset) {
+  if (!isSafePublicAsset(asset) || !asset) return null;
+  const value = typeof asset.toObject === "function" ? asset.toObject() : asset;
+  return {
+    _id: value._id,
+    title: value.title,
+    caption: value.caption,
+    altText: value.altText,
+    secureUrl: value.secureUrl,
+    resourceType: value.resourceType,
+    format: value.format
+  };
+}
+
 function hasSafeRelatedMedia(publication) {
   const assets = [publication?.coverMedia, ...(publication?.mediaItems || [])].filter(Boolean);
   return assets.every((asset) => !asset.identifiablePeople || (asset.consentStatus === "verified" && ["website", "website-and-social", "all-public"].includes(asset.consentScope))) &&
@@ -152,7 +166,19 @@ export async function listPublicMedia(req, res, next) {
         .sort({ publishedAt: -1, createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
       Publication.countDocuments(filter)
     ]);
-    const visible = items.filter(canExposePublication).map((item) => ({ ...item, coverMedia: isSafePublicAsset(item.coverMedia) ? item.coverMedia : null }));
+    const visible = items.filter(canExposePublication).map((item) => ({
+      _id: item._id,
+      title: item.title,
+      slug: item.slug,
+      type: item.type,
+      summary: item.summary,
+      category: item.category,
+      tags: item.tags,
+      coverMedia: toPublicMediaAsset(item.coverMedia),
+      eventDate: item.eventDate,
+      venue: item.venue,
+      publishedAt: item.publishedAt
+    }));
     return res.json({ items: visible, total, page, limit, pages: Math.ceil(total / limit) });
   } catch (error) {
     return next(error);
@@ -166,7 +192,22 @@ export async function getPublicPublication(req, res, next) {
       .populate("coverMedia", "secureUrl resourceType format title identifiablePeople consentStatus")
       .populate("mediaItems", "secureUrl resourceType format title caption altText identifiablePeople consentStatus consentScope");
     if (!canExposePublication(publication) || !hasSafeRelatedMedia(publication)) return res.status(404).json({ message: "Publication not found" });
-    return res.json(publication);
+    const value = publication.toObject();
+    return res.json({
+      _id: value._id,
+      title: value.title,
+      slug: value.slug,
+      type: value.type,
+      summary: value.summary,
+      body: value.body,
+      category: value.category,
+      tags: value.tags,
+      coverMedia: toPublicMediaAsset(value.coverMedia),
+      mediaItems: (value.mediaItems || []).map(toPublicMediaAsset).filter(Boolean),
+      eventDate: value.eventDate,
+      venue: value.venue,
+      publishedAt: value.publishedAt
+    });
   } catch (error) {
     return next(error);
   }
