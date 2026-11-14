@@ -80,7 +80,7 @@ export async function fetchCloudinaryAsset(publicId, resourceType, options = {})
 export async function destroyCloudinaryAsset(publicId, resourceType, options = {}) {
   const data = await cloudinaryRequest("resources/" + resourceType + "/upload", {
     ...options,
-    method: "DELETE",
+    method: "POST",
     body: { "public_ids[]": publicId }
   });
   const result = data.deleted?.[publicId];
