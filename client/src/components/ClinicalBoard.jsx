@@ -25,7 +25,8 @@ import {
   createPrescription,
   updatePrescription,
   approveTreatmentPlan,
-  createInvoice
+  createInvoice,
+  amendClinicalRecord
 } from "../lib/api.js";
 import { ChipInput } from "./ChipInput.jsx";
 import { useAccessibleDialog } from "../hooks/useAccessibleDialog.js";
@@ -166,6 +167,11 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   const [completedAssessments, setCompletedAssessments] = useState([]);
   const [approvingId, setApprovingId] = useState("");
   const [availableAppointments, setAvailableAppointments] = useState([]);
+  const [viewingRecord, setViewingRecord] = useState(null);
+  const [amendingRecord, setAmendingRecord] = useState(null);
+  const [amendmentReason, setAmendmentReason] = useState("");
+  const [amendmentValues, setAmendmentValues] = useState({});
+  const [amendmentSaving, setAmendmentSaving] = useState(false);
   const editorDialogRef = useAccessibleDialog(showForm, () => setShowForm(false));
   const billingDialogRef = useAccessibleDialog(showBilling, () => setShowBilling(false));
 
@@ -223,6 +229,55 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
     setForm({ patient: patientId || "", ...(activeView === "assessments" ? { assessmentType: "initial" } : {}), ...(activeView === "treatment-plans" ? { status: "planned" } : {}), ...(activeView === "progress-notes" ? { noteType: "session" } : {}) });
     setEditingId(null);
     setShowForm(true);
+  }
+
+  function isImmutableRecord(record) {
+    return activeView === "progress-notes" || record.status === "completed";
+  }
+
+  function openView(record) {
+    setViewingRecord(record);
+  }
+
+  function openAmend(record) {
+    const values = {};
+    config.fields
+      .filter((field) => !["patient", "status"].includes(field.name) && !(activeView === "treatment-plans" && field.name === "assessment"))
+      .forEach((field) => {
+        let value = record[field.name];
+        if (["appointment", "assessment"].includes(field.name) && value && typeof value === "object") value = value._id;
+        if (field.type === "chips" && !Array.isArray(value)) value = [];
+        if (field.name === "domains" && Array.isArray(value)) value = value.join(", ");
+        values[field.name] = value ?? "";
+      });
+    setAmendingRecord(record);
+    setAmendmentValues(values);
+    setAmendmentReason("");
+  }
+
+  async function handleAmendmentSubmit(event) {
+    event.preventDefault();
+    setAmendmentSaving(true);
+    setError("");
+    try {
+      const changes = { ...amendmentValues };
+      if (typeof changes.domains === "string") {
+        changes.domains = changes.domains.split(",").map((value) => value.trim()).filter(Boolean);
+      }
+      await amendClinicalRecord(activeView, amendingRecord._id, {
+        reason: amendmentReason,
+        changes
+      }, { token });
+      const refreshed = await config.listFn({ token, q: query, limit: 50 });
+      setRecords(refreshed || []);
+      setAmendingRecord(null);
+      setAmendmentReason("");
+      setAmendmentValues({});
+    } catch (err) {
+      setError(err.message || "The clinical amendment could not be saved");
+    } finally {
+      setAmendmentSaving(false);
+    }
   }
 
   function openEdit(record) {
@@ -367,13 +422,22 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                     </div>
                     <p className="clinical-record-detail">{summary.detail}</p>
                     <div className="record-actions">
-                      <button
-                        className="secondary-button compact-button"
-                        type="button"
-                        onClick={() => openEdit(record)}
-                      >
-                        Update
-                      </button>
+                      {isImmutableRecord(record) ? (
+                        <>
+                          <button className="secondary-button compact-button" type="button" onClick={() => openView(record)}>
+                            View
+                          </button>
+                          {["director", "admin"].includes(userRole) && (
+                            <button className="secondary-button compact-button" type="button" onClick={() => openAmend(record)}>
+                              Amend
+                            </button>
+                          )}
+                        </>
+                      ) : (
+                        <button className="secondary-button compact-button" type="button" onClick={() => openEdit(record)}>
+                          Update
+                        </button>
+                      )}
                       {activeView === "treatment-plans" && record.status === "planned" && ["director", "admin", "doctor"].includes(userRole) && (
                         <button className="primary-button compact-button" type="button" disabled={approvingId === record._id} onClick={() => handleApprove(record)}>
                           {approvingId === record._id ? "Approving..." : "Approve & activate"}
@@ -401,6 +465,76 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
           )}
         </AnimatePresence>
       )}
+
+      <AnimatePresence>
+        {viewingRecord && (
+          <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setViewingRecord(null)}>
+            <motion.div className="modal clinical-editor-modal" role="dialog" aria-modal="true" aria-labelledby="clinical-view-title" onClick={(event) => event.stopPropagation()}>
+              <div className="modal-header">
+                <h3 id="clinical-view-title">View {config.title}</h3>
+                <button className="icon-button" type="button" aria-label="Close record view" onClick={() => setViewingRecord(null)}><X size={18} /></button>
+              </div>
+              <div className="clinical-form">
+                {config.fields.filter((field) => field.name !== "patient").map((field) => {
+                  const value = viewingRecord[field.name];
+                  const display = Array.isArray(value)
+                    ? value.map((item) => typeof item === "object" ? item.name || item._id : item).join(", ")
+                    : value && typeof value === "object"
+                      ? value.fullName || value.name || value._id
+                      : value;
+                  return <label key={field.name}>{field.label}<div className="form-readonly-value">{display === undefined || display === null || display === "" ? "—" : String(display)}</div></label>;
+                })}
+                <div className="modal-actions"><button className="secondary-button" type="button" onClick={() => setViewingRecord(null)}>Close</button></div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {amendingRecord && (
+          <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setAmendingRecord(null)}>
+            <motion.div className="modal clinical-editor-modal" role="dialog" aria-modal="true" aria-labelledby="clinical-amend-title" onClick={(event) => event.stopPropagation()}>
+              <div className="modal-header">
+                <h3 id="clinical-amend-title">Amend {config.title}</h3>
+                <button className="icon-button" type="button" aria-label="Close amendment dialog" onClick={() => setAmendingRecord(null)}><X size={18} /></button>
+              </div>
+              <form className="clinical-form" onSubmit={handleAmendmentSubmit}>
+                <p className="form-status">This correction will be recorded in the clinical audit history with your identity, timestamp and reason.</p>
+                {config.fields.filter((field) => !["patient", "status"].includes(field.name) && !(activeView === "treatment-plans" && field.name === "assessment")).map((field) => (
+                  <label key={field.name}>
+                    {field.label}
+                    {field.type === "textarea" ? (
+                      <textarea rows={4} value={amendmentValues[field.name] ?? ""} onChange={(event) => setAmendmentValues((current) => ({ ...current, [field.name]: event.target.value }))} />
+                    ) : field.type === "select" ? (
+                      <select value={amendmentValues[field.name] ?? ""} onChange={(event) => setAmendmentValues((current) => ({ ...current, [field.name]: event.target.value }))}>
+                        {field.options.map((option) => <option key={option} value={option}>{option}</option>)}
+                      </select>
+                    ) : field.type === "chips" ? (
+                      <ChipInput value={Array.isArray(amendmentValues[field.name]) ? amendmentValues[field.name] : []} onChange={(value) => setAmendmentValues((current) => ({ ...current, [field.name]: value }))} suggestions={field.suggestions || []} />
+                    ) : field.type === "appointment" ? (
+                      <select value={amendmentValues[field.name] ?? ""} onChange={(event) => setAmendmentValues((current) => ({ ...current, [field.name]: event.target.value }))}>
+                        <option value="">No appointment</option>
+                        {availableAppointments.map((appointment) => <option key={appointment._id} value={appointment._id}>{appointment.service} · {new Date(appointment.startsAt).toLocaleString("en-IN")}</option>)}
+                      </select>
+                    ) : (
+                      <input value={Array.isArray(amendmentValues[field.name]) ? amendmentValues[field.name].join(", ") : amendmentValues[field.name] ?? ""} onChange={(event) => setAmendmentValues((current) => ({ ...current, [field.name]: event.target.value }))} />
+                    )}
+                  </label>
+                ))}
+                <label>
+                  Reason for amendment (minimum 10 characters)
+                  <textarea rows={3} minLength={10} maxLength={1000} required value={amendmentReason} onChange={(event) => setAmendmentReason(event.target.value)} placeholder="Explain why this clinical record needs correction..." />
+                </label>
+                <div className="modal-actions">
+                  <button className="primary-button" type="submit" disabled={amendmentSaving || amendmentReason.trim().length < 10}>{amendmentSaving ? "Saving amendment..." : "Save audited amendment"}</button>
+                  <button className="secondary-button" type="button" onClick={() => setAmendingRecord(null)}>Cancel</button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {showForm && (
