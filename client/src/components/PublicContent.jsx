@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight, CalendarDays, Image as ImageIcon, LoaderCircle, MapPin, Newspaper, Play, X } from "lucide-react";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { apiRequest } from "../lib/api.js";
 
 const tabs = [
@@ -18,11 +18,13 @@ function formatDate(value, options = {}) {
 }
 
 function MediaPreview({ media, className = "" }) {
-  if (!media?.secureUrl) return <div className={`public-content-placeholder ${className}`}><ImageIcon size={28} /></div>;
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [media?.secureUrl]);
+  if (!media?.secureUrl || failed) return <div className={`public-content-placeholder ${className}`} role="img" aria-label="Media preview unavailable"><ImageIcon size={28} /><span>Preview unavailable</span></div>;
   if (media.resourceType === "video") {
-    return <div className={`public-content-video ${className}`}><video src={media.secureUrl} muted playsInline preload="metadata" aria-label={media.title || "Gallery video"} /><span><Play size={16} fill="currentColor" /> Video</span></div>;
+    return <div className={`public-content-video ${className}`}><video src={media.secureUrl} muted playsInline preload="metadata" aria-label={media.title || "Gallery video"} onError={() => setFailed(true)} /><span><Play size={16} fill="currentColor" /> Video</span></div>;
   }
-  return <img className={className} src={media.secureUrl} alt={media.altText || media.title || "Mindful Centre"} loading="lazy" />;
+  return <img className={className} src={media.secureUrl} alt={media.altText || media.title || "Mindful Centre"} loading="lazy" onError={() => setFailed(true)} />;
 }
 
 function renderBody(node, key = "root") {
@@ -79,34 +81,52 @@ export function PublicContent() {
   const [selected, setSelected] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
+  const listRequestId = useRef(0);
+  const detailRequestId = useRef(0);
 
   const currentTab = tabs.find((tab) => tab.id === activeTab) || tabs[0];
   const loadPage = useCallback(async (nextPage, append = false) => {
+    const requestId = ++listRequestId.current;
     if (append) setLoadingMore(true);
     else { setLoading(true); setError(""); }
     try {
       const path = activeTab === "gallery" ? "/public/galleries" : "/public/media";
       const params = activeTab === "gallery" ? { page: nextPage, limit: PAGE_SIZE } : { page: nextPage, limit: PAGE_SIZE, type: currentTab.type };
       const result = await apiRequest(path, { params });
+      if (requestId !== listRequestId.current) return;
       const nextItems = Array.isArray(result.items) ? result.items : [];
       setItems((previous) => append ? [...previous, ...nextItems] : nextItems);
       setPage(Number(result.page) || nextPage);
       setPages(Math.max(Number(result.pages) || 1, 1));
     } catch (requestError) {
+      if (requestId !== listRequestId.current) return;
       if (!append) setItems([]);
       setError(requestError.message || "Published content could not be loaded.");
     } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      if (requestId === listRequestId.current) {
+        setLoading(false);
+        setLoadingMore(false);
+      }
     }
   }, [activeTab, currentTab.type]);
 
   useEffect(() => {
+    setSelected(null);
+    setDetailError("");
     setItems([]);
     setPage(1);
     setPages(1);
     loadPage(1);
   }, [loadPage]);
+
+  useEffect(() => {
+    const onTabRequest = (event) => {
+      const requestedTab = event.detail?.tab;
+      if (tabs.some((tab) => tab.id === requestedTab)) setActiveTab(requestedTab);
+    };
+    window.addEventListener("mindful:public-content-tab", onTabRequest);
+    return () => window.removeEventListener("mindful:public-content-tab", onTabRequest);
+  }, []);
 
   useEffect(() => {
     if (!selected) return undefined;
@@ -120,17 +140,19 @@ export function PublicContent() {
   }, [selected]);
 
   async function openItem(item) {
+    const requestId = ++detailRequestId.current;
+    const galleryRequest = activeTab === "gallery";
     setSelected(item);
     setDetailError("");
     setDetailLoading(true);
     try {
-      const path = activeTab === "gallery" ? `/public/galleries/${encodeURIComponent(item.slug)}` : `/public/media/${encodeURIComponent(item.slug)}`;
+      const path = galleryRequest ? `/public/galleries/${encodeURIComponent(item.slug)}` : `/public/media/${encodeURIComponent(item.slug)}`;
       const detail = await apiRequest(path);
-      setSelected(detail);
+      if (requestId === detailRequestId.current) setSelected(detail);
     } catch (requestError) {
-      setDetailError(requestError.message || "This content could not be opened.");
+      if (requestId === detailRequestId.current) setDetailError(requestError.message || "This content could not be opened.");
     } finally {
-      setDetailLoading(false);
+      if (requestId === detailRequestId.current) setDetailLoading(false);
     }
   }
 
@@ -170,9 +192,9 @@ export function PublicContent() {
       )}
 
       {selected && (
-        <div className="public-content-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null); }}>
+        <div className="public-content-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) { detailRequestId.current += 1; setSelected(null); } }}>
           <section className="public-content-dialog" role="dialog" aria-modal="true" aria-label={selected.title}>
-            <button type="button" className="public-content-close" onClick={() => setSelected(null)} aria-label="Close"><X size={21} /></button>
+            <button type="button" className="public-content-close" onClick={() => { detailRequestId.current += 1; setSelected(null); }} aria-label="Close"><X size={21} /></button>
             {detailLoading ? <div className="public-content-state"><LoaderCircle className="public-content-spinner" size={24} /><span>Opening…</span></div> : detailError ? <div className="public-content-state public-content-error">{detailError}</div> : (
               <>
                 <div className="public-detail-hero"><MediaPreview media={selected.coverMedia || selected.mediaItems?.[0]} /></div>
