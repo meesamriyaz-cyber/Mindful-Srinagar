@@ -1,6 +1,7 @@
 
 import React, { useLayoutEffect, useRef, useState } from "react";
 import Confetti from "react-confetti";
+import { createPortal } from "react-dom";
 import {
   celebrationConfig,
   CELEBRATION_STORAGE_KEY
@@ -26,37 +27,31 @@ export function CelebrationConfetti() {
     };
 
     window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Start the one-time homepage celebration.
+  // Run the celebration only the configured number of times.
   useLayoutEffect(() => {
-    if (
-      !celebrationConfig.enabled ||
-      celebrationConfig.maxRuns <= 0
-    ) return undefined;
+    if (!celebrationConfig.enabled || celebrationConfig.maxRuns <= 0) {
+      return undefined;
+    }
 
-    if (
-      window.matchMedia?.(
-        "(prefers-reduced-motion: reduce)"
-      ).matches
-    ) return undefined;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+      return undefined;
+    }
 
     try {
       if (!runCounted.current) {
         const completedRuns = Number(
-          window.localStorage.getItem(
-            CELEBRATION_STORAGE_KEY
-          ) || 0
+          window.localStorage.getItem(CELEBRATION_STORAGE_KEY) || 0
         );
 
         if (
           !Number.isFinite(completedRuns) ||
           completedRuns >= celebrationConfig.maxRuns
-        ) return undefined;
+        ) {
+          return undefined;
+        }
 
         window.localStorage.setItem(
           CELEBRATION_STORAGE_KEY,
@@ -73,8 +68,7 @@ export function CelebrationConfetti() {
         () => setFading(true),
         Math.max(
           0,
-          celebrationConfig.durationMs -
-            celebrationConfig.fadeOutMs
+          celebrationConfig.durationMs - celebrationConfig.fadeOutMs
         )
       );
 
@@ -94,11 +88,10 @@ export function CelebrationConfetti() {
 
   if (!visible) return null;
 
-  return (
+  // Render directly under body so the confetti appears above the navbar.
+  return createPortal(
     <div
-      className={`mindful-confetti${
-        fading ? " is-fading" : ""
-      }`}
+      className={`mindful-confetti${fading ? " is-fading" : ""}`}
       aria-hidden="true"
     >
       <Confetti
@@ -110,6 +103,7 @@ export function CelebrationConfetti() {
         tweenDuration={celebrationConfig.tweenDuration}
         colors={celebrationConfig.colors}
       />
-    </div>
+    </div>,
+    document.body
   );
 }
