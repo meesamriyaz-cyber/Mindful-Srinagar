@@ -24,6 +24,8 @@ export function Header({ staffMode = false }) {
       return undefined;
     }
 
+    document.documentElement.classList.add("homepage-motion-enabled");
+
     // Show the emblem only while some of the hero remains visible below
     // the site header. A narrow root-margin band can still intersect the
     // hero after Services has entered, so use the actual section geometry.
