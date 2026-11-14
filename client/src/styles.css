@@ -2299,6 +2299,9 @@ footer span {
 @keyframes media-spin{to{transform:rotate(360deg)}}
 .media-notice{display:flex;align-items:center;gap:8px;margin:0;padding:10px 12px;border:1px solid #cfe8dc;border-radius:10px;background:#f0faf5;color:#25684d;font-size:.82rem}
 .media-notice button{display:grid;place-items:center;margin-left:auto;border:0;background:transparent;color:inherit;cursor:pointer}
+.media-toast{position:fixed;right:24px;bottom:24px;z-index:1200;display:flex;align-items:center;gap:10px;max-width:min(420px,calc(100vw - 32px));padding:13px 17px;border:1px solid #bfe2d3;border-radius:12px;background:#f0faf5;color:#206747;font-size:.86rem;font-weight:750;box-shadow:0 12px 36px rgba(19,62,49,.18);animation:media-toast-in .18s ease-out}
+@keyframes media-toast-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:640px){.media-toast{right:12px;bottom:12px;left:12px;max-width:none;justify-content:center}}
 .media-editor-modal{display:flex;flex-direction:column;width:min(760px,calc(100vw - 32px));max-width:760px;max-height:calc(100dvh - 32px);overflow:hidden;border:1px solid #dce8e6;border-radius:18px;background:#fff;box-shadow:0 28px 90px rgba(13,39,48,.28)}
 .media-editor-modal .modal-header{flex:0 0 auto;padding:17px 22px;border-bottom:1px solid #e5eeec;background:linear-gradient(135deg,#fbfdfd,#f2f8f7)}
 .media-editor-modal .modal-header h3{color:#173f59;font-size:1.12rem}
