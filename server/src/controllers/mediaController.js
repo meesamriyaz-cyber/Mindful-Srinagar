@@ -77,6 +77,7 @@ export async function updateMediaAsset(req, res, next) {
     if (metadata.consentStatus === "verified") metadata.consentVerifiedBy = req.user._id;
     if (metadata.consentStatus && metadata.consentStatus !== "verified") metadata.consentVerifiedBy = null;
     if (metadata.consentStatus === "withdrawn") metadata.consentWithdrawnBy = req.user._id;
+    if (metadata.consentStatus && metadata.consentStatus !== "withdrawn") metadata.consentWithdrawnBy = null;
     Object.assign(asset, metadata);
     await asset.save();
     return res.json(asset);
