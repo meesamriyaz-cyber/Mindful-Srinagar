@@ -10456,3 +10456,59 @@ html {
     min-height: 100svh;
   }
 }
+
+
+/* Gentle section-to-section motion and a soft brand handoff in the navbar. */
+.hero,
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+  transition:
+    opacity 520ms ease,
+    transform 620ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.hero.is-section-visible,
+.services-section.is-section-visible,
+.operations-section.is-section-visible,
+.referral-section.is-section-visible,
+.contact-section.is-section-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.site-header-home .brand-logo-image,
+.site-header-home .brand > span {
+  animation: mindful-brand-arrive 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes mindful-brand-arrive {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 5px, 0) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero,
+  .services-section,
+  .operations-section,
+  .referral-section,
+  .contact-section,
+  .site-header-home .brand-logo-image,
+  .site-header-home .brand > span {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    transition: none !important;
+    will-change: auto;
+  }
+}
