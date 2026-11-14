@@ -4,7 +4,7 @@ import { MediaAsset } from "../models/MediaAsset.js";
 
 const fields = ["title", "description", "category", "coverMedia", "mediaItems", "eventDate"];
 
-function validatePayload(payload, creating = false) {
+export function validateGalleryPayload(payload, creating = false) {
   const errors = [];
   if (creating && (typeof payload.title !== "string" || payload.title.trim().length < 3 || payload.title.trim().length > 140)) errors.push("Gallery title must contain between 3 and 140 characters");
   if (payload.title !== undefined && (typeof payload.title !== "string" || payload.title.trim().length < 3 || payload.title.trim().length > 140)) errors.push("Gallery title must contain between 3 and 140 characters");
@@ -26,11 +26,11 @@ async function validateReferences(payload) {
   return null;
 }
 
-function slugify(value) {
+export function createGallerySlug(value) {
   return String(value || "").normalize("NFKD").toLowerCase().replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 110) || "gallery";
 }
 
-function publicAsset(asset) {
+export function isGalleryAssetPublic(asset) {
   if (!asset || asset.status === "archived" || asset.consentStatus === "withdrawn") return null;
   if (asset.identifiablePeople && (asset.consentStatus !== "verified" || !["website", "website-and-social", "all-public"].includes(asset.consentScope))) return null;
   return { _id: asset._id, title: asset.title, caption: asset.caption, altText: asset.altText, secureUrl: asset.secureUrl, resourceType: asset.resourceType, format: asset.format };
@@ -38,10 +38,10 @@ function publicAsset(asset) {
 
 function publicGallery(gallery) {
   const value = typeof gallery.toObject === "function" ? gallery.toObject() : gallery;
-  const mediaItems = (value.mediaItems || []).map(publicAsset).filter(Boolean);
+  const mediaItems = (value.mediaItems || []).filter(isGalleryAssetPublic).map((asset) => ({ _id: asset._id, title: asset.title, caption: asset.caption, altText: asset.altText, secureUrl: asset.secureUrl, resourceType: asset.resourceType, format: asset.format }));
   return {
     _id: value._id, title: value.title, slug: value.slug, description: value.description,
-    category: value.category, coverMedia: publicAsset(value.coverMedia), mediaItems,
+    category: value.category, coverMedia: (isGalleryAssetPublic(value.coverMedia) ? { _id: value.coverMedia._id, title: value.coverMedia.title, caption: value.coverMedia.caption, altText: value.coverMedia.altText, secureUrl: value.coverMedia.secureUrl, resourceType: value.coverMedia.resourceType, format: value.coverMedia.format } : null), mediaItems,
     eventDate: value.eventDate, publishedAt: value.publishedAt
   };
 }
@@ -51,12 +51,12 @@ export async function createGallery(req, res, next) {
     const payload = req.body && typeof req.body === "object" && !Array.isArray(req.body) ? req.body : {};
     const unexpected = Object.keys(payload).find((key) => !fields.includes(key));
     if (unexpected) return res.status(400).json({ message: "Unsupported field: " + unexpected });
-    const errors = validatePayload(payload, true);
+    const errors = validateGalleryPayload(payload, true);
     if (errors.length) return res.status(400).json({ message: errors[0], errors });
     const referenceError = await validateReferences(payload);
     if (referenceError) return res.status(400).json({ message: referenceError });
     const gallery = await Gallery.create({
-      ...payload, title: payload.title.trim(), slug: slugify(payload.title),
+      ...payload, title: payload.title.trim(), slug: createGallerySlug(payload.title),
       description: (payload.description || "").trim(), category: (payload.category || "other").trim(),
       eventDate: payload.eventDate || null, createdBy: req.user._id, updatedBy: req.user._id
     });
@@ -97,7 +97,7 @@ export async function updateGallery(req, res, next) {
     const payload = req.body && typeof req.body === "object" && !Array.isArray(req.body) ? req.body : {};
     const unexpected = Object.keys(payload).find((key) => !fields.includes(key));
     if (unexpected) return res.status(400).json({ message: "Unsupported field: " + unexpected });
-    const errors = validatePayload(payload);
+    const errors = validateGalleryPayload(payload);
     if (errors.length) return res.status(400).json({ message: errors[0], errors });
     const gallery = await Gallery.findById(req.params.id);
     if (!gallery) return res.status(404).json({ message: "Gallery not found" });
