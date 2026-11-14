@@ -10594,6 +10594,12 @@ html.homepage-motion-enabled .hero.is-section-visible {
   overflow: hidden;
   pointer-events: none;
   contain: layout paint;
+  opacity: 1;
+  transition: opacity 1200ms ease-out;
+}
+
+.mindful-confetti.is-fading {
+  opacity: 0;
 }
 
 .mindful-confetti-piece {
