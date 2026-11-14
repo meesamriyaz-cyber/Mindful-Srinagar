@@ -1,5 +1,5 @@
 import { CalendarCheck, LockKeyhole, Menu, Phone, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const publicNavItems = [
   { label: "Services", href: "#services" },
@@ -10,16 +10,77 @@ const publicNavItems = [
 
 export function Header({ staffMode = false }) {
   const [open, setOpen] = useState(false);
+  const [heroVisible, setHeroVisible] = useState(!staffMode);
+
+  useEffect(() => {
+    if (staffMode) {
+      setHeroVisible(false);
+      return undefined;
+    }
+
+    const hero = document.getElementById("home");
+    if (!hero || typeof IntersectionObserver === "undefined") {
+      setHeroVisible(false);
+      return undefined;
+    }
+
+    document.documentElement.classList.add("homepage-motion-enabled");
+
+    // Show the emblem only while some of the hero remains visible below
+    // the site header. A narrow root-margin band can still intersect the
+    // hero after Services has entered, so use the actual section geometry.
+    const updateHeroVisibility = () => {
+      const heroRect = hero.getBoundingClientRect();
+      const headerBottom = document.querySelector(".site-header")?.getBoundingClientRect().bottom ?? 0;
+      const visibleBelowHeader = heroRect.bottom > headerBottom + 2 && heroRect.top < window.innerHeight;
+      setHeroVisible(visibleBelowHeader);
+    };
+
+    const observer = new IntersectionObserver(updateHeroVisibility, { threshold: 0 });
+    observer.observe(hero);
+
+    // Reveal each homepage section gently as it enters the viewport.
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          entry.target.classList.toggle("is-section-visible", entry.isIntersecting);
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -5% 0px" }
+    );
+    ["home", "services", "operations", "referrals", "contact"].forEach((id) => {
+      const section = document.getElementById(id);
+      if (section) sectionObserver.observe(section);
+    });
+
+    window.addEventListener("scroll", updateHeroVisibility, { passive: true });
+    window.addEventListener("resize", updateHeroVisibility);
+    updateHeroVisibility();
+    return () => {
+      observer.disconnect();
+      sectionObserver.disconnect();
+      window.removeEventListener("scroll", updateHeroVisibility);
+      window.removeEventListener("resize", updateHeroVisibility);
+    };
+  }, [staffMode]);
+
   const navItems = staffMode ? [{ label: "Public website", href: "#home" }] : publicNavItems;
 
   return (
-    <header className="site-header">
-      <a className="brand" href="#home" aria-label="Mindful Centre home">
-        <span className="brand-mark">M</span>
-        <span>
-          <strong>Mindful</strong>
-          <small>Rehabilitation Research & Training Foundation</small>
-        </span>
+    <header className={staffMode ? "site-header" : `site-header site-header-home${heroVisible ? " is-hero-visible" : ""}`}>
+      <a className={heroVisible && !staffMode ? "brand brand-home-logo" : "brand"} href="#home" aria-label="Mindful Centre home">
+        {heroVisible && !staffMode ? (
+          <img className="brand-logo-image" src="/mindful-logo.svg" alt="Mindful Centre emblem" />
+        ) : (
+          <>
+            <span className="brand-mark">M</span>
+            <span>
+              <strong>Mindful</strong>
+              <small>Centre for Rehabilitation Research &amp; Training Foundation</small>
+              <span className="brand-location">For Persons with Disabilities, Srinagar</span>
+            </span>
+          </>
+        )}
       </a>
 
       <button
