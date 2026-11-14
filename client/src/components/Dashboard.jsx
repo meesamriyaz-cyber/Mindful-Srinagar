@@ -30,6 +30,7 @@ import { useDashboard } from "../hooks/useDashboard.js";
 import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, listReferralOwners, logReferralFollowUp, listTaskAssignees, createInvoice, API_BASE_URL } from "../lib/api.js";
 import { ClinicalBoard } from "./ClinicalBoard.jsx";
 import { MediaLibrary } from "./MediaLibrary.jsx";
+import { ContentStudio } from "./ContentStudio.jsx";
 import { PatientJourney } from "./PatientJourney.jsx";
 import { PractitionerBoard } from "./PractitionerBoard.jsx";
 import { PractitionerDashboard } from "./PractitionerDashboard.jsx";
@@ -55,7 +56,8 @@ const viewItems = [
   { id: "inventory", label: "Inventory", resource: "inventory", icon: PackageOpen, section: "Admin" },
   { id: "tasks", label: "Tasks", resource: "tasks", icon: ListChecks, section: "Admin" },
   { id: "reports", label: "Reports", resource: null, icon: BarChart3, section: "System" },
-  { id: "media-library", label: "Media Library", resource: null, icon: Images, section: "System", roles: ["director", "admin"] }
+  { id: "media-library", label: "Media Library", resource: null, icon: Images, section: "System", roles: ["director", "admin"] },
+  { id: "content-studio", label: "Content Studio", resource: null, icon: FileText, section: "System", roles: ["director", "admin"] }
 ];
 
 function getViewConfig(id) {
@@ -77,7 +79,8 @@ const viewDescriptions = {
   inventory: "Monitor stock levels, reorder thresholds and stock movement.",
   tasks: "Coordinate follow-ups and operational work across the centre.",
   reports: "Understand service activity, referral movement and daily operating patterns.",
-  "media-library": "Manage centre photographs and videos, metadata and consent review."
+  "media-library": "Manage centre photographs and videos, metadata and consent review.",
+  "content-studio": "Create and publish centre stories, news, events and photo galleries."
 };
 function getVisibleViewItems(role) {
   const allowed = {
