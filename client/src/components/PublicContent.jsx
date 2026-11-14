@@ -130,7 +130,7 @@ export function PublicContent() {
 
   useEffect(() => {
     if (!selected) return undefined;
-    const onKeyDown = (event) => { if (event.key === "Escape") setSelected(null); };
+    const onKeyDown = (event) => { if (event.key === "Escape") { detailRequestId.current += 1; setSelected(null); } };
     document.addEventListener("keydown", onKeyDown);
     document.body.classList.add("public-content-modal-open");
     return () => {
