@@ -10594,6 +10594,12 @@ html.homepage-motion-enabled .hero.is-section-visible {
   overflow: hidden;
   pointer-events: none;
   contain: layout paint;
+  opacity: 1;
+  transition: opacity 1200ms ease-out;
+}
+
+.mindful-confetti.is-fading {
+  opacity: 0;
 }
 
 .mindful-confetti-piece {
@@ -10671,5 +10677,44 @@ html.homepage-motion-enabled .hero.is-section-visible {
     opacity: 1;
     transform: none;
     filter: none;
+  }
+}
+
+
+/* Smoother, more deliberate Mindful wordmark entrance.
+   Avoid blur filters (which can look harsh or stutter on some GPUs); use
+   opacity and a restrained transform with a longer ease-out instead. */
+.hero-copy .hero-identity-name {
+  animation: mindful-wordmark-intro 1500ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
+  transform-origin: left center;
+  will-change: opacity, transform;
+}
+
+@keyframes mindful-wordmark-intro {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 26px, 0) scale(0.985);
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@media (max-width: 620px) {
+  .hero-copy .hero-identity-name {
+    transform-origin: center center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-copy .hero-identity-name {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    will-change: auto;
   }
 }

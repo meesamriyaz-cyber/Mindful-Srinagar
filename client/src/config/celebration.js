@@ -1,7 +1,12 @@
 export const celebrationConfig = {
   enabled: true,
-  maxRuns: 2,
-  durationMs: 3500,
+  maxRuns: 1,
+
+  // Animation timing
+  durationMs: 4300,
+  fadeOutMs: 1200,
+
+  // react-confetti settings
   numberOfPieces: 160,
   gravity: 0.18,
   recycle: false,
