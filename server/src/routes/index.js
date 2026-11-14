@@ -40,6 +40,8 @@ import { requiresApprovedTreatmentPlan } from "../security/sessionRules.js";
 import mediaRoutes from "./mediaRoutes.js";
 import publicationRoutes from "./publicationRoutes.js";
 import publicMediaRoutes from "./publicMediaRoutes.js";
+import galleryRoutes from "./galleryRoutes.js";
+import publicGalleryRoutes from "./publicGalleryRoutes.js";
 const router = express.Router();
 const management = ["director", "admin"];
 const reception = ["director", "admin", "reception", "coordinator"];
@@ -84,9 +86,11 @@ router.use("/auth", authRoutes);
 router.post("/enquiries", createRateLimiter({ windowMs: 900000, max: 8, message: "Too many enquiries from this connection. Please try again later." }), createEnquiry);
 // Public media reads must be mounted before staff authentication.
 router.use("/public/media", publicMediaRoutes);
+router.use("/public/galleries", publicGalleryRoutes);
 router.use(protect);
 router.use("/media", permit("director", "admin"), mediaRoutes);
 router.use("/publications", permit("director", "admin"), publicationRoutes);
+router.use("/galleries", permit("director", "admin"), galleryRoutes);
 
 router.post("/patients/:id/discharge-approval", permit("director", "admin", "doctor"), async (req, res, next) => {
   try {
