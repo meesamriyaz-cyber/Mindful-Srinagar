@@ -17,12 +17,29 @@ export function configuredClientOrigins(env = process.env) {
     .filter(Boolean);
 }
 
+export function mediaUploadLimits(env = process.env) {
+  const readLimit = (key, fallback, minimum, maximum) => {
+    const raw = env[key];
+    if (raw === undefined || raw === "") return fallback;
+    const value = Number(raw);
+    if (!Number.isSafeInteger(value) || value < minimum || value > maximum) throw new Error(key + " must be an integer between " + minimum + " and " + maximum);
+    return value;
+  };
+  return {
+    imageMaxBytes: readLimit("MEDIA_IMAGE_MAX_BYTES", 10 * 1024 * 1024, 1024, 50 * 1024 * 1024),
+    videoMaxBytes: readLimit("MEDIA_VIDEO_MAX_BYTES", 250 * 1024 * 1024, 1024, 1024 * 1024 * 1024),
+    imageBatchLimit: readLimit("MEDIA_IMAGE_BATCH_LIMIT", 20, 1, 50),
+    videoBatchLimit: readLimit("MEDIA_VIDEO_BATCH_LIMIT", 3, 1, 10)
+  };
+}
+
 export function validateRuntimeEnv(env = process.env) {
   const errors = [];
   const production = env.NODE_ENV === "production";
   const mongoUri = String(env.MONGO_URI || "").trim();
   const jwtSecret = String(env.JWT_SECRET || "");
   const origins = configuredClientOrigins(env);
+  try { mediaUploadLimits(env); } catch (error) { errors.push(error.message); }
 
   if (!/^mongodb(?:\+srv)?:\/\//i.test(mongoUri)) {
     errors.push("MONGO_URI must be a valid mongodb:// or mongodb+srv:// connection string");
