@@ -39,6 +39,7 @@ export function validateMediaMetadata(payload = {}) {
   if (payload.identifiablePeople === true && payload.consentStatus === "not-required") errors.push("Identifiable people require a consent review");
   if (payload.consentStatus === "verified" && !payload.consentVerifiedAt) errors.push("Verified consent must include its verification date");
   if (payload.identifiablePeople === true && payload.consentStatus === "verified" && !["website", "website-and-social", "all-public"].includes(payload.consentScope)) errors.push("Verified consent must explicitly include public website use");
+  if (payload.identifiablePeople === true && payload.consentStatus === "verified" && (!payload.consentNotes || !payload.consentNotes.trim())) errors.push("Add a non-sensitive consent reference before verifying publication consent");
   if (payload.consentVerifiedAt && !Number.isFinite(new Date(payload.consentVerifiedAt).getTime())) errors.push("Consent verification date is invalid");
   return errors;
 }
