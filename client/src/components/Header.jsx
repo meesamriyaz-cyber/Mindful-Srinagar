@@ -24,9 +24,11 @@ export function Header({ staffMode = false }) {
       return undefined;
     }
 
+    // Keep the emblem visible only while the hero reaches the top of the
+    // viewport; this prevents it lingering into the Services section.
     const observer = new IntersectionObserver(
       ([entry]) => setHeroVisible(entry.isIntersecting),
-      { threshold: 0.15 }
+      { threshold: 0, rootMargin: "0px 0px -90% 0px" }
     );
 
     observer.observe(hero);
