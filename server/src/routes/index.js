@@ -37,6 +37,9 @@ import { validateDischargeApprovalPayload, validateDischargeReadiness, canCloseD
 import { validateAppointmentShape, canTransitionAppointment, findAppointmentConflict, isWithinPractitionerAvailability } from "../security/appointmentRules.js";
 import { createPractitionerPatientScope } from "../security/practitionerPatientScope.js";
 import { requiresApprovedTreatmentPlan } from "../security/sessionRules.js";
+import mediaRoutes from "./mediaRoutes.js";
+import publicationRoutes from "./publicationRoutes.js";
+import publicMediaRoutes from "./publicMediaRoutes.js";
 const router = express.Router();
 const management = ["director", "admin"];
 const reception = ["director", "admin", "reception", "coordinator"];
@@ -79,7 +82,11 @@ async function getPatientDischargeReadiness(patientId) {
 router.get("/health", (_req, res) => res.json({ status: "ok", service: "mindful-api" }));
 router.use("/auth", authRoutes);
 router.post("/enquiries", createRateLimiter({ windowMs: 900000, max: 8, message: "Too many enquiries from this connection. Please try again later." }), createEnquiry);
+// Public media reads must be mounted before staff authentication.
+router.use("/public/media", publicMediaRoutes);
 router.use(protect);
+router.use("/media", permit("director", "admin"), mediaRoutes);
+router.use("/publications", permit("director", "admin"), publicationRoutes);
 
 router.post("/patients/:id/discharge-approval", permit("director", "admin", "doctor"), async (req, res, next) => {
   try {
