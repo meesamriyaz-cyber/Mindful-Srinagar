@@ -146,11 +146,6 @@ function toPublicMediaAsset(asset) {
   };
 }
 
-function hasSafeRelatedMedia(publication) {
-  const assets = [publication?.coverMedia, ...(publication?.mediaItems || [])].filter(Boolean);
-  return assets.every((asset) => !asset.identifiablePeople || (asset.consentStatus === "verified" && ["website", "website-and-social", "all-public"].includes(asset.consentScope))) &&
-    assets.every((asset) => asset.consentStatus !== "withdrawn");
-}
 
 export async function listPublicMedia(req, res, next) {
   try {
@@ -198,7 +193,7 @@ export async function getPublicPublication(req, res, next) {
       .select("title slug type summary body category tags coverMedia mediaItems eventDate venue publishedAt identifiablePeople consentStatus consentScope")
       .populate("coverMedia", "secureUrl resourceType format title identifiablePeople consentStatus consentScope")
       .populate("mediaItems", "secureUrl resourceType format title caption altText identifiablePeople consentStatus consentScope");
-    if (!canExposePublication(publication) || !hasSafeRelatedMedia(publication)) return res.status(404).json({ message: "Publication not found" });
+    if (!canExposePublication(publication)) return res.status(404).json({ message: "Publication not found" });
     const value = publication.toObject();
     return res.json({
       _id: value._id,
