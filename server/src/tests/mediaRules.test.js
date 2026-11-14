@@ -54,6 +54,7 @@ test("uploaded media must match the signed resource policy", () => {
   const image = {
     asset_id: "asset-1",
     public_id: "mindful/media/photo-1",
+    asset_folder: "mindful/media",
     resource_type: "image",
     type: "upload",
     secure_url: "https://res.cloudinary.com/mindful-demo/image/upload/photo-1.jpg",
@@ -63,7 +64,8 @@ test("uploaded media must match the signed resource policy", () => {
     bytes: 900000
   };
   assert.equal(validateMediaResource(image, "image", cloudinaryEnv), null);
-  assert.match(validateMediaResource({ ...image, public_id: "other/photo" }, "image", cloudinaryEnv), /approved Mindful media folder/);
+  assert.match(validateMediaResource({ ...image, public_id: "other/photo", asset_folder: "other" }, "image", cloudinaryEnv), /approved Mindful media folder/);
+  assert.equal(validateMediaResource({ ...image, public_id: "photo-2", asset_folder: "mindful/media" }, "image", cloudinaryEnv), null);
   assert.match(validateMediaResource({ ...image, format: "svg" }, "image", cloudinaryEnv), /format is not supported/);
   assert.match(validateMediaResource({ ...image, bytes: 12000000 }, "image", cloudinaryEnv), /size limit/);
   assert.match(validateMediaResource({ ...image, resource_type: "video" }, "image", cloudinaryEnv), /does not match/);
