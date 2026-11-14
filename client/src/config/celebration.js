@@ -6,7 +6,7 @@ export const celebrationConfig = {
   fadeOutMs: 1500,
 
   // Physics-based react-confetti settings.
-  numberOfPieces: 160,
+  numberOfPieces: 1000,
   gravity: 0.18,
   recycle: false,
   tweenDuration: 1200,
