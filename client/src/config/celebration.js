@@ -2,9 +2,22 @@
 export const celebrationConfig = {
   enabled: true,
   maxRuns: 1,
-  durationMs: 4300,
-  fadeOutMs: 1200,
-  particleCount: 100
+  durationMs: 5500,
+  fadeOutMs: 1500,
+
+  // Physics-based react-confetti settings.
+  numberOfPieces: 160,
+  gravity: 0.18,
+  recycle: false,
+  tweenDuration: 1200,
+
+  colors: [
+    "#173F59",
+    "#247F83",
+    "#D8A744",
+    "#8C78A8",
+    "#FFFFFF"
+  ]
 };
 
 export const CELEBRATION_STORAGE_KEY =

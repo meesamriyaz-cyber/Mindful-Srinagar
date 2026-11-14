@@ -1,10 +1,6 @@
-import React, {
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState
-} from "react";
 
+import React, { useLayoutEffect, useRef, useState } from "react";
+import Confetti from "react-confetti";
 import {
   celebrationConfig,
   CELEBRATION_STORAGE_KEY
@@ -13,22 +9,30 @@ import {
 export function CelebrationConfetti() {
   const [visible, setVisible] = useState(false);
   const [fading, setFading] = useState(false);
-  // React StrictMode replays layout effects in development.
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
+
   const runCounted = useRef(false);
 
-  const pieces = useMemo(
-    () =>
-      Array.from({ length: celebrationConfig.particleCount }, (_, index) => ({
-        left: `${(index * 37 + 11) % 100}%`,
-        delay: `${(index % 11) * 0.075}s`,
-        duration: `${2.35 + (index % 6) * 0.19}s`,
-        drift: `${((index * 29) % 150) - 75}px`,
-        rotation: `${(index * 47) % 360}deg`,
-        shape: index % 3
-      })),
-    []
-  );
+  // Keep the confetti canvas responsive.
+  useLayoutEffect(() => {
+    const handleResize = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
 
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // Start the one-time homepage celebration.
   useLayoutEffect(() => {
     if (
       !celebrationConfig.enabled ||
@@ -67,8 +71,13 @@ export function CelebrationConfetti() {
 
       const fadeTimer = window.setTimeout(
         () => setFading(true),
-        Math.max(0, celebrationConfig.durationMs - celebrationConfig.fadeOutMs)
+        Math.max(
+          0,
+          celebrationConfig.durationMs -
+            celebrationConfig.fadeOutMs
+        )
       );
+
       const removeTimer = window.setTimeout(
         () => setVisible(false),
         celebrationConfig.durationMs
@@ -92,19 +101,15 @@ export function CelebrationConfetti() {
       }`}
       aria-hidden="true"
     >
-      {pieces.map((piece, index) => (
-        <span
-          className={`mindful-confetti-piece shape-${piece.shape}`}
-          key={index}
-          style={{
-            left: piece.left,
-            animationDelay: piece.delay,
-            animationDuration: piece.duration,
-            "--confetti-drift": piece.drift,
-            "--confetti-rotation": piece.rotation
-          }}
-        />
-      ))}
+      <Confetti
+        width={dimensions.width}
+        height={dimensions.height}
+        numberOfPieces={celebrationConfig.numberOfPieces}
+        gravity={celebrationConfig.gravity}
+        recycle={celebrationConfig.recycle}
+        tweenDuration={celebrationConfig.tweenDuration}
+        colors={celebrationConfig.colors}
+      />
     </div>
   );
 }
