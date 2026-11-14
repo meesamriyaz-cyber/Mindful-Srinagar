@@ -47,6 +47,8 @@ export function normalizeMediaMetadata(payload = {}) {
   if (payload.consentStatus !== undefined) clean.consentStatus = payload.consentStatus;
   if (payload.consentStatus === "verified") clean.consentVerifiedAt = new Date(payload.consentVerifiedAt);
   if (payload.consentStatus === "withdrawn") clean.consentWithdrawnAt = new Date();
+  if (payload.consentStatus && payload.consentStatus !== "withdrawn") clean.consentWithdrawnAt = null;
+  if (payload.consentStatus && payload.consentStatus !== "verified") clean.consentVerifiedAt = null;
   return clean;
 }
 
