@@ -13,7 +13,7 @@ async function validateMediaReferences(payload) {
   const ids = [...new Set([payload.coverMedia, ...(Array.isArray(payload.mediaItems) ? payload.mediaItems : [])].filter(Boolean).map(String))];
   if (ids.some((id) => !mongoose.isValidObjectId(id))) return "Cover or related media contains an invalid asset ID";
   if (!ids.length) return null;
-  const assets = await MediaAsset.find({ _id: { $in: ids }, status: "ready" }).select("_id identifiablePeople consentStatus").lean();
+  const assets = await MediaAsset.find({ _id: { $in: ids }, status: "ready" }).select("_id identifiablePeople consentStatus consentScope").lean();
   if (assets.length !== ids.length) return "Every publication media reference must point to an available media asset";
   if (assets.some((asset) => asset.identifiablePeople && (asset.consentStatus !== "verified" || !["website", "website-and-social", "all-public"].includes(asset.consentScope)))) return "Media showing identifiable people requires verified website consent before it can be attached to a publication";
   if (assets.some((asset) => asset.consentStatus === "withdrawn")) return "Media with withdrawn consent cannot be attached to a publication";
@@ -118,6 +118,7 @@ export async function updatePublication(req, res, next) {
     if (normalized.consentStatus === "verified") normalized.consentVerifiedBy = req.user._id;
     if (normalized.consentStatus && normalized.consentStatus !== "verified") normalized.consentVerifiedBy = null;
     if (normalized.consentStatus === "withdrawn") normalized.consentWithdrawnBy = req.user._id;
+    if (normalized.consentStatus && normalized.consentStatus !== "withdrawn") normalized.consentWithdrawnBy = null;
     Object.assign(publication, normalized, { updatedBy: req.user._id });
     await publication.save();
     return res.json(publication);
@@ -143,7 +144,7 @@ export async function listPublicMedia(req, res, next) {
       Publication.find(filter)
         .select("title slug type summary category tags coverMedia mediaItems eventDate venue publishedAt identifiablePeople consentStatus")
         .populate("coverMedia", "secureUrl resourceType format title identifiablePeople consentStatus")
-        .populate("mediaItems", "identifiablePeople consentStatus")
+        .populate("mediaItems", "identifiablePeople consentStatus consentScope")
         .sort({ publishedAt: -1, createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
       Publication.countDocuments(filter)
     ]);
