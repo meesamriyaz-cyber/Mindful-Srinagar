@@ -248,6 +248,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
         if (["appointment", "assessment"].includes(field.name) && value && typeof value === "object") value = value._id;
         if (field.type === "chips" && !Array.isArray(value)) value = [];
         if (field.name === "domains" && Array.isArray(value)) value = value.join(", ");
+        if (field.name === "medications" && Array.isArray(value)) value = JSON.stringify(value, null, 2);
         values[field.name] = value ?? "";
       });
     setAmendingRecord(record);
@@ -263,6 +264,10 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
       const changes = { ...amendmentValues };
       if (typeof changes.domains === "string") {
         changes.domains = changes.domains.split(",").map((value) => value.trim()).filter(Boolean);
+      }
+      if (activeView === "prescriptions" && typeof changes.medications === "string") {
+        try { changes.medications = JSON.parse(changes.medications); }
+        catch { throw new Error("Medications must be a valid JSON array."); }
       }
       await amendClinicalRecord(activeView, amendingRecord._id, {
         reason: amendmentReason,
