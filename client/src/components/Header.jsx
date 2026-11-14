@@ -3,8 +3,7 @@ import React, { useEffect, useState } from "react";
 
 const publicNavItems = [
   { label: "Services", href: "#services" },
-  { label: "News & Stories", href: "#stories" },
-  { label: "Gallery", href: "#stories", tab: "gallery" },
+  { label: "Media", href: "#stories" },
   { label: "Care Process", href: "#operations" },
   { label: "Referrals", href: "#referrals" },
   { label: "Contact", href: "#contact" }
