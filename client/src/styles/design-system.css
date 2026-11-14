@@ -10430,3 +10430,29 @@ html {
     scroll-snap-type: none;
   }
 }
+
+
+/* The public header scrolls with the document, so each content section itself
+   must retain a full viewport height (rather than subtracting header height). */
+html {
+  scroll-padding-top: 0;
+}
+
+.hero,
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  min-height: 100svh;
+  scroll-margin-top: 0;
+}
+
+@media (max-width: 760px) {
+  .hero,
+  .services-section,
+  .operations-section,
+  .referral-section,
+  .contact-section {
+    min-height: 100svh;
+  }
+}
