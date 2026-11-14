@@ -4,7 +4,8 @@
 export const celebrationConfig = {
   enabled: true,
   maxRuns: 1,
-  durationMs: 3200,
+  durationMs: 4300,
+  fadeOutMs: 1200,
   particleCount: 42
 };
 
