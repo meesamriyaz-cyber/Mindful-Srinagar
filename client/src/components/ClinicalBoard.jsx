@@ -24,7 +24,8 @@ import {
   listRecords,
   createPrescription,
   updatePrescription,
-  approveTreatmentPlan
+  approveTreatmentPlan,
+  createInvoice
 } from "../lib/api.js";
 import { ChipInput } from "./ChipInput.jsx";
 import { useAccessibleDialog } from "../hooks/useAccessibleDialog.js";
@@ -251,6 +252,11 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
     try {
       const payload = {};
       config.fields.forEach(f => {
+        // Patient ownership is immutable after creation. Treatment plans also
+        // keep their linked assessment immutable, matching the server allowlist.
+        if (editingId && (f.name === "patient" || (activeView === "treatment-plans" && f.name === "assessment"))) {
+          return;
+        }
         let val = form[f.name] ?? "";
         if (f.type === "chips") {
           val = Array.isArray(val) ? val : [];
@@ -303,22 +309,12 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
     setBillingError("");
     try {
       const patientId = billingRecord?.patient?._id || billingRecord?.patient;
-      const response = await fetch(`${API_BASE_URL}/invoices`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          patient: patientId,
-          items: billingItems.filter(i => i.description && i.rate),
-          status: "draft"
-        })
-      });
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.message || "Failed to create invoice");
-      }
+      if (!patientId) throw new Error("This clinical record is not linked to a patient.");
+      await createInvoice({
+        patient: patientId,
+        items: billingItems.filter((item) => item.description?.trim() && Number(item.rate) > 0),
+        status: "draft"
+      }, { token });
       setShowBilling(false);
       setBillingRecord(null);
       setBillingItems([]);
@@ -472,6 +468,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                         value={form[field.name] || ""}
                         onChange={(e) => setForm({ ...form, [field.name]: e.target.value })}
                         required
+                        disabled={!!editingId}
                       >
                         <option value="">Select completed assessment...</option>
                         {completedAssessments.filter((item) => item.patient?._id === (form.patient || patientId) || item.patient === (form.patient || patientId)).map((item) => (
@@ -485,7 +482,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                         value={form[field.name] || ""}
                         onChange={(e) => setForm({ ...form, [field.name]: e.target.value })}
                         required
-                        disabled={!!patientId}
+                        disabled={!!patientId || !!editingId}
                       >
                         <option value="">Select patient...</option>
                         {patients.map(p => (
