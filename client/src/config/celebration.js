@@ -4,9 +4,9 @@
 export const celebrationConfig = {
   enabled: true,
   maxRuns: 1,
-  durationMs: 5500,
-  fadeOutMs: 1500,
-  particleCount: 160
+  durationMs: 4300,
+  fadeOutMs: 1200,
+  particleCount: 100
 };
 
 export const CELEBRATION_STORAGE_KEY = "mindful-homepage-celebration-runs";
