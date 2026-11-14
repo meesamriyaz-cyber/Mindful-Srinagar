@@ -79,6 +79,7 @@ export function PublicContent() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [selected, setSelected] = useState(null);
+  const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
   const listRequestId = useRef(0);
@@ -144,6 +145,7 @@ export function PublicContent() {
     const requestId = ++detailRequestId.current;
     const galleryRequest = activeTab === "gallery";
     setSelected(item);
+    setSelectedMediaIndex(0);
     setDetailError("");
     setDetailLoading(true);
     try {
@@ -158,6 +160,20 @@ export function PublicContent() {
   }
 
   const isGallery = activeTab === "gallery";
+  const galleryMedia = selected && isGallery
+    ? (() => {
+        const media = selected.mediaItems?.filter((asset) => asset?.secureUrl) || [];
+        const cover = selected.coverMedia?.secureUrl ? selected.coverMedia : null;
+        return cover && !media.some((asset) => asset._id === cover._id || asset.secureUrl === cover.secureUrl)
+          ? [cover, ...media]
+          : media.length ? media : cover ? [cover] : [];
+      })()
+    : [];
+  const activeGalleryMedia = galleryMedia[Math.min(selectedMediaIndex, Math.max(galleryMedia.length - 1, 0))] || null;
+  const moveGallerySlide = (direction) => {
+    if (!galleryMedia.length) return;
+    setSelectedMediaIndex((current) => (current + direction + galleryMedia.length) % galleryMedia.length);
+  };
 
   return (
     <section className="section public-content-section" id="stories">
@@ -198,14 +214,34 @@ export function PublicContent() {
             <button type="button" className="public-content-close" onClick={() => { detailRequestId.current += 1; setSelected(null); }} aria-label="Close"><X size={21} /></button>
             {detailLoading ? <div className="public-content-state"><LoaderCircle className="public-content-spinner" size={24} /><span>Opening…</span></div> : detailError ? <div className="public-content-state public-content-error">{detailError}</div> : (
               <>
-                <div className="public-detail-hero"><MediaPreview media={selected.coverMedia?.secureUrl ? selected.coverMedia : selected.mediaItems?.find((asset) => asset?.secureUrl)} /></div>
+                {isGallery ? (
+                  <>
+                    <div className="public-gallery-viewer">
+                      <div className="public-gallery-stage">
+                        {activeGalleryMedia ? <MediaPreview media={activeGalleryMedia} className="public-gallery-stage-media" /> : <div className="public-content-placeholder"><ImageIcon size={30}/><span>No approved media in this gallery</span></div>}
+                        {galleryMedia.length > 1 && <>
+                          <button type="button" className="public-gallery-arrow previous" onClick={() => moveGallerySlide(-1)} aria-label="Previous photo"><ArrowLeft size={21}/></button>
+                          <button type="button" className="public-gallery-arrow next" onClick={() => moveGallerySlide(1)} aria-label="Next photo"><ArrowRight size={21}/></button>
+                          <span className="public-gallery-position">{selectedMediaIndex + 1} / {galleryMedia.length}</span>
+                        </>}
+                      </div>
+                      {galleryMedia.length > 1 && <div className="public-gallery-thumbnails" aria-label="Gallery photos">
+                        {galleryMedia.map((media, index) => <button type="button" key={media._id || media.secureUrl} className={index === selectedMediaIndex ? "active" : ""} onClick={() => setSelectedMediaIndex(index)} aria-label={`Show photo ${index + 1}`} aria-pressed={index === selectedMediaIndex}>
+                          <MediaPreview media={media}/>
+                        </button>)}
+                      </div>}
+                    </div>
+                  </>
+                ) : (
+                  <div className="public-detail-hero"><MediaPreview media={selected.coverMedia?.secureUrl ? selected.coverMedia : selected.mediaItems?.find((asset) => asset?.secureUrl)} /></div>
+                )}
                 <div className="public-detail-copy">
                   <div className="public-content-meta"><span>{isGallery ? selected.category || "Gallery" : selected.type}</span><time>{formatDate(selected.eventDate || selected.publishedAt)}</time></div>
                   <h2>{selected.title}</h2>
                   {selected.summary && <p className="public-detail-summary">{selected.summary}</p>}
                   {selected.eventDate && <p className="public-detail-venue"><CalendarDays size={17} />{formatDate(selected.eventDate, { weekday: "long" })}{selected.venue ? <><span aria-hidden="true">·</span><MapPin size={16} />{selected.venue}</> : null}</p>}
                   {isGallery ? <p>{selected.description}</p> : renderBody(selected.body)}
-                  {selected.mediaItems?.some((media) => media?.secureUrl) && <div className="public-detail-media-grid">{selected.mediaItems.filter((media) => media?.secureUrl).map((media) => <a key={media._id} href={media.secureUrl} target="_blank" rel="noreferrer" aria-label={media.title || "Open media in a new tab"}><MediaPreview media={media} /></a>)}</div>}
+                  {!isGallery && selected.mediaItems?.some((media) => media?.secureUrl) && <div className="public-detail-media-grid">{selected.mediaItems.filter((media) => media?.secureUrl).map((media) => <a key={media._id} href={media.secureUrl} target="_blank" rel="noreferrer" aria-label={media.title || "Open media in a new tab"}><MediaPreview media={media} /></a>)}</div>}
                 </div>
               </>
             )}
