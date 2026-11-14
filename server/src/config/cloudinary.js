@@ -44,6 +44,7 @@ export function createUploadSignature(resourceType, { env = process.env, now = (
     resourceType,
     folder: MEDIA_FOLDER,
     timestamp: params.timestamp,
+    signedParams: params,
     signature: signCloudinaryParams(params, config.apiSecret),
     allowedFormats: formats,
     maxBytes: resourceType === "image" ? limits.imageMaxBytes : limits.videoMaxBytes,
@@ -85,7 +86,7 @@ export async function destroyCloudinaryAsset(publicId, resourceType, options = {
     body: { "public_ids[]": publicId }
   });
   const result = data.deleted?.[publicId];
-  if (result !== "deleted" && result !== "not_found") {
+  if (result !== "deleted" && result !== "not_found" && result !== "not found") {
     const error = new Error("Cloudinary did not confirm media deletion");
     error.statusCode = 502;
     throw error;
