@@ -80,6 +80,7 @@ export function PublicContent() {
   const [error, setError] = useState("");
   const [selected, setSelected] = useState(null);
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
   const listRequestId = useRef(0);
@@ -132,20 +133,21 @@ export function PublicContent() {
 
   useEffect(() => {
     if (!selected) return undefined;
-    const onKeyDown = (event) => { if (event.key === "Escape") { detailRequestId.current += 1; setSelected(null); } };
+    const onKeyDown = (event) => { if (event.key === "Escape") { if (lightboxOpen) setLightboxOpen(false); else { detailRequestId.current += 1; setSelected(null); } } };
     document.addEventListener("keydown", onKeyDown);
     document.body.classList.add("public-content-modal-open");
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       document.body.classList.remove("public-content-modal-open");
     };
-  }, [selected]);
+  }, [selected, lightboxOpen]);
 
   async function openItem(item) {
     const requestId = ++detailRequestId.current;
     const galleryRequest = activeTab === "gallery";
     setSelected(item);
     setSelectedMediaIndex(0);
+    setLightboxOpen(false);
     setDetailError("");
     setDetailLoading(true);
     try {
@@ -218,7 +220,7 @@ export function PublicContent() {
                   <>
                     <div className="public-gallery-viewer">
                       <div className="public-gallery-stage">
-                        {activeGalleryMedia ? <MediaPreview media={activeGalleryMedia} className="public-gallery-stage-media" /> : <div className="public-content-placeholder"><ImageIcon size={30}/><span>No approved media in this gallery</span></div>}
+                        {activeGalleryMedia ? <button type="button" className="public-gallery-image-trigger" onClick={() => setLightboxOpen(true)} aria-label="Enlarge selected photo"><MediaPreview media={activeGalleryMedia} className="public-gallery-stage-media" /><span className="public-gallery-zoom-hint">Click to enlarge</span></button> : <div className="public-content-placeholder"><ImageIcon size={30}/><span>No approved media in this gallery</span></div>}
                         {galleryMedia.length > 1 && <>
                           <button type="button" className="public-gallery-arrow previous" onClick={() => moveGallerySlide(-1)} aria-label="Previous photo"><ArrowLeft size={21}/></button>
                           <button type="button" className="public-gallery-arrow next" onClick={() => moveGallerySlide(1)} aria-label="Next photo"><ArrowRight size={21}/></button>
@@ -245,6 +247,19 @@ export function PublicContent() {
                 </div>
               </>
             )}
+          </section>
+        </div>
+      )}
+      {lightboxOpen && activeGalleryMedia && (
+        <div className="public-gallery-lightbox" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setLightboxOpen(false); }}>
+          <section className="public-gallery-lightbox-panel" role="dialog" aria-modal="true" aria-label="Enlarged gallery image">
+            <button type="button" className="public-gallery-lightbox-close" onClick={() => setLightboxOpen(false)} aria-label="Close enlarged image"><X size={23}/></button>
+            <div className="public-gallery-lightbox-media"><MediaPreview media={activeGalleryMedia}/></div>
+            <div className="public-gallery-lightbox-caption">{activeGalleryMedia.altText || activeGalleryMedia.title || selected?.title}</div>
+            {galleryMedia.length > 1 && <>
+              <button type="button" className="public-gallery-lightbox-arrow previous" onClick={() => moveGallerySlide(-1)} aria-label="Previous photo"><ArrowLeft size={22}/></button>
+              <button type="button" className="public-gallery-lightbox-arrow next" onClick={() => moveGallerySlide(1)} aria-label="Next photo"><ArrowRight size={22}/></button>
+            </>}
           </section>
         </div>
       )}
