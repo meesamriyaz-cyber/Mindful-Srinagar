@@ -31,6 +31,8 @@ function normalizePublicationPayload(payload) {
   if (normalized.eventDate) normalized.eventDate = new Date(normalized.eventDate);
   if (normalized.consentStatus === "verified") normalized.consentVerifiedAt = new Date(normalized.consentVerifiedAt);
   if (normalized.consentStatus === "withdrawn") normalized.consentWithdrawnAt = new Date();
+  if (normalized.consentStatus && normalized.consentStatus !== "withdrawn") normalized.consentWithdrawnAt = null;
+  if (normalized.consentStatus && normalized.consentStatus !== "verified") normalized.consentVerifiedAt = null;
   return normalized;
 }
 
