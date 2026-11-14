@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 
 const publicNavItems = [
   { label: "Services", href: "#services" },
+  { label: "Media", href: "#stories" },
   { label: "Care Process", href: "#operations" },
   { label: "Referrals", href: "#referrals" },
   { label: "Contact", href: "#contact" }
@@ -48,7 +49,7 @@ export function Header({ staffMode = false }) {
       },
       { threshold: 0.12, rootMargin: "0px 0px -5% 0px" }
     );
-    ["home", "services", "operations", "referrals", "contact"].forEach((id) => {
+    ["home", "services", "stories", "operations", "referrals", "contact"].forEach((id) => {
       const section = document.getElementById(id);
       if (section) sectionObserver.observe(section);
     });
@@ -96,7 +97,10 @@ export function Header({ staffMode = false }) {
 
       <nav className={open ? "nav nav-open" : "nav"} aria-label="Primary navigation" id="primary-navigation">
         {navItems.map((item) => (
-          <a key={item.href} href={item.href} onClick={() => setOpen(false)}>
+          <a key={item.label} href={item.href} onClick={() => {
+            setOpen(false);
+            if (item.tab) window.dispatchEvent(new CustomEvent("mindful:public-content-tab", { detail: { tab: item.tab } }));
+          }}>
             {item.label}
           </a>
         ))}

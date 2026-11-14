@@ -3,6 +3,7 @@ import { Contact } from "./components/Contact.jsx";
 import { Header } from "./components/Header.jsx";
 import { Hero } from "./components/Hero.jsx";
 import { Operations } from "./components/Operations.jsx";
+import { PublicContent } from "./components/PublicContent.jsx";
 import { ReferralTracker } from "./components/ReferralTracker.jsx";
 import { Services } from "./components/Services.jsx";
 
@@ -36,6 +37,7 @@ export default function App() {
       <main>
         <Hero />
         <Services />
+        <PublicContent />
         <Operations />
         <ReferralTracker />
         <Contact />

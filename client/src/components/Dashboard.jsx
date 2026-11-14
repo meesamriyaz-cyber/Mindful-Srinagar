@@ -21,13 +21,16 @@ import {
   X,
   UsersRound,
   Stethoscope,
-  WalletCards
+  WalletCards,
+  Images
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDashboard } from "../hooks/useDashboard.js";
-import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, listReferralOwners, logReferralFollowUp, listTaskAssignees, API_BASE_URL } from "../lib/api.js";
+import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, listReferralOwners, logReferralFollowUp, listTaskAssignees, createInvoice, API_BASE_URL } from "../lib/api.js";
 import { ClinicalBoard } from "./ClinicalBoard.jsx";
+import { MediaLibrary } from "./MediaLibrary.jsx";
+import { ContentStudio } from "./ContentStudio.jsx";
 import { PatientJourney } from "./PatientJourney.jsx";
 import { PractitionerBoard } from "./PractitionerBoard.jsx";
 import { PractitionerDashboard } from "./PractitionerDashboard.jsx";
@@ -52,7 +55,9 @@ const viewItems = [
   { id: "billing", label: "Billing", resource: "invoices", icon: WalletCards, section: "Admin" },
   { id: "inventory", label: "Inventory", resource: "inventory", icon: PackageOpen, section: "Admin" },
   { id: "tasks", label: "Tasks", resource: "tasks", icon: ListChecks, section: "Admin" },
-  { id: "reports", label: "Reports", resource: null, icon: BarChart3, section: "System" }
+  { id: "reports", label: "Reports", resource: null, icon: BarChart3, section: "System" },
+  { id: "media-library", label: "Media Library", resource: null, icon: Images, section: "System", roles: ["director", "admin"] },
+  { id: "content-studio", label: "Content Studio", resource: null, icon: FileText, section: "System", roles: ["director", "admin"] }
 ];
 
 function getViewConfig(id) {
@@ -73,7 +78,9 @@ const viewDescriptions = {
   billing: "Track invoices, payments received and outstanding patient balances.",
   inventory: "Monitor stock levels, reorder thresholds and stock movement.",
   tasks: "Coordinate follow-ups and operational work across the centre.",
-  reports: "Understand service activity, referral movement and daily operating patterns."
+  reports: "Understand service activity, referral movement and daily operating patterns.",
+  "media-library": "Manage centre photographs and videos, metadata and consent review.",
+  "content-studio": "Create and publish centre stories, news, events and photo galleries."
 };
 function getVisibleViewItems(role) {
   const allowed = {
@@ -84,27 +91,36 @@ function getVisibleViewItems(role) {
     accounts: ["billing","tasks"]
   };
   if (["director","admin"].includes(role)) return viewItems;
-  return viewItems.filter((item) => (allowed[role] || []).includes(item.id));
+  return viewItems.filter((item) => (item.roles ? item.roles.includes(role) : (allowed[role] || []).includes(item.id)));
+}
+
+function toValidDate(value) {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 function formatTime(value) {
-  if (!value) return "--";
-  return new Intl.DateTimeFormat("en-IN", { hour: "2-digit", minute: "2-digit" }).format(new Date(value));
+  const date = toValidDate(value);
+  if (!date) return "--";
+  return new Intl.DateTimeFormat("en-IN", { hour: "2-digit", minute: "2-digit" }).format(date);
 }
 
 function formatDate(value) {
-  if (!value) return "Not set";
-  return new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value));
+  const date = toValidDate(value);
+  if (!date) return "Not set";
+  return new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(date);
 }
 
 function formatDateTime(value) {
-  if (!value) return "Not scheduled";
+  const date = toValidDate(value);
+  if (!date) return "Not scheduled";
   return new Intl.DateTimeFormat("en-IN", {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
     minute: "2-digit"
-  }).format(new Date(value));
+  }).format(date);
 }
 
 function formatPatient(appointment) {
@@ -527,9 +543,12 @@ function describeRecord(viewId, record) {
     if (!text) return "Not provided";
     return text.length > limit ? `${text.slice(0, limit).trimEnd()}…` : text;
   };
-  const displayDate = (value) => value
-    ? new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(value))
-    : "Date not recorded";
+  const displayDate = (value) => {
+    const date = toValidDate(value);
+    return date
+      ? new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", year: "numeric" }).format(date)
+      : "Date not recorded";
+  };
 
   if (viewId === "patients") {
     return {
@@ -542,7 +561,8 @@ function describeRecord(viewId, record) {
 
   if (viewId === "referrals") {
     const open = ["new", "contacted", "scheduled"].includes(record.status);
-    const overdue = open && record.followUpDate && new Date(record.followUpDate).getTime() < Date.now();
+    const followUpDate = toValidDate(record.followUpDate);
+    const overdue = open && followUpDate && followUpDate.getTime() < Date.now();
     const ownerName = record.assignedTo?.name || "Unassigned";
     const dueLabel = record.followUpDate ? formatDateTime(record.followUpDate) : "No follow-up due";
     return {
@@ -667,7 +687,7 @@ function recordActions(viewId, record, userRole) {
     const actions = [];
     if (record.status === "scheduled") actions.push({ label: "Check in", updates: { status: "checked-in" } });
     if (record.status === "checked-in") actions.push({ label: "Complete", updates: { status: "completed" } });
-    if (["completed", "checked-in"].includes(record.status) && ["director", "admin", "accounts", "reception"].includes(userRole)) {
+    if (record.status === "completed" && ["director", "admin", "accounts", "reception"].includes(userRole)) {
       actions.push({ label: "Generate Bill", action: "bill" });
     }
     return actions;
@@ -1166,9 +1186,18 @@ export function Dashboard() {
     if (!operationModal) return;
     const { type, id } = operationModal;
     const isPayment = type === "payment";
+    const amountOrQuantity = Number(isPayment ? operationForm.amount : operationForm.quantity);
+    if (!Number.isFinite(amountOrQuantity) || (isPayment ? amountOrQuantity <= 0 : operationForm.type === "adjustment" ? amountOrQuantity < 0 : amountOrQuantity <= 0)) {
+      setActionError(isPayment ? "Enter a valid payment amount." : "Enter a valid stock quantity.");
+      return;
+    }
+    if (!isPayment && !operationForm.reason.trim()) {
+      setActionError("A reason is required for every stock movement.");
+      return;
+    }
     const payload = isPayment
-      ? { amount: Number(operationForm.amount), method: operationForm.method, reference: operationForm.reference }
-      : { type: operationForm.type, quantity: Number(operationForm.quantity), reason: operationForm.reason, reference: operationForm.reference };
+      ? { amount: amountOrQuantity, method: operationForm.method, reference: operationForm.reference.trim() }
+      : { type: operationForm.type, quantity: amountOrQuantity, reason: operationForm.reason.trim(), reference: operationForm.reference.trim() };
     setActionId(id);
     setActionError("");
     try {
@@ -1257,6 +1286,7 @@ export function Dashboard() {
         setBillingRecord(appointment);
         const defaultService = serviceCharges.find(s => s.service === appointment.service);
         setBillingItems([{
+          appointment: appointment._id,
           description: appointment.service || "Service",
           quantity: 1,
           rate: defaultService?.rate || 0
@@ -1459,7 +1489,11 @@ export function Dashboard() {
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.22 }}
               >
-              {activeView === "staff" ? (
+              {activeView === "media-library" && ["director", "admin"].includes(session.user?.role) ? (
+                <MediaLibrary token={session.token} />
+              ) : activeView === "content-studio" && ["director", "admin"].includes(session.user?.role) ? (
+                <ContentStudio token={session.token} />
+              ) : activeView === "staff" ? (
                 <StaffBoard token={session.token} currentRole={session.user?.role} onChanged={() => setResourceRefresh((value) => value + 1)} />
               ) : activeView === "practitioners" ? (
                 <PractitionerBoard
@@ -1695,7 +1729,7 @@ export function Dashboard() {
                     </select>
                   </label>
                   <label>{operationForm.type === "adjustment" ? "New stock quantity" : "Quantity"}
-                    <input type="number" min="0.01" step="0.01" required value={operationForm.quantity} onChange={(event) => setOperationForm({ ...operationForm, quantity: event.target.value })} />
+                    <input type="number" min={operationForm.type === "adjustment" ? "0" : "0.01"} step="0.01" required value={operationForm.quantity} onChange={(event) => setOperationForm({ ...operationForm, quantity: event.target.value })} />
                   </label>
                   <label>Reason
                     <textarea rows={3} maxLength="300" required value={operationForm.reason} onChange={(event) => setOperationForm({ ...operationForm, reason: event.target.value })} />
@@ -1778,22 +1812,18 @@ export function Dashboard() {
               setBillingError("");
               try {
                 const patientId = billingRecord?.patient?._id || billingRecord?.patient;
-                const response = await fetch(`${API_BASE_URL}/invoices`, {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${session.token}`
-                  },
-                  body: JSON.stringify({
-                    patient: patientId,
-                    items: billingItems.filter(i => i.description && i.rate),
-                    status: "draft"
-                  })
-                });
-                if (!response.ok) {
-                  const data = await response.json().catch(() => ({}));
-                  throw new Error(data.message || "Failed to create invoice");
-                }
+                const items = billingItems
+                  .filter((item) => item.description.trim() && Number.isFinite(Number(item.quantity)) && Number(item.quantity) > 0
+                    && Number.isFinite(Number(item.rate)) && Number(item.rate) >= 0)
+                  .map((item) => ({
+                    ...(item.appointment ? { appointment: item.appointment } : {}),
+                    description: item.description.trim(),
+                    quantity: Number(item.quantity),
+                    rate: Number(item.rate)
+                  }));
+                if (!patientId) throw new Error("The appointment is not linked to a patient.");
+                if (!items.length) throw new Error("Add at least one valid invoice item.");
+                await createInvoice({ patient: patientId, items, status: "draft" }, { token: session.token });
                 setShowBilling(false);
                 setBillingRecord(null);
                 setBillingItems([]);
