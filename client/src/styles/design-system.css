@@ -10512,3 +10512,33 @@ html {
     will-change: auto;
   }
 }
+
+
+/* Keep sections visible by default; enable reveal motion only when the
+   IntersectionObserver enhancement is available in the browser. */
+.hero,
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  opacity: 1;
+  transform: none;
+}
+
+html.homepage-motion-enabled .hero,
+html.homepage-motion-enabled .services-section,
+html.homepage-motion-enabled .operations-section,
+html.homepage-motion-enabled .referral-section,
+html.homepage-motion-enabled .contact-section {
+  opacity: 0;
+  transform: translate3d(0, 14px, 0);
+}
+
+html.homepage-motion-enabled .hero.is-section-visible,
+html.homepage-motion-enabled .services-section.is-section-visible,
+html.homepage-motion-enabled .operations-section.is-section-visible,
+html.homepage-motion-enabled .referral-section.is-section-visible,
+html.homepage-motion-enabled .contact-section.is-section-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
