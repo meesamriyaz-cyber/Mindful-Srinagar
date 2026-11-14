@@ -150,6 +150,11 @@ export function createPublicationSlug(title) {
     .slice(0, 110) || "publication";
 }
 
+export function canExposeMediaAsset(asset) {
+  return Boolean(asset && asset.status !== "archived" && asset.consentStatus !== "withdrawn" &&
+    (!asset.identifiablePeople || (asset.consentStatus === "verified" && ["website", "website-and-social", "all-public"].includes(asset.consentScope))));
+}
+
 export function canExposePublication(publication) {
   return Boolean(publication && publication.status === "published" &&
     !(publication.identifiablePeople && (publication.consentStatus !== "verified" || !["website", "website-and-social", "all-public"].includes(publication.consentScope))) &&
