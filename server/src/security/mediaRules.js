@@ -4,6 +4,7 @@ const IMAGE_FORMATS = new Set(["jpg", "jpeg", "png", "webp"]);
 const VIDEO_FORMATS = new Set(["mp4", "webm"]);
 const CATEGORIES = new Set(["centre-activities", "workshops", "awareness", "training", "research", "facilities", "other"]);
 const CONSENT_STATUSES = new Set(["not-required", "pending", "verified", "withdrawn"]);
+const CONSENT_SCOPES = new Set(["internal-only", "website", "website-and-social", "all-public"]);
 
 export function validateMediaResource(resource, resourceType, env = process.env) {
   if (!resource || !["image", "video"].includes(resourceType)) return "A valid Cloudinary media resource is required";
@@ -33,8 +34,12 @@ export function validateMediaMetadata(payload = {}) {
   if (payload.tags !== undefined && (!Array.isArray(payload.tags) || payload.tags.length > 12 || payload.tags.some((tag) => typeof tag !== "string" || tag.trim().length > 32))) errors.push("Provide no more than 12 valid tags, each up to 32 characters");
   if (payload.identifiablePeople !== undefined && typeof payload.identifiablePeople !== "boolean") errors.push("identifiablePeople must be true or false");
   if (payload.consentStatus !== undefined && !CONSENT_STATUSES.has(payload.consentStatus)) errors.push("Select a valid consent status");
+  if (payload.consentScope !== undefined && !CONSENT_SCOPES.has(payload.consentScope)) errors.push("Select a valid consent scope");
+  if (payload.consentNotes !== undefined && (typeof payload.consentNotes !== "string" || payload.consentNotes.trim().length > 500)) errors.push("Consent notes must be no more than 500 characters");
   if (payload.identifiablePeople === true && payload.consentStatus === "not-required") errors.push("Identifiable people require a consent review");
   if (payload.consentStatus === "verified" && !payload.consentVerifiedAt) errors.push("Verified consent must include its verification date");
+  if (payload.identifiablePeople === true && payload.consentStatus === "verified" && !["website", "website-and-social", "all-public"].includes(payload.consentScope)) errors.push("Verified consent must explicitly include public website use");
+  if (payload.identifiablePeople === true && payload.consentStatus === "verified" && !["website", "website-and-social", "all-public"].includes(payload.consentScope)) errors.push("Verified consent must explicitly include public website use");
   if (payload.consentVerifiedAt && !Number.isFinite(new Date(payload.consentVerifiedAt).getTime())) errors.push("Consent verification date is invalid");
   return errors;
 }
@@ -45,6 +50,8 @@ export function normalizeMediaMetadata(payload = {}) {
   if (payload.tags !== undefined) clean.tags = [...new Set(payload.tags.map((tag) => tag.trim().toLowerCase()).filter(Boolean))];
   if (payload.identifiablePeople !== undefined) clean.identifiablePeople = payload.identifiablePeople;
   if (payload.consentStatus !== undefined) clean.consentStatus = payload.consentStatus;
+  if (payload.consentScope !== undefined) clean.consentScope = payload.consentScope;
+  if (payload.consentNotes !== undefined) clean.consentNotes = payload.consentNotes.trim();
   if (payload.consentStatus === "verified") clean.consentVerifiedAt = new Date(payload.consentVerifiedAt);
   if (payload.consentStatus === "withdrawn") clean.consentWithdrawnAt = new Date();
   if (payload.consentStatus && payload.consentStatus !== "withdrawn") clean.consentWithdrawnAt = null;
@@ -145,6 +152,6 @@ export function createPublicationSlug(title) {
 
 export function canExposePublication(publication) {
   return Boolean(publication && publication.status === "published" &&
-    !(publication.identifiablePeople && publication.consentStatus !== "verified") &&
+    !(publication.identifiablePeople && (publication.consentStatus !== "verified" || !["website", "website-and-social", "all-public"].includes(publication.consentScope))) &&
     publication.consentStatus !== "withdrawn");
 }
