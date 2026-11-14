@@ -109,7 +109,7 @@ export async function updateGallery(req, res, next) {
     const referenceError = await validateReferences(payload);
     if (referenceError) return res.status(400).json({ message: referenceError });
     if (payload.title !== undefined) {
-      const slug = slugify(payload.title);
+      const slug = createGallerySlug(payload.title);
       if (await Gallery.exists({ _id: { $ne: gallery._id }, slug })) return res.status(409).json({ message: "A gallery with this title already exists." });
       gallery.slug = slug;
       gallery.title = payload.title.trim();
