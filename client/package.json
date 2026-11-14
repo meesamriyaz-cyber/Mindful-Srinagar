@@ -12,6 +12,7 @@
     "framer-motion": "^12.42.2",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
+    "react-confetti": "^6.4.0",
     "react-dom": "^19.0.0",
     "three": "^0.185.1",
     "vite": "^6.0.7"

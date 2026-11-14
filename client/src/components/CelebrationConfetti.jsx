@@ -1,57 +1,82 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { celebrationConfig, CELEBRATION_STORAGE_KEY } from "../config/celebration.js";
+
+import React, { useEffect, useState } from "react";
+import Confetti from "react-confetti";
+import { celebrationConfig } from "../config/celebration.js";
+
+const STORAGE_KEY = "mindful-homepage-celebration-runs";
 
 export function CelebrationConfetti() {
   const [visible, setVisible] = useState(false);
-
-  const pieces = useMemo(
-    () =>
-      Array.from({ length: celebrationConfig.particleCount }, (_, index) => ({
-        left: `${(index * 37 + 11) % 100}%`,
-        delay: `${(index % 11) * 0.075}s`,
-        duration: `${2.35 + (index % 6) * 0.19}s`,
-        drift: `${((index * 29) % 150) - 75}px`,
-        rotation: `${(index * 47) % 360}deg`,
-        shape: index % 3
-      })),
-    []
-  );
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight
+  });
 
   useEffect(() => {
-    if (!celebrationConfig.enabled || celebrationConfig.maxRuns <= 0) return undefined;
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return undefined;
+    const resize = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
+
+    window.addEventListener("resize", resize);
+    return () => window.removeEventListener("resize", resize);
+  }, []);
+
+  useEffect(() => {
+    if (!celebrationConfig.enabled) return;
+
+    if (
+      window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches
+    ) return;
 
     try {
-      const completedRuns = Number(window.localStorage.getItem(CELEBRATION_STORAGE_KEY) || 0);
-      if (!Number.isFinite(completedRuns) || completedRuns >= celebrationConfig.maxRuns) return undefined;
-      window.localStorage.setItem(CELEBRATION_STORAGE_KEY, String(completedRuns + 1));
+      const runs = Number(
+        localStorage.getItem(STORAGE_KEY) || 0
+      );
+
+      if (runs >= celebrationConfig.maxRuns) return;
+
+      localStorage.setItem(
+        STORAGE_KEY,
+        String(runs + 1)
+      );
+
       setVisible(true);
-      const timeout = window.setTimeout(() => setVisible(false), celebrationConfig.durationMs);
-      return () => window.clearTimeout(timeout);
+
+      const timer = setTimeout(() => {
+        setVisible(false);
+      }, celebrationConfig.durationMs);
+
+      return () => clearTimeout(timer);
     } catch {
-      // If storage is unavailable, skip the celebration rather than replaying
-      // it on every render or disrupting the visitor's experience.
-      return undefined;
+      return;
     }
   }, []);
 
   if (!visible) return null;
 
   return (
-    <div className="mindful-confetti" aria-hidden="true">
-      {pieces.map((piece, index) => (
-        <span
-          className={`mindful-confetti-piece shape-${piece.shape}`}
-          key={index}
-          style={{
-            left: piece.left,
-            animationDelay: piece.delay,
-            animationDuration: piece.duration,
-            "--confetti-drift": piece.drift,
-            "--confetti-rotation": piece.rotation
-          }}
-        />
-      ))}
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        pointerEvents: "none",
+        zIndex: 9999
+      }}
+      aria-hidden="true"
+    >
+      <Confetti
+        width={dimensions.width}
+        height={dimensions.height}
+        numberOfPieces={celebrationConfig.numberOfPieces}
+        gravity={celebrationConfig.gravity}
+        recycle={celebrationConfig.recycle}
+        colors={celebrationConfig.colors}
+      />
     </div>
   );
 }
