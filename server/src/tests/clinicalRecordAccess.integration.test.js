@@ -2,9 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { makeClinicalRecordController } from "../controllers/clinicalRecordController.js";
 
-function queryResult(value) {
+function queryResult(value, populateCalls = []) {
   return {
-    populate() { return this; },
+    populate(path, select) { populateCalls.push([path, select]); return this; },
     sort() { return this; },
     skip() { return this; },
     limit() { return Promise.resolve(value); },
@@ -69,4 +69,33 @@ test("director clinical retrieval is not restricted to an individual author", as
   }, res, assert.fail);
   assert.deepEqual(captured, { _id: "64b000000000000000000001" });
   assert.equal(res.statusCode, 200);
+});
+
+test("clinical populate selections are passed as field selections, not populate paths", async () => {
+  const populateCalls = [];
+  const Model = {
+    find() { return queryResult([], populateCalls); },
+    countDocuments() { return Promise.resolve(0); }
+  };
+  const controller = makeClinicalRecordController({
+    Model,
+    ownerField: "assessedBy",
+    createFields: [],
+    updateFields: [],
+    sortField: "assessedAt",
+    populate: [["patient", "fullName mrn"], ["assessedBy", "name email"]]
+  });
+  const res = response();
+
+  await controller.list(
+    { query: {}, user: { _id: "staff-789", role: "therapist" } },
+    res,
+    assert.fail
+  );
+
+  assert.deepEqual(populateCalls, [
+    ["patient", "fullName mrn"],
+    ["assessedBy", "name email"]
+  ]);
+  assert.deepEqual(res.body, []);
 });
