@@ -36,11 +36,27 @@ export function Header({ staffMode = false }) {
 
     const observer = new IntersectionObserver(updateHeroVisibility, { threshold: 0 });
     observer.observe(hero);
+
+    // Reveal each homepage section gently as it enters the viewport.
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          entry.target.classList.toggle("is-section-visible", entry.isIntersecting);
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -5% 0px" }
+    );
+    ["home", "services", "operations", "referrals", "contact"].forEach((id) => {
+      const section = document.getElementById(id);
+      if (section) sectionObserver.observe(section);
+    });
+
     window.addEventListener("scroll", updateHeroVisibility, { passive: true });
     window.addEventListener("resize", updateHeroVisibility);
     updateHeroVisibility();
     return () => {
       observer.disconnect();
+      sectionObserver.disconnect();
       window.removeEventListener("scroll", updateHeroVisibility);
       window.removeEventListener("resize", updateHeroVisibility);
     };
