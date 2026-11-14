@@ -21,13 +21,15 @@ import {
   X,
   UsersRound,
   Stethoscope,
-  WalletCards
+  WalletCards,
+  Images
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDashboard } from "../hooks/useDashboard.js";
 import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, listReferralOwners, logReferralFollowUp, listTaskAssignees, createInvoice, API_BASE_URL } from "../lib/api.js";
 import { ClinicalBoard } from "./ClinicalBoard.jsx";
+import { MediaLibrary } from "./MediaLibrary.jsx";
 import { PatientJourney } from "./PatientJourney.jsx";
 import { PractitionerBoard } from "./PractitionerBoard.jsx";
 import { PractitionerDashboard } from "./PractitionerDashboard.jsx";
@@ -52,7 +54,8 @@ const viewItems = [
   { id: "billing", label: "Billing", resource: "invoices", icon: WalletCards, section: "Admin" },
   { id: "inventory", label: "Inventory", resource: "inventory", icon: PackageOpen, section: "Admin" },
   { id: "tasks", label: "Tasks", resource: "tasks", icon: ListChecks, section: "Admin" },
-  { id: "reports", label: "Reports", resource: null, icon: BarChart3, section: "System" }
+  { id: "reports", label: "Reports", resource: null, icon: BarChart3, section: "System" },
+  { id: "media-library", label: "Media Library", resource: null, icon: Images, section: "System", roles: ["director", "admin"] }
 ];
 
 function getViewConfig(id) {
@@ -73,7 +76,8 @@ const viewDescriptions = {
   billing: "Track invoices, payments received and outstanding patient balances.",
   inventory: "Monitor stock levels, reorder thresholds and stock movement.",
   tasks: "Coordinate follow-ups and operational work across the centre.",
-  reports: "Understand service activity, referral movement and daily operating patterns."
+  reports: "Understand service activity, referral movement and daily operating patterns.",
+  "media-library": "Manage centre photographs and videos, metadata and consent review."
 };
 function getVisibleViewItems(role) {
   const allowed = {
@@ -84,7 +88,7 @@ function getVisibleViewItems(role) {
     accounts: ["billing","tasks"]
   };
   if (["director","admin"].includes(role)) return viewItems;
-  return viewItems.filter((item) => (allowed[role] || []).includes(item.id));
+  return viewItems.filter((item) => (item.roles ? item.roles.includes(role) : (allowed[role] || []).includes(item.id)));
 }
 
 function toValidDate(value) {
@@ -1458,7 +1462,9 @@ export function Dashboard() {
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.22 }}
               >
-              {activeView === "staff" ? (
+              {activeView === "media-library" && ["director", "admin"].includes(session.user?.role) ? (
+                <MediaLibrary token={session.token} />
+              ) : activeView === "staff" ? (
                 <StaffBoard token={session.token} currentRole={session.user?.role} onChanged={() => setResourceRefresh((value) => value + 1)} />
               ) : activeView === "practitioners" ? (
                 <PractitionerBoard
