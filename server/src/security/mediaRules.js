@@ -37,10 +37,8 @@ export function validateMediaMetadata(payload = {}) {
   if (payload.consentScope !== undefined && !CONSENT_SCOPES.has(payload.consentScope)) errors.push("Select a valid consent scope");
   if (payload.consentNotes !== undefined && (typeof payload.consentNotes !== "string" || payload.consentNotes.trim().length > 500)) errors.push("Consent notes must be no more than 500 characters");
   if (payload.identifiablePeople === true && payload.consentStatus === "not-required") errors.push("Identifiable people require a consent review");
-  if (payload.consentStatus === "verified" && !payload.consentVerifiedAt) errors.push("Verified consent must include its verification date");
   if (payload.identifiablePeople === true && payload.consentStatus === "verified" && !["website", "website-and-social", "all-public"].includes(payload.consentScope)) errors.push("Verified consent must explicitly include public website use");
   if (payload.identifiablePeople === true && payload.consentStatus === "verified" && (!payload.consentNotes || !payload.consentNotes.trim())) errors.push("Add a non-sensitive consent reference before verifying publication consent");
-  if (payload.consentVerifiedAt && !Number.isFinite(new Date(payload.consentVerifiedAt).getTime())) errors.push("Consent verification date is invalid");
   return errors;
 }
 
@@ -52,7 +50,7 @@ export function normalizeMediaMetadata(payload = {}) {
   if (payload.consentStatus !== undefined) clean.consentStatus = payload.consentStatus;
   if (payload.consentScope !== undefined) clean.consentScope = payload.consentScope;
   if (payload.consentNotes !== undefined) clean.consentNotes = payload.consentNotes.trim();
-  if (payload.consentStatus === "verified") clean.consentVerifiedAt = new Date(payload.consentVerifiedAt);
+  if (payload.consentStatus === "verified") clean.consentVerifiedAt = new Date();
   if (payload.consentStatus === "withdrawn") clean.consentWithdrawnAt = new Date();
   if (payload.consentStatus && payload.consentStatus !== "withdrawn") clean.consentWithdrawnAt = null;
   if (payload.consentStatus && payload.consentStatus !== "verified") clean.consentVerifiedAt = null;
@@ -141,8 +139,6 @@ export function validatePublicationPayload(payload = {}, { creating = false } = 
   if (payload.consentNotes !== undefined && (typeof payload.consentNotes !== "string" || payload.consentNotes.trim().length > 500)) errors.push("Consent notes must be no more than 500 characters");
   if (payload.identifiablePeople === true && payload.consentStatus === "verified" && !["website", "website-and-social", "all-public"].includes(payload.consentScope)) errors.push("Verified consent must explicitly include public website use");
   if (payload.identifiablePeople === true && payload.consentStatus === "verified" && (!payload.consentNotes || !payload.consentNotes.trim())) errors.push("Add a non-sensitive consent reference before verifying publication consent");
-  if (payload.consentStatus === "verified" && !payload.consentVerifiedAt) errors.push("Verified consent must include its verification date");
-  if (payload.consentVerifiedAt && !Number.isFinite(new Date(payload.consentVerifiedAt).getTime())) errors.push("Consent verification date is invalid");
   return errors;
 }
 
