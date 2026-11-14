@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 const publicNavItems = [
   { label: "Services", href: "#services" },
   { label: "News & Stories", href: "#stories" },
-  { label: "Gallery", href: "#stories" },
+  { label: "Gallery", href: "#stories", tab: "gallery" },
   { label: "Care Process", href: "#operations" },
   { label: "Referrals", href: "#referrals" },
   { label: "Contact", href: "#contact" }
@@ -98,7 +98,10 @@ export function Header({ staffMode = false }) {
 
       <nav className={open ? "nav nav-open" : "nav"} aria-label="Primary navigation" id="primary-navigation">
         {navItems.map((item) => (
-          <a key={item.href} href={item.href} onClick={() => setOpen(false)}>
+          <a key={item.label} href={item.href} onClick={() => {
+            setOpen(false);
+            if (item.tab) window.dispatchEvent(new CustomEvent("mindful:public-content-tab", { detail: { tab: item.tab } }));
+          }}>
             {item.label}
           </a>
         ))}
