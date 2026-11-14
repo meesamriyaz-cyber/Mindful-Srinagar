@@ -18,8 +18,12 @@ const mediaAssetSchema = new mongoose.Schema({
   tags: { type: [String], default: [] },
   identifiablePeople: { type: Boolean, default: false },
   consentStatus: { type: String, enum: ["not-required", "pending", "verified", "withdrawn"], default: "not-required" },
+  consentScope: { type: String, enum: ["internal-only", "website", "website-and-social", "all-public"], default: "internal-only" },
+  consentNotes: { type: String, trim: true, maxlength: 500, default: "" },
   consentVerifiedAt: { type: Date, default: null },
+  consentVerifiedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   consentWithdrawnAt: { type: Date, default: null },
+  consentWithdrawnBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   uploadedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   status: { type: String, enum: ["ready", "archived"], default: "ready" }
 }, { timestamps: true });
