@@ -55,7 +55,7 @@ export function MediaLibrary({ token }) {
   }, [token, page, query, type, category, status]);
 
   useEffect(() => { load(1); }, [query, type, category, status, load]);
-  useEffect(() => { if (selected) setMeta({ ...emptyMeta, ...selected, tags: (selected.tags || []).join(", ") }); }, [selected]);
+  useEffect(() => { if (selected) setMeta({ title: selected.title || "", caption: selected.caption || "", description: selected.description || "", altText: selected.altText || "", category: selected.category || "other", tags: (selected.tags || []).join(", "), identifiablePeople: Boolean(selected.identifiablePeople), consentStatus: selected.consentStatus || "not-required", consentScope: selected.consentScope || "internal-only", consentNotes: selected.consentNotes || "" }); }, [selected]);
 
   const uploadFiles = async (event) => {
     const files = Array.from(event.target.files || []);
@@ -103,7 +103,7 @@ export function MediaLibrary({ token }) {
     finally { setUploading(false); setProgress({ current: 0, total: 0, name: "" }); }
   };
 
-  const openEditor = (asset) => { setSelected(asset); setMeta({ ...emptyMeta, ...asset, tags: (asset.tags || []).join(", ") }); };
+  const openEditor = (asset) => { setSelected(asset); setMeta({ title: asset.title || "", caption: asset.caption || "", description: asset.description || "", altText: asset.altText || "", category: asset.category || "other", tags: (asset.tags || []).join(", "), identifiablePeople: Boolean(asset.identifiablePeople), consentStatus: asset.consentStatus || "not-required", consentScope: asset.consentScope || "internal-only", consentNotes: asset.consentNotes || "" }); };
   const saveMetadata = async (event) => {
     event.preventDefault(); if (!selected) return;
     setSaving(true); setError("");
