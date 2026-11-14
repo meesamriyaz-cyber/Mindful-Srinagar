@@ -128,6 +128,10 @@ export async function updatePublication(req, res, next) {
   }
 }
 
+function isSafePublicAsset(asset) {
+  return !asset || (!asset.identifiablePeople || (asset.consentStatus === "verified" && ["website", "website-and-social", "all-public"].includes(asset.consentScope))) && asset.consentStatus !== "withdrawn";
+}
+
 function hasSafeRelatedMedia(publication) {
   const assets = [publication?.coverMedia, ...(publication?.mediaItems || [])].filter(Boolean);
   return assets.every((asset) => !asset.identifiablePeople || (asset.consentStatus === "verified" && ["website", "website-and-social", "all-public"].includes(asset.consentScope))) &&
@@ -143,13 +147,12 @@ export async function listPublicMedia(req, res, next) {
     if (typeof req.query.category === "string" && req.query.category.trim()) filter.category = req.query.category.trim();
     const [items, total] = await Promise.all([
       Publication.find(filter)
-        .select("title slug type summary category tags coverMedia mediaItems eventDate venue publishedAt identifiablePeople consentStatus consentScope")
+        .select("title slug type summary category tags coverMedia eventDate venue publishedAt identifiablePeople consentStatus consentScope")
         .populate("coverMedia", "secureUrl resourceType format title identifiablePeople consentStatus consentScope")
-        .populate("mediaItems", "identifiablePeople consentStatus consentScope")
         .sort({ publishedAt: -1, createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
       Publication.countDocuments(filter)
     ]);
-    const visible = items.filter((item) => canExposePublication(item) && hasSafeRelatedMedia(item));
+    const visible = items.filter(canExposePublication).map((item) => ({ ...item, coverMedia: isSafePublicAsset(item.coverMedia) ? item.coverMedia : null }));
     return res.json({ items: visible, total, page, limit, pages: Math.ceil(total / limit) });
   } catch (error) {
     return next(error);
