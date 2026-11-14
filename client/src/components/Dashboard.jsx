@@ -1467,6 +1467,8 @@ export function Dashboard() {
               >
               {activeView === "media-library" && ["director", "admin"].includes(session.user?.role) ? (
                 <MediaLibrary token={session.token} />
+              ) : activeView === "content-studio" && ["director", "admin"].includes(session.user?.role) ? (
+                <ContentStudio token={session.token} />
               ) : activeView === "staff" ? (
                 <StaffBoard token={session.token} currentRole={session.user?.role} onChanged={() => setResourceRefresh((value) => value + 1)} />
               ) : activeView === "practitioners" ? (
