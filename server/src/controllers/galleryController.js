@@ -45,7 +45,7 @@ function publicGallery(gallery) {
   const mediaItems = (value.mediaItems || []).map(toPublicGalleryAsset).filter(Boolean);
   return {
     _id: value._id, title: value.title, slug: value.slug, description: value.description,
-    category: value.category, coverMedia: toPublicGalleryAsset(value.coverMedia), mediaItems,
+    category: value.category, coverMedia: toPublicGalleryAsset(value.coverMedia) || mediaItems[0] || null, mediaItems,
     eventDate: value.eventDate, publishedAt: value.publishedAt
   };
 }
@@ -150,7 +150,7 @@ export async function listPublicGalleries(req, res, next) {
     const filter = { status: "published" };
     if (typeof req.query.category === "string" && req.query.category.trim()) filter.category = req.query.category.trim();
     const [items, total] = await Promise.all([
-      Gallery.find(filter).populate("coverMedia").populate("mediaItems").sort({ publishedAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+      Gallery.find(filter).populate({ path: "coverMedia", select: "_id title caption altText secureUrl resourceType format status identifiablePeople consentStatus consentScope" }).populate({ path: "mediaItems", select: "_id title caption altText secureUrl resourceType format status identifiablePeople consentStatus consentScope" }).sort({ publishedAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
       Gallery.countDocuments(filter)
     ]);
     return res.json({ items: items.map(publicGallery), total, page, limit, pages: Math.ceil(total / limit) });
@@ -159,7 +159,7 @@ export async function listPublicGalleries(req, res, next) {
 
 export async function getPublicGallery(req, res, next) {
   try {
-    const gallery = await Gallery.findOne({ slug: req.params.slug, status: "published" }).populate("coverMedia").populate("mediaItems");
+    const gallery = await Gallery.findOne({ slug: req.params.slug, status: "published" }).populate({ path: "coverMedia", select: "_id title caption altText secureUrl resourceType format status identifiablePeople consentStatus consentScope" }).populate({ path: "mediaItems", select: "_id title caption altText secureUrl resourceType format status identifiablePeople consentStatus consentScope" });
     if (!gallery) return res.status(404).json({ message: "Gallery not found" });
     return res.json(publicGallery(gallery));
   } catch (error) { return next(error); }
