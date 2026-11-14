@@ -40,7 +40,7 @@ function toPublicGalleryAsset(asset) {
   return { _id: asset._id, title: asset.title, caption: asset.caption, altText: asset.altText, secureUrl: asset.secureUrl, resourceType: asset.resourceType, format: asset.format };
 }
 
-function publicGallery(gallery) {
+export function publicGallery(gallery) {
   const value = typeof gallery.toObject === "function" ? gallery.toObject() : gallery;
   const mediaItems = (value.mediaItems || []).map(toPublicGalleryAsset).filter(Boolean);
   return {
