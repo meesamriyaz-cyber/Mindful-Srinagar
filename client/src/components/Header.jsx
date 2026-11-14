@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 
 const publicNavItems = [
   { label: "Services", href: "#services" },
+  { label: "News & Stories", href: "#stories" },
+  { label: "Gallery", href: "#stories" },
   { label: "Care Process", href: "#operations" },
   { label: "Referrals", href: "#referrals" },
   { label: "Contact", href: "#contact" }
@@ -48,7 +50,7 @@ export function Header({ staffMode = false }) {
       },
       { threshold: 0.12, rootMargin: "0px 0px -5% 0px" }
     );
-    ["home", "services", "operations", "referrals", "contact"].forEach((id) => {
+    ["home", "services", "stories", "operations", "referrals", "contact"].forEach((id) => {
       const section = document.getElementById(id);
       if (section) sectionObserver.observe(section);
     });
