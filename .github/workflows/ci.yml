@@ -3,10 +3,12 @@ name: Mindful CI
 on:
   pull_request:
     branches:
+      - feature/admin-media-library
       - mvp/batch-4-clinical-governance
       - content/homepage-centre-identity
   push:
     branches:
+      - feature/admin-media-library
       - mvp/batch-3-billing-operations-inventory
       - mvp/batch-4-clinical-governance
       - mvp/batch-5-release-readiness
