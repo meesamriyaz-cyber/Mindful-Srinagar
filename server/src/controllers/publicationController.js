@@ -156,7 +156,14 @@ export async function listPublicMedia(req, res, next) {
   try {
     const limit = Math.min(Math.max(Number.parseInt(req.query.limit, 10) || 12, 1), 50);
     const page = Math.max(Number.parseInt(req.query.page, 10) || 1, 1);
-    const filter = { status: "published", consentStatus: { $ne: "withdrawn" } };
+    const filter = {
+      status: "published",
+      consentStatus: { $ne: "withdrawn" },
+      $or: [
+        { identifiablePeople: { $ne: true } },
+        { identifiablePeople: true, consentStatus: "verified", consentScope: { $in: ["website", "website-and-social", "all-public"] } }
+      ]
+    };
     if (["article", "news", "event"].includes(req.query.type)) filter.type = req.query.type;
     if (typeof req.query.category === "string" && req.query.category.trim()) filter.category = req.query.category.trim();
     const [items, total] = await Promise.all([
@@ -188,8 +195,8 @@ export async function listPublicMedia(req, res, next) {
 export async function getPublicPublication(req, res, next) {
   try {
     const publication = await Publication.findOne({ slug: req.params.slug, status: "published", consentStatus: { $ne: "withdrawn" } })
-      .select("title slug type summary body category tags coverMedia mediaItems eventDate venue publishedAt identifiablePeople consentStatus")
-      .populate("coverMedia", "secureUrl resourceType format title identifiablePeople consentStatus")
+      .select("title slug type summary body category tags coverMedia mediaItems eventDate venue publishedAt identifiablePeople consentStatus consentScope")
+      .populate("coverMedia", "secureUrl resourceType format title identifiablePeople consentStatus consentScope")
       .populate("mediaItems", "secureUrl resourceType format title caption altText identifiablePeople consentStatus consentScope");
     if (!canExposePublication(publication) || !hasSafeRelatedMedia(publication)) return res.status(404).json({ message: "Publication not found" });
     const value = publication.toObject();
