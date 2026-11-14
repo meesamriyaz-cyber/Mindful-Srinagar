@@ -1,6 +1,7 @@
 import { ArrowRight, MapPin, ShieldCheck } from "lucide-react";
 import React, { lazy, Suspense } from "react";
 import { useDeferredMount } from "../hooks/useDeferredMount.js";
+import { CelebrationConfetti } from "./CelebrationConfetti.jsx";
 
 const ThreeOperationsScene = lazy(() =>
   import("./ThreeOperationsScene.jsx").then((module) => ({ default: module.ThreeOperationsScene }))
@@ -11,6 +12,7 @@ export function Hero() {
 
   return (
     <section className="hero" id="home">
+      <CelebrationConfetti />
       <div className="hero-copy">
         <div className="hero-identity" aria-label="Mindful Centre for Rehabilitation Research and Training Foundation for Persons with Disabilities">
           <p className="hero-identity-name">Mindful</p>
