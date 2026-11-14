@@ -1,9 +1,12 @@
-import React, { useLayoutEffect, useMemo, useState } from "react";
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { celebrationConfig, CELEBRATION_STORAGE_KEY } from "../config/celebration.js";
 
 export function CelebrationConfetti() {
   const [visible, setVisible] = useState(false);
   const [fading, setFading] = useState(false);
+  // React StrictMode replays layout effects in development. Keep the storage
+  // counter from being incremented twice during that replay.
+  const runCounted = useRef(false);
 
   const pieces = useMemo(
     () =>
@@ -23,10 +26,18 @@ export function CelebrationConfetti() {
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return undefined;
 
     try {
-      const completedRuns = Number(window.localStorage.getItem(CELEBRATION_STORAGE_KEY) || 0);
-      if (!Number.isFinite(completedRuns) || completedRuns >= celebrationConfig.maxRuns) return undefined;
+      if (!runCounted.current) {
+        const completedRuns = Number(window.localStorage.getItem(CELEBRATION_STORAGE_KEY) || 0);
+        if (!Number.isFinite(completedRuns) || completedRuns >= celebrationConfig.maxRuns) {
+          return undefined;
+        }
 
-      window.localStorage.setItem(CELEBRATION_STORAGE_KEY, String(completedRuns + 1));
+        window.localStorage.setItem(CELEBRATION_STORAGE_KEY, String(completedRuns + 1));
+        runCounted.current = true;
+      }
+
+      // Re-establish the timers if StrictMode has replayed this effect.
+      setFading(false);
       setVisible(true);
 
       const fadeTimer = window.setTimeout(
@@ -43,8 +54,7 @@ export function CelebrationConfetti() {
         window.clearTimeout(removeTimer);
       };
     } catch {
-      // If storage is unavailable, skip the celebration rather than replaying
-      // it on every render or disrupting the visitor's experience.
+      // Storage may be unavailable in private or restricted browsing modes.
       return undefined;
     }
   }, []);
