@@ -64,8 +64,9 @@ async function cloudinaryRequest(path, { method = "GET", body, env = process.env
   const response = await fetch(url, { method, headers, body: requestBody, signal: AbortSignal.timeout(15000) });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    const error = new Error(data.error?.message || "Cloudinary request failed");
-    error.statusCode = response.status === 404 ? 404 : 502;
+    const detail = data.error?.message || data.message || `Cloudinary returned HTTP ${response.status}`;
+    const error = new Error(detail);
+    error.statusCode = response.status === 404 ? 404 : response.status === 429 ? 503 : 502;
     throw error;
   }
   return data;
@@ -82,7 +83,7 @@ export async function fetchCloudinaryAsset(publicId, resourceType, options = {})
 export async function destroyCloudinaryAsset(publicId, resourceType, options = {}) {
   const data = await cloudinaryRequest("resources/" + resourceType + "/upload", {
     ...options,
-    method: "POST",
+    method: "DELETE",
     body: { "public_ids[]": publicId }
   });
   const result = data.deleted?.[publicId];
