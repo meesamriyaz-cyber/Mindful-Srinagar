@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createGallerySlug, isGalleryAssetPublic, validateGalleryPayload } from "../controllers/galleryController.js";
+import { createGallerySlug, isGalleryAssetPublic, publicGallery, validateGalleryPayload } from "../controllers/galleryController.js";
 
 test("gallery slugs are normalized and URL-safe", () => {
   assert.equal(createGallerySlug("Mindful Centre — Community Workshop!"), "mindful-centre-community-workshop");
@@ -22,4 +22,31 @@ test("public gallery assets exclude archived, withdrawn and unapproved identifia
   assert.equal(isGalleryAssetPublic({ status: "ready", identifiablePeople: true, consentStatus: "verified", consentScope: "internal-only" }), false);
   assert.equal(isGalleryAssetPublic({ status: "ready", identifiablePeople: true, consentStatus: "verified", consentScope: "website" }), true);
   assert.equal(isGalleryAssetPublic({ status: "ready", identifiablePeople: false, consentStatus: "withdrawn" }), false);
+});
+
+test("public gallery serialization includes approved populated image URLs and uses a media fallback cover", () => {
+  const image = {
+    _id: "asset-image-1",
+    title: "Community activity",
+    caption: "A centre activity",
+    altText: "People taking part in a centre activity",
+    secureUrl: "https://res.cloudinary.com/mindful-demo/image/upload/activity.jpg",
+    resourceType: "image",
+    format: "jpg",
+    status: "ready",
+    identifiablePeople: false,
+    consentStatus: "not-required"
+  };
+  const result = publicGallery({
+    _id: "gallery-1",
+    title: "Centre activities",
+    slug: "centre-activities",
+    category: "centre-activities",
+    mediaItems: [image],
+    coverMedia: null
+  });
+  assert.equal(result.coverMedia.secureUrl, image.secureUrl);
+  assert.equal(result.mediaItems.length, 1);
+  assert.equal(result.mediaItems[0].secureUrl, image.secureUrl);
+  assert.equal(result.mediaItems[0].altText, image.altText);
 });
