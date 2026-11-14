@@ -6,7 +6,7 @@ export function createMediaUploadSignature(resourceType, options) {
 }
 
 export async function verifyUploadedMedia(publicId, resourceType, options = {}) {
-  if (typeof publicId !== "string" || !publicId.startsWith(mediaStoragePolicy.folder + "/") || publicId.length > 240) {
+  if (typeof publicId !== "string" || !publicId.trim() || publicId.length > 240 || publicId.includes("\\\\") || publicId.split("/").includes("..")) {
     const error = new Error("A valid asset from the Mindful media upload folder is required");
     error.statusCode = 400;
     throw error;
