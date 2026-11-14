@@ -33,6 +33,8 @@ test("Cloudinary signatures are deterministic and do not expose the API secret",
   const signature = createUploadSignature("image", { env: cloudinaryEnv, now: () => 1700000000 });
   assert.equal(signature.timestamp, 1700000000);
   assert.equal(signature.folder, "mindful/media");
+  assert.deepEqual(signature.signedParams, { timestamp: 1700000000, folder: "mindful/media", allowed_formats: "jpg,jpeg,png,webp" });
+  assert.equal(signature.maxBatchCount, 20);
   assert.deepEqual(signature.allowedFormats, ["jpg", "jpeg", "png", "webp"]);
   assert.equal(signature.maxBytes, 10485760);
   assert.equal(signature.signature, signCloudinaryParams({
