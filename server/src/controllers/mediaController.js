@@ -67,13 +67,17 @@ export async function updateMediaAsset(req, res, next) {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid media ID is required" });
     const payload = req.body && typeof req.body === "object" && !Array.isArray(req.body) ? req.body : {};
-    const unexpected = Object.keys(payload).find((key) => !allowedMetadataFields.includes(key));
+    const unexpected = Object.keys(payload).find((key) => ![...allowedMetadataFields, "status"].includes(key));
     if (unexpected) return res.status(400).json({ message: "Unsupported field: " + unexpected });
-    const errors = validateMediaMetadata(payload);
+    if (payload.status !== undefined && !["ready", "archived"].includes(payload.status)) return res.status(400).json({ message: "Media status must be ready or archived" });
+    const metadataPayload = { ...payload };
+    delete metadataPayload.status;
+    const errors = validateMediaMetadata(metadataPayload);
     if (errors.length) return sendValidationError(res, errors);
     const asset = await MediaAsset.findById(req.params.id);
     if (!asset) return res.status(404).json({ message: "Media asset not found" });
-    const metadata = normalizeMediaMetadata(payload);
+    const metadata = normalizeMediaMetadata(metadataPayload);
+    if (payload.status !== undefined) metadata.status = payload.status;
     if (metadata.consentStatus === "verified") metadata.consentVerifiedBy = req.user._id;
     if (metadata.consentStatus && metadata.consentStatus !== "verified") metadata.consentVerifiedBy = null;
     if (metadata.consentStatus === "withdrawn") metadata.consentWithdrawnBy = req.user._id;
