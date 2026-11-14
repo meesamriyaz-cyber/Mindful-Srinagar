@@ -5,7 +5,7 @@ import { Publication } from "../models/Publication.js";
 import { createMediaUploadSignature, removeCloudinaryMedia, verifyUploadedMedia } from "../services/mediaService.js";
 import { normalizeMediaMetadata, validateMediaMetadata } from "../security/mediaRules.js";
 
-const allowedMetadataFields = ["title", "caption", "description", "altText", "category", "tags", "identifiablePeople", "consentStatus", "consentScope", "consentNotes", "consentVerifiedAt"];
+const allowedMetadataFields = ["title", "caption", "description", "altText", "category", "tags", "identifiablePeople", "consentStatus", "consentScope", "consentNotes"];
 
 function sendValidationError(res, errors) {
   return res.status(400).json({ message: errors[0], errors });
