@@ -49,7 +49,7 @@ function renderBody(node, key = "root") {
 }
 
 function ContentCard({ item, onOpen, gallery = false }) {
-  const media = item.coverMedia || item.mediaItems?.[0];
+  const media = item.coverMedia?.secureUrl ? item.coverMedia : item.mediaItems?.find((asset) => asset?.secureUrl);
   return (
     <article className={gallery ? "public-gallery-card" : "public-story-card"}>
       <button type="button" className="public-content-card-media" onClick={() => onOpen(item)} aria-label={`Open ${item.title}`}>
@@ -198,14 +198,14 @@ export function PublicContent() {
             <button type="button" className="public-content-close" onClick={() => { detailRequestId.current += 1; setSelected(null); }} aria-label="Close"><X size={21} /></button>
             {detailLoading ? <div className="public-content-state"><LoaderCircle className="public-content-spinner" size={24} /><span>Opening…</span></div> : detailError ? <div className="public-content-state public-content-error">{detailError}</div> : (
               <>
-                <div className="public-detail-hero"><MediaPreview media={selected.coverMedia || selected.mediaItems?.[0]} /></div>
+                <div className="public-detail-hero"><MediaPreview media={selected.coverMedia?.secureUrl ? selected.coverMedia : selected.mediaItems?.find((asset) => asset?.secureUrl)} /></div>
                 <div className="public-detail-copy">
                   <div className="public-content-meta"><span>{isGallery ? selected.category || "Gallery" : selected.type}</span><time>{formatDate(selected.eventDate || selected.publishedAt)}</time></div>
                   <h2>{selected.title}</h2>
                   {selected.summary && <p className="public-detail-summary">{selected.summary}</p>}
                   {selected.eventDate && <p className="public-detail-venue"><CalendarDays size={17} />{formatDate(selected.eventDate, { weekday: "long" })}{selected.venue ? <><span aria-hidden="true">·</span><MapPin size={16} />{selected.venue}</> : null}</p>}
                   {isGallery ? <p>{selected.description}</p> : renderBody(selected.body)}
-                  {selected.mediaItems?.length > 0 && <div className="public-detail-media-grid">{selected.mediaItems.map((media) => <a key={media._id} href={media.secureUrl} target="_blank" rel="noreferrer" aria-label={media.title || "Open media in a new tab"}><MediaPreview media={media} /></a>)}</div>}
+                  {selected.mediaItems?.some((media) => media?.secureUrl) && <div className="public-detail-media-grid">{selected.mediaItems.filter((media) => media?.secureUrl).map((media) => <a key={media._id} href={media.secureUrl} target="_blank" rel="noreferrer" aria-label={media.title || "Open media in a new tab"}><MediaPreview media={media} /></a>)}</div>}
                 </div>
               </>
             )}
