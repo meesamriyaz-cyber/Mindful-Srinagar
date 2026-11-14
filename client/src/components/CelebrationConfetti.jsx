@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
 import Confetti from "react-confetti";
+import { createPortal } from "react-dom";
 import { celebrationConfig, CELEBRATION_STORAGE_KEY } from "../config/celebration.js";
 
 export function CelebrationConfetti() {
@@ -67,7 +68,7 @@ export function CelebrationConfetti() {
 
   if (!visible) return null;
 
-  return (
+  return createPortal(
     <div
       className={`mindful-confetti${fading ? " is-fading" : ""}`}
       aria-hidden="true"
@@ -81,6 +82,7 @@ export function CelebrationConfetti() {
         tweenDuration={celebrationConfig.tweenDuration}
         colors={celebrationConfig.colors}
       />
-    </div>
+    </div>,
+    document.body
   );
 }
