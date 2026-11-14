@@ -5,7 +5,7 @@ import { Publication } from "../models/Publication.js";
 import { createMediaUploadSignature, removeCloudinaryMedia, verifyUploadedMedia } from "../services/mediaService.js";
 import { normalizeMediaMetadata, validateMediaMetadata } from "../security/mediaRules.js";
 
-const allowedMetadataFields = ["title", "caption", "description", "altText", "category", "tags", "identifiablePeople", "consentStatus", "consentVerifiedAt"];
+const allowedMetadataFields = ["title", "caption", "description", "altText", "category", "tags", "identifiablePeople", "consentStatus", "consentScope", "consentNotes", "consentVerifiedAt"];
 
 function sendValidationError(res, errors) {
   return res.status(400).json({ message: errors[0], errors });
@@ -30,6 +30,9 @@ export async function registerMediaAsset(req, res, next) {
     const verified = await verifyUploadedMedia(payload.publicId, payload.resourceType);
     const metadata = normalizeMediaMetadata(payload);
     if (metadata.identifiablePeople === true && !metadata.consentStatus) metadata.consentStatus = "pending";
+    if (metadata.consentStatus === "verified") metadata.consentVerifiedBy = req.user._id;
+    if (metadata.consentStatus !== "verified") metadata.consentVerifiedBy = null;
+    if (metadata.consentStatus === "withdrawn") metadata.consentWithdrawnBy = req.user._id;
     const asset = await MediaAsset.create({ ...verified, ...metadata, uploadedBy: req.user._id });
     return res.status(201).json(asset);
   } catch (error) {
@@ -70,7 +73,11 @@ export async function updateMediaAsset(req, res, next) {
     if (errors.length) return sendValidationError(res, errors);
     const asset = await MediaAsset.findById(req.params.id);
     if (!asset) return res.status(404).json({ message: "Media asset not found" });
-    Object.assign(asset, normalizeMediaMetadata(payload));
+    const metadata = normalizeMediaMetadata(payload);
+    if (metadata.consentStatus === "verified") metadata.consentVerifiedBy = req.user._id;
+    if (metadata.consentStatus && metadata.consentStatus !== "verified") metadata.consentVerifiedBy = null;
+    if (metadata.consentStatus === "withdrawn") metadata.consentWithdrawnBy = req.user._id;
+    Object.assign(asset, metadata);
     await asset.save();
     return res.json(asset);
   } catch (error) {
