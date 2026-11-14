@@ -61,7 +61,7 @@ async function cloudinaryRequest(path, { method = "GET", body, env = process.env
     headers["Content-Type"] = "application/x-www-form-urlencoded";
     requestBody = new URLSearchParams(body);
   }
-  const response = await fetch(url, { method, headers, body: requestBody });
+  const response = await fetch(url, { method, headers, body: requestBody, signal: AbortSignal.timeout(15000) });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     const error = new Error(data.error?.message || "Cloudinary request failed");
