@@ -111,6 +111,7 @@ export function PublicContent() {
   }, [activeTab, currentTab.type]);
 
   useEffect(() => {
+    detailRequestId.current += 1;
     setSelected(null);
     setDetailError("");
     setItems([]);
