@@ -24,15 +24,26 @@ export function Header({ staffMode = false }) {
       return undefined;
     }
 
-    // Keep the emblem visible only while the hero reaches the top of the
-    // viewport; this prevents it lingering into the Services section.
-    const observer = new IntersectionObserver(
-      ([entry]) => setHeroVisible(entry.isIntersecting),
-      { threshold: 0, rootMargin: "0px 0px -90% 0px" }
-    );
+    // Show the emblem only while some of the hero remains visible below
+    // the site header. A narrow root-margin band can still intersect the
+    // hero after Services has entered, so use the actual section geometry.
+    const updateHeroVisibility = () => {
+      const heroRect = hero.getBoundingClientRect();
+      const headerBottom = document.querySelector(".site-header")?.getBoundingClientRect().bottom ?? 0;
+      const visibleBelowHeader = heroRect.bottom > headerBottom + 2 && heroRect.top < window.innerHeight;
+      setHeroVisible(visibleBelowHeader);
+    };
 
+    const observer = new IntersectionObserver(updateHeroVisibility, { threshold: 0 });
     observer.observe(hero);
-    return () => observer.disconnect();
+    window.addEventListener("scroll", updateHeroVisibility, { passive: true });
+    window.addEventListener("resize", updateHeroVisibility);
+    updateHeroVisibility();
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", updateHeroVisibility);
+      window.removeEventListener("resize", updateHeroVisibility);
+    };
   }, [staffMode]);
 
   const navItems = staffMode ? [{ label: "Public website", href: "#home" }] : publicNavItems;
