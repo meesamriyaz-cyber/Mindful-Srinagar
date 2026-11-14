@@ -3,7 +3,7 @@ import { MediaAsset } from "../models/MediaAsset.js";
 import { Publication } from "../models/Publication.js";
 import { canExposePublication, createPublicationSlug, validateEditorDocument, validatePublicationPayload } from "../security/mediaRules.js";
 
-const publicationFields = ["title", "type", "summary", "body", "category", "tags", "coverMedia", "mediaItems", "eventDate", "venue", "identifiablePeople", "consentStatus", "consentVerifiedAt"];
+const publicationFields = ["title", "type", "summary", "body", "category", "tags", "coverMedia", "mediaItems", "eventDate", "venue", "identifiablePeople", "consentStatus", "consentScope", "consentNotes", "consentVerifiedAt"];
 
 function validationResponse(res, errors) {
   return res.status(400).json({ message: errors[0], errors });
@@ -15,7 +15,7 @@ async function validateMediaReferences(payload) {
   if (!ids.length) return null;
   const assets = await MediaAsset.find({ _id: { $in: ids }, status: "ready" }).select("_id identifiablePeople consentStatus").lean();
   if (assets.length !== ids.length) return "Every publication media reference must point to an available media asset";
-  if (assets.some((asset) => asset.identifiablePeople && asset.consentStatus !== "verified")) return "Media showing identifiable people requires verified consent before it can be attached to a publication";
+  if (assets.some((asset) => asset.identifiablePeople && (asset.consentStatus !== "verified" || !["website", "website-and-social", "all-public"].includes(asset.consentScope)))) return "Media showing identifiable people requires verified website consent before it can be attached to a publication";
   if (assets.some((asset) => asset.consentStatus === "withdrawn")) return "Media with withdrawn consent cannot be attached to a publication";
   return null;
 }
@@ -49,7 +49,9 @@ export async function createPublication(req, res, next) {
       ...normalizePublicationPayload(payload),
       slug: createPublicationSlug(payload.title),
       createdBy: req.user._id,
-      updatedBy: req.user._id
+      updatedBy: req.user._id,
+      ...(payload.consentStatus === "verified" ? { consentVerifiedBy: req.user._id } : {}),
+      ...(payload.consentStatus === "withdrawn" ? { consentWithdrawnBy: req.user._id } : {})
     });
     return res.status(201).json(publication);
   } catch (error) {
@@ -112,7 +114,11 @@ export async function updatePublication(req, res, next) {
       if (duplicate) return res.status(409).json({ message: "A publication with this title already exists. Change the title to create a unique URL." });
       publication.slug = nextSlug;
     }
-    Object.assign(publication, normalizePublicationPayload(payload), { updatedBy: req.user._id });
+    const normalized = normalizePublicationPayload(payload);
+    if (normalized.consentStatus === "verified") normalized.consentVerifiedBy = req.user._id;
+    if (normalized.consentStatus && normalized.consentStatus !== "verified") normalized.consentVerifiedBy = null;
+    if (normalized.consentStatus === "withdrawn") normalized.consentWithdrawnBy = req.user._id;
+    Object.assign(publication, normalized, { updatedBy: req.user._id });
     await publication.save();
     return res.json(publication);
   } catch (error) {
@@ -122,7 +128,7 @@ export async function updatePublication(req, res, next) {
 
 function hasSafeRelatedMedia(publication) {
   const assets = [publication?.coverMedia, ...(publication?.mediaItems || [])].filter(Boolean);
-  return assets.every((asset) => !asset.identifiablePeople || asset.consentStatus === "verified") &&
+  return assets.every((asset) => !asset.identifiablePeople || (asset.consentStatus === "verified" && ["website", "website-and-social", "all-public"].includes(asset.consentScope))) &&
     assets.every((asset) => asset.consentStatus !== "withdrawn");
 }
 
