@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { MediaAsset } from "../models/MediaAsset.js";
 import { Publication } from "../models/Publication.js";
-import { canExposePublication, createPublicationSlug, validateEditorDocument, validatePublicationPayload } from "../security/mediaRules.js";
+import { canExposeMediaAsset, canExposePublication, createPublicationSlug, validateEditorDocument, validatePublicationPayload } from "../security/mediaRules.js";
 
 const publicationFields = ["title", "type", "summary", "body", "category", "tags", "coverMedia", "mediaItems", "eventDate", "venue", "identifiablePeople", "consentStatus", "consentScope", "consentNotes"];
 
@@ -74,7 +74,7 @@ export async function listPublications(req, res, next) {
       if (safeQuery) filter.$or = [{ title: new RegExp(safeQuery, "i") }, { summary: new RegExp(safeQuery, "i") }, { tags: new RegExp(safeQuery, "i") }];
     }
     const [items, total] = await Promise.all([
-      Publication.find(filter).populate("coverMedia", "title secureUrl resourceType format").populate("createdBy updatedBy", "name role").sort({ updatedAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
+      Publication.find(filter).populate("coverMedia", "title secureUrl resourceType format status identifiablePeople consentStatus consentScope").populate("createdBy updatedBy", "name role").sort({ updatedAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
       Publication.countDocuments(filter)
     ]);
     return res.json({ items, total, page, limit, pages: Math.ceil(total / limit) });
@@ -130,7 +130,7 @@ export async function updatePublication(req, res, next) {
 }
 
 function isSafePublicAsset(asset) {
-  return !asset || (!asset.identifiablePeople || (asset.consentStatus === "verified" && ["website", "website-and-social", "all-public"].includes(asset.consentScope))) && asset.consentStatus !== "withdrawn";
+  return canExposeMediaAsset(asset);
 }
 
 function toPublicMediaAsset(asset) {
@@ -165,7 +165,7 @@ export async function listPublicMedia(req, res, next) {
     const [items, total] = await Promise.all([
       Publication.find(filter)
         .select("title slug type summary category tags coverMedia eventDate venue publishedAt identifiablePeople consentStatus consentScope")
-        .populate("coverMedia", "secureUrl resourceType format title identifiablePeople consentStatus consentScope")
+        .populate("coverMedia", "secureUrl resourceType format title status identifiablePeople consentStatus consentScope")
         .sort({ publishedAt: -1, createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
       Publication.countDocuments(filter)
     ]);
@@ -193,7 +193,7 @@ export async function getPublicPublication(req, res, next) {
     const publication = await Publication.findOne({ slug: req.params.slug, status: "published", consentStatus: { $ne: "withdrawn" } })
       .select("title slug type summary body category tags coverMedia mediaItems eventDate venue publishedAt identifiablePeople consentStatus consentScope")
       .populate("coverMedia", "secureUrl resourceType format title identifiablePeople consentStatus consentScope")
-      .populate("mediaItems", "secureUrl resourceType format title caption altText identifiablePeople consentStatus consentScope");
+      .populate("mediaItems", "secureUrl resourceType format title caption altText status identifiablePeople consentStatus consentScope");
     if (!canExposePublication(publication)) return res.status(404).json({ message: "Publication not found" });
     const value = publication.toObject();
     return res.json({
