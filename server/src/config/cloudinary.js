@@ -46,7 +46,8 @@ export function createUploadSignature(resourceType, { env = process.env, now = (
     timestamp: params.timestamp,
     signature: signCloudinaryParams(params, config.apiSecret),
     allowedFormats: formats,
-    maxBytes: resourceType === "image" ? limits.imageMaxBytes : limits.videoMaxBytes
+    maxBytes: resourceType === "image" ? limits.imageMaxBytes : limits.videoMaxBytes,
+    maxBatchCount: resourceType === "image" ? limits.imageBatchLimit : limits.videoBatchLimit
   };
 }
 
