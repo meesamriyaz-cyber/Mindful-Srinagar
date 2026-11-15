@@ -95,8 +95,10 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .dashboard-section .staff-management-board .staff-directory-grid,
   .dashboard-section .staff-management-board .staff-record-grid,
-  .dashboard-section .clinical-record-grid {
+  .dashboard-section .clinical-record-grid,
+  .dashboard-section .practitioner-record-grid {
     grid-template-columns: minmax(0, 1fr);
   }
 }
@@ -217,5 +219,60 @@
   .dashboard-section .action-panel:hover,
   .dashboard-section .side-link:hover {
     transform: none !important;
+  }
+}
+
+
+/* Role-specific practitioner directory and clinical record layouts. */
+@media (max-width: 900px) {
+  .dashboard-section .practitioner-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(150px, .8fr);
+  }
+
+  .dashboard-section .practitioner-toolbar .practitioner-filter-reset {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  .dashboard-section .practitioner-record-grid,
+  .dashboard-section .clinical-record-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .dashboard-section .practitioner-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+
+  .dashboard-section .practitioner-toolbar .practitioner-filter-reset {
+    grid-column: auto;
+    justify-self: start;
+  }
+
+  .dashboard-section .practitioner-record-grid,
+  .dashboard-section .clinical-record-grid,
+  .dashboard-section .staff-management-board .staff-directory-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-section .clinical-board-heading {
+    grid-template-columns: 28px minmax(0, 1fr);
+  }
+
+  .dashboard-section .clinical-board-heading .resource-count {
+    display: block;
+    overflow-wrap: anywhere;
+  }
+
+  .dashboard-section .clinical-record-card .record-main,
+  .dashboard-section .practitioner-record-card .record-main {
+    flex-wrap: wrap;
+  }
+
+  .dashboard-section .clinical-record-card .record-main > mark,
+  .dashboard-section .practitioner-record-card .record-main > mark {
+    flex: 0 0 auto;
   }
 }
