@@ -106,6 +106,13 @@ export function PublicContent() {
   const [lightboxPan, setLightboxPan] = useState({ x: 0, y: 0 });
   const lightboxMediaRef = useRef(null);
   const lightboxDragRef = useRef(null);
+  useEffect(() => {
+    if (!lightboxOpen) {
+      setLightboxZoom(1);
+      setLightboxPan({ x: 0, y: 0 });
+      lightboxDragRef.current = null;
+    }
+  }, [lightboxOpen]);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
   const listRequestId = useRef(0);
