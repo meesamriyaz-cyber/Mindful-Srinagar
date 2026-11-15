@@ -88,6 +88,9 @@ export async function apiRequest(path, { token, params, timeoutMs = 12000, retur
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
+    if (response.status === 401 && token && typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("mindful:unauthorized", { detail: { message: data.message || "Your staff session has expired. Please sign in again." } }));
+    }
     throw new Error(data.message || "Request failed");
   }
 
