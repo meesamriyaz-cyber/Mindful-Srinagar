@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CalendarClock, CheckCircle2, ClipboardCheck, FileText, ListChecks, UsersRound } from "lucide-react";
 import { apiRequest } from "../lib/api.js";
+import "./staff-console.css";
 
 function Metric({ label, value, icon: Icon }) {
   return (
