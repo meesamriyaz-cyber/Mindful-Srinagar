@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Archive, Check, ChevronLeft, ChevronRight, Edit3, Eye, FilePlus2, Images, LoaderCircle, Newspaper, Plus, RefreshCw, Save, Send, X } from "lucide-react";
+import { Archive, AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, Edit3, Eye, FilePlus2, Images, LoaderCircle, Newspaper, Plus, RefreshCw, Save, Send, X } from "lucide-react";
 import { API_BASE_URL } from "../lib/api.js";
 
 const emptyDoc = () => ({ type: "doc", content: [{ type: "paragraph", content: [] }] });
@@ -44,6 +44,19 @@ export function ContentStudio({ token }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [toast, setToast] = useState(null);
+  const [pendingTransition, setPendingTransition] = useState(null);
+  const [transitioning, setTransitioning] = useState(false);
+
+  useEffect(() => {
+    if (!toast) return undefined;
+    const timeout = window.setTimeout(() => setToast(null), 3600);
+    return () => window.clearTimeout(timeout);
+  }, [toast]);
+
+  function showToast(message, kind = "success") {
+    setToast({ message, kind, id: Date.now() });
+  }
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyPublication());
   const [assetPicker, setAssetPicker] = useState(false);
@@ -95,17 +108,29 @@ export function ContentStudio({ token }) {
         : { title: form.title, description: form.description, category: form.category, coverMedia: form.coverMedia || null, mediaItems: form.mediaItems, eventDate: form.eventDate || null };
       const path = editing === "new" ? base : `${base}/${editing}`;
       await api(path, token, { method: editing === "new" ? "POST" : "PATCH", body: JSON.stringify(payload) });
-      closeEditor(); setNotice(`${tab === "publications" ? "Publication" : "Gallery"} saved as draft.`); await load(page);
+      closeEditor(); showToast(`${tab === "publications" ? "Publication" : "Gallery"} saved as draft.`); await load(page);
     } catch (err) { setError(err.message); }
     finally { setSaving(false); }
   }
 
   async function transition(item, nextStatus) {
     const action = nextStatus === "published" ? "publish" : nextStatus === "archived" ? "archive" : "return to draft";
-    if (!window.confirm(`Are you sure you want to ${action} “${item.title}”?`)) return;
-    setError(""); setNotice("");
-    try { await api(`${base}/${item._id}/status`, token, { method: "PATCH", body: JSON.stringify({ status: nextStatus }) }); setNotice(`${item.title} is now ${nextStatus}.`); await load(page); }
-    catch (err) { setError(err.message); }
+    setPendingTransition({ item, nextStatus, action });
+  }
+
+  async function confirmTransition() {
+    if (!pendingTransition || transitioning) return;
+    const { item, nextStatus } = pendingTransition;
+    setTransitioning(true);
+    try {
+      await api(`${base}/${item._id}/status`, token, { method: "PATCH", body: JSON.stringify({ status: nextStatus }) });
+      setPendingTransition(null);
+      showToast(`${item.title} is now ${nextStatus}.`);
+      await load(page);
+    } catch (err) {
+      setPendingTransition(null);
+      showToast(err.message || "The status could not be updated.", "error");
+    } finally { setTransitioning(false); }
   }
 
   function toggleAsset(id) {
@@ -123,8 +148,8 @@ export function ContentStudio({ token }) {
         <button type="button" role="tab" aria-selected={tab === "publications"} className={tab === "publications" ? "active" : ""} onClick={() => { setTab("publications"); setEditing(null); setStatus("draft"); setPage(1); }}><Newspaper size={16}/> Publications</button>
         <button type="button" role="tab" aria-selected={tab === "galleries"} className={tab === "galleries" ? "active" : ""} onClick={() => { setTab("galleries"); setEditing(null); setStatus("draft"); setPage(1); }}><Images size={16}/> Galleries</button>
       </div>
-      {error && <p className="form-status error-status" role="alert">{error}</p>}
-      {notice && <p className="form-status success-status" role="status">{notice}</p>}
+      {(error || notice) && <div className={`content-inline-feedback ${error ? "is-error" : "is-success"}`} role={error ? "alert" : "status"}>{error || notice}<button type="button" onClick={() => { setError(""); setNotice(""); }} aria-label="Dismiss message"><X size={15}/></button></div>}
+      {toast && <div className={`content-toast ${toast.kind === "error" ? "is-error" : "is-success"}`} role={toast.kind === "error" ? "alert" : "status"} key={toast.id}>{toast.kind === "error" ? <AlertCircle size={19}/> : <CheckCircle2 size={19}/>}<span>{toast.message}</span><button type="button" onClick={() => setToast(null)} aria-label="Dismiss notification"><X size={16}/></button></div>}
       {editing !== null ? (
         <form className="content-editor" onSubmit={save}>
           <div className="content-editor-top"><div><p className="eyebrow">{editing === "new" ? "NEW DRAFT" : "EDIT DRAFT"}</p><h4>{editing === "new" ? "Create " : "Update "}{tab === "publications" ? "publication" : "gallery"}</h4></div><button className="icon-button" type="button" onClick={closeEditor} aria-label="Close editor"><X size={18}/></button></div>
@@ -147,6 +172,7 @@ export function ContentStudio({ token }) {
           {pages > 1 && <div className="content-pagination"><button type="button" className="secondary-button" disabled={page <= 1} onClick={() => load(page - 1)}><ChevronLeft size={16}/>Previous</button><span>Page {page} of {pages}</span><button type="button" className="secondary-button" disabled={page >= pages} onClick={() => load(page + 1)}>Next<ChevronRight size={16}/></button></div>}
         </>
       )}
+      {pendingTransition && <div className="content-confirm-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !transitioning) setPendingTransition(null); }}><section className="content-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="content-confirm-title"><div className="content-confirm-icon"><AlertCircle size={22}/></div><div className="content-confirm-copy"><p className="eyebrow">CONFIRM ACTION</p><h4 id="content-confirm-title">{pendingTransition.action === "publish" ? "Publish this content?" : pendingTransition.action === "archive" ? "Archive this content?" : "Return to draft?"}</h4><p><strong>{pendingTransition.item.title}</strong> will be moved to {pendingTransition.nextStatus}. {pendingTransition.nextStatus === "published" ? "It will become visible on the public website if it meets the publication visibility requirements." : "You can change its status again later."}</p></div><div className="content-confirm-actions"><button type="button" className="secondary-button" disabled={transitioning} onClick={() => setPendingTransition(null)}>Cancel</button><button type="button" className="primary-button" disabled={transitioning} onClick={confirmTransition}>{transitioning ? <LoaderCircle className="media-spin" size={16}/> : <CheckCircle2 size={16}/>} {transitioning ? "Please wait..." : "Confirm"}</button></div></section></div>}
     </section>
   );
 }
