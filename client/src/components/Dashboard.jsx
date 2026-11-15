@@ -1680,7 +1680,7 @@ export function Dashboard() {
               ) : activeView === "content-studio" && ["director", "admin"].includes(session.user?.role) ? (
                 <ContentStudio token={session.token} />
               ) : activeView === "staff" ? (
-                <StaffBoard token={session.token} currentRole={session.user?.role} onChanged={() => setResourceRefresh((value) => value + 1)} />
+                <StaffBoard token={session.token} currentRole={session.user?.role} currentUserId={session.user?.id} onChanged={() => setResourceRefresh((value) => value + 1)} />
               ) : activeView === "practitioners" ? (
                 <PractitionerBoard
                   token={session.token}
