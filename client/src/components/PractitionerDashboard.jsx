@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { CalendarClock, CheckCircle2, ClipboardCheck, FileText, ListChecks, UsersRound } from "lucide-react";
 import { apiRequest } from "../lib/api.js";
 import "./staff-console.css";
+import "./clinical-workspace.css";
 
 function Metric({ label, value, icon: Icon }) {
   return (
@@ -34,7 +35,7 @@ export function PractitionerDashboard({ token }) {
 
   const { practitioner, role, metrics, todaysAppointments, upcomingAppointments, recentNotes, assignedTasks } = state.data;
   return (
-    <div className="director-view staff-console-view">
+    <div className="director-view staff-console-view practitioner-workspace">
       <article className="action-panel director-panel staff-console-identity">
         <div className="panel-title staff-console-panel-title"><UsersRound size={21} /><h3>My clinical workspace</h3></div>
         <p><strong>{practitioner.name}</strong> · {practitioner.discipline || (practitioner.status === "active" ? "Practitioner" : "Clinical staff")}</p>
