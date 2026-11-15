@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
+import { createHash, randomBytes } from "node:crypto";
 import { z } from "zod";
 import { User } from "../models/User.js";
+import { sendPasswordResetEmail } from "../services/emailService.js";
 const staffRoles = ["director", "admin", "reception", "doctor", "therapist", "accounts", "coordinator"];
 const loginSchema = z.object({
   email: z.string().trim().email("Enter a valid staff email address").max(254),
@@ -23,8 +25,9 @@ export async function login(req, res, next) {
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.issues[0]?.message || "Please check your login details" });
     const { email, password } = parsed.data;
-    const user = await User.findOne({ email: email.toLowerCase(), isActive: true });
+    const user = await User.findOne({ email: email.toLowerCase() });
     if (!user || !(await user.comparePassword(password))) return res.status(401).json({ message: "Invalid email or password" });
+    if (!user.isActive) return res.status(403).json({ message: "Your staff account has been deactivated. Please contact the centre administrator." });
     return res.json({ token: signToken(user), user: { id: user._id, name: user.name, email: user.email, role: user.role } });
   } catch (error) { return next(error); }
 }
@@ -39,5 +42,74 @@ export async function registerStaff(req, res, next) {
     const passwordHash = await User.hashPassword(password);
     const user = await User.create({ name, email, passwordHash, role });
     return res.status(201).json({ id: user._id, name: user.name, email: user.email, role: user.role });
+  } catch (error) { return next(error); }
+}
+
+
+const forgotPasswordSchema = z.object({
+  email: z.string().trim().email("Enter a valid staff email address").max(254)
+}).strict();
+const resetPasswordSchema = z.object({
+  token: z.string().min(32).max(256),
+  password: z.string().min(12, "Password must be at least 12 characters").max(128)
+}).strict();
+
+function hashResetToken(token) {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+export async function requestPasswordReset(req, res, next) {
+  try {
+    const parsed = forgotPasswordSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: parsed.error.issues[0]?.message || "Enter a valid email address" });
+    const genericMessage = "If an active staff account exists for that email, a password reset link will be sent shortly.";
+    const user = await User.findOne({ email: parsed.data.email.toLowerCase(), isActive: true }).select("+passwordResetTokenHash +passwordResetExpiresAt");
+    if (!user) return res.json({ message: genericMessage });
+
+    const rawToken = randomBytes(32).toString("hex");
+    user.passwordResetTokenHash = hashResetToken(rawToken);
+    user.passwordResetExpiresAt = new Date(Date.now() + 30 * 60 * 1000);
+    await user.save();
+
+    const frontendUrl = String(process.env.CLIENT_URL || process.env.CLIENT_ORIGIN || "").split(",")[0].trim().replace(/\/+$/, "");
+    if (!frontendUrl) {
+      user.passwordResetTokenHash = undefined;
+      user.passwordResetExpiresAt = undefined;
+      await user.save();
+      throw new Error("CLIENT_URL is not configured for password recovery");
+    }
+    const resetUrl = new URL("/", frontendUrl);
+    resetUrl.searchParams.set("resetToken", rawToken);
+    resetUrl.hash = "staff";
+    try {
+      await sendPasswordResetEmail({ to: user.email, name: user.name, resetUrl: resetUrl.toString() });
+    } catch (error) {
+      user.passwordResetTokenHash = undefined;
+      user.passwordResetExpiresAt = undefined;
+      await user.save();
+      return next(error);
+    }
+    return res.json({ message: genericMessage });
+  } catch (error) { return next(error); }
+}
+
+export async function resetPassword(req, res, next) {
+  try {
+    const parsed = resetPasswordSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: parsed.error.issues[0]?.message || "Please check the reset details" });
+    const tokenHash = hashResetToken(parsed.data.token);
+    const user = await User.findOne({
+      passwordResetTokenHash: tokenHash,
+      passwordResetExpiresAt: { $gt: new Date() },
+      isActive: true
+    }).select("+passwordResetTokenHash +passwordResetExpiresAt");
+    if (!user) return res.status(400).json({ message: "This password reset link is invalid or has expired. Request a new one." });
+
+    user.passwordHash = await User.hashPassword(parsed.data.password);
+    user.passwordChangedAt = new Date();
+    user.passwordResetTokenHash = undefined;
+    user.passwordResetExpiresAt = undefined;
+    await user.save();
+    return res.json({ message: "Your password has been reset. You can now sign in with your new password." });
   } catch (error) { return next(error); }
 }
