@@ -191,7 +191,7 @@ export async function listPublicMedia(req, res, next) {
 export async function getPublicPublication(req, res, next) {
   try {
     const publication = await Publication.findOne({ slug: req.params.slug, status: "published", consentStatus: { $ne: "withdrawn" } })
-      .select("title slug type summary body category tags coverMedia mediaItems eventDate venue publishedAt identifiablePeople consentStatus consentScope")
+      .select("title slug type status summary body category tags coverMedia mediaItems eventDate venue publishedAt identifiablePeople consentStatus consentScope")
       .populate("coverMedia", "secureUrl resourceType format title status identifiablePeople consentStatus consentScope")
       .populate("mediaItems", "secureUrl resourceType format title caption altText status identifiablePeople consentStatus consentScope");
     if (!canExposePublication(publication)) return res.status(404).json({ message: "Publication not found" });
