@@ -3413,3 +3413,118 @@ footer span {
     transition: none;
   }
 }
+
+
+/* Gallery media: preserve complete photographs and keep viewers above the page */
+.public-content-section {
+  isolation: auto;
+  overflow: visible;
+}
+.public-gallery-card .public-content-card-media {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #e8efee;
+}
+.public-gallery-card .public-content-card-media > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  transform: none;
+  filter: none;
+}
+.public-gallery-card:hover .public-content-card-media > img {
+  transform: none;
+  filter: none;
+}
+.public-gallery-card .public-content-card-media::after {
+  display: none;
+}
+.public-gallery-card .public-content-card-media > .public-content-video video {
+  object-fit: contain;
+}
+.public-content-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+  padding: clamp(12px, 3vw, 32px);
+  overflow-y: auto;
+  background: rgba(7, 24, 32, .78);
+  backdrop-filter: blur(9px);
+}
+.public-content-dialog {
+  position: relative;
+  z-index: 1501;
+  width: min(1080px, 100%);
+  max-height: min(92dvh, 1000px);
+  margin: auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(222,239,235,.8);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 32px 100px rgba(0,0,0,.38);
+}
+.public-gallery-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1600;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+  padding: clamp(12px, 3vw, 34px);
+  background: rgba(3, 13, 20, .96);
+  backdrop-filter: blur(10px);
+}
+.public-gallery-lightbox-panel {
+  position: relative;
+  z-index: 1601;
+  width: min(1500px, 100%);
+  height: min(92dvh, 1050px);
+  margin: auto;
+}
+.public-gallery-lightbox-media {
+  width: 100%;
+  height: 100%;
+}
+.public-gallery-lightbox-media > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+.public-gallery-lightbox-media > .public-content-video video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.public-gallery-lightbox-close,
+.public-gallery-lightbox-arrow {
+  z-index: 1602;
+}
+@media (max-width: 680px) {
+  .public-content-overlay {
+    align-items: center;
+    padding: 10px;
+  }
+  .public-content-dialog {
+    width: 100%;
+    max-height: 94dvh;
+    border-radius: 16px;
+  }
+  .public-gallery-lightbox {
+    padding: 8px;
+  }
+  .public-gallery-lightbox-panel {
+    width: 100%;
+    height: 90dvh;
+  }
+}
