@@ -26,6 +26,7 @@ export function StaffBoard({ token, currentRole, onChanged }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [statusSavingId, setStatusSavingId] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -93,6 +94,28 @@ export function StaffBoard({ token, currentRole, onChanged }) {
       setError(err.message || "Unable to create staff account.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function toggleAccountStatus(person) {
+    const nextActive = !person.isActive;
+    const action = nextActive ? "reactivate" : "deactivate";
+    const confirmed = window.confirm(`Are you sure you want to ${action} ${person.name}'s staff account?${nextActive ? "" : " They will lose access immediately."}`);
+    if (!confirmed) return;
+    setError("");
+    setStatusSavingId(person._id);
+    try {
+      await apiRequest(`/staff/${person._id}/status`, {
+        token,
+        method: "PATCH",
+        body: JSON.stringify({ isActive: nextActive })
+      });
+      await load();
+      onChanged?.();
+    } catch (err) {
+      setError(err.message || "Unable to update staff account status.");
+    } finally {
+      setStatusSavingId("");
     }
   }
 
@@ -207,6 +230,21 @@ export function StaffBoard({ token, currentRole, onChanged }) {
                     <div><span>ACCESS ROLE</span><strong><ShieldCheck /> {ROLES.find(([role]) => role === person.role)?.[1] || person.role}</strong></div>
                     <div><span>ACCOUNT CREATED</span><strong>{person.createdAt ? new Date(person.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "—"}</strong></div>
                   </div>
+                  {person.isActiveChangedAt && (
+                    <p className="staff-practitioner-note">Status last changed {new Date(person.isActiveChangedAt).toLocaleString("en-IN")} by {person.isActiveChangedBy?.name || "Director"}</p>
+                  )}
+                  {currentRole === "director" && (
+                    <div className="staff-person-actions">
+                      <Button
+                        size="sm"
+                        variant={person.isActive ? "destructive" : "outline"}
+                        disabled={statusSavingId === person._id || person.email === window.localStorage.getItem("mindful_staff_user")?.match(/"email":"([^"]+)"/)?.[1]}
+                        onClick={() => toggleAccountStatus(person)}
+                      >
+                        {statusSavingId === person._id ? "Updating…" : person.isActive ? "Deactivate account" : "Reactivate account"}
+                      </Button>
+                    </div>
+                  )}
                   {["doctor", "therapist"].includes(person.role) && (
                     <p className="staff-practitioner-note">Practitioner profile must be linked before clinical appointment activity appears.</p>
                   )}
