@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Archive, CheckCircle2, ImagePlus, LoaderCircle, RefreshCw, Search, Trash2, UploadCloud, Video, X } from "lucide-react";
 import { API_BASE_URL } from "../lib/api.js";
+import { Button } from "./ui/button.jsx";
+import { Badge } from "./ui/badge.jsx";
+import "./admin-content-workspace.css";
 
 const CATEGORIES = ["centre-activities", "workshops", "awareness", "training", "research", "facilities", "other"];
 const CONSENT = ["not-required", "pending", "verified", "withdrawn"];
@@ -134,10 +137,10 @@ export function MediaLibrary({ token }) {
 
   const imageCount = useMemo(() => items.filter((item) => item.resourceType === "image").length, [items]);
   return (
-    <section className="media-library">
+    <section className="media-library admin-content-workspace">
       <div className="media-library-toolbar">
         <div><p className="eyebrow">CENTRE CONTENT</p><h3>Media library</h3><p className="resource-description">Manage approved centre photographs and videos. Check consent before using identifiable people in public content.</p></div>
-        <button className="primary-button" type="button" disabled={uploading} onClick={() => inputRef.current?.click()}><UploadCloud size={17} /> {uploading ? "Uploading..." : "Upload media"}</button>
+        <Button type="button" disabled={uploading} onClick={() => inputRef.current?.click()} className="admin-workspace-primary"><UploadCloud size={17} /> {uploading ? "Uploading..." : "Upload media"}</Button>
         <input ref={inputRef} hidden type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" multiple onChange={uploadFiles} />
       </div>
       <div className="media-library-stats"><span><strong>{total}</strong> {status === "archived" ? "archived assets" : "available assets"}</span><span><strong>{imageCount}</strong> images on this page</span><span><strong>{pages}</strong> pages</span></div>
