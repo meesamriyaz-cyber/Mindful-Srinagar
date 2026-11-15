@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema(
       default: "reception"
     },
     isActive: { type: Boolean, default: true },
+    isActiveChangedAt: { type: Date },
+    isActiveChangedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     passwordResetTokenHash: { type: String, select: false },
     passwordResetExpiresAt: { type: Date, select: false },
     passwordChangedAt: { type: Date }
