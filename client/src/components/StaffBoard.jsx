@@ -21,7 +21,7 @@ const ROLES = [
 
 const EMPTY_FORM = { name: "", email: "", role: "reception", password: "", confirmPassword: "" };
 
-export function StaffBoard({ token, currentRole, onChanged }) {
+export function StaffBoard({ token, currentRole, currentUserId, onChanged }) {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -238,7 +238,7 @@ export function StaffBoard({ token, currentRole, onChanged }) {
                       <Button
                         size="sm"
                         variant={person.isActive ? "destructive" : "outline"}
-                        disabled={statusSavingId === person._id || person.email === window.localStorage.getItem("mindful_staff_user")?.match(/"email":"([^"]+)"/)?.[1]}
+                        disabled={statusSavingId === person._id || String(person._id) === String(currentUserId || "")}
                         onClick={() => toggleAccountStatus(person)}
                       >
                         {statusSavingId === person._id ? "Updating…" : person.isActive ? "Deactivate account" : "Reactivate account"}
