@@ -42,8 +42,6 @@ export function ContentStudio({ token }) {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
   const [toast, setToast] = useState(null);
   const [pendingTransition, setPendingTransition] = useState(null);
   const [transitioning, setTransitioning] = useState(false);
@@ -64,19 +62,19 @@ export function ContentStudio({ token }) {
 
   const base = tab === "publications" ? "/publications" : "/galleries";
   const load = useCallback(async (nextPage = page) => {
-    setLoading(true); setError("");
+    setLoading(true);
     try {
       const params = new URLSearchParams({ page: String(nextPage), limit: "12", status });
       if (query.trim()) params.set("q", query.trim());
       const result = await api(`${base}?${params}`, token);
       setItems(result.items || []); setTotal(result.total || 0); setPages(result.pages || 1); setPage(result.page || nextPage);
-    } catch (err) { setError(err.message); }
+    } catch (err) { showToast(err.message || "The request could not be completed.", "error"); }
     finally { setLoading(false); }
   }, [base, token, page, query, status]);
 
   useEffect(() => { load(1); }, [tab, status, query, load]);
   useEffect(() => {
-    api("/media?status=ready&limit=100", token).then((result) => setAssets(result.items || [])).catch((err) => setError(err.message));
+    api("/media?status=ready&limit=100", token).then((result) => setAssets(result.items || [])).catch((err) => showToast(err.message || "The request could not be completed.", "error"));
   }, [token]);
 
   const visibleAssets = useMemo(() => assets.filter((asset) => {
@@ -87,21 +85,21 @@ export function ContentStudio({ token }) {
   function beginCreate() {
     setEditing("new");
     setForm(tab === "publications" ? emptyPublication() : emptyGallery());
-    setError(""); setNotice("");
+    
   }
   async function beginEdit(item) {
-    setError(""); setNotice("");
+    
     try {
       const full = await api(`${base}/${item._id}`, token);
       setEditing(item._id);
       if (tab === "publications") setForm({ ...emptyPublication(), ...full, bodyText: toEditorText(full.body), tags: (full.tags || []).join(", "), coverMedia: full.coverMedia?._id || full.coverMedia || "", mediaItems: (full.mediaItems || []).map((asset) => asset?._id || asset).filter(Boolean), eventDate: dateValue(full.eventDate) });
       else setForm({ ...emptyGallery(), ...full, coverMedia: full.coverMedia?._id || full.coverMedia || "", mediaItems: (full.mediaItems || []).map((asset) => asset?._id || asset).filter(Boolean), eventDate: dateValue(full.eventDate) });
-    } catch (err) { setError(err.message); }
+    } catch (err) { showToast(err.message || "The request could not be completed.", "error"); }
   }
   function closeEditor() { setEditing(null); setAssetPicker(false); }
 
   async function save(event) {
-    event.preventDefault(); setSaving(true); setError(""); setNotice("");
+    event.preventDefault(); setSaving(true); 
     try {
       const payload = tab === "publications"
         ? { title: form.title, type: form.type, summary: form.summary, body: fromEditorText(form.bodyText), category: form.category, tags: String(form.tags || "").split(",").map((tag) => tag.trim()).filter(Boolean), coverMedia: form.coverMedia || null, mediaItems: form.mediaItems, eventDate: form.eventDate || null, venue: form.venue, identifiablePeople: form.identifiablePeople, consentStatus: form.consentStatus, consentScope: form.consentScope, consentNotes: form.consentNotes }
@@ -109,7 +107,7 @@ export function ContentStudio({ token }) {
       const path = editing === "new" ? base : `${base}/${editing}`;
       await api(path, token, { method: editing === "new" ? "POST" : "PATCH", body: JSON.stringify(payload) });
       closeEditor(); showToast(`${tab === "publications" ? "Publication" : "Gallery"} saved as draft.`); await load(page);
-    } catch (err) { setError(err.message); }
+    } catch (err) { showToast(err.message || "The request could not be completed.", "error"); }
     finally { setSaving(false); }
   }
 
@@ -148,7 +146,6 @@ export function ContentStudio({ token }) {
         <button type="button" role="tab" aria-selected={tab === "publications"} className={tab === "publications" ? "active" : ""} onClick={() => { setTab("publications"); setEditing(null); setStatus("draft"); setPage(1); }}><Newspaper size={16}/> Publications</button>
         <button type="button" role="tab" aria-selected={tab === "galleries"} className={tab === "galleries" ? "active" : ""} onClick={() => { setTab("galleries"); setEditing(null); setStatus("draft"); setPage(1); }}><Images size={16}/> Galleries</button>
       </div>
-      {(error || notice) && <div className={`content-inline-feedback ${error ? "is-error" : "is-success"}`} role={error ? "alert" : "status"}>{error || notice}<button type="button" onClick={() => { setError(""); setNotice(""); }} aria-label="Dismiss message"><X size={15}/></button></div>}
       {toast && <div className={`content-toast ${toast.kind === "error" ? "is-error" : "is-success"}`} role={toast.kind === "error" ? "alert" : "status"} key={toast.id}>{toast.kind === "error" ? <AlertCircle size={19}/> : <CheckCircle2 size={19}/>}<span>{toast.message}</span><button type="button" onClick={() => setToast(null)} aria-label="Dismiss notification"><X size={16}/></button></div>}
       {editing !== null ? (
         <form className="content-editor" onSubmit={save}>
