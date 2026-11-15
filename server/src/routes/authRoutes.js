@@ -1,9 +1,13 @@
 import express from "express";
-import { login, registerStaff } from "../controllers/authController.js";
+import { login, registerStaff, requestPasswordReset, resetPassword } from "../controllers/authController.js";
 import { permit, protect } from "../middleware/auth.js";
 import { createRateLimiter } from "../middleware/rateLimiter.js";
 const router = express.Router();
+const passwordResetRequestLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 3, message: "Too many password reset requests. Please try again later." });
+const passwordResetLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 8, message: "Too many password reset attempts. Please try again later." });
 const loginLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 8, message: "Too many login attempts. Please wait before trying again." });
 router.post("/login", loginLimiter, login);
+router.post("/forgot-password", passwordResetRequestLimiter, requestPasswordReset);
+router.post("/reset-password", passwordResetLimiter, resetPassword);
 router.post("/staff", protect, permit("director", "admin"), registerStaff);
 export default router;
