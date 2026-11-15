@@ -235,7 +235,7 @@ export function Contact() {
       </motion.form>
       <div className="contact-strip">
         <a href="tel:+919906897822"><Phone size={18} /> (+91) 9906897822</a>
-        <a href="mailto:mrcsgr2025@gmail.com"><Mail size={18} /> mrcsgr2025@gmail.com</a>
+        <a href="mailto:enquiry@mindfulrehabcentre.in"><Mail size={18} /> enquiry@mindfulrehabcentre.in</a>
         <span><MapPin size={18} /> Owaisabad Gousia Colony Bemina Srinagar-UT J&K-190018</span>
       </div>
       <div className="contact-map" aria-label="Find Mindful centre">
