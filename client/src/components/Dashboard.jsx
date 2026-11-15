@@ -38,6 +38,9 @@ import { StaffBoard } from "./StaffBoard.jsx";
 import { ChipInput } from "./ChipInput.jsx";
 import { useAccessibleDialog } from "../hooks/useAccessibleDialog.js";
 import { serviceCharges, services } from "../data/centreData.js";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/card.jsx";
+import { Badge } from "./ui/badge.jsx";
+import "./director-dashboard.css";
 
 const INR = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
@@ -266,131 +269,151 @@ function useResourceRecords({ activeView, token, query, refreshSignal }) {
 function DirectorView({ data }) {
   const metrics = data.metrics || {};
   const serviceDemand = data.analytics?.serviceDemand || [];
-  const referralMix = Object.entries(data.analytics?.referralMix || {});
-  const patientStatus = Object.entries(data.analytics?.patientStatus || {});
-  const maxDemand = Math.max(...serviceDemand.map((item) => item.count), 1);
+  const referralMix = Object.entries(data.analytics?.referralMix || {}).sort((a, b) => Number(b[1]) - Number(a[1]));
+  const patientStatus = Object.entries(data.analytics?.patientStatus || {}).sort((a, b) => Number(b[1]) - Number(a[1]));
+  const maxDemand = Math.max(...serviceDemand.map((item) => Number(item.count) || 0), 1);
+  const maxReferral = Math.max(...referralMix.map(([, count]) => Number(count) || 0), 1);
   const billed = Number(metrics.billedThisMonth || 0);
   const collected = Number(metrics.revenueThisMonth || 0);
-  const collectionRate = billed > 0 ? Math.min(Math.round((collected / billed) * 100), 100) : 0;
+  const outstanding = Number(metrics.outstanding || 0);
+  const collectionRate = billed > 0 ? Math.min(Math.max(Math.round((collected / billed) * 100), 0), 100) : 0;
+  const insights = data.businessInsights || [];
 
   return (
-    <div className="director-view management-director-view" aria-label="Director performance overview">
-      <header className="director-heading management-director-heading">
+    <section className="director-command-centre" aria-label="Director performance overview">
+      <header className="director-command-heading">
         <div>
-          <p className="director-section-kicker">Executive overview</p>
+          <p className="director-command-eyebrow">EXECUTIVE COMMAND CENTRE</p>
           <h3>Centre performance</h3>
-          <p>Financial health, service demand and patient acquisition in one operating view.</p>
+          <p>A clear view of financial health, care activity and where demand is coming from.</p>
         </div>
-        <span className="director-period-label">Current month</span>
+        <Badge variant="success" className="director-live-badge"><span className="director-live-dot" /> Current month</Badge>
       </header>
 
-      <article className="action-panel director-panel management-financial-panel">
-        <div className="director-panel-heading">
-          <div className="panel-title">
-            <TrendingUp size={21} />
+      <Card className="director-finance-card">
+        <CardHeader className="director-finance-header">
+          <div className="director-card-heading">
+            <span className="director-icon-tile"><IndianRupee size={20} /></span>
             <div>
-              <span className="director-panel-kicker">Financial performance</span>
-              <h3>Revenue & collections</h3>
+              <p>FINANCIAL PERFORMANCE</p>
+              <CardTitle>Revenue & collections</CardTitle>
+              <CardDescription>Monthly billing, receipts and outstanding balances</CardDescription>
             </div>
           </div>
-          <span className="director-period-label director-period-label-dark">Monthly</span>
-        </div>
-        <div className="business-grid">
-          <div>
-            <span>Monthly billed</span>
-            <strong>{INR.format(billed)}</strong>
+          <Badge variant="secondary">Monthly view</Badge>
+        </CardHeader>
+        <CardContent>
+          <div className="director-finance-metrics">
+            <div className="director-finance-metric">
+              <span>Amount billed</span>
+              <strong>{INR.format(billed)}</strong>
+              <small>Invoices generated this month</small>
+            </div>
+            <div className="director-finance-metric is-positive">
+              <span>Collected</span>
+              <strong>{INR.format(collected)}</strong>
+              <small>Payments received</small>
+            </div>
+            <div className="director-finance-metric is-attention">
+              <span>Outstanding</span>
+              <strong>{INR.format(outstanding)}</strong>
+              <small>Balance yet to be collected</small>
+            </div>
+            <div className="director-finance-metric">
+              <span>Referral conversion</span>
+              <strong>{Number(metrics.conversionRate || 0)}<i>%</i></strong>
+              <small>Enquiries converted to patients</small>
+            </div>
           </div>
-          <div>
-            <span>Collections received</span>
-            <strong>{INR.format(collected)}</strong>
+          <div className="director-collection-progress">
+            <div className="director-progress-copy">
+              <div><strong>Collection progress</strong><span>Collected against total billed</span></div>
+              <strong>{collectionRate}%</strong>
+            </div>
+            <div className="director-progress-track" role="progressbar" aria-label="Collection against billed amount" aria-valuemin={0} aria-valuemax={100} aria-valuenow={collectionRate}>
+              <span style={{ width: `${collectionRate}%` }} />
+            </div>
           </div>
-          <div>
-            <span>Outstanding balance</span>
-            <strong>{INR.format(metrics.outstanding || 0)}</strong>
-          </div>
-          <div>
-            <span>Referral conversion</span>
-            <strong>{metrics.conversionRate || 0}%</strong>
-          </div>
-        </div>
-        <div className="director-collection">
-          <div className="director-collection-label">
-            <span>Collection against billed amount</span>
-            <strong>{collectionRate}%</strong>
-          </div>
-          <div
-            className="director-collection-track"
-            role="progressbar"
-            aria-label="Collection against billed amount"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={collectionRate}
-          >
-            <span style={{ width: `${collectionRate}%` }} />
-          </div>
-        </div>
-        {(data.businessInsights || []).length > 0 && (
-          <div className="insight-list director-insights" aria-label="Business insights">
-            {(data.businessInsights || []).map((insight) => (
-              <p key={insight}>{insight}</p>
-            ))}
-          </div>
-        )}
-      </article>
-
-      <article className="table-panel director-demand-panel management-analytics-panel">
-        <div className="panel-title">
-          <BarChart3 size={21} />
-          <div>
-            <span className="director-card-kicker">Service portfolio</span>
-            <h3>Appointment demand</h3>
-          </div>
-        </div>
-        <div className="bar-list">
-          {serviceDemand.length ? (
-            serviceDemand.map((item) => (
-              <div className="bar-row" key={item.service}>
-                <span>{item.service || "Unspecified"}</span>
-                <div><i style={{ width: `${(item.count / maxDemand) * 100}%` }} /></div>
-                <b>{item.count}</b>
+          {insights.length > 0 && (
+            <div className="director-insight-strip">
+              <div className="director-insight-title"><TrendingUp size={17} /><strong>Business signals</strong></div>
+              <div className="director-insight-items">
+                {insights.slice(0, 3).map((insight) => <p key={insight}>{insight}</p>)}
               </div>
-            ))
-          ) : (
-            <p className="empty-state">No appointment demand recorded this month.</p>
+            </div>
           )}
-        </div>
-      </article>
+        </CardContent>
+      </Card>
 
-      <article className="table-panel director-mix-panel management-analytics-panel">
-        <div className="panel-title">
-          <UsersRound size={21} />
-          <div>
-            <span className="director-card-kicker">Care activity</span>
-            <h3>Patient mix</h3>
-          </div>
-        </div>
-        <div className="mix-list">
-          {patientStatus.length ? patientStatus.map(([status, count]) => (
-            <span key={status}>{status}: <strong>{count}</strong></span>
-          )) : <p className="empty-state">No patient records yet.</p>}
-        </div>
-      </article>
+      <div className="director-analytics-grid">
+        <Card className="director-analytics-card director-demand-card">
+          <CardHeader>
+            <div className="director-card-heading">
+              <span className="director-icon-tile is-teal"><BarChart3 size={19} /></span>
+              <div><p>SERVICE PORTFOLIO</p><CardTitle>Appointment demand</CardTitle><CardDescription>Services by recorded appointment volume</CardDescription></div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {serviceDemand.length ? (
+              <div className="director-demand-list">
+                {serviceDemand.map((item) => {
+                  const count = Number(item.count) || 0;
+                  const width = Math.max(0, Math.min((count / maxDemand) * 100, 100));
+                  return <div className="director-demand-row" key={item.service}>
+                    <div className="director-demand-label"><span>{item.service || "Unspecified"}</span><strong>{count}</strong></div>
+                    <div className="director-demand-track"><span style={{ width: `${width}%` }} /></div>
+                  </div>;
+                })}
+              </div>
+            ) : <div className="director-empty-state"><BarChart3 size={22} /><strong>No service demand yet</strong><span>Appointment activity will appear here as it is recorded.</span></div>}
+          </CardContent>
+        </Card>
 
-      <article className="table-panel director-referral-panel management-analytics-panel">
-        <div className="panel-title">
-          <ClipboardCheck size={21} />
-          <div>
-            <span className="director-card-kicker">Acquisition channels</span>
-            <h3>Referral sources</h3>
-          </div>
-        </div>
-        <div className="mix-list">
-          {referralMix.length ? referralMix.map(([source, count]) => (
-            <span key={source}>{source}: <strong>{count}</strong></span>
-          )) : <p className="empty-state">No new referrals this month.</p>}
-        </div>
-      </article>
-    </div>
+        <Card className="director-analytics-card director-patient-card">
+          <CardHeader>
+            <div className="director-card-heading">
+              <span className="director-icon-tile is-lilac"><UsersRound size={19} /></span>
+              <div><p>CARE ACTIVITY</p><CardTitle>Patient mix</CardTitle><CardDescription>Current patient records by status</CardDescription></div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {patientStatus.length ? (
+              <div className="director-patient-status-list">
+                {patientStatus.map(([status, count]) => (
+                  <div className="director-patient-status" key={status}>
+                    <span className="director-status-marker" />
+                    <span>{status.replaceAll("-", " ")}</span>
+                    <strong>{count}</strong>
+                  </div>
+                ))}
+              </div>
+            ) : <div className="director-empty-state"><UsersRound size={22} /><strong>No patient records yet</strong><span>Patient status distribution will appear here.</span></div>}
+          </CardContent>
+        </Card>
+
+        <Card className="director-analytics-card director-referral-card">
+          <CardHeader>
+            <div className="director-card-heading">
+              <span className="director-icon-tile is-amber"><ClipboardCheck size={19} /></span>
+              <div><p>ACQUISITION CHANNELS</p><CardTitle>Referral sources</CardTitle><CardDescription>Where incoming enquiries originate</CardDescription></div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {referralMix.length ? (
+              <div className="director-referral-list">
+                {referralMix.map(([source, count]) => {
+                  const width = Math.max(0, Math.min((Number(count || 0) / maxReferral) * 100, 100));
+                  return <div className="director-referral-row" key={source}>
+                    <div><span>{source.replaceAll("-", " ")}</span><strong>{count}</strong></div>
+                    <div className="director-referral-track"><span style={{ width: `${width}%` }} /></div>
+                  </div>;
+                })}
+              </div>
+            ) : <div className="director-empty-state"><ClipboardCheck size={22} /><strong>No referral activity yet</strong><span>Referral sources will appear as enquiries are received.</span></div>}
+          </CardContent>
+        </Card>
+      </div>
+    </section>
   );
 }
 function AppointmentList({ appointments = [] }) {
