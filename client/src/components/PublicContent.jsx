@@ -71,7 +71,7 @@ function ContentCard({ item, onOpen, gallery = false }) {
 }
 
 export function PublicContent() {
-  const [activeTab, setActiveTab] = useState("news");
+  const [activeTab, setActiveTab] = useState("gallery");
   const [items, setItems] = useState([]);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
