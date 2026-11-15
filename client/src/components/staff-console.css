@@ -367,3 +367,23 @@
     flex-direction: row;
   }
 }
+
+
+.staff-person-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid hsl(var(--border));
+}
+.staff-person-actions button {
+  min-height: 36px;
+}
+@media (max-width: 640px) {
+  .staff-person-actions {
+    justify-content: stretch;
+  }
+  .staff-person-actions button {
+    width: 100%;
+  }
+}
