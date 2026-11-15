@@ -3706,3 +3706,29 @@ footer span {
     transition: none;
   }
 }
+
+
+/* Smoother GPU-assisted image movement in the lightbox */
+.public-gallery-lightbox-media {
+  overscroll-behavior: contain;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.public-gallery-lightbox-media > img {
+  transform-origin: center center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+}
+.public-gallery-lightbox-media.is-zoomed {
+  cursor: grab;
+}
+.public-gallery-lightbox-media.is-zoomed:active {
+  cursor: grabbing;
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-gallery-lightbox-media > img {
+    transition-duration: 0ms !important;
+  }
+}
