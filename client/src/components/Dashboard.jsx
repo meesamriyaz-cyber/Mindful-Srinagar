@@ -41,6 +41,7 @@ import { serviceCharges, services } from "../data/centreData.js";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./ui/card.jsx";
 import { Badge } from "./ui/badge.jsx";
 import "./director-dashboard.css";
+import "./dashboard-ux.css";
 
 const INR = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 
