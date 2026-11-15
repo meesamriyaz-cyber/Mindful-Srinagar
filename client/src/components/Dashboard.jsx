@@ -714,58 +714,187 @@ function recordActions(viewId, record, userRole) {
 }
 
 function ReportsView({ data }) {
-  const serviceMix = Object.entries(data?.analytics?.serviceMix || {}).slice(0, 8);
-  const referralStatus = Object.entries(data?.analytics?.referralStatus || {});
-  const appointmentStatus = Object.entries(data?.analytics?.appointmentStatusToday || {});
+  const metrics = data?.metrics || {};
+  const serviceMix = Object.entries(data?.analytics?.serviceMix || {})
+    .sort((a, b) => Number(b[1]) - Number(a[1]))
+    .slice(0, 8);
+  const referralStatus = Object.entries(data?.analytics?.referralStatus || {})
+    .sort((a, b) => Number(b[1]) - Number(a[1]));
+  const appointmentStatus = Object.entries(data?.analytics?.appointmentStatusToday || {})
+    .sort((a, b) => Number(b[1]) - Number(a[1]));
+  const referralSources = Object.entries(data?.analytics?.referralMix || {})
+    .sort((a, b) => Number(b[1]) - Number(a[1]))
+    .slice(0, 6);
+  const billed = Number(metrics.billedThisMonth || 0);
+  const collected = Number(metrics.revenueThisMonth || 0);
+  const outstanding = Number(metrics.outstanding || 0);
+  const collectionRate = billed > 0 ? Math.min(Math.max(Math.round((collected / billed) * 100), 0), 100) : 0;
+  const maxService = Math.max(...serviceMix.map(([, count]) => Number(count) || 0), 1);
+  const maxReferral = Math.max(...referralStatus.map(([, count]) => Number(count) || 0), 1);
+  const maxAppointments = Math.max(...appointmentStatus.map(([, count]) => Number(count) || 0), 1);
+  const maxSources = Math.max(...referralSources.map(([, count]) => Number(count) || 0), 1);
+  const operationalRisks = [
+    { label: "Low-stock items", count: Number(metrics.lowStockCount || 0), note: "At or below reorder level", icon: PackageOpen, tone: "warning" },
+    { label: "Overdue tasks", count: Number(metrics.overdueTasks || 0), note: "Past their due date", icon: ListChecks, tone: "danger" },
+    { label: "Urgent referrals", count: Number(metrics.urgentReferrals || 0), note: "Awaiting timely follow-up", icon: AlertTriangle, tone: "danger" },
+    { label: "Unpaid invoices", count: Number(metrics.unpaidInvoiceCount || 0), note: "Draft or partial invoices", icon: WalletCards, tone: "warning" }
+  ];
+  const insights = data?.businessInsights || [];
 
   return (
-    <div className="reports-grid management-reports-grid">
-      <article className="action-panel director-panel">
-        <div className="panel-title">
-          <FileText size={21} />
-          <div><h3>Business diagnosis</h3><p className="resource-description">Signals and recommended actions based on current centre activity.</p></div>
+    <section className="admin-report-workspace" aria-label="Administrative reports">
+      <header className="admin-report-heading">
+        <div>
+          <p className="admin-report-eyebrow">MANAGEMENT INTELLIGENCE</p>
+          <h3>Administrative overview</h3>
+          <p>Month-to-date performance and current operational priorities, using recorded centre activity.</p>
         </div>
-        <div className="insight-list">
-          {(data?.businessInsights || []).length ? data.businessInsights.map((insight) => <p key={insight}>{insight}</p>) : <p className="empty-state">Business insights will appear as centre activity is recorded.</p>}
+        <span className="admin-report-period">Month to date</span>
+      </header>
+
+      <div className="admin-report-kpis">
+        <article className="admin-report-kpi">
+          <span>Active patients</span>
+          <strong>{Number(metrics.activePatients || 0).toLocaleString("en-IN")}</strong>
+          <small>{Number(metrics.newPatientsThisMonth || 0)} new this month</small>
+        </article>
+        <article className="admin-report-kpi">
+          <span>Appointments today</span>
+          <strong>{Number(metrics.appointmentsToday || 0).toLocaleString("en-IN")}</strong>
+          <small>{Number(metrics.completedAppointmentsToday || 0)} completed today</small>
+        </article>
+        <article className="admin-report-kpi is-positive">
+          <span>Collected this month</span>
+          <strong>{INR.format(collected)}</strong>
+          <small>{collectionRate}% of this month’s billed amount</small>
+        </article>
+        <article className="admin-report-kpi is-attention">
+          <span>Outstanding balance</span>
+          <strong>{INR.format(outstanding)}</strong>
+          <small>{Number(metrics.unpaidInvoiceCount || 0)} invoices pending</small>
+        </article>
+      </div>
+
+      <div className="admin-report-primary-grid">
+        <article className="admin-report-card admin-report-finance">
+          <div className="admin-report-card-heading">
+            <span className="admin-report-icon"><IndianRupee size={18} /></span>
+            <div><h4>Financial performance</h4><p>Billing and collections for the current month</p></div>
+          </div>
+          <div className="admin-report-finance-values">
+            <div><span>Total billed</span><strong>{INR.format(billed)}</strong></div>
+            <div><span>Received</span><strong className="is-positive-text">{INR.format(collected)}</strong></div>
+            <div><span>Outstanding</span><strong className="is-warning-text">{INR.format(outstanding)}</strong></div>
+          </div>
+          <div className="admin-report-progress-copy"><span>Collection against billed</span><strong>{collectionRate}%</strong></div>
+          <div className="admin-report-progress" role="progressbar" aria-label="Collection against billed amount" aria-valuemin={0} aria-valuemax={100} aria-valuenow={collectionRate}>
+            <span style={{ width: `${collectionRate}%` }} />
+          </div>
+          {!billed && <p className="admin-report-footnote">Collection progress will appear after invoices are recorded this month.</p>}
+        </article>
+
+        <article className="admin-report-card admin-report-risk-card">
+          <div className="admin-report-card-heading">
+            <span className="admin-report-icon is-amber"><ShieldCheck size={18} /></span>
+            <div><h4>Operational watchlist</h4><p>Items that may need management attention</p></div>
+          </div>
+          <div className="admin-report-risk-list">
+            {operationalRisks.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div className="admin-report-risk-row" key={item.label}>
+                  <span className={`admin-report-risk-icon ${item.tone}`}><Icon size={16} /></span>
+                  <span className="admin-report-risk-copy"><strong>{item.label}</strong><small>{item.note}</small></span>
+                  <strong className={item.count > 0 ? item.tone : "is-clear"}>{item.count}</strong>
+                </div>
+              );
+            })}
+          </div>
+        </article>
+      </div>
+
+      <div className="admin-report-secondary-grid">
+        <article className="admin-report-card">
+          <div className="admin-report-card-heading">
+            <span className="admin-report-icon is-teal"><TrendingUp size={18} /></span>
+            <div><h4>Referral journey</h4><p>Monthly referrals grouped by current status</p></div>
+          </div>
+          {referralStatus.length ? (
+            <div className="admin-report-bars">
+              {referralStatus.map(([status, count]) => (
+                <div className="admin-report-bar-row" key={status}>
+                  <div><span>{status.replaceAll("-", " ")}</span><strong>{count}</strong></div>
+                  <div className="admin-report-bar-track"><span style={{ width: `${Math.min((Number(count || 0) / maxReferral) * 100, 100)}%` }} /></div>
+                </div>
+              ))}
+            </div>
+          ) : <p className="admin-report-empty">Referral activity will appear here as enquiries are received.</p>}
+        </article>
+
+        <article className="admin-report-card">
+          <div className="admin-report-card-heading">
+            <span className="admin-report-icon is-violet"><CalendarClock size={18} /></span>
+            <div><h4>Today’s appointments</h4><p>Appointment outcomes recorded today</p></div>
+          </div>
+          {appointmentStatus.length ? (
+            <div className="admin-report-bars">
+              {appointmentStatus.map(([status, count]) => (
+                <div className="admin-report-bar-row" key={status}>
+                  <div><span>{status.replaceAll("-", " ")}</span><strong>{count}</strong></div>
+                  <div className="admin-report-bar-track is-violet"><span style={{ width: `${Math.min((Number(count || 0) / maxAppointments) * 100, 100)}%` }} /></div>
+                </div>
+              ))}
+            </div>
+          ) : <p className="admin-report-empty">No appointment outcomes have been recorded today.</p>}
+        </article>
+
+        <article className="admin-report-card">
+          <div className="admin-report-card-heading">
+            <span className="admin-report-icon is-teal"><BarChart3 size={18} /></span>
+            <div><h4>Service mix</h4><p>Services across current patient records</p></div>
+          </div>
+          {serviceMix.length ? (
+            <div className="admin-report-bars">
+              {serviceMix.map(([service, count]) => (
+                <div className="admin-report-bar-row" key={service}>
+                  <div><span>{service}</span><strong>{count}</strong></div>
+                  <div className="admin-report-bar-track"><span style={{ width: `${Math.min((Number(count || 0) / maxService) * 100, 100)}%` }} /></div>
+                </div>
+              ))}
+            </div>
+          ) : <p className="admin-report-empty">Service distribution will appear as patient records are added.</p>}
+        </article>
+
+        <article className="admin-report-card">
+          <div className="admin-report-card-heading">
+            <span className="admin-report-icon is-amber"><UsersRound size={18} /></span>
+            <div><h4>Referral sources</h4><p>Where this month’s incoming enquiries originated</p></div>
+          </div>
+          {referralSources.length ? (
+            <div className="admin-report-bars">
+              {referralSources.map(([source, count]) => (
+                <div className="admin-report-bar-row" key={source}>
+                  <div><span>{source.replaceAll("-", " ")}</span><strong>{count}</strong></div>
+                  <div className="admin-report-bar-track is-amber"><span style={{ width: `${Math.min((Number(count || 0) / maxSources) * 100, 100)}%` }} /></div>
+                </div>
+              ))}
+            </div>
+          ) : <p className="admin-report-empty">Referral source data will appear as enquiries are recorded.</p>}
+        </article>
+      </div>
+
+      <article className="admin-report-card admin-report-insights">
+        <div className="admin-report-card-heading">
+          <span className="admin-report-icon"><FileText size={18} /></span>
+          <div><h4>Management signals</h4><p>System-generated observations from existing operational data</p></div>
         </div>
+        {insights.length ? (
+          <ul>{insights.map((insight) => <li key={insight}>{insight}</li>)}</ul>
+        ) : <p className="admin-report-empty">Management insights will appear as centre activity is recorded.</p>}
       </article>
-      <article className="table-panel">
-        <div className="panel-title">
-          <TrendingUp size={21} />
-          <div><h3>Referral funnel</h3><p className="resource-description">Track how incoming enquiries progress through the referral journey.</p></div>
-        </div>
-        <div className="mix-list">
-          {referralStatus.length ? referralStatus.map(([status, count]) => (
-            <span key={status}>{status}: <strong>{count}</strong></span>
-          )) : <p className="empty-state">No monthly referral activity yet.</p>}
-        </div>
-      </article>
-      <article className="table-panel">
-        <div className="panel-title">
-          <CalendarClock size={21} />
-          <div><h3>Today by status</h3><p className="resource-description">A snapshot of today's appointment outcomes.</p></div>
-        </div>
-        <div className="mix-list">
-          {appointmentStatus.length ? appointmentStatus.map(([status, count]) => (
-            <span key={status}>{status}: <strong>{count}</strong></span>
-          )) : <p className="empty-state">No appointments today.</p>}
-        </div>
-      </article>
-      <article className="table-panel">
-        <div className="panel-title">
-          <BarChart3 size={21} />
-          <div><h3>Service mix</h3><p className="resource-description">Compare the services represented in recorded activity.</p></div>
-        </div>
-        <div className="mix-list">
-          {serviceMix.length ? serviceMix.map(([service, count]) => (
-            <span key={service}>{service}: <strong>{count}</strong></span>
-          )) : <p className="empty-state">No service mix recorded.</p>}
-        </div>
-      </article>
-    </div>
+    </section>
   );
 }
-
 function toDateTimeLocal(value) {
   if (!value) return "";
   const date = new Date(value);
