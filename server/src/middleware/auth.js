@@ -9,8 +9,11 @@ export async function protect(req, res, next) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET, {
       algorithms: ["HS256"], issuer: "mindful-srinagar", audience: "mindful-staff"
     });
-    const user = await User.findById(decoded.id).select("name email role isActive");
+    const user = await User.findById(decoded.id).select("name email role isActive passwordChangedAt");
     if (!user || !user.isActive) return res.status(401).json({ message: "This staff account is inactive or no longer exists" });
+    if (user.passwordChangedAt && decoded.iat * 1000 < user.passwordChangedAt.getTime()) {
+      return res.status(401).json({ message: "Your password has changed. Please sign in again." });
+    }
     req.user = user;
     return next();
   } catch {
