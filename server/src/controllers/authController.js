@@ -87,7 +87,8 @@ export async function requestPasswordReset(req, res, next) {
       user.passwordResetTokenHash = undefined;
       user.passwordResetExpiresAt = undefined;
       await user.save();
-      return next(error);
+      console.error("Password reset email delivery failed:", error.message);
+      return res.json({ message: genericMessage });
     }
     return res.json({ message: genericMessage });
   } catch (error) { return next(error); }
