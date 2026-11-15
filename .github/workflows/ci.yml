@@ -6,6 +6,7 @@ on:
       - feature/admin-media-library
       - mvp/batch-4-clinical-governance
       - content/homepage-centre-identity
+      - ui-revamp
   push:
     branches:
       - feature/admin-media-library
@@ -14,6 +15,7 @@ on:
       - mvp/batch-5-release-readiness
       - ui/frontend-design-refresh
       - content/homepage-centre-identity
+      - ui-revamp
 
 permissions:
   contents: read
