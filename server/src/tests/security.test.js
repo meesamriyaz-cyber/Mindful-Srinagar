@@ -37,6 +37,30 @@ test("rate limiter rejects requests above the configured threshold", () => {
   assert.equal(second.statusCode, 429);
   assert.equal(second.body.message, "slow down");
 });
+test("rate limiter key generators isolate email buckets", () => {
+  const limiter = createRateLimiter({ windowMs: 60000, max: 1, message: "slow down", keyGenerator: (req) => req.emailKey });
+  const makeResponse = () => ({
+    statusCode: 200, setHeader() {},
+    status(code) { this.statusCode = code; return this; },
+    json(body) { this.body = body; return this; }
+  });
+  let passed = 0;
+  limiter({ emailKey: "email-a" }, makeResponse(), () => { passed += 1; });
+  limiter({ emailKey: "email-b" }, makeResponse(), () => { passed += 1; });
+  const blocked = makeResponse();
+  limiter({ emailKey: "email-a" }, blocked, () => { passed += 1; });
+  assert.equal(passed, 2);
+  assert.equal(blocked.statusCode, 429);
+});
+test("independent rate limiters do not share counters for the same IP", () => {
+  const first = createRateLimiter({ windowMs: 60000, max: 1, message: "first" });
+  const second = createRateLimiter({ windowMs: 60000, max: 1, message: "second" });
+  const makeResponse = () => ({ statusCode: 200, setHeader() {}, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } });
+  let passed = 0;
+  first({ ip: "shared-test-ip" }, makeResponse(), () => { passed += 1; });
+  second({ ip: "shared-test-ip" }, makeResponse(), () => { passed += 1; });
+  assert.equal(passed, 2);
+});
 test("role middleware rejects unauthorized roles", () => {
   const res = { statusCode: 200, status(code) { this.statusCode = code; return this; }, json(body) { this.body = body; return this; } };
   permit("director", "admin")({ user: { role: "reception" } }, res, () => assert.fail("next must not run"));
