@@ -1,3 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* shadcn/ui semantic tokens — Mindful premium healthcare palette */
+:root {
+  --background: 0 0% 100%;
+  --foreground: 205 28% 18%;
+  --card: 0 0% 100%;
+  --card-foreground: 205 28% 18%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 205 28% 18%;
+  --primary: 199 59% 22%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 180 24% 94%;
+  --secondary-foreground: 199 59% 22%;
+  --muted: 200 20% 95%;
+  --muted-foreground: 205 12% 43%;
+  --accent: 178 55% 94%;
+  --accent-foreground: 180 55% 27%;
+  --destructive: 5 62% 48%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 200 18% 88%;
+  --input: 200 18% 84%;
+  --ring: 180 55% 39%;
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: 205 32% 10%;
+  --foreground: 200 20% 96%;
+  --card: 205 30% 13%;
+  --card-foreground: 200 20% 96%;
+  --popover: 205 30% 13%;
+  --popover-foreground: 200 20% 96%;
+  --primary: 178 48% 52%;
+  --primary-foreground: 205 35% 10%;
+  --secondary: 205 24% 19%;
+  --secondary-foreground: 200 20% 96%;
+  --muted: 205 24% 19%;
+  --muted-foreground: 200 12% 67%;
+  --accent: 180 30% 20%;
+  --accent-foreground: 178 48% 70%;
+  --destructive: 4 55% 42%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 205 20% 24%;
+  --input: 205 20% 27%;
+  --ring: 178 48% 52%;
+}
+
 /* Mindful UI refresh — Batch 1: foundations
    Shared visual tokens and accessible base styles. No workflow or API changes. */
 
