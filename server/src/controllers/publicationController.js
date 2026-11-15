@@ -164,7 +164,7 @@ export async function listPublicMedia(req, res, next) {
     if (typeof req.query.category === "string" && req.query.category.trim()) filter.category = req.query.category.trim();
     const [items, total] = await Promise.all([
       Publication.find(filter)
-        .select("title slug type summary category tags coverMedia eventDate venue publishedAt identifiablePeople consentStatus consentScope")
+        .select("title slug type status summary category tags coverMedia eventDate venue publishedAt identifiablePeople consentStatus consentScope")
         .populate("coverMedia", "secureUrl resourceType format title status identifiablePeople consentStatus consentScope")
         .sort({ publishedAt: -1, createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
       Publication.countDocuments(filter)
