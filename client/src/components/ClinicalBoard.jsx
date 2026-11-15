@@ -31,6 +31,7 @@ import {
 import { ChipInput } from "./ChipInput.jsx";
 import { useAccessibleDialog } from "../hooks/useAccessibleDialog.js";
 import { services, serviceCharges } from "../data/centreData.js";
+import "./clinical-workspace.css";
 
 const CONFIGS = {
   assessments: {
