@@ -11,7 +11,10 @@ const userSchema = new mongoose.Schema(
       enum: ["director", "admin", "reception", "doctor", "therapist", "accounts", "coordinator"],
       default: "reception"
     },
-    isActive: { type: Boolean, default: true }
+    isActive: { type: Boolean, default: true },
+    passwordResetTokenHash: { type: String, select: false },
+    passwordResetExpiresAt: { type: Date, select: false },
+    passwordChangedAt: { type: Date }
   },
   { timestamps: true }
 );
