@@ -1,8 +1,8 @@
 import jwt from "jsonwebtoken";
-import { createHash, randomBytes } from "node:crypto";
 import { z } from "zod";
 import { User } from "../models/User.js";
 import { sendPasswordResetEmail } from "../services/emailService.js";
+import { createPasswordResetToken, hashPasswordResetToken, PASSWORD_RESET_TTL_MS } from "../security/passwordResetTokens.js";
 const staffRoles = ["director", "admin", "reception", "doctor", "therapist", "accounts", "coordinator"];
 const loginSchema = z.object({
   email: z.string().trim().email("Enter a valid staff email address").max(254),
@@ -54,10 +54,6 @@ const resetPasswordSchema = z.object({
   password: z.string().min(12, "Password must be at least 12 characters").max(128)
 }).strict();
 
-function hashResetToken(token) {
-  return createHash("sha256").update(token).digest("hex");
-}
-
 export async function requestPasswordReset(req, res, next) {
   try {
     const parsed = forgotPasswordSchema.safeParse(req.body);
@@ -66,9 +62,9 @@ export async function requestPasswordReset(req, res, next) {
     const user = await User.findOne({ email: parsed.data.email.toLowerCase(), isActive: true }).select("+passwordResetTokenHash +passwordResetExpiresAt");
     if (!user) return res.json({ message: genericMessage });
 
-    const rawToken = randomBytes(32).toString("hex");
-    user.passwordResetTokenHash = hashResetToken(rawToken);
-    user.passwordResetExpiresAt = new Date(Date.now() + 30 * 60 * 1000);
+    const rawToken = createPasswordResetToken();
+    user.passwordResetTokenHash = hashPasswordResetToken(rawToken);
+    user.passwordResetExpiresAt = new Date(Date.now() + PASSWORD_RESET_TTL_MS);
     await user.save();
 
     const frontendUrl = String(process.env.CLIENT_URL || process.env.CLIENT_ORIGIN || "").split(",")[0].trim().replace(/\/+$/, "");
@@ -76,7 +72,8 @@ export async function requestPasswordReset(req, res, next) {
       user.passwordResetTokenHash = undefined;
       user.passwordResetExpiresAt = undefined;
       await user.save();
-      throw new Error("CLIENT_URL is not configured for password recovery");
+      console.error("Password reset email delivery is unavailable: CLIENT_URL is not configured");
+      return res.json({ message: genericMessage });
     }
     const resetUrl = new URL("/", frontendUrl);
     resetUrl.searchParams.set("resetToken", rawToken);
@@ -98,7 +95,7 @@ export async function resetPassword(req, res, next) {
   try {
     const parsed = resetPasswordSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: parsed.error.issues[0]?.message || "Please check the reset details" });
-    const tokenHash = hashResetToken(parsed.data.token);
+    const tokenHash = hashPasswordResetToken(parsed.data.token);
     const user = await User.findOne({
       passwordResetTokenHash: tokenHash,
       passwordResetExpiresAt: { $gt: new Date() },
