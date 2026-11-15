@@ -17,14 +17,35 @@ function formatDate(value, options = {}) {
   return new Intl.DateTimeFormat("en-IN", { day: "numeric", month: "short", year: "numeric", ...options }).format(date);
 }
 
-function MediaPreview({ media, className = "" }) {
+function getCloudinaryImageUrl(url, { width = 2400, quality = "best" } = {}) {
+  if (typeof url !== "string" || !url.includes("/image/upload/")) return url;
+  try {
+    const parsed = new URL(url);
+    const marker = "/image/upload/";
+    const index = parsed.pathname.indexOf(marker);
+    if (index < 0) return url;
+    const prefix = parsed.pathname.slice(0, index + marker.length);
+    const remainder = parsed.pathname.slice(index + marker.length);
+    const segments = remainder.split("/");
+    const first = segments[0] || "";
+    const looksLikeTransformation = /^(?:[a-z]_[^/]+)(?:,(?:[a-z]_[^/]+))*$/.test(first);
+    if (looksLikeTransformation) segments.shift();
+    const transformation = `f_auto,q_auto:${quality},c_limit,w_${width},h_${width}`;
+    parsed.pathname = prefix + transformation + "/" + segments.join("/");
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
+function MediaPreview({ media, className = "", quality = "best", width = 2400 }) {
   const [failed, setFailed] = useState(false);
   useEffect(() => setFailed(false), [media?.secureUrl]);
   if (!media?.secureUrl || failed) return <div className={`public-content-placeholder ${className}`} role="img" aria-label="Media preview unavailable"><ImageIcon size={28} /><span>Preview unavailable</span></div>;
   if (media.resourceType === "video") {
     return <div className={`public-content-video ${className}`}><video src={media.secureUrl} muted playsInline preload="metadata" aria-label={media.title || "Gallery video"} onError={() => setFailed(true)} /><span><Play size={16} fill="currentColor" /> Video</span></div>;
   }
-  return <img className={className} src={media.secureUrl} alt={media.altText || media.title || "Mindful Centre"} loading="lazy" onError={() => setFailed(true)} />;
+  return <img className={className} src={getCloudinaryImageUrl(media.secureUrl, { width, quality })} alt={media.altText || media.title || "Mindful Centre"} loading="lazy" onError={() => setFailed(true)} />;
 }
 
 function renderBody(node, key = "root") {
@@ -53,7 +74,7 @@ function ContentCard({ item, onOpen, gallery = false }) {
   return (
     <article className={gallery ? "public-gallery-card" : "public-story-card"}>
       <button type="button" className="public-content-card-media" onClick={() => onOpen(item)} aria-label={`Open ${item.title}`}>
-        <MediaPreview media={media} />
+        <MediaPreview media={media} width={900} quality="good" />
         {gallery && <span className="public-gallery-count">{item.mediaItems?.length || 0} items</span>}
       </button>
       <div className="public-content-card-copy">
@@ -220,7 +241,7 @@ export function PublicContent() {
                   <>
                     <div className="public-gallery-viewer">
                       <div className="public-gallery-stage">
-                        {activeGalleryMedia ? <button type="button" className="public-gallery-image-trigger" onClick={() => setLightboxOpen(true)} aria-label="Enlarge selected photo"><MediaPreview media={activeGalleryMedia} className="public-gallery-stage-media" /><span className="public-gallery-zoom-hint">Click to enlarge</span></button> : <div className="public-content-placeholder"><ImageIcon size={30}/><span>No approved media in this gallery</span></div>}
+                        {activeGalleryMedia ? <button type="button" className="public-gallery-image-trigger" onClick={() => setLightboxOpen(true)} aria-label="Enlarge selected photo"><MediaPreview media={activeGalleryMedia} className="public-gallery-stage-media" width={2400} quality="best" /><span className="public-gallery-zoom-hint">Click to enlarge</span></button> : <div className="public-content-placeholder"><ImageIcon size={30}/><span>No approved media in this gallery</span></div>}
                         {galleryMedia.length > 1 && <>
                           <button type="button" className="public-gallery-arrow previous" onClick={() => moveGallerySlide(-1)} aria-label="Previous photo"><ArrowLeft size={21}/></button>
                           <button type="button" className="public-gallery-arrow next" onClick={() => moveGallerySlide(1)} aria-label="Next photo"><ArrowRight size={21}/></button>
@@ -254,7 +275,7 @@ export function PublicContent() {
         <div className="public-gallery-lightbox" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setLightboxOpen(false); }}>
           <section className="public-gallery-lightbox-panel" role="dialog" aria-modal="true" aria-label="Enlarged gallery image">
             <button type="button" className="public-gallery-lightbox-close" onClick={() => setLightboxOpen(false)} aria-label="Close enlarged image"><X size={23}/></button>
-            <div className="public-gallery-lightbox-media"><MediaPreview media={activeGalleryMedia}/></div>
+            <div className="public-gallery-lightbox-media"><MediaPreview media={activeGalleryMedia} width={2400} quality="best" /></div>
             <div className="public-gallery-lightbox-caption">{activeGalleryMedia.altText || activeGalleryMedia.title || selected?.title}</div>
             {galleryMedia.length > 1 && <>
               <button type="button" className="public-gallery-lightbox-arrow previous" onClick={() => moveGallerySlide(-1)} aria-label="Previous photo"><ArrowLeft size={22}/></button>
