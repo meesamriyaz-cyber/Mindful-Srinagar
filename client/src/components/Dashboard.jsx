@@ -27,7 +27,7 @@ import {
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDashboard } from "../hooks/useDashboard.js";
-import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, listReferralOwners, logReferralFollowUp, listTaskAssignees, createInvoice, API_BASE_URL } from "../lib/api.js";
+import { clearSession, getStoredSession, listRecords, loginStaff, storeSession, updateRecord, createRecord, listReferralOwners, logReferralFollowUp, listTaskAssignees, createInvoice, API_BASE_URL, requestStaffPasswordReset, completeStaffPasswordReset } from "../lib/api.js";
 import { ClinicalBoard } from "./ClinicalBoard.jsx";
 import { MediaLibrary } from "./MediaLibrary.jsx";
 import { ContentStudio } from "./ContentStudio.jsx";
@@ -165,20 +165,46 @@ function StatCard({ label, value, trend, icon: Icon, tone = "" }) {
 }
 
 function LoginPanel({ onLogin }) {
+  const initialResetToken = new URLSearchParams(window.location.search).get("resetToken") || "";
+  const [mode, setMode] = useState(initialResetToken ? "reset" : "login");
   const [form, setForm] = useState({ email: "", password: "" });
+  const [resetPassword, setResetPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [resetToken] = useState(initialResetToken);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
+
+  function changeMode(nextMode) {
+    setError("");
+    setNotice("");
+    setMode(nextMode);
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
     if (loading) return;
     setError("");
+    setNotice("");
     setLoading(true);
-
     try {
-      const session = await loginStaff(form);
-      storeSession(session);
-      onLogin(session);
+      if (mode === "forgot") {
+        const result = await requestStaffPasswordReset(form.email);
+        setNotice(result.message);
+      } else if (mode === "reset") {
+        if (resetPassword !== confirmPassword) throw new Error("Passwords do not match.");
+        const result = await completeStaffPasswordReset(resetToken, resetPassword);
+        setNotice(result.message);
+        setMode("login");
+        setForm((current) => ({ ...current, password: "" }));
+        setResetPassword("");
+        setConfirmPassword("");
+        window.history.replaceState({}, "", window.location.pathname + "#staff");
+      } else {
+        const session = await loginStaff(form);
+        storeSession(session);
+        onLogin(session);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -186,49 +212,80 @@ function LoginPanel({ onLogin }) {
     }
   }
 
+  const heading = mode === "forgot" ? "Reset your staff password." : mode === "reset" ? "Choose a new password." : "Sign in to view centre operations.";
+
   return (
     <section className="dashboard-section staff-login-section" id="dashboard">
       <div className="staff-login">
         <div>
           <p className="eyebrow">Staff console</p>
-          <h2>Sign in to view centre operations.</h2>
+          <h2>{heading}</h2>
           <p>
-            The public website stays focused. Patient, referral, billing and director analytics open only after staff
-            authentication.
+            {mode === "forgot"
+              ? "Enter the personal email address you use to sign in. If an active account exists, we will send a secure reset link."
+              : mode === "reset"
+                ? "Choose a strong password of at least 12 characters. The reset link can only be used once and expires after 30 minutes."
+                : "The public website stays focused. Patient, referral, billing and director analytics open only after staff authentication."}
           </p>
         </div>
         <form className="contact-form login-form" onSubmit={handleSubmit}>
-          <label>
-            Staff email
-            <input
-              type="email"
-              placeholder="name@mindful.local"
-              value={form.email}
-              onChange={(event) => setForm({ ...form, email: event.target.value })}
-              required
-            />
-          </label>
-          <label>
-            Password
-            <input
-              type="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={(event) => setForm({ ...form, password: event.target.value })}
-              required
-            />
-          </label>
+          {mode !== "reset" && (
+            <label>
+              Staff email
+              <input
+                type="email"
+                placeholder="name@example.com"
+                autoComplete="email"
+                value={form.email}
+                onChange={(event) => setForm({ ...form, email: event.target.value })}
+                required
+              />
+            </label>
+          )}
+          {mode === "login" && (
+            <label>
+              Password
+              <input
+                type="password"
+                placeholder="Password"
+                autoComplete="current-password"
+                value={form.password}
+                onChange={(event) => setForm({ ...form, password: event.target.value })}
+                required
+              />
+            </label>
+          )}
+          {mode === "reset" && (
+            <>
+              <label>
+                New password
+                <input type="password" minLength={12} maxLength={128} autoComplete="new-password" value={resetPassword} onChange={(event) => setResetPassword(event.target.value)} required />
+              </label>
+              <label>
+                Confirm new password
+                <input type="password" minLength={12} maxLength={128} autoComplete="new-password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} required />
+              </label>
+            </>
+          )}
           {error && <p className="form-status error-status" role="alert" aria-live="assertive">{error}</p>}
+          {notice && <p className="form-status success-status" role="status" aria-live="polite">{notice}</p>}
           {loading && (
             <div className="login-wait-toast" role="status" aria-live="polite">
               <span className="login-wait-spinner" aria-hidden="true" />
-              <span><strong>Connecting securely…</strong><small>The server may be waking up. Please wait while we sign you in.</small></span>
+              <span><strong>{mode === "login" ? "Connecting securely…" : "Please wait…"}</strong><small>{mode === "login" ? "The server may be waking up. Please wait while we sign you in." : "We are securely processing your request."}</small></span>
             </div>
           )}
-          <button className="primary-button full" type="submit" disabled={loading}>
+          <button className="primary-button full" type="submit" disabled={loading || (mode === "reset" && !resetToken)}>
             <ShieldCheck size={18} />
-            {loading ? "Please wait..." : "Sign in"}
+            {loading ? "Please wait..." : mode === "forgot" ? "Send reset link" : mode === "reset" ? "Set new password" : "Sign in"}
           </button>
+          {mode === "login" && (
+            <button className="secondary-button full" type="button" onClick={() => changeMode("forgot")}>Forgot password?</button>
+          )}
+          {mode !== "login" && (
+            <button className="secondary-button full" type="button" onClick={() => changeMode("login")}>Back to sign in</button>
+          )}
+          {mode === "reset" && !resetToken && <p className="form-status error-status" role="alert">This reset link is missing. Request a new password reset email.</p>}
         </form>
       </div>
     </section>
