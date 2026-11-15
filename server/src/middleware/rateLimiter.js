@@ -1,9 +1,9 @@
-const buckets = new Map();
-let requestsSinceCleanup = 0;
-export function createRateLimiter({ windowMs, max, message }) {
+export function createRateLimiter({ windowMs, max, message, keyGenerator }) {
+  const buckets = new Map();
+  let requestsSinceCleanup = 0;
   return function rateLimiter(req, res, next) {
     const now = Date.now();
-    const key = req.ip || req.socket?.remoteAddress || "unknown";
+    const key = String(keyGenerator ? keyGenerator(req) : (req.ip || req.socket?.remoteAddress || "unknown"));
     let bucket = buckets.get(key);
     if (!bucket || now - bucket.startedAt >= windowMs) {
       bucket = { startedAt: now, count: 0 };
