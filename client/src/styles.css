@@ -3127,3 +3127,289 @@ footer span {
     transition: none;
   }
 }
+
+
+/* Public-facing media experience — gallery-first editorial presentation */
+.public-content-section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding-top: clamp(64px, 7vw, 104px);
+  padding-bottom: clamp(68px, 7vw, 104px);
+  background:
+    radial-gradient(ellipse at 8% 4%, rgba(35,166,160,.10), transparent 34%),
+    radial-gradient(ellipse at 96% 18%, rgba(36,63,107,.075), transparent 32%),
+    linear-gradient(180deg, #f4f9f8 0%, #ffffff 48%, #f7fafb 100%);
+}
+.public-content-section::before {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: -1;
+  width: min(1180px, calc(100% - 40px));
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(35,126,124,.22), transparent);
+  content: "";
+  transform: translateX(-50%);
+}
+.public-content-heading {
+  align-items: flex-end;
+  gap: 36px;
+  margin-bottom: 12px;
+}
+.public-content-heading .section-heading {
+  max-width: 760px;
+  margin-bottom: 26px;
+}
+.public-content-heading .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 14px;
+  color: #167c78;
+  font-size: .76rem;
+  font-weight: 900;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+.public-content-heading .eyebrow::before {
+  width: 28px;
+  height: 2px;
+  border-radius: 2px;
+  background: #23a6a0;
+  content: "";
+}
+.public-content-heading .section-heading h2 {
+  max-width: 700px;
+  color: #183d54;
+  font-size: clamp(2rem, 4.2vw, 3.45rem);
+  font-weight: 850;
+  letter-spacing: -.045em;
+  line-height: 1.08;
+  text-wrap: balance;
+}
+.public-content-heading .section-heading > p:last-child {
+  max-width: 650px;
+  color: #647982;
+  font-size: clamp(.96rem, 1.2vw, 1.08rem);
+  line-height: 1.75;
+}
+.public-content-heading-note {
+  gap: 9px;
+  padding-bottom: 30px;
+}
+.public-content-heading-note span {
+  padding: 9px 13px;
+  border-color: rgba(35,126,124,.16);
+  background: rgba(255,255,255,.78);
+  color: #41666b;
+  box-shadow: 0 5px 18px rgba(28,73,79,.045);
+  backdrop-filter: blur(8px);
+}
+.public-content-tabs {
+  position: relative;
+  display: flex;
+  gap: 9px;
+  margin: 0 0 30px;
+  padding: 0 0 16px;
+  border-bottom: 1px solid rgba(58,111,116,.16);
+}
+.public-content-tabs button {
+  min-height: 50px;
+  padding: 0 20px;
+  border: 1px solid rgba(64,112,119,.16);
+  border-radius: 14px;
+  background: rgba(255,255,255,.84);
+  color: #5b737b;
+  font-size: .94rem;
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(30,65,73,.025);
+  transition: transform .18s ease, border-color .18s ease, color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.public-content-tabs button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(35,126,124,.42);
+  color: #176d6a;
+  box-shadow: 0 8px 20px rgba(30,91,91,.08);
+}
+.public-content-tabs button.active {
+  border-color: #68aaa4;
+  background: linear-gradient(135deg, #eaf6f3 0%, #f4f9fc 100%);
+  color: #126c6a;
+  box-shadow: 0 7px 20px rgba(35,126,124,.12), inset 0 0 0 1px rgba(255,255,255,.7);
+}
+.public-content-tabs button:focus-visible,
+.public-content-card-media:focus-visible,
+.public-content-card-copy button:focus-visible,
+.public-read-link:focus-visible {
+  outline: 3px solid rgba(35,166,160,.3);
+  outline-offset: 3px;
+}
+.public-gallery-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(16px, 2vw, 26px);
+}
+.public-gallery-card {
+  border: 1px solid rgba(55,104,109,.14);
+  border-radius: 20px;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 12px 34px rgba(24,57,67,.075);
+  transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+}
+.public-gallery-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(35,126,124,.35);
+  box-shadow: 0 22px 48px rgba(24,57,67,.14);
+}
+.public-gallery-card .public-content-card-media {
+  height: clamp(210px, 20vw, 285px);
+  background: #dce9e7;
+}
+.public-gallery-card .public-content-card-media::after {
+  position: absolute;
+  inset: 35% 0 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(9,35,43,.30) 100%);
+  content: "";
+  pointer-events: none;
+}
+.public-gallery-card .public-content-card-media > img {
+  transition: transform .65s cubic-bezier(.2,.7,.2,1), filter .4s ease;
+}
+.public-gallery-card:hover .public-content-card-media > img {
+  transform: scale(1.055);
+  filter: saturate(1.08);
+}
+.public-gallery-card .public-content-card-media > .public-content-video,
+.public-gallery-card .public-content-card-media > .public-content-placeholder {
+  transition: transform .5s ease;
+}
+.public-gallery-card:hover .public-content-card-media > .public-content-video {
+  transform: scale(1.035);
+}
+.public-gallery-count {
+  z-index: 1;
+  right: 14px;
+  bottom: 14px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255,255,255,.24);
+  border-radius: 99px;
+  background: rgba(11,38,47,.78);
+  font-size: .74rem;
+  letter-spacing: .02em;
+  box-shadow: 0 4px 14px rgba(0,0,0,.14);
+  backdrop-filter: blur(8px);
+}
+.public-gallery-card .public-content-card-copy {
+  gap: 11px;
+  padding: 20px 21px 22px;
+}
+.public-gallery-card .public-content-meta {
+  color: #819198;
+  font-size: .68rem;
+  letter-spacing: .09em;
+}
+.public-gallery-card .public-content-meta > span {
+  color: #147b76;
+}
+.public-gallery-card .public-content-card-copy h3 {
+  color: #1b4054;
+  font-size: clamp(1.08rem, 1.35vw, 1.24rem);
+  letter-spacing: -.02em;
+  line-height: 1.32;
+}
+.public-gallery-card .public-content-card-copy h3 button {
+  transition: color .18s ease;
+}
+.public-gallery-card .public-content-card-copy h3 button:hover {
+  color: #147b76;
+}
+.public-gallery-card .public-content-card-copy p {
+  min-height: 2.9em;
+  color: #687e85;
+  font-size: .88rem;
+  line-height: 1.65;
+}
+.public-gallery-card .public-read-link {
+  gap: 8px;
+  margin-top: 4px;
+  color: #147b76;
+  font-size: .84rem;
+  font-weight: 900;
+}
+.public-gallery-card .public-read-link svg {
+  transition: transform .18s ease;
+}
+.public-gallery-card .public-read-link:hover svg {
+  transform: translateX(4px);
+}
+.public-content-state {
+  min-height: 240px;
+  border: 1px dashed rgba(54,119,119,.28);
+  border-radius: 20px;
+  background: rgba(255,255,255,.7);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+}
+.public-content-state > svg {
+  color: #398e88;
+}
+.public-content-state strong {
+  color: #234b58;
+  font-size: 1.08rem;
+}
+.public-content-state span {
+  color: #71858a;
+}
+.public-content-load-more {
+  margin-top: 34px;
+}
+.public-content-load-more .secondary-button {
+  min-height: 46px;
+  padding: 0 22px;
+  border: 1px solid rgba(35,126,124,.3);
+  border-radius: 12px;
+  background: #fff;
+  color: #176f6b;
+  box-shadow: 0 6px 18px rgba(30,91,91,.06);
+}
+.public-content-load-more .secondary-button:hover {
+  border-color: #328e88;
+  background: #f0f8f6;
+}
+@media (max-width: 980px) {
+  .public-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .public-gallery-card .public-content-card-media { height: 245px; }
+}
+@media (max-width: 680px) {
+  .public-content-section { padding-top: 58px; padding-bottom: 62px; }
+  .public-content-heading { display: block; }
+  .public-content-heading .section-heading { margin-bottom: 18px; }
+  .public-content-heading .section-heading h2 { font-size: clamp(1.9rem, 8vw, 2.55rem); }
+  .public-content-heading-note { padding: 0 0 22px; }
+  .public-content-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+  }
+  .public-content-tabs button {
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 10px;
+    border-radius: 12px;
+    font-size: .88rem;
+  }
+  .public-gallery-grid { grid-template-columns: 1fr; gap: 17px; }
+  .public-gallery-card { border-radius: 17px; }
+  .public-gallery-card .public-content-card-media { height: clamp(220px, 66vw, 310px); }
+  .public-gallery-card .public-content-card-copy { padding: 18px 18px 20px; }
+  .public-gallery-card .public-content-card-copy p { min-height: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-content-tabs button,
+  .public-gallery-card,
+  .public-gallery-card .public-content-card-media > img,
+  .public-gallery-card .public-read-link svg {
+    transition: none;
+  }
+}
