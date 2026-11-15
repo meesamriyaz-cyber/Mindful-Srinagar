@@ -21,7 +21,7 @@ export async function sendPasswordResetEmail({ to, name, resetUrl }) {
       to: [{ email: to, name: safeName }],
       subject: "Reset your Mindful staff password",
       textContent: `Hello ${safeName},\n\nWe received a request to reset your Mindful staff account password. Use the link below within 30 minutes:\n\n${resetUrl}\n\nIf you did not request this, you can ignore this email. Your password will remain unchanged.\n\nMindful Centre`,
-      htmlContent: `<p>Hello ${safeName},</p><p>We received a request to reset your Mindful staff account password.</p><p><a href="${resetUrl}">Reset your password</a></p><p>This link expires in 30 minutes. If you did not request this, you can ignore this email.</p><p>Mindful Centre</p>`
+      htmlContent: `<p>Hello,</p><p>We received a request to reset your Mindful staff account password.</p><p><a href="${resetUrl}">Reset your password</a></p><p>This link expires in 30 minutes. If you did not request this, you can ignore this email.</p><p>Mindful Centre</p>`
     })
   });
   if (!response.ok) {
