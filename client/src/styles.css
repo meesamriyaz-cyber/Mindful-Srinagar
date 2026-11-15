@@ -3583,3 +3583,56 @@ footer span {
   object-fit: contain !important;
   object-position: center center !important;
 }
+
+
+/* Preserve the intrinsic dimensions of the selected gallery image.
+   The stage and lightbox are viewports; the image itself must not be stretched
+   to their dimensions or zoomed beyond its natural fitted size. */
+.public-gallery-stage .public-gallery-image-trigger {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+.public-gallery-stage .public-gallery-image-trigger > img.public-gallery-stage-media {
+  display: block !important;
+  flex: 0 1 auto !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  aspect-ratio: auto !important;
+  transform: none !important;
+  filter: none !important;
+}
+.public-gallery-stage .public-gallery-image-trigger:hover > img.public-gallery-stage-media,
+.public-gallery-stage .public-gallery-image-trigger:focus-visible > img.public-gallery-stage-media {
+  transform: none !important;
+  filter: none !important;
+}
+.public-gallery-lightbox-media {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.public-gallery-lightbox-media > img {
+  display: block !important;
+  flex: 0 1 auto !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  aspect-ratio: auto !important;
+}
