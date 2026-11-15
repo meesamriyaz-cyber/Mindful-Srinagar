@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { apiRequest } from "../lib/api.js";
+import { Badge } from "./ui/badge.jsx";
+import { Card, CardContent } from "./ui/card.jsx";
+import "./staff-console.css";
 
 const ROLES = [
   ["reception", "Reception"],
@@ -86,7 +89,7 @@ export function StaffBoard({ token, currentRole, onChanged }) {
   }
 
   return (
-    <article className="table-panel resource-panel staff-management-board">
+    <section className="staff-management-workspace"><header className="staff-workspace-heading"><div><p className="staff-workspace-eyebrow">TEAM & ACCESS</p><h2>People behind the care</h2><p>Manage staff identities, access roles and account availability.</p></div><Badge variant="secondary">{staff.length} team {staff.length === 1 ? "member" : "members"}</Badge></header><Card className="staff-management-board"><CardContent>
       <div className="panel-title resource-title staff-board-heading staff-management-heading">
         <div>
           <h3>Staff accounts</h3>
@@ -168,7 +171,7 @@ export function StaffBoard({ token, currentRole, onChanged }) {
             <div className="record-card staff-record-card" key={person._id}>
               <div className="record-main">
                 <div><strong>{person.name}</strong><span>{person.email}</span></div>
-                <mark className={person.isActive ? "good" : "risk"}>{person.isActive ? "Active" : "Inactive"}</mark>
+                <Badge variant={person.isActive ? "success" : "destructive"}>{person.isActive ? "Active" : "Inactive"}</Badge>
               </div>
               <p className="staff-role-line"><span>ACCESS ROLE</span><strong>{ROLES.find(([role]) => role === person.role)?.[1] || person.role}</strong></p>
               <p className="staff-created-line"><span>Created</span><strong>{person.createdAt ? new Date(person.createdAt).toLocaleDateString("en-IN") : "—"}</strong></p>
@@ -179,6 +182,6 @@ export function StaffBoard({ token, currentRole, onChanged }) {
       ) : staff.length ? (
         <p className="empty-state staff-no-results">No staff accounts match these filters. Try changing the search or filter selection.</p>
       ) : <p className="empty-state">No staff accounts found.</p>}
-    </article>
+      </CardContent></Card></section>
   );
 }
