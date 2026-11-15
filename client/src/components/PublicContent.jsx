@@ -104,6 +104,7 @@ export function PublicContent() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxZoom, setLightboxZoom] = useState(1);
   const [lightboxPan, setLightboxPan] = useState({ x: 0, y: 0 });
+  const [lightboxDragging, setLightboxDragging] = useState(false);
   const lightboxMediaRef = useRef(null);
   const lightboxDragRef = useRef(null);
   useEffect(() => {
@@ -208,6 +209,7 @@ export function PublicContent() {
     setLightboxZoom(1);
     setLightboxPan({ x: 0, y: 0 });
     lightboxDragRef.current = null;
+    setLightboxDragging(false);
   };
   const changeLightboxZoom = (amount) => {
     setLightboxZoom((current) => {
@@ -224,6 +226,7 @@ export function PublicContent() {
     if (lightboxZoom <= 1 || event.button !== 0) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     lightboxDragRef.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, panX: lightboxPan.x, panY: lightboxPan.y };
+    setLightboxDragging(true);
   };
   const handleLightboxPointerMove = (event) => {
     const drag = lightboxDragRef.current;
@@ -236,7 +239,10 @@ export function PublicContent() {
     setLightboxPan({ x: Math.max(-maxX, Math.min(maxX, x)), y: Math.max(-maxY, Math.min(maxY, y)) });
   };
   const handleLightboxPointerUp = (event) => {
-    if (lightboxDragRef.current?.pointerId === event.pointerId) lightboxDragRef.current = null;
+    if (lightboxDragRef.current?.pointerId === event.pointerId) {
+      lightboxDragRef.current = null;
+      setLightboxDragging(false);
+    }
   };
   const moveGallerySlide = (direction) => {
     if (!galleryMedia.length) return;
@@ -336,7 +342,7 @@ export function PublicContent() {
               onPointerCancel={handleLightboxPointerUp}
               onDoubleClick={() => lightboxZoom > 1 ? resetLightboxView() : changeLightboxZoom(1)}
             >
-              <MediaPreview media={activeGalleryMedia} width={2400} quality="best" style={{ transform: `translate(${lightboxPan.x}px, ${lightboxPan.y}px) scale(${lightboxZoom})`, transformOrigin: "center center", transition: lightboxDragRef.current ? "none" : "transform 120ms ease-out" }} />
+              <MediaPreview media={activeGalleryMedia} width={2400} quality="best" style={{ transform: `translate3d(${lightboxPan.x}px, ${lightboxPan.y}px, 0) scale(${lightboxZoom})`, transformOrigin: "center center", transition: lightboxDragging ? "none" : "transform 240ms cubic-bezier(0.2, 0.75, 0.25, 1)", backfaceVisibility: "hidden" }} />
             </div>
             <div className="public-gallery-lightbox-caption">{activeGalleryMedia.altText || activeGalleryMedia.title || selected?.title}</div>
             {galleryMedia.length > 1 && <>
