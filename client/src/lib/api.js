@@ -340,3 +340,18 @@ export function closePatientDischarge(id, { token } = {}) {
 export function listTaskAssignees({ token } = {}) {
   return apiRequest("/task-assignees", { token });
 }
+
+
+export function requestStaffPasswordReset(email) {
+  return apiRequest("/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email })
+  });
+}
+
+export function completeStaffPasswordReset(token, password) {
+  return apiRequest("/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, password })
+  });
+}
