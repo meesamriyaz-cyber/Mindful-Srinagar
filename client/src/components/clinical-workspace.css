@@ -1,0 +1,294 @@
+/* Batch 6 — clinical workspace presentation layer. No clinical workflow or API changes. */
+.clinical-resource-panel {
+  display: grid;
+  gap: 20px;
+  padding: clamp(16px, 2.2vw, 26px);
+  border: 1px solid #e1eaed;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(23, 63, 89, .045);
+  color: #23465a;
+}
+.clinical-board-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 14px;
+  padding-bottom: 17px;
+  border-bottom: 1px solid #edf1f3;
+}
+.clinical-board-heading > svg { margin-top: 4px; color: #247f83; }
+.clinical-board-heading h3 {
+  margin: 0;
+  color: #173f59;
+  font-size: clamp(1.15rem, 1.8vw, 1.4rem);
+  font-weight: 800;
+  letter-spacing: -.035em;
+}
+.clinical-board-heading .resource-description {
+  max-width: 680px;
+  margin: 7px 0;
+  color: #718491;
+  font-size: .82rem;
+  line-height: 1.55;
+}
+.clinical-board-heading .resource-count {
+  color: #247f83;
+  font-size: .72rem;
+  font-weight: 750;
+}
+.clinical-resource-panel > .form-status { margin: 0; }
+.clinical-record-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.clinical-record-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 13px;
+  padding: 17px;
+  border: 1px solid #e5ecef;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #fff 0%, #fbfdfd 100%);
+  box-shadow: 0 4px 14px rgba(23, 63, 89, .035);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.clinical-record-card:hover {
+  border-color: #c9dfdf;
+  box-shadow: 0 10px 22px rgba(23, 63, 89, .07);
+  transform: translateY(-1px);
+}
+.clinical-record-card .record-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.clinical-record-card .record-main > div { display: grid; min-width: 0; gap: 6px; }
+.clinical-record-card .record-main strong {
+  color: #23485d;
+  font-size: .88rem;
+  font-weight: 780;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.clinical-record-meta {
+  color: #7c8e99;
+  font-size: .74rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.clinical-record-detail {
+  margin: 0;
+  padding: 10px 11px;
+  border: 1px solid #edf2f3;
+  border-radius: 9px;
+  background: #f8fbfb;
+  color: #647b88;
+  font-size: .72rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.clinical-record-card mark {
+  flex: 0 0 auto;
+  max-width: 125px;
+  padding: 5px 9px;
+  border: 1px solid #e6ecee;
+  border-radius: 999px;
+  background: #f2f6f7;
+  color: #637986;
+  font-size: .65rem;
+  font-weight: 800;
+  line-height: 1.2;
+  text-transform: capitalize;
+  overflow-wrap: anywhere;
+}
+.clinical-record-card mark.good {
+  border-color: #d5ebe2;
+  background: #edf8f3;
+  color: #267354;
+}
+.clinical-record-card mark.risk {
+  border-color: #f1ded9;
+  background: #fff3f0;
+  color: #a34e3d;
+}
+.clinical-record-card .record-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 2px;
+}
+.clinical-record-card .record-actions button,
+.clinical-board-heading > button {
+  min-height: 36px;
+  border-radius: 9px;
+  font-size: .73rem;
+  font-weight: 750;
+}
+.clinical-resource-panel .empty-state {
+  margin: 0;
+  padding: 28px 16px;
+  border: 1px dashed #dce7e9;
+  border-radius: 12px;
+  background: #fafcfc;
+  color: #7d909a;
+  text-align: center;
+  font-size: .82rem;
+}
+.clinical-resource-panel .clinical-form {
+  display: grid;
+  gap: 16px;
+}
+.clinical-resource-panel .clinical-form label {
+  display: grid;
+  gap: 7px;
+  color: #38586a;
+  font-size: .76rem;
+  font-weight: 700;
+}
+.clinical-resource-panel .clinical-form input,
+.clinical-resource-panel .clinical-form select,
+.clinical-resource-panel .clinical-form textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 40px;
+  border: 1px solid #dce6e9;
+  border-radius: 9px;
+  background: #fff;
+  color: #24485d;
+  padding: 9px 11px;
+  font: inherit;
+  font-size: .8rem;
+}
+.clinical-resource-panel .clinical-form textarea { min-height: 100px; resize: vertical; }
+.clinical-resource-panel .clinical-form input:focus,
+.clinical-resource-panel .clinical-form select:focus,
+.clinical-resource-panel .clinical-form textarea:focus {
+  outline: 3px solid rgba(36, 127, 131, .13);
+  border-color: #63a6a3;
+}
+.clinical-resource-panel .clinical-form .form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.clinical-resource-panel .clinical-form fieldset {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #e2ebed;
+  border-radius: 12px;
+}
+.clinical-resource-panel .clinical-form legend {
+  padding: 0 6px;
+  color: #31586b;
+  font-size: .78rem;
+  font-weight: 800;
+}
+.clinical-resource-panel .modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  justify-content: flex-end;
+}
+.clinical-resource-panel button:disabled {
+  cursor: not-allowed;
+  opacity: .58;
+}
+.practitioner-workspace {
+  display: grid;
+  gap: 18px;
+  margin: 22px 0 30px;
+  color: #23465a;
+}
+.practitioner-workspace .staff-console-identity {
+  padding: 22px 24px;
+  border: 1px solid #dce9e9;
+  border-radius: 16px;
+  background: linear-gradient(120deg, #f4faf9, #fff 75%);
+  box-shadow: 0 8px 24px rgba(23, 63, 89, .04);
+}
+.practitioner-workspace .staff-console-identity h3 {
+  color: #173f59;
+  font-size: 1.12rem;
+  font-weight: 800;
+}
+.practitioner-workspace .staff-console-identity p {
+  color: #718491;
+  font-size: .8rem;
+  line-height: 1.6;
+}
+.practitioner-workspace .staff-console-identity p strong { color: #244c60; }
+.practitioner-workspace .staff-console-metrics { gap: 12px; }
+.practitioner-workspace .stat-card {
+  min-width: 0;
+  padding: 17px;
+  border: 1px solid #e2ebed;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 5px 18px rgba(23, 63, 89, .035);
+}
+.practitioner-workspace .stat-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #718491;
+  font-size: .72rem;
+  font-weight: 700;
+}
+.practitioner-workspace .stat-topline svg { flex: 0 0 auto; color: #247f83; }
+.practitioner-workspace .stat-card > strong {
+  display: block;
+  margin: 12px 0 3px;
+  color: #173f59;
+  font-size: clamp(1.45rem, 2.2vw, 1.9rem);
+  font-weight: 850;
+  letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums;
+}
+.practitioner-workspace .staff-console-panel {
+  padding: 19px;
+  border: 1px solid #e1eaed;
+  border-radius: 15px;
+  background: #fff;
+  box-shadow: 0 7px 22px rgba(23, 63, 89, .04);
+}
+.practitioner-workspace .staff-console-panel .panel-title h3 {
+  color: #173f59;
+  font-size: .96rem;
+  font-weight: 800;
+}
+.practitioner-workspace .staff-console-panel .panel-title svg { color: #247f83; }
+.practitioner-workspace .staff-console-list { min-width: 0; }
+.practitioner-workspace .staff-console-record,
+.practitioner-workspace .staff-console-appointment { min-width: 0; gap: 12px; }
+.practitioner-workspace .staff-console-record > div,
+.practitioner-workspace .staff-console-appointment > div { min-width: 0; }
+.practitioner-workspace .staff-console-record span,
+.practitioner-workspace .staff-console-appointment span { overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .clinical-record-grid { grid-template-columns: minmax(0, 1fr); }
+  .clinical-board-heading { grid-template-columns: auto minmax(0, 1fr); }
+  .clinical-board-heading > button { grid-column: 1 / -1; justify-self: stretch; }
+  .clinical-resource-panel .clinical-form .form-row { grid-template-columns: 1fr; }
+  .practitioner-workspace .staff-console-identity { padding: 17px; }
+}
+@media (max-width: 480px) {
+  .clinical-resource-panel { gap: 15px; padding: 14px; border-radius: 13px; }
+  .clinical-record-card { padding: 14px; }
+  .clinical-record-card .record-main { flex-direction: column; }
+  .clinical-record-card mark { max-width: 100%; }
+  .clinical-record-card .record-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .clinical-record-card .record-actions button { width: 100%; }
+  .practitioner-workspace .staff-console-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .practitioner-workspace .stat-card { padding: 12px; }
+  .practitioner-workspace .stat-topline { align-items: flex-start; font-size: .66rem; }
+  .practitioner-workspace .staff-console-panel { padding: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .clinical-resource-panel *, .practitioner-workspace * { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
