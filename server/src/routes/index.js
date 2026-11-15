@@ -157,8 +157,41 @@ router.get("/dashboard", permit("director", "admin", "reception"), getDashboard)
 router.get("/dashboard/practitioner", permit("doctor", "therapist"), getPractitionerDashboard);
 router.get("/staff", permit(...management), async (_req, res, next) => {
   try {
-    const staff = await User.find().select("_id name email role isActive createdAt").sort({ name: 1 }).lean();
+    const staff = await User.find()
+      .select("_id name email role isActive createdAt isActiveChangedAt isActiveChangedBy")
+      .populate("isActiveChangedBy", "name email")
+      .sort({ name: 1 })
+      .lean();
     return res.json(staff);
+  } catch (error) { return next(error); }
+});
+
+router.patch("/staff/:id/status", permit("director"), async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid staff account is required" });
+    const payload = req.body && typeof req.body === "object" && !Array.isArray(req.body) ? req.body : {};
+    if (Object.keys(payload).length !== 1 || typeof payload.isActive !== "boolean") {
+      return res.status(400).json({ message: "Provide only an isActive boolean value" });
+    }
+    if (String(req.params.id) === String(req.user._id)) {
+      return res.status(409).json({ message: "You cannot deactivate your own Director account" });
+    }
+    const target = await User.findById(req.params.id).select("_id name email role isActive");
+    if (!target) return res.status(404).json({ message: "Staff account not found" });
+    if (target.isActive === payload.isActive) return res.json({ id: target._id, isActive: target.isActive, message: "Account status is already up to date" });
+    if (!payload.isActive && target.role === "director") {
+      const activeDirectors = await User.countDocuments({ role: "director", isActive: true });
+      if (activeDirectors <= 1) return res.status(409).json({ message: "The last active Director account cannot be deactivated" });
+    }
+    const changedAt = new Date();
+    const updated = await User.findOneAndUpdate(
+      { _id: target._id, isActive: target.isActive },
+      { $set: { isActive: payload.isActive, isActiveChangedAt: changedAt, isActiveChangedBy: req.user._id } },
+      { new: true, runValidators: true }
+    ).select("_id name email role isActive isActiveChangedAt isActiveChangedBy")
+      .populate("isActiveChangedBy", "name email");
+    if (!updated) return res.status(409).json({ message: "This account changed while you were updating it. Refresh the staff directory." });
+    return res.json(updated);
   } catch (error) { return next(error); }
 });
 router.get("/staff-accounts", permit(...management), async (_req, res, next) => {
