@@ -349,3 +349,21 @@
     transform: none;
   }
 }
+
+/* Batch 8 visual review — keep the directory title and member count
+   on the same header row instead of inheriting CardHeader's flex-column. */
+.staff-management-board .staff-board-card-header {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.staff-management-board .staff-board-card-header > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 0;
+}
+
+@media (max-width: 480px) {
+  .staff-management-board .staff-board-card-header {
+    align-items: center;
+    flex-direction: row;
+  }
+}
