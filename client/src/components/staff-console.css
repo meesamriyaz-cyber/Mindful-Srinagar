@@ -5,3 +5,347 @@
 .staff-management-board .staff-board-toolbar{display:grid;grid-template-columns:minmax(220px,1.5fr) repeat(2,minmax(150px,.7fr));gap:12px;align-items:end}.staff-management-board .staff-board-toolbar label{display:grid;gap:6px;color:#526d7c;font-size:.75rem;font-weight:700}.staff-management-board .staff-board-toolbar input,.staff-management-board .staff-board-toolbar select{width:100%;min-height:42px;padding:9px 12px;border:1px solid #dce6e9;border-radius:10px;background:#fff;color:#24495d;font:inherit;font-size:.84rem}.staff-management-board .staff-results-line{display:flex;justify-content:space-between;gap:12px;margin:14px 0;color:#718590;font-size:.76rem}.staff-management-board .staff-filter-reset{border:0;background:none;color:#247f83;font:inherit;font-weight:750;cursor:pointer}.staff-management-board .staff-record-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.staff-management-board .staff-record-card{padding:17px;border:1px solid #e5edef;border-radius:13px;background:#fff;box-shadow:0 4px 14px rgba(23,63,89,.035)}.staff-management-board .staff-record-card .record-main{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.staff-management-board .staff-record-card .record-main>div{display:grid;gap:4px;min-width:0}.staff-management-board .staff-record-card .record-main strong{color:#173f59;font-size:.92rem}.staff-management-board .staff-record-card .record-main span{overflow-wrap:anywhere;color:#718590;font-size:.77rem}.staff-management-board .staff-role-line,.staff-management-board .staff-created-line{display:flex;justify-content:space-between;gap:12px;margin:14px 0 0;padding-top:11px;border-top:1px solid #eef2f4}.staff-management-board .staff-role-line span,.staff-management-board .staff-created-line span{color:#84959e;font-size:.67rem;font-weight:750;letter-spacing:.07em}.staff-management-board .staff-role-line strong,.staff-management-board .staff-created-line strong{color:#38596b;font-size:.76rem}
 .staff-console-view{gap:18px}.staff-console-view .staff-console-identity{padding:22px;border:1px solid #dce9eb;border-radius:16px;background:linear-gradient(115deg,#f3faf9,#fff 75%);box-shadow:0 10px 28px rgba(23,63,89,.04)}.staff-console-view .staff-console-identity p{color:#647b89;line-height:1.55}.staff-console-view .staff-console-identity strong{color:#173f59}.staff-console-view .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}.staff-console-view .stat-card{min-width:0;padding:16px;border:1px solid #e1eaed;border-radius:14px;background:#fff;box-shadow:0 7px 20px rgba(23,63,89,.04)}.staff-console-view .stat-card .stat-topline{display:flex;justify-content:space-between;gap:8px;color:#6c818d;font-size:.73rem}.staff-console-view .stat-card .stat-topline svg{color:#247f83}.staff-console-view .stat-card>strong{display:block;margin:13px 0 4px;color:#173f59;font-size:1.8rem;font-weight:850}.staff-console-view .stat-card>small{color:#8798a1;font-size:.7rem}.staff-console-view .console-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.staff-console-view .staff-console-panel{min-width:0;padding:19px;border:1px solid #e1eaed;border-radius:15px;background:#fff;box-shadow:0 8px 24px rgba(23,63,89,.04)}.staff-console-view .staff-console-panel .panel-title{display:flex;align-items:center;gap:10px;margin-bottom:12px}.staff-console-view .staff-console-panel .panel-title svg{color:#247f83}.staff-console-view .staff-console-panel .panel-title h3{margin:0;color:#173f59;font-size:.98rem}.staff-console-view .staff-console-list{display:grid}.staff-console-view .staff-console-appointment,.staff-console-view .staff-console-record{padding:12px 0;border-bottom:1px solid #edf2f4}.staff-console-view .staff-console-appointment:last-child,.staff-console-view .staff-console-record:last-child{border:0}.staff-console-view .staff-console-appointment time{display:grid;place-items:center;flex:0 0 64px;min-height:38px;border-radius:9px;background:#f0f7f7;color:#247f83;font-size:.75rem;font-weight:800}.staff-console-view .staff-console-appointment strong,.staff-console-view .staff-console-record strong{color:#284d61;font-size:.82rem}.staff-console-view .staff-console-appointment span,.staff-console-view .staff-console-record span{display:block;margin-top:4px;color:#82939c;font-size:.72rem;line-height:1.45}.staff-console-view mark{border-radius:999px;padding:4px 9px;background:#edf5f5;color:#356c70;font-size:.68rem;font-weight:750}
 @media(max-width:1050px){.staff-management-board .staff-board-summary,.staff-console-view .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:760px){.staff-workspace-heading{align-items:flex-start;flex-direction:column}.staff-management-board .staff-board-toolbar{grid-template-columns:1fr 1fr}.staff-management-board .staff-board-toolbar .staff-board-search{grid-column:1/-1}.staff-management-board .staff-record-grid,.staff-console-view .console-grid{grid-template-columns:1fr}.staff-management-board>.p-6{padding:16px}}@media(max-width:480px){.staff-management-board .staff-board-summary{gap:8px}.staff-management-board .staff-summary-card{padding:12px}.staff-management-board .staff-summary-card strong{font-size:1.4rem}.staff-management-board .staff-board-toolbar{grid-template-columns:1fr}.staff-management-board .staff-board-toolbar .staff-board-search{grid-column:auto}.staff-console-view .stats-grid{grid-template-columns:1fr 1fr;gap:8px}.staff-console-view .stat-card{padding:12px}.staff-console-view .stat-card>strong{font-size:1.5rem}.staff-console-view .staff-console-panel{padding:15px}}
+
+
+/* Batch 8 — Staff directory markup alignment.
+   These selectors match the current StaffBoard JSX (directory cards and
+   summary are siblings of the directory Card, not legacy record-card markup). */
+.staff-management-workspace > .staff-board-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.staff-management-workspace > .staff-board-summary .staff-summary-card {
+  min-width: 0;
+  border: 1px solid #e2eaed;
+  border-radius: 15px;
+  background: linear-gradient(145deg, #fff, #f9fbfc);
+  box-shadow: 0 4px 14px rgba(23, 63, 89, .035);
+}
+
+.staff-management-workspace > .staff-board-summary .staff-summary-card > div {
+  display: grid;
+  gap: 8px;
+  padding: 17px;
+}
+
+.staff-management-workspace > .staff-board-summary .staff-summary-card span {
+  color: #718590;
+  font-size: .75rem;
+  font-weight: 750;
+}
+
+.staff-management-workspace > .staff-board-summary .staff-summary-value {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #247f83;
+}
+
+.staff-management-workspace > .staff-board-summary .staff-summary-value svg {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 auto;
+}
+
+.staff-management-workspace > .staff-board-summary .staff-summary-value strong {
+  color: #173f59;
+  font-size: clamp(1.55rem, 2vw, 2rem);
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.staff-management-workspace > .staff-board-summary .staff-summary-card small {
+  color: #84949d;
+  font-size: .7rem;
+}
+
+.staff-management-workspace > .staff-board-summary .staff-summary-card.is-active {
+  border-color: #d5eee5;
+  background: linear-gradient(145deg, #fff, #f0faf7);
+}
+
+.staff-management-workspace > .staff-board-summary .staff-summary-card.is-inactive {
+  border-color: #f2e4dc;
+  background: linear-gradient(145deg, #fff, #fff8f5);
+}
+
+.staff-management-workspace > .staff-board-summary .staff-summary-card.is-clinical {
+  border-color: #e0e8f4;
+  background: linear-gradient(145deg, #fff, #f4f7fc);
+}
+
+.staff-management-board .staff-board-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 21px 22px 15px;
+}
+
+.staff-management-board .staff-board-card-header > div {
+  min-width: 0;
+}
+
+.staff-management-board .staff-board-toolbar {
+  grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(145px, .7fr));
+}
+
+.staff-management-board .staff-search-field,
+.staff-management-board .staff-filter-control {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+
+.staff-management-board .staff-search-input-wrap {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 9px;
+  padding-left: 11px;
+  border: 1px solid #dce6e9;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.staff-management-board .staff-search-input-wrap > svg {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  color: #7d929d;
+}
+
+.staff-management-board .staff-search-input-wrap input {
+  border: 0;
+  box-shadow: none;
+}
+
+.staff-management-board .staff-search-input-wrap:focus-within {
+  border-color: #63a6a3;
+  box-shadow: 0 0 0 3px rgba(36, 127, 131, .12);
+}
+
+.staff-management-board .staff-results-line {
+  align-items: center;
+}
+
+.staff-management-board .staff-directory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.staff-management-board .staff-directory-person {
+  display: grid;
+  min-width: 0;
+  gap: 15px;
+  padding: 17px;
+  border: 1px solid #e3ebee;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #fff, #fbfdfd);
+  box-shadow: 0 4px 14px rgba(23, 63, 89, .035);
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.staff-management-board .staff-directory-person:hover {
+  border-color: #c9dfdf;
+  box-shadow: 0 10px 22px rgba(23, 63, 89, .07);
+  transform: translateY(-1px);
+}
+
+.staff-management-board .staff-person-top {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.staff-management-board .staff-person-avatar {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid #dcebea;
+  border-radius: 13px;
+  color: #247f83;
+  background: #eff7f6;
+}
+
+.staff-management-board .staff-person-avatar svg {
+  width: 21px;
+  height: 21px;
+}
+
+.staff-management-board .staff-person-identity {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.staff-management-board .staff-person-identity h3 {
+  margin: 0;
+  color: #173f59;
+  font-size: .91rem;
+  font-weight: 850;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.staff-management-board .staff-person-identity p {
+  margin: 0;
+  color: #718590;
+  font-size: .74rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.staff-management-board .staff-person-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding-top: 13px;
+  border-top: 1px solid #edf1f2;
+}
+
+.staff-management-board .staff-person-meta > div {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+}
+
+.staff-management-board .staff-person-meta > div > span {
+  color: #8a9aa2;
+  font-size: .61rem;
+  font-weight: 850;
+  letter-spacing: .08em;
+}
+
+.staff-management-board .staff-person-meta strong {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 6px;
+  color: #38596b;
+  font-size: .74rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.staff-management-board .staff-person-meta strong svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  color: #247f83;
+}
+
+.staff-management-board .staff-practitioner-note {
+  margin: 0;
+  padding: 9px 11px;
+  border: 1px solid #e3ebee;
+  border-radius: 9px;
+  color: #657d89;
+  background: #f7fafb;
+  font-size: .7rem;
+  line-height: 1.5;
+}
+
+.staff-management-board .staff-directory-state {
+  display: grid;
+  justify-items: center;
+  gap: 9px;
+  padding: 36px 18px;
+  border: 1px dashed #dce7e9;
+  border-radius: 13px;
+  color: #718590;
+  text-align: center;
+}
+
+.staff-management-board .staff-directory-state > svg {
+  width: 26px;
+  height: 26px;
+  color: #247f83;
+}
+
+.staff-management-board .staff-directory-state strong {
+  color: #24475d;
+  font-size: .9rem;
+}
+
+.staff-management-board .staff-directory-state p {
+  margin: 0;
+  font-size: .76rem;
+}
+
+@media (max-width: 1050px) {
+  .staff-management-workspace > .staff-board-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .staff-management-board .staff-board-toolbar {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .staff-management-board .staff-search-field {
+    grid-column: 1 / -1;
+  }
+
+  .staff-management-board .staff-directory-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .staff-management-workspace > .staff-board-summary {
+    gap: 8px;
+  }
+
+  .staff-management-workspace > .staff-board-summary .staff-summary-card > div {
+    padding: 12px;
+  }
+
+  .staff-management-board .staff-board-card-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 17px 16px 12px;
+  }
+
+  .staff-management-board .staff-board-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .staff-management-board .staff-search-field {
+    grid-column: auto;
+  }
+
+  .staff-management-board .staff-person-top {
+    grid-template-columns: 38px minmax(0, 1fr);
+  }
+
+  .staff-management-board .staff-person-top > [data-slot="badge"] {
+    grid-column: 2;
+    justify-self: start;
+  }
+
+  .staff-management-board .staff-person-avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .staff-management-board .staff-person-meta {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .staff-management-board .staff-directory-person:hover {
+    transform: none;
+  }
+}
