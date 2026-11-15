@@ -164,7 +164,7 @@ function StatCard({ label, value, trend, icon: Icon, tone = "" }) {
   );
 }
 
-function LoginPanel({ onLogin }) {
+function LoginPanel({ onLogin, initialNotice = "" }) {
   const initialResetToken = new URLSearchParams(window.location.search).get("resetToken") || "";
   const [mode, setMode] = useState(initialResetToken ? "reset" : "login");
   const [form, setForm] = useState({ email: "", password: "" });
@@ -172,7 +172,7 @@ function LoginPanel({ onLogin }) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [resetToken] = useState(initialResetToken);
   const [error, setError] = useState("");
-  const [notice, setNotice] = useState("");
+  const [notice, setNotice] = useState(initialNotice);
   const [loading, setLoading] = useState(false);
 
   function changeMode(nextMode) {
@@ -1287,6 +1287,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
 
 export function Dashboard() {
   const [session, setSession] = useState(getStoredSession);
+  const [authNotice, setAuthNotice] = useState("");
   const consoleHeaderRef = React.useRef(null);
   const [navigationScrollRequest, setNavigationScrollRequest] = useState(0);
   const [activeView, setActiveView] = useState(() => {
@@ -1296,6 +1297,15 @@ export function Dashboard() {
     if (role === "accounts") return "billing";
     return "overview";
   });
+  useEffect(() => {
+    const handleUnauthorized = (event) => {
+      clearSession();
+      setSession({ token: null, user: null });
+      setAuthNotice(event.detail?.message || "Your staff session is no longer valid. Please sign in again.");
+    };
+    window.addEventListener("mindful:unauthorized", handleUnauthorized);
+    return () => window.removeEventListener("mindful:unauthorized", handleUnauthorized);
+  }, []);
   useEffect(() => {
     if (navigationScrollRequest === 0 || typeof window === "undefined") return undefined;
     if (!window.matchMedia("(max-width: 820px)").matches) return undefined;
@@ -1572,7 +1582,8 @@ export function Dashboard() {
   }
 
   if (!session.token) {
-    return <LoginPanel onLogin={(nextSession) => {
+    return <LoginPanel initialNotice={authNotice} onLogin={(nextSession) => {
+      setAuthNotice("");
       setSession(nextSession);
       setActiveView(["doctor","therapist"].includes(nextSession.user?.role) ? "overview" : nextSession.user?.role === "coordinator" ? "patients" : nextSession.user?.role === "accounts" ? "billing" : "overview");
     }} />;
