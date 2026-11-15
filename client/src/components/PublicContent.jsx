@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, CalendarDays, Image as ImageIcon, LoaderCircle, MapPin, Newspaper, Play, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, Image as ImageIcon, LoaderCircle, MapPin, Newspaper, Play, RotateCcw, X, ZoomIn, ZoomOut } from "lucide-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { apiRequest } from "../lib/api.js";
 
@@ -38,14 +38,14 @@ function getCloudinaryImageUrl(url, { width = 2400, quality = "best" } = {}) {
   }
 }
 
-function MediaPreview({ media, className = "", quality = "best", width = 2400 }) {
+function MediaPreview({ media, className = "", quality = "best", width = 2400, style }) {
   const [failed, setFailed] = useState(false);
   useEffect(() => setFailed(false), [media?.secureUrl]);
   if (!media?.secureUrl || failed) return <div className={`public-content-placeholder ${className}`} role="img" aria-label="Media preview unavailable"><ImageIcon size={28} /><span>Preview unavailable</span></div>;
   if (media.resourceType === "video") {
     return <div className={`public-content-video ${className}`}><video src={media.secureUrl} muted playsInline preload="metadata" aria-label={media.title || "Gallery video"} onError={() => setFailed(true)} /><span><Play size={16} fill="currentColor" /> Video</span></div>;
   }
-  return <img className={className} src={getCloudinaryImageUrl(media.secureUrl, { width, quality })} alt={media.altText || media.title || "Mindful Centre"} loading="lazy" onError={() => setFailed(true)} />;
+  return <img className={className} style={style} src={getCloudinaryImageUrl(media.secureUrl, { width, quality })} alt={media.altText || media.title || "Mindful Centre"} loading="lazy" onError={() => setFailed(true)} />;
 }
 
 function renderBody(node, key = "root") {
@@ -102,6 +102,10 @@ export function PublicContent() {
   const [selected, setSelected] = useState(null);
   const [selectedMediaIndex, setSelectedMediaIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxZoom, setLightboxZoom] = useState(1);
+  const [lightboxPan, setLightboxPan] = useState({ x: 0, y: 0 });
+  const lightboxMediaRef = useRef(null);
+  const lightboxDragRef = useRef(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
   const listRequestId = useRef(0);
@@ -193,6 +197,40 @@ export function PublicContent() {
       })()
     : [];
   const activeGalleryMedia = galleryMedia[Math.min(selectedMediaIndex, Math.max(galleryMedia.length - 1, 0))] || null;
+  const resetLightboxView = () => {
+    setLightboxZoom(1);
+    setLightboxPan({ x: 0, y: 0 });
+    lightboxDragRef.current = null;
+  };
+  const changeLightboxZoom = (amount) => {
+    setLightboxZoom((current) => {
+      const next = Math.min(5, Math.max(1, Number((current + amount).toFixed(2))));
+      if (next === 1) setLightboxPan({ x: 0, y: 0 });
+      return next;
+    });
+  };
+  const handleLightboxWheel = (event) => {
+    event.preventDefault();
+    changeLightboxZoom(event.deltaY < 0 ? 0.25 : -0.25);
+  };
+  const handleLightboxPointerDown = (event) => {
+    if (lightboxZoom <= 1 || event.button !== 0) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    lightboxDragRef.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, panX: lightboxPan.x, panY: lightboxPan.y };
+  };
+  const handleLightboxPointerMove = (event) => {
+    const drag = lightboxDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId || !lightboxMediaRef.current) return;
+    const bounds = lightboxMediaRef.current.getBoundingClientRect();
+    const maxX = (bounds.width * (lightboxZoom - 1)) / 2;
+    const maxY = (bounds.height * (lightboxZoom - 1)) / 2;
+    const x = drag.panX + event.clientX - drag.x;
+    const y = drag.panY + event.clientY - drag.y;
+    setLightboxPan({ x: Math.max(-maxX, Math.min(maxX, x)), y: Math.max(-maxY, Math.min(maxY, y)) });
+  };
+  const handleLightboxPointerUp = (event) => {
+    if (lightboxDragRef.current?.pointerId === event.pointerId) lightboxDragRef.current = null;
+  };
   const moveGallerySlide = (direction) => {
     if (!galleryMedia.length) return;
     setSelectedMediaIndex((current) => (current + direction + galleryMedia.length) % galleryMedia.length);
@@ -275,7 +313,24 @@ export function PublicContent() {
         <div className="public-gallery-lightbox" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setLightboxOpen(false); }}>
           <section className="public-gallery-lightbox-panel" role="dialog" aria-modal="true" aria-label="Enlarged gallery image">
             <button type="button" className="public-gallery-lightbox-close" onClick={() => setLightboxOpen(false)} aria-label="Close enlarged image"><X size={23}/></button>
-            <div className="public-gallery-lightbox-media"><MediaPreview media={activeGalleryMedia} width={2400} quality="best" /></div>
+            <div className="public-gallery-lightbox-controls" aria-label="Image zoom controls">
+              <button type="button" onClick={() => changeLightboxZoom(-0.25)} disabled={lightboxZoom <= 1} aria-label="Zoom out"><ZoomOut size={19}/></button>
+              <span>{Math.round(lightboxZoom * 100)}%</span>
+              <button type="button" onClick={() => changeLightboxZoom(0.25)} disabled={lightboxZoom >= 5} aria-label="Zoom in"><ZoomIn size={19}/></button>
+              <button type="button" onClick={resetLightboxView} disabled={lightboxZoom === 1 && lightboxPan.x === 0 && lightboxPan.y === 0} aria-label="Reset zoom"><RotateCcw size={18}/></button>
+            </div>
+            <div
+              ref={lightboxMediaRef}
+              className={lightboxZoom > 1 ? "public-gallery-lightbox-media is-zoomed" : "public-gallery-lightbox-media"}
+              onWheel={handleLightboxWheel}
+              onPointerDown={handleLightboxPointerDown}
+              onPointerMove={handleLightboxPointerMove}
+              onPointerUp={handleLightboxPointerUp}
+              onPointerCancel={handleLightboxPointerUp}
+              onDoubleClick={() => lightboxZoom > 1 ? resetLightboxView() : changeLightboxZoom(1)}
+            >
+              <MediaPreview media={activeGalleryMedia} width={2400} quality="best" style={{ transform: `translate(${lightboxPan.x}px, ${lightboxPan.y}px) scale(${lightboxZoom})`, transformOrigin: "center center", transition: lightboxDragRef.current ? "none" : "transform 120ms ease-out" }} />
+            </div>
             <div className="public-gallery-lightbox-caption">{activeGalleryMedia.altText || activeGalleryMedia.title || selected?.title}</div>
             {galleryMedia.length > 1 && <>
               <button type="button" className="public-gallery-lightbox-arrow previous" onClick={() => moveGallerySlide(-1)} aria-label="Previous photo"><ArrowLeft size={22}/></button>
