@@ -1,0 +1,195 @@
+/* Batch 8 — clinical workspace visual consistency and dialog ergonomics */
+.clinical-resource-panel {
+  min-width: 0;
+  border: 1px solid #e0e9ec;
+  border-radius: 17px;
+  background: #fff;
+  box-shadow: 0 8px 26px rgba(23, 63, 89, .045);
+}
+.clinical-board-heading {
+  align-items: center;
+  gap: 14px;
+}
+.clinical-board-heading > svg { color: #247f83; }
+.clinical-board-heading h3 { color: #173f59; font-weight: 800; letter-spacing: -.02em; }
+.clinical-board-heading .resource-description { color: #718491; line-height: 1.55; }
+.clinical-board-heading .resource-count {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 5px 9px;
+  border: 1px solid #e2ebed;
+  border-radius: 999px;
+  color: #68808c;
+  background: #f7fafb;
+  font-size: .68rem;
+  font-weight: 750;
+}
+.clinical-resource-panel .record-grid { align-items: stretch; }
+.clinical-resource-panel .clinical-record-card {
+  min-width: 0;
+  border-color: #e2ebed;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(23, 63, 89, .035);
+}
+.clinical-resource-panel .clinical-record-card .record-actions button {
+  min-height: 36px;
+  border-radius: 9px;
+  font-weight: 700;
+}
+.clinical-resource-panel .clinical-record-card .record-actions button:focus-visible,
+.clinical-resource-panel button:focus-visible,
+.clinical-resource-panel input:focus-visible,
+.clinical-resource-panel select:focus-visible,
+.clinical-resource-panel textarea:focus-visible {
+  outline: 3px solid rgba(36, 127, 131, .28);
+  outline-offset: 2px;
+}
+.clinical-resource-panel .resource-description,
+.clinical-resource-panel .clinical-record-meta,
+.clinical-resource-panel .clinical-record-detail { overflow-wrap: anywhere; }
+.clinical-resource-panel .modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  overflow-y: auto;
+  background: rgba(12, 32, 45, .58);
+  backdrop-filter: blur(5px);
+}
+.clinical-resource-panel .modal-overlay > .modal,
+.clinical-resource-panel .modal-overlay > .clinical-editor-modal,
+.clinical-resource-panel .modal-overlay > .clinical-billing-modal {
+  width: min(100%, 760px);
+  max-height: min(88dvh, 900px);
+  margin: auto;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid #dfe9ec;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 24px 80px rgba(8, 32, 48, .24);
+}
+.clinical-resource-panel .clinical-editor-modal,
+.clinical-resource-panel .clinical-billing-modal {
+  padding: clamp(17px, 2.5vw, 26px);
+}
+.clinical-resource-panel .modal-header {
+  position: sticky;
+  top: calc(-1 * clamp(17px, 2.5vw, 26px));
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: calc(-1 * clamp(17px, 2.5vw, 26px)) calc(-1 * clamp(17px, 2.5vw, 26px)) 20px;
+  padding: 17px clamp(17px, 2.5vw, 26px);
+  border-bottom: 1px solid #e8eef0;
+  background: rgba(255,255,255,.96);
+  backdrop-filter: blur(10px);
+}
+.clinical-resource-panel .modal-header h3 {
+  margin: 0;
+  color: #173f59;
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.3;
+}
+.clinical-resource-panel .clinical-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 15px;
+}
+.clinical-resource-panel .clinical-form label {
+  min-width: 0;
+  color: #38586a;
+  font-size: .78rem;
+  font-weight: 750;
+}
+.clinical-resource-panel .clinical-form input,
+.clinical-resource-panel .clinical-form select,
+.clinical-resource-panel .clinical-form textarea,
+.clinical-resource-panel .billing-items input {
+  min-width: 0;
+  border: 1px solid #dce6e9;
+  border-radius: 10px;
+  background: #fbfdfd;
+  color: #24485d;
+  font: inherit;
+  font-size: .82rem;
+  transition: border-color .16s ease, box-shadow .16s ease;
+}
+.clinical-resource-panel .clinical-form input,
+.clinical-resource-panel .clinical-form select,
+.clinical-resource-panel .billing-items input { min-height: 42px; padding: 9px 11px; }
+.clinical-resource-panel .clinical-form textarea { min-height: 100px; padding: 11px; line-height: 1.55; }
+.clinical-resource-panel .clinical-form input:focus,
+.clinical-resource-panel .clinical-form select:focus,
+.clinical-resource-panel .clinical-form textarea:focus,
+.clinical-resource-panel .billing-items input:focus {
+  border-color: #63a6a3;
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(36, 127, 131, .12);
+  background: #fff;
+}
+.clinical-resource-panel .form-readonly-value {
+  min-height: 40px;
+  padding: 10px 12px;
+  border: 1px solid #e4ecee;
+  border-radius: 10px;
+  color: #4e6978;
+  background: #f8fbfb;
+  font-size: .8rem;
+  font-weight: 500;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.clinical-resource-panel .modal-actions {
+  position: sticky;
+  bottom: -1px;
+  z-index: 2;
+  margin: 5px calc(-1 * clamp(17px, 2.5vw, 26px)) calc(-1 * clamp(17px, 2.5vw, 26px));
+  padding: 14px clamp(17px, 2.5vw, 26px);
+  border-top: 1px solid #e8eef0;
+  background: rgba(255,255,255,.97);
+  backdrop-filter: blur(10px);
+}
+.clinical-resource-panel .modal-actions button {
+  min-height: 40px;
+  border-radius: 10px;
+  font-weight: 750;
+}
+.clinical-resource-panel .billing-items {
+  display: grid;
+  gap: 9px;
+}
+.clinical-resource-panel .billing-item-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 90px 120px 38px;
+  gap: 8px;
+  align-items: center;
+}
+.clinical-resource-panel .form-status {
+  border-radius: 10px;
+  line-height: 1.55;
+}
+@media (max-width: 620px) {
+  .clinical-resource-panel .modal-overlay { place-items: end center; padding: 8px; }
+  .clinical-resource-panel .modal-overlay > .modal,
+  .clinical-resource-panel .modal-overlay > .clinical-editor-modal,
+  .clinical-resource-panel .modal-overlay > .clinical-billing-modal {
+    width: 100%;
+    max-height: calc(100dvh - 16px);
+    border-radius: 17px;
+  }
+  .clinical-resource-panel .clinical-form .form-row { grid-template-columns: minmax(0, 1fr); }
+  .clinical-resource-panel .billing-item-row { grid-template-columns: minmax(0, 1fr) 72px 94px 34px; gap: 5px; }
+  .clinical-resource-panel .billing-item-row input { padding: 8px 7px; font-size: .74rem; }
+  .clinical-resource-panel .modal-actions { display: grid; grid-template-columns: 1fr 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .clinical-resource-panel *, .clinical-resource-panel *::before, .clinical-resource-panel *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
