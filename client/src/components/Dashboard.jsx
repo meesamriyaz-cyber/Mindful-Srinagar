@@ -1643,6 +1643,7 @@ export function Dashboard() {
                     aria-current={item.id === activeView ? "page" : undefined}
                     onClick={() => {
                       setActiveView(item.id);
+                      setMobileNavigationOpen(false);
                       setQuery("");
                       setActionError("");
                       setNavigationScrollRequest((request) => request + 1);
