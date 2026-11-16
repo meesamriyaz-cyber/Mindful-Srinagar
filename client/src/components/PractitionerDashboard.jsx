@@ -17,6 +17,7 @@ import { Skeleton } from "./ui/skeleton.jsx";
 import "./staff-console.css";
 import "./clinical-workspace.css";
 import "./dashboard-ux.css";
+import "./practitioner-dashboard.css";
 
 function formatDateTime(value, options = {}) {
   if (!value) return "Time not set";
