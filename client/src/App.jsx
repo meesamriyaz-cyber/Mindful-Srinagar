@@ -13,7 +13,15 @@ export default function App() {
   const [staffMode, setStaffMode] = useState(() => window.location.hash === "#staff");
 
   useEffect(() => {
-    const handleHashChange = () => setStaffMode(window.location.hash === "#staff");
+    const handleHashChange = () => {
+      const nextStaffMode = window.location.hash === "#staff";
+      // Preserve a reset token on the initial email-link load, but never
+      // carry it into a later navigation back to the staff console.
+      if (nextStaffMode && new URLSearchParams(window.location.search).has("resetToken")) {
+        window.history.replaceState({}, "", window.location.pathname + window.location.hash);
+      }
+      setStaffMode(nextStaffMode);
+    };
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
