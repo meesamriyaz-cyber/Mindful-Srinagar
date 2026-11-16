@@ -1380,6 +1380,7 @@ export function Dashboard() {
   const { data, loading, refreshing, error, updatedAt, refresh } = useDashboard(canViewOverview ? session.token : null);
   const resourceState = useResourceRecords({ activeView, token: session.token, query, refreshSignal: resourceRefresh });
   const isDirector = ["director", "admin"].includes(session.user?.role);
+  const isPractitioner = ["doctor", "therapist"].includes(session.user?.role);
   const activeConfig = getViewConfig(activeView);
 
   const syncLabel = useMemo(() => {
@@ -1602,7 +1603,7 @@ export function Dashboard() {
 
   return (
     <section className="dashboard-section" id="dashboard">
-      <div className={`dashboard-shell dashboard-role-${session.user?.role || "staff"}${sidebarCollapsed && isDirector ? " premium-sidebar-collapsed" : ""}${mobileNavigationOpen ? " premium-mobile-navigation-open" : ""}`}>
+      <div className={`dashboard-shell dashboard-role-${session.user?.role || "staff"}${sidebarCollapsed && isDirector ? " premium-sidebar-collapsed" : ""}${isPractitioner ? " premium-clinical-navigation" : ""}${mobileNavigationOpen ? " premium-mobile-navigation-open" : ""}`}>
         {mobileNavigationOpen && <button className="premium-sidebar-backdrop" type="button" aria-label="Close navigation" onClick={() => setMobileNavigationOpen(false)} />}
         <aside className="sidebar" aria-label="Staff workspace navigation">
           <div className="sidebar-brand">
@@ -1610,13 +1611,13 @@ export function Dashboard() {
               <span className="brand-mark">M</span>
               <span>
                 <strong>Mindful</strong>
-                <small>{isDirector ? "Director console" : "Staff console"}</small>
+                <small>{isDirector ? "Director console" : isPractitioner ? "Clinical workspace" : "Staff console"}</small>
               </span>
             </div>
             <div className="sidebar-context">
-              <span className="sidebar-context-label">WORKSPACE</span>
-              <strong>Centre operations</strong>
-              <span>Care • Coordination • Outcomes</span>
+              <span className="sidebar-context-label">{isPractitioner ? "MY PRACTICE" : "WORKSPACE"}</span>
+              <strong>{isPractitioner ? "Clinical care" : "Centre operations"}</strong>
+              <span>{isPractitioner ? "Patients • Sessions • Notes" : "Care • Coordination • Outcomes"}</span>
             </div>
             <button className="premium-sidebar-collapse" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"} aria-pressed={sidebarCollapsed}>
               {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
@@ -1666,7 +1667,7 @@ export function Dashboard() {
             <div className="premium-console-title">
               <button className="premium-sidebar-mobile-trigger" type="button" onClick={() => setMobileNavigationOpen(true)} aria-label="Open workspace navigation" aria-expanded={mobileNavigationOpen}><Menu size={19} /></button>
               <div>
-              <p className="eyebrow">{isDirector ? "Director command centre" : "Operations dashboard"}</p>
+              <p className="eyebrow">{isDirector ? "Director command centre" : isPractitioner ? "Clinical workspace" : "Operations dashboard"}</p>
               <h2>{activeView === "overview" ? (["doctor","therapist"].includes(session.user?.role) ? "My clinical activity" : "Whole-centre operating view") : activeConfig.label}</h2>
               <p className="console-user">Signed in as {session.user?.name} ({session.user?.role})</p>
               </div>
