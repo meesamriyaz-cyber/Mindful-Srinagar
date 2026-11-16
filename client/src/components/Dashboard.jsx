@@ -1603,7 +1603,7 @@ export function Dashboard() {
 
   return (
     <section className="dashboard-section" id="dashboard">
-      <div className={`dashboard-shell dashboard-role-${session.user?.role || "staff"}${sidebarCollapsed && isDirector ? " premium-sidebar-collapsed" : ""}${isPractitioner ? " premium-clinical-navigation" : ""}${mobileNavigationOpen ? " premium-mobile-navigation-open" : ""}`}>
+      <div className={`dashboard-shell dashboard-role-${session.user?.role || "staff"}${isDirector ? " premium-director-navigation" : ""}${sidebarCollapsed && isDirector ? " premium-sidebar-collapsed" : ""}${isPractitioner ? " premium-clinical-navigation" : ""}${mobileNavigationOpen ? " premium-mobile-navigation-open" : ""}`}>
         {mobileNavigationOpen && <button className="premium-sidebar-backdrop" type="button" aria-label="Close navigation" onClick={() => setMobileNavigationOpen(false)} />}
         <aside className="sidebar" aria-label="Staff workspace navigation">
           <div className="sidebar-brand">
