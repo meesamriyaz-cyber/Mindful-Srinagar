@@ -32,6 +32,7 @@ import { ChipInput } from "./ChipInput.jsx";
 import { useAccessibleDialog } from "../hooks/useAccessibleDialog.js";
 import { services, serviceCharges } from "../data/centreData.js";
 import "./clinical-workspace.css";
+import "./clinical-board-polish.css";
 
 const CONFIGS = {
   assessments: {
@@ -175,6 +176,8 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   const [amendmentSaving, setAmendmentSaving] = useState(false);
   const editorDialogRef = useAccessibleDialog(showForm, () => setShowForm(false));
   const billingDialogRef = useAccessibleDialog(showBilling, () => setShowBilling(false));
+  const viewDialogRef = useAccessibleDialog(Boolean(viewingRecord), () => setViewingRecord(null));
+  const amendmentDialogRef = useAccessibleDialog(Boolean(amendingRecord), () => setAmendingRecord(null));
 
   React.useEffect(() => {
     if (!token || !config) return;
@@ -475,7 +478,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
       <AnimatePresence>
         {viewingRecord && (
           <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setViewingRecord(null)}>
-            <motion.div className="modal clinical-editor-modal" role="dialog" aria-modal="true" aria-labelledby="clinical-view-title" onClick={(event) => event.stopPropagation()}>
+            <motion.div ref={viewDialogRef} tabIndex={-1} className="modal clinical-editor-modal" role="dialog" aria-modal="true" aria-labelledby="clinical-view-title" onClick={(event) => event.stopPropagation()}>
               <div className="modal-header">
                 <h3 id="clinical-view-title">View {config.title}</h3>
                 <button className="icon-button" type="button" aria-label="Close record view" onClick={() => setViewingRecord(null)}><X size={18} /></button>
@@ -500,7 +503,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
       <AnimatePresence>
         {amendingRecord && (
           <motion.div className="modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setAmendingRecord(null)}>
-            <motion.div className="modal clinical-editor-modal" role="dialog" aria-modal="true" aria-labelledby="clinical-amend-title" onClick={(event) => event.stopPropagation()}>
+            <motion.div ref={amendmentDialogRef} tabIndex={-1} className="modal clinical-editor-modal" role="dialog" aria-modal="true" aria-labelledby="clinical-amend-title" onClick={(event) => event.stopPropagation()}>
               <div className="modal-header">
                 <h3 id="clinical-amend-title">Amend {config.title}</h3>
                 <button className="icon-button" type="button" aria-label="Close amendment dialog" onClick={() => setAmendingRecord(null)}><X size={18} /></button>
