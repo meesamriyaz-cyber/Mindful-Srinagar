@@ -1023,3 +1023,234 @@ button, a { -webkit-tap-highlight-color: transparent; }
     transition-duration: .01ms;
   }
 }
+
+
+/* Stage 5 foundation — unify the public website and all staff pages.
+   One Mindful palette: forest green, warm ivory, clean white and muted gold.
+   These are visual-only overrides; component structure and workflows remain. */
+:root {
+  --teal: #2f806f;
+  --teal-dark: #205b49;
+  --navy: #193f36;
+  --ink: #263b34;
+  --muted: #6f8077;
+  --line: #e2e8df;
+  --surface: #ffffff;
+  --soft: #f7f8f3;
+  --yellow: #c49a55;
+  --coral: #c9785e;
+  --sage: #789783;
+  --shadow: 0 18px 42px rgba(27, 57, 47, .09);
+  --background: 45 24% 97%;
+  --foreground: 155 22% 19%;
+  --card: 0 0% 100%;
+  --card-foreground: 155 22% 19%;
+  --primary: 153 43% 25%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 115 22% 94%;
+  --secondary-foreground: 153 43% 25%;
+  --muted: 100 14% 94%;
+  --muted-foreground: 145 9% 43%;
+  --accent: 112 22% 93%;
+  --accent-foreground: 153 43% 25%;
+  --border: 95 15% 88%;
+  --input: 95 15% 84%;
+  --ring: 153 35% 38%;
+}
+body {
+  color: var(--premium-ink);
+  background: var(--premium-ivory);
+}
+main {
+  color: inherit;
+}
+.section,
+.services-section,
+.operations-section,
+.referral-section,
+.contact-section,
+.public-content-section {
+  background-color: var(--premium-ivory);
+}
+.section-heading h2,
+.services-section h2,
+.operations-section h2,
+.referral-section h2,
+.contact-section h2,
+.public-content-section h2 {
+  color: var(--premium-ink);
+}
+.section-heading p,
+.services-intro,
+.contact-copy,
+.public-content-heading-note {
+  color: var(--premium-muted);
+}
+.service-group-card,
+.care-step-card,
+.referral-partner-card,
+.referral-audience,
+.journey-card,
+.public-story-card,
+.public-gallery-card,
+.contact-form,
+.booking-form,
+.media-asset-card {
+  border-color: var(--premium-line);
+  background: var(--premium-paper);
+  box-shadow: var(--premium-shadow-soft);
+}
+.service-group-card h3,
+.care-step-card h3,
+.referral-partner-card h3,
+.journey-card h3,
+.public-story-card h3 {
+  color: var(--premium-ink);
+}
+.primary-button,
+.referral-action,
+.booking-form button[type="submit"],
+.contact-form button[type="submit"] {
+  border-color: var(--premium-forest);
+  color: #fff;
+  background: var(--premium-forest);
+}
+.primary-button:hover,
+.referral-action:hover,
+.booking-form button[type="submit"]:hover,
+.contact-form button[type="submit"]:hover {
+  background: var(--premium-forest-deep);
+}
+.secondary-button {
+  border-color: var(--premium-line);
+  color: var(--premium-ink);
+  background: #eef3ed;
+}
+.secondary-button:hover {
+  border-color: #c7d8ca;
+  background: #e5eee5;
+}
+.contact-strip,
+.referral-audience,
+.care-process-header {
+  border-color: var(--premium-line);
+  background: #f0f5ef;
+}
+input, select, textarea {
+  border-color: #dce5dc;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--premium-forest);
+  box-shadow: 0 0 0 3px rgba(36, 91, 76, .12);
+}
+.dashboard-section {
+  background: #edf2ee;
+}
+.dashboard-section .dashboard-shell {
+  border-color: #e1e8df;
+  background: #f7f8f3;
+  box-shadow: 0 18px 52px rgba(24, 53, 43, .075);
+}
+.dashboard-section .dashboard-shell > .sidebar {
+  border-right-color: #244f40;
+  background: linear-gradient(165deg, #173f33 0%, #1c4b3b 54%, #163a31 100%);
+}
+.dashboard-section .dashboard-shell > .sidebar .brand strong {
+  color: #f7fbf6;
+}
+.dashboard-section .dashboard-shell > .sidebar .brand small {
+  color: #b9d0c2;
+}
+.dashboard-section .dashboard-shell > .sidebar .sidebar-context {
+  border-color: rgba(223, 240, 227, .16);
+  background: rgba(255,255,255,.075);
+}
+.dashboard-section .dashboard-shell > .sidebar .sidebar-context-label {
+  color: #a9c8b6;
+}
+.dashboard-section .dashboard-shell > .sidebar .sidebar-context strong {
+  color: #f0f7f0;
+}
+.dashboard-section .dashboard-shell > .sidebar .sidebar-context > span:last-child {
+  color: #bfd2c5;
+}
+.dashboard-section .dashboard-shell > .sidebar .sidebar-section + .sidebar-section {
+  border-top-color: rgba(226, 241, 229, .13);
+}
+.dashboard-section .dashboard-shell > .sidebar .sidebar-section-title {
+  color: #9fbdac;
+}
+.dashboard-section .dashboard-shell > .sidebar .side-link {
+  color: #d0e0d5;
+}
+.dashboard-section .dashboard-shell > .sidebar .side-link svg {
+  color: #9fc5b5;
+}
+.dashboard-section .dashboard-shell > .sidebar .side-link:hover {
+  color: #fff;
+  background: rgba(235,247,237,.10);
+}
+.dashboard-section .dashboard-shell > .sidebar .side-link.active {
+  border-color: rgba(220,240,224,.2);
+  color: #f7fbf6;
+  background: linear-gradient(100deg, rgba(177,211,184,.23), rgba(177,211,184,.10));
+  box-shadow: inset 3px 0 0 #d6bd7b;
+}
+.dashboard-section .dashboard-shell > .sidebar .side-link.active svg {
+  color: #e5d29b;
+}
+.dashboard-section .dashboard-shell > .sidebar .sidebar-footer {
+  border-top-color: rgba(226,241,229,.15);
+  color: #b7cdbd;
+}
+.dashboard-section .dashboard-shell .console {
+  background: #f7f8f3;
+}
+.dashboard-section .dashboard-shell .console-header {
+  border-bottom-color: #e3e9df;
+  background: transparent;
+}
+.dashboard-section .dashboard-shell .console-header h2,
+.dashboard-section .dashboard-shell .console-header h3 {
+  color: #1d4035;
+}
+.dashboard-section .dashboard-shell .console-header .eyebrow {
+  color: #628574;
+}
+.dashboard-section .dashboard-shell .console-user {
+  color: #75867c;
+}
+.dashboard-section .dashboard-shell .stat-card,
+.dashboard-section .dashboard-shell .record-card,
+.dashboard-section .dashboard-shell .director-analytics-card,
+.dashboard-section .dashboard-shell .director-finance-card,
+.dashboard-section .dashboard-shell .admin-report-card,
+.dashboard-section .dashboard-shell .admin-report-kpi {
+  border-color: #e2e8df;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(29,62,44,.05);
+}
+.dashboard-section .dashboard-shell .stat-card > strong,
+.dashboard-section .dashboard-shell .record-card h3 {
+  color: #1c4437;
+}
+.dashboard-section .dashboard-shell .stat-card > span,
+.dashboard-section .dashboard-shell .stat-card small {
+  color: #718277;
+}
+.dashboard-section .dashboard-shell .search-box,
+.dashboard-section .dashboard-shell .console-tools .icon-button {
+  border-color: #e0e7de;
+  background: #fff;
+}
+.dashboard-section .dashboard-shell .sync-pill {
+  border-color: #dce9df;
+  color: #39715a;
+  background: #edf5ee;
+}
+@media (max-width: 820px) {
+  .dashboard-section .dashboard-shell > .sidebar {
+    border-right-color: #244f40;
+    background: linear-gradient(165deg, #173f33 0%, #1c4b3b 54%, #163a31 100%);
+  }
+}
