@@ -178,6 +178,9 @@ function LoginPanel({ onLogin, initialNotice = "" }) {
   function changeMode(nextMode) {
     setError("");
     setNotice("");
+    if (nextMode === "login" && new URLSearchParams(window.location.search).has("resetToken")) {
+      window.history.replaceState({}, "", window.location.pathname + window.location.hash);
+    }
     setMode(nextMode);
   }
 
@@ -1421,6 +1424,9 @@ export function Dashboard() {
 
   function handleLogout() {
     clearSession();
+    if (new URLSearchParams(window.location.search).has("resetToken")) {
+      window.history.replaceState({}, "", window.location.pathname + window.location.hash);
+    }
     setSession({ token: null, user: null });
   }
 
