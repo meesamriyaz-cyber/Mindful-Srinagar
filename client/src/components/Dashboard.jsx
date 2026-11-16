@@ -22,7 +22,10 @@ import {
   UsersRound,
   Stethoscope,
   WalletCards,
-  Images
+  Images,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useMemo, useState } from "react";
@@ -1290,6 +1293,8 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
 
 export function Dashboard() {
   const [session, setSession] = useState(getStoredSession);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const [authNotice, setAuthNotice] = useState("");
   const consoleHeaderRef = React.useRef(null);
   const [navigationScrollRequest, setNavigationScrollRequest] = useState(0);
@@ -1597,7 +1602,8 @@ export function Dashboard() {
 
   return (
     <section className="dashboard-section" id="dashboard">
-      <div className={`dashboard-shell dashboard-role-${session.user?.role || "staff"}`}>
+      <div className={`dashboard-shell dashboard-role-${session.user?.role || "staff"}${sidebarCollapsed && isDirector ? " premium-sidebar-collapsed" : ""}${mobileNavigationOpen ? " premium-mobile-navigation-open" : ""}`}>
+        {mobileNavigationOpen && <button className="premium-sidebar-backdrop" type="button" aria-label="Close navigation" onClick={() => setMobileNavigationOpen(false)} />}
         <aside className="sidebar" aria-label="Staff workspace navigation">
           <div className="sidebar-brand">
             <div className="brand compact">
@@ -1612,6 +1618,10 @@ export function Dashboard() {
               <strong>Centre operations</strong>
               <span>Care • Coordination • Outcomes</span>
             </div>
+            <button className="premium-sidebar-collapse" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"} aria-pressed={sidebarCollapsed}>
+              {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+            </button>
+            <button className="premium-sidebar-mobile-close" type="button" onClick={() => setMobileNavigationOpen(false)} aria-label="Close navigation"><X size={19} /></button>
           </div>
           {Object.entries(
             visibleViewItems.reduce((acc, item) => {
@@ -1652,10 +1662,13 @@ export function Dashboard() {
         </aside>
         <div className="console">
           <div ref={consoleHeaderRef} className="console-header management-console-header">
-            <div>
+            <div className="premium-console-title">
+              <button className="premium-sidebar-mobile-trigger" type="button" onClick={() => setMobileNavigationOpen(true)} aria-label="Open workspace navigation" aria-expanded={mobileNavigationOpen}><Menu size={19} /></button>
+              <div>
               <p className="eyebrow">{isDirector ? "Director command centre" : "Operations dashboard"}</p>
               <h2>{activeView === "overview" ? (["doctor","therapist"].includes(session.user?.role) ? "My clinical activity" : "Whole-centre operating view") : activeConfig.label}</h2>
               <p className="console-user">Signed in as {session.user?.name} ({session.user?.role})</p>
+              </div>
             </div>
             <div className="console-tools">
               <span className={`sync-pill ${error ? "sync-error" : ""} ${refreshing ? "is-syncing" : ""}`}>
