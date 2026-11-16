@@ -1,96 +1,189 @@
 import React, { useEffect, useState } from "react";
-import { CalendarClock, CheckCircle2, ClipboardCheck, FileText, ListChecks, UsersRound } from "lucide-react";
+import {
+  CalendarClock,
+  CheckCircle2,
+  ClipboardCheck,
+  FileText,
+  ListChecks,
+  UsersRound,
+  RefreshCw,
+  AlertCircle
+} from "lucide-react";
 import { apiRequest } from "../lib/api.js";
+import { Badge } from "./ui/badge.jsx";
+import { Button } from "./ui/button.jsx";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card.jsx";
+import { Skeleton } from "./ui/skeleton.jsx";
 import "./staff-console.css";
 import "./clinical-workspace.css";
+import "./dashboard-ux.css";
 
-function Metric({ label, value, icon: Icon }) {
+function formatDateTime(value, options = {}) {
+  if (!value) return "Time not set";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Time unavailable";
+  return new Intl.DateTimeFormat("en-IN", options).format(date);
+}
+
+function statusVariant(value) {
+  const status = String(value || "").toLowerCase();
+  if (["completed", "active", "paid", "approved", "ready"].includes(status)) return "success";
+  if (["urgent", "overdue", "cancelled", "no-show", "rejected"].includes(status)) return "destructive";
+  if (["pending", "draft", "planned", "in-progress", "on-hold"].includes(status)) return "warning";
+  return "secondary";
+}
+
+function Metric({ label, value, icon: Icon, description }) {
   return (
-    <article className="stat-card">
-      <div className="stat-topline"><span>{label}</span><Icon size={18} /></div>
-      <strong>{value ?? 0}</strong>
-      <small>My activity</small>
-    </article>
+    <Card className="practitioner-metric-card">
+      <CardContent className="practitioner-metric-content">
+        <div className="practitioner-metric-icon" aria-hidden="true"><Icon size={19} /></div>
+        <div className="practitioner-metric-copy">
+          <span>{label}</span>
+          <strong>{value ?? 0}</strong>
+          <small>{description || "Your clinical activity"}</small>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
-function timeLabel(value) {
-  return new Intl.DateTimeFormat("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(value));
+function SectionCard({ icon: Icon, title, description, children, className = "" }) {
+  return (
+    <Card className={`practitioner-section-card ${className}`}>
+      <CardHeader className="practitioner-section-header">
+        <div className="practitioner-section-icon" aria-hidden="true"><Icon size={18} /></div>
+        <div><CardTitle>{title}</CardTitle>{description && <CardDescription>{description}</CardDescription>}</div>
+      </CardHeader>
+      <CardContent className="practitioner-section-content">{children}</CardContent>
+    </Card>
+  );
+}
+
+function EmptyState({ children }) {
+  return <div className="practitioner-empty-state"><span aria-hidden="true">—</span><p>{children}</p></div>;
 }
 
 export function PractitionerDashboard({ token }) {
   const [state, setState] = useState({ data: null, loading: true, error: "" });
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     let active = true;
     setState((current) => ({ ...current, loading: true, error: "" }));
     apiRequest("/dashboard/practitioner", { token })
       .then((data) => { if (active) setState({ data, loading: false, error: "" }); })
-      .catch((error) => { if (active) setState({ data: null, loading: false, error: error.message }); });
+      .catch((error) => { if (active) setState({ data: null, loading: false, error: error.message || "Unable to load your clinical activity." }); });
     return () => { active = false; };
-  }, [token]);
+  }, [token, refreshKey]);
 
-  if (state.loading) return <p className="empty-state">Loading your clinical activity...</p>;
-  if (state.error) return <article className="action-panel"><h3>Practitioner dashboard unavailable</h3><p className="form-status error-status">{state.error}</p><p>Ask an administrator to verify that your staff account is linked to an active practitioner profile.</p></article>;
+  if (state.loading) {
+    return (
+      <div className="practitioner-dashboard practitioner-dashboard-loading" aria-label="Loading practitioner dashboard" aria-busy="true">
+        <Skeleton className="h-28 w-full rounded-2xl" />
+        <div className="practitioner-metrics-grid">{Array.from({ length: 7 }).map((_, index) => <Skeleton key={index} className="h-28 rounded-xl" />)}</div>
+        <div className="practitioner-sections-grid"><Skeleton className="h-64 rounded-xl" /><Skeleton className="h-64 rounded-xl" /></div>
+      </div>
+    );
+  }
 
-  const { practitioner, role, metrics, todaysAppointments, upcomingAppointments, recentNotes, assignedTasks } = state.data;
+  if (state.error || !state.data) {
+    return (
+      <Card className="practitioner-error-card" role="alert">
+        <CardContent>
+          <div className="practitioner-error-icon"><AlertCircle size={22} /></div>
+          <div><CardTitle>Practitioner dashboard unavailable</CardTitle><CardDescription>{state.error || "Your clinical activity could not be loaded."}</CardDescription>
+            <p>Ask an administrator to verify that your staff account is linked to an active practitioner profile.</p>
+            <Button variant="outline" size="sm" onClick={() => setRefreshKey((value) => value + 1)}><RefreshCw size={15} /> Try again</Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const {
+    practitioner = {},
+    role,
+    metrics = {},
+    todaysAppointments = [],
+    upcomingAppointments = [],
+    recentNotes = [],
+    assignedTasks = []
+  } = state.data;
+
   return (
-    <div className="director-view staff-console-view practitioner-workspace">
-      <article className="action-panel director-panel staff-console-identity">
-        <div className="panel-title staff-console-panel-title"><UsersRound size={21} /><h3>My clinical workspace</h3></div>
-        <p><strong>{practitioner.name}</strong> · {practitioner.discipline || (practitioner.status === "active" ? "Practitioner" : "Clinical staff")}</p>
-        <p>Your appointments, clinical workload and activity are limited to your linked practitioner and staff account.</p>
-      </article>
-      <div className="stats-grid staff-console-metrics">
-        <Metric label="Patients under my care" value={metrics.patientsUnderCare} icon={UsersRound} />
-        <Metric label="Appointments today" value={metrics.appointmentsToday} icon={CalendarClock} />
-        <Metric label="Upcoming appointments" value={metrics.upcomingAppointments} icon={CalendarClock} />
-        <Metric label="Completed sessions this month" value={metrics.completedSessionsThisMonth} icon={CheckCircle2} />
-        <Metric label="Pending assessments" value={metrics.pendingAssessments} icon={ClipboardCheck} />
-        <Metric label="Active treatment plans" value={metrics.activeTreatmentPlans} icon={FileText} />
-        <Metric label="Open assigned tasks" value={metrics.openTasks} icon={ListChecks} />
-        {role === "doctor" && <Metric label="Active prescriptions" value={metrics.activePrescriptions} icon={FileText} />}
-      </div>
-      <div className="console-grid staff-console-grid">
-        <article className="table-panel staff-console-panel">
-          <div className="panel-title"><CalendarClock size={21} /><h3>Today's appointments</h3></div>
-          <div className="appointment-list staff-console-list">
-            {todaysAppointments.length ? todaysAppointments.map((item) => (
-              <div className="appointment-row staff-console-appointment" key={item._id}>
-                <time>{new Intl.DateTimeFormat("en-IN", { hour: "2-digit", minute: "2-digit" }).format(new Date(item.startsAt))}</time>
-                <div><strong>{item.patient?.fullName || "Patient"}</strong><span>{item.service} · {item.durationMinutes} min</span></div>
-                <mark>{item.status}</mark>
-              </div>
-            )) : <p className="empty-state">No appointments scheduled for today.</p>}
+    <div className="practitioner-dashboard">
+      <Card className="practitioner-welcome-card">
+        <CardContent>
+          <div className="practitioner-welcome-mark"><UsersRound size={22} /></div>
+          <div className="practitioner-welcome-copy">
+            <span className="practitioner-eyebrow">PRACTITIONER WORKSPACE</span>
+            <h2>Welcome, {practitioner.name || "Practitioner"}</h2>
+            <p>{practitioner.discipline || (practitioner.status === "active" ? "Practitioner" : "Clinical staff")} · Your appointments, clinical workload and activity are limited to your linked practitioner and staff account.</p>
           </div>
-        </article>
-        <article className="table-panel staff-console-panel">
-          <div className="panel-title"><CalendarClock size={21} /><h3>Coming up</h3></div>
-          <div className="compact-record-list staff-console-list">
-            {upcomingAppointments.length ? upcomingAppointments.map((item) => (
-              <div className="compact-record staff-console-record" key={item._id}><div><strong>{item.patient?.fullName || "Patient"}</strong><span>{timeLabel(item.startsAt)} · {item.service}</span></div><mark>{item.status}</mark></div>
-            )) : <p className="empty-state">No upcoming appointments currently scheduled.</p>}
-          </div>
-        </article>
-      </div>
-      <div className="console-grid staff-console-grid">
-        <article className="table-panel staff-console-panel">
-          <div className="panel-title"><FileText size={21} /><h3>Recent progress notes</h3></div>
-          <div className="compact-record-list staff-console-list">
-            {recentNotes.length ? recentNotes.map((note) => (
-              <div className="compact-record staff-console-record" key={note._id}><div><strong>{note.patient?.fullName || "Patient"} · {note.noteType}</strong><span>{timeLabel(note.notedAt)} · {(note.assessment || note.plan || note.subjective || "").slice(0, 90)}</span></div></div>
-            )) : <p className="empty-state">No progress notes authored yet.</p>}
-          </div>
-        </article>
-        <article className="table-panel staff-console-panel">
-          <div className="panel-title"><ListChecks size={21} /><h3>My open tasks</h3></div>
-          <div className="compact-record-list staff-console-list">
-            {assignedTasks.length ? assignedTasks.map((task) => (
-              <div className="compact-record staff-console-record" key={task._id}><div><strong>{task.title}</strong><span>{task.department} · {task.dueDate ? timeLabel(task.dueDate) : "No due date"}</span></div><mark>{task.priority}</mark></div>
-            )) : <p className="empty-state">No open tasks assigned to you.</p>}
-          </div>
-        </article>
-      </div>
+          <Badge variant={practitioner.status === "active" ? "success" : "secondary"}>{practitioner.status || "Profile linked"}</Badge>
+        </CardContent>
+      </Card>
+
+      <section className="practitioner-metrics-grid" aria-label="My clinical activity">
+        <Metric label="Patients under my care" value={metrics.patientsUnderCare} icon={UsersRound} description="Linked patient records" />
+        <Metric label="Appointments today" value={metrics.appointmentsToday} icon={CalendarClock} description="Today's schedule" />
+        <Metric label="Upcoming appointments" value={metrics.upcomingAppointments} icon={CalendarClock} description="Scheduled ahead" />
+        <Metric label="Completed sessions" value={metrics.completedSessionsThisMonth} icon={CheckCircle2} description="This month" />
+        <Metric label="Pending assessments" value={metrics.pendingAssessments} icon={ClipboardCheck} description="Awaiting completion" />
+        <Metric label="Active treatment plans" value={metrics.activeTreatmentPlans} icon={FileText} description="Current care plans" />
+        <Metric label="Open assigned tasks" value={metrics.openTasks} icon={ListChecks} description="Awaiting action" />
+        {role === "doctor" && <Metric label="Active prescriptions" value={metrics.activePrescriptions} icon={FileText} description="Current prescriptions" />}
+      </section>
+
+      <section className="practitioner-sections-grid" aria-label="Appointments">
+        <SectionCard icon={CalendarClock} title="Today's appointments" description="Your scheduled sessions today">
+          {todaysAppointments.length ? <div className="practitioner-list">
+            {todaysAppointments.map((item) => (
+              <article className="practitioner-list-row" key={item._id}>
+                <div className="practitioner-time-block"><strong>{formatDateTime(item.startsAt, { hour: "2-digit", minute: "2-digit" })}</strong><span>{item.durationMinutes || "—"} min</span></div>
+                <div className="practitioner-row-main"><strong>{item.patient?.fullName || "Patient"}</strong><span>{item.service || "Service not specified"}</span></div>
+                <Badge variant={statusVariant(item.status)}>{item.status || "scheduled"}</Badge>
+              </article>
+            ))}
+          </div> : <EmptyState>No appointments scheduled for today.</EmptyState>}
+        </SectionCard>
+
+        <SectionCard icon={CalendarClock} title="Coming up" description="Your next scheduled appointments">
+          {upcomingAppointments.length ? <div className="practitioner-list">
+            {upcomingAppointments.map((item) => (
+              <article className="practitioner-list-row" key={item._id}>
+                <div className="practitioner-time-block"><strong>{formatDateTime(item.startsAt, { day: "2-digit", month: "short" })}</strong><span>{formatDateTime(item.startsAt, { hour: "2-digit", minute: "2-digit" })}</span></div>
+                <div className="practitioner-row-main"><strong>{item.patient?.fullName || "Patient"}</strong><span>{item.service || "Service not specified"}</span></div>
+                <Badge variant={statusVariant(item.status)}>{item.status || "scheduled"}</Badge>
+              </article>
+            ))}
+          </div> : <EmptyState>No upcoming appointments currently scheduled.</EmptyState>}
+        </SectionCard>
+      </section>
+
+      <section className="practitioner-sections-grid" aria-label="Clinical activity and tasks">
+        <SectionCard icon={FileText} title="Recent progress notes" description="Notes authored by you">
+          {recentNotes.length ? <div className="practitioner-list">
+            {recentNotes.map((note) => (
+              <article className="practitioner-list-row practitioner-note-row" key={note._id}>
+                <div className="practitioner-row-main"><strong>{note.patient?.fullName || "Patient"} <span>· {note.noteType || "Progress note"}</span></strong><span>{formatDateTime(note.notedAt, { day: "2-digit", month: "short", year: "numeric" })}</span><p>{(note.assessment || note.plan || note.subjective || "No note summary available.").slice(0, 120)}</p></div>
+              </article>
+            ))}
+          </div> : <EmptyState>No progress notes authored yet.</EmptyState>}
+        </SectionCard>
+
+        <SectionCard icon={ListChecks} title="My open tasks" description="Tasks assigned to your account">
+          {assignedTasks.length ? <div className="practitioner-list">
+            {assignedTasks.map((task) => (
+              <article className="practitioner-list-row" key={task._id}>
+                <div className="practitioner-row-main"><strong>{task.title}</strong><span>{task.department || "General"} · {task.dueDate ? `Due ${formatDateTime(task.dueDate, { day: "2-digit", month: "short" })}` : "No due date"}</span></div>
+                <Badge variant={statusVariant(task.priority)}>{task.priority || "normal"}</Badge>
+              </article>
+            ))}
+          </div> : <EmptyState>No open tasks assigned to you.</EmptyState>}
+        </SectionCard>
+      </section>
     </div>
   );
 }
