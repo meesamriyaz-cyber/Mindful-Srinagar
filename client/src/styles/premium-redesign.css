@@ -1254,3 +1254,163 @@ input:focus, select:focus, textarea:focus {
     background: linear-gradient(165deg, #173f33 0%, #1c4b3b 54%, #163a31 100%);
   }
 }
+
+
+/* Stage 6 — final interaction, accessibility and responsive polish. */
+:where(a, button, input, select, textarea, [role="button"], [tabindex]):focus-visible {
+  outline: 3px solid rgba(67, 126, 99, .42);
+  outline-offset: 3px;
+}
+:where(button, .primary-button, .secondary-button, .service-group-card,
+  .care-step-card, .referral-partner-card, .public-story-card,
+  .public-gallery-card, .stat-card, .record-card, .director-analytics-card,
+  .director-finance-card, .admin-report-card, .admin-report-kpi) {
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+:where(.service-group-card, .care-step-card, .referral-partner-card,
+  .public-story-card, .public-gallery-card, .stat-card, .record-card,
+  .director-analytics-card, .director-finance-card, .admin-report-card,
+  .admin-report-kpi):hover {
+  border-color: #d3e1d4;
+  box-shadow: 0 14px 32px rgba(27, 57, 47, .085);
+}
+:where(.primary-button, .secondary-button, .referral-action,
+  .icon-button, .compact-button):active {
+  transform: translateY(1px);
+}
+:where(input, select, textarea) {
+  color: #29463a;
+  background-color: #fff;
+}
+:where(input, select, textarea)::placeholder {
+  color: #87958c;
+  opacity: 1;
+}
+:where(button, input, select, textarea) {
+  accent-color: #2f806f;
+}
+.dashboard-section {
+  padding-inline: clamp(10px, 2vw, 28px);
+}
+.dashboard-section .dashboard-shell {
+  min-width: 0;
+  overflow: clip;
+}
+.dashboard-section .dashboard-shell .console {
+  min-width: 0;
+  overflow-x: hidden;
+}
+.dashboard-section .dashboard-shell .console-header {
+  gap: 18px;
+}
+.dashboard-section .dashboard-shell .console-tools {
+  min-width: 0;
+  flex-wrap: wrap;
+}
+.dashboard-section .dashboard-shell .search-box {
+  min-width: min(260px, 100%);
+}
+.dashboard-section .dashboard-shell :where(table) {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.dashboard-section .dashboard-shell :where(th) {
+  color: #63786d;
+  background: #f3f6f1;
+  font-weight: 750;
+}
+.dashboard-section .dashboard-shell :where(td, th) {
+  border-bottom: 1px solid #e7ece5;
+}
+.dashboard-section .dashboard-shell :where(tr:last-child td) {
+  border-bottom: 0;
+}
+.dashboard-section .dashboard-shell :where(.side-link, .premium-sidebar-collapse,
+  .premium-sidebar-mobile-trigger, .premium-sidebar-mobile-close) {
+  -webkit-tap-highlight-color: transparent;
+}
+@media (max-width: 1050px) {
+  .dashboard-section .dashboard-shell .console-header {
+    align-items: flex-start;
+  }
+  .dashboard-section .dashboard-shell .console-tools {
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 820px) {
+  .dashboard-section {
+    padding-inline: 10px;
+  }
+  .dashboard-section .dashboard-shell {
+    border-radius: 18px;
+  }
+  .dashboard-section .dashboard-shell .console-header {
+    flex-wrap: wrap;
+  }
+  .dashboard-section .dashboard-shell .console-tools {
+    width: 100%;
+  }
+  .dashboard-section .dashboard-shell .search-box {
+    flex: 1 1 220px;
+  }
+}
+@media (max-width: 620px) {
+  .dashboard-section {
+    padding: 8px;
+  }
+  .dashboard-section .dashboard-shell {
+    border-radius: 15px;
+  }
+  .dashboard-section .dashboard-shell .console-tools {
+    gap: 8px;
+  }
+  .dashboard-section .dashboard-shell .console-tools .search-box {
+    flex-basis: 100%;
+    order: 5;
+  }
+  .dashboard-section .dashboard-shell :where(.stat-grid, .stats-grid) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dashboard-section .dashboard-shell :where(.stat-card, .record-card) {
+    min-width: 0;
+  }
+  .dashboard-section .dashboard-shell :where(.table-wrap, .table-scroll, .data-table-wrap) {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+  }
+  .dashboard-section .dashboard-shell :where(table) {
+    min-width: 620px;
+  }
+  .premium-site-header .header-actions .primary-button {
+    max-width: 100%;
+  }
+}
+@media (max-width: 380px) {
+  .dashboard-section .dashboard-shell :where(.stat-grid, .stats-grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (hover: none) {
+  :where(.service-group-card, .care-step-card, .referral-partner-card,
+    .public-story-card, .public-gallery-card, .stat-card, .record-card,
+    .director-analytics-card, .director-finance-card, .admin-report-card,
+    .admin-report-kpi):hover {
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(a, button, input, select, textarea, [role="button"], [tabindex]),
+  :where(.service-group-card, .care-step-card, .referral-partner-card,
+    .public-story-card, .public-gallery-card, .stat-card, .record-card,
+    .director-analytics-card, .director-finance-card, .admin-report-card,
+    .admin-report-kpi) {
+    transition-duration: .01ms !important;
+  }
+}
