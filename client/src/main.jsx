@@ -5,6 +5,7 @@ import { Toaster } from "./components/ui/sonner.jsx";
 import { TooltipProvider } from "./components/ui/tooltip.jsx";
 import "./styles.css";
 import "./styles/design-system.css";
+import "./styles/premium-redesign.css";
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
