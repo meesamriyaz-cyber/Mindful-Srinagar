@@ -450,42 +450,42 @@ button, a { -webkit-tap-highlight-color: transparent; }
   color: #849188;
   font-size: .78rem;
 }
-.dashboard-section .dashboard-role-director .premium-sidebar-collapsed {
+.dashboard-section .dashboard-role-director.premium-sidebar-collapsed {
   grid-template-columns: 88px minmax(0,1fr);
 }
-.dashboard-section .dashboard-role-director .premium-sidebar-collapsed > .sidebar {
+.dashboard-section .dashboard-role-director.premium-sidebar-collapsed > .sidebar {
   padding-inline: 10px;
 }
-.dashboard-section .dashboard-role-director .premium-sidebar-collapsed .sidebar-context,
-.dashboard-section .dashboard-role-director .premium-sidebar-collapsed .sidebar-section-title,
-.dashboard-section .dashboard-role-director .premium-sidebar-collapsed .side-link span,
-.dashboard-section .dashboard-role-director .premium-sidebar-collapsed .sidebar-footer span:last-child,
-.dashboard-section .dashboard-role-director .premium-sidebar-collapsed .brand > span:last-child {
+.dashboard-section .dashboard-role-director.premium-sidebar-collapsed .sidebar-context,
+.dashboard-section .dashboard-role-director.premium-sidebar-collapsed .sidebar-section-title,
+.dashboard-section .dashboard-role-director.premium-sidebar-collapsed .side-link span,
+.dashboard-section .dashboard-role-director.premium-sidebar-collapsed .sidebar-footer span:last-child,
+.dashboard-section .dashboard-role-director.premium-sidebar-collapsed .brand > span:last-child {
   display: none;
 }
-.dashboard-section .dashboard-role-director .premium-sidebar-collapsed .sidebar-brand {
+.dashboard-section .dashboard-role-director.premium-sidebar-collapsed .sidebar-brand {
   justify-items: center;
   padding-bottom: 14px;
 }
-.dashboard-section .dashboard-role-director .premium-sidebar-collapsed .sidebar-brand > .brand {
+.dashboard-section .dashboard-role-director.premium-sidebar-collapsed .sidebar-brand > .brand {
   padding: 0;
 }
-.dashboard-section .dashboard-role-director .premium-sidebar-collapsed .premium-sidebar-collapse {
+.dashboard-section .dashboard-role-director.premium-sidebar-collapsed .premium-sidebar-collapse {
   position: static;
   margin: 0 auto;
 }
-.dashboard-section .dashboard-role-director .premium-sidebar-collapsed .side-link {
+.dashboard-section .dashboard-role-director.premium-sidebar-collapsed .side-link {
   display: grid;
   grid-template-columns: 1fr;
   justify-items: center;
   min-height: 44px;
   padding: 0;
 }
-.dashboard-section .dashboard-role-director .premium-sidebar-collapsed .side-link svg {
+.dashboard-section .dashboard-role-director.premium-sidebar-collapsed .side-link svg {
   width: 19px;
   height: 19px;
 }
-.dashboard-section .dashboard-role-director .premium-sidebar-collapsed .sidebar-footer {
+.dashboard-section .dashboard-role-director.premium-sidebar-collapsed .sidebar-footer {
   display: flex;
   justify-content: center;
   padding-inline: 0;
