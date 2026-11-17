@@ -160,7 +160,7 @@ export function ContentStudio({ token }) {
         setAssets((current) => current.map((item) => item._id === existing._id ? { ...item, tags } : item));
       }
       if (target) {
-        const tags = [...new Set([...(target.tags || []).filter((tag) => !tag.startsWith("care:")), marker])];
+        const tags = [...new Set([...(target.tags || []).filter((tag) => tag !== marker), marker])];
         await api("/media/" + target._id, token, { method: "PATCH", body: JSON.stringify({ tags }) });
         setAssets((current) => current.map((item) => item._id === target._id ? { ...item, tags } : item));
       }
