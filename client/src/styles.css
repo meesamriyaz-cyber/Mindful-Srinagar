@@ -4026,3 +4026,20 @@ html {
     scroll-margin-top: var(--public-header-offset);
   }
 }
+
+/* Correct section snap alignment: scroll-padding already accounts for the
+   sticky header, so section scroll margins must not add a second offset. */
+#home,
+#services,
+#stories,
+#operations,
+#referrals,
+#contact,
+.hero,
+.services-section,
+.public-content-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  scroll-margin-top: 0 !important;
+}
