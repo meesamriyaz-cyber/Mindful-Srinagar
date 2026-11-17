@@ -29,22 +29,32 @@ export function Header({ staffMode = false }) {
     }
 
     const hero = document.getElementById("home");
-    if (!hero || typeof IntersectionObserver === "undefined") {
+    const mainScroller = document.querySelector(".premium-public-header + main");
+    if (!hero || !mainScroller || typeof IntersectionObserver === "undefined") {
       setHeroVisible(false);
       return undefined;
     }
 
     document.documentElement.classList.add("homepage-motion-enabled");
 
+    // The public site scrolls inside <main>, not the window. Measure the
+    // hero against that scrollport so the logo/text swap follows the active
+    // full-screen panel reliably.
     const updateHeroVisibility = () => {
       const heroRect = hero.getBoundingClientRect();
-      const headerBottom = document.querySelector(".site-header")?.getBoundingClientRect().bottom ?? 0;
-      const visibleBelowHeader = heroRect.bottom > headerBottom + 2 && heroRect.top < window.innerHeight;
-      setHeroVisible(visibleBelowHeader);
+      const scrollport = mainScroller.getBoundingClientRect();
+      const visibleTop = Math.max(heroRect.top, scrollport.top);
+      const visibleBottom = Math.min(heroRect.bottom, scrollport.bottom);
+      const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+      setHeroVisible(visibleHeight >= scrollport.height * 0.5);
     };
 
-    const observer = new IntersectionObserver(updateHeroVisibility, { threshold: 0 });
+    const observer = new IntersectionObserver(updateHeroVisibility, {
+      root: mainScroller,
+      threshold: [0, 0.25, 0.5, 0.75, 1]
+    });
     observer.observe(hero);
+    mainScroller.addEventListener("scroll", updateHeroVisibility, { passive: true });
 
     const sectionObserver = new IntersectionObserver(
       (entries) => {
@@ -52,20 +62,19 @@ export function Header({ staffMode = false }) {
           entry.target.classList.toggle("is-section-visible", entry.isIntersecting);
         });
       },
-      { threshold: 0.12, rootMargin: "0px 0px -5% 0px" }
+      { root: mainScroller, threshold: 0.12, rootMargin: "0px 0px -5% 0px" }
     );
     ["home", "services", "stories", "operations", "referrals", "contact"].forEach((id) => {
       const section = document.getElementById(id);
       if (section) sectionObserver.observe(section);
     });
 
-    window.addEventListener("scroll", updateHeroVisibility, { passive: true });
     window.addEventListener("resize", updateHeroVisibility);
     updateHeroVisibility();
     return () => {
       observer.disconnect();
       sectionObserver.disconnect();
-      window.removeEventListener("scroll", updateHeroVisibility);
+      mainScroller.removeEventListener("scroll", updateHeroVisibility);
       window.removeEventListener("resize", updateHeroVisibility);
     };
   }, [staffMode]);
