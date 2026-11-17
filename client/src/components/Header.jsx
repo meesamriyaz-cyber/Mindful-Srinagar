@@ -70,7 +70,7 @@ export function Header({ staffMode = false }) {
     };
   }, [staffMode]);
 
-  const navItems = staffMode ? [{ label: "Public website", href: "#home" }] : publicNavItems;
+  const navItems = staffMode ? [] : publicNavItems;
   const closeMenu = () => setOpen(false);
 
   return (
