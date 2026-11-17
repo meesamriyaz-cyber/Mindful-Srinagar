@@ -1521,3 +1521,87 @@ input:focus, select:focus, textarea:focus {
   scroll-snap-align: start;
   scroll-snap-stop: normal;
 }
+
+
+/* Contact panel refinement — keep the enquiry form readable and prevent the
+   site's global footer styles from turning the nested contact footer into a
+   dark, half-width block. */
+.premium-public-header + main > #contact {
+  grid-template-columns: minmax(260px, 0.82fr) minmax(0, 760px);
+  column-gap: clamp(28px, 4vw, 64px);
+  justify-content: space-between;
+  align-items: start;
+}
+
+.premium-public-header + main > #contact .booking-form {
+  width: 100%;
+  max-width: 760px;
+  min-width: 0;
+  justify-self: end;
+  gap: 13px;
+  padding: clamp(18px, 1.7vw, 24px);
+  border-radius: 20px;
+  box-sizing: border-box;
+}
+
+.premium-public-header + main > #contact .booking-form input,
+.premium-public-header + main > #contact .booking-form select,
+.premium-public-header + main > #contact .booking-form textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+.premium-public-header + main > #contact .booking-form textarea {
+  min-height: 96px;
+}
+
+.premium-public-header + main > #contact > .public-site-footer {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 5px;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
+  margin: 24px 0 0;
+  padding: 18px 0 8px;
+  border: 0;
+  border-top: 1px solid var(--premium-line);
+  border-radius: 0;
+  color: var(--premium-muted);
+  background: transparent;
+  box-shadow: none;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+
+.premium-public-header + main > #contact > .public-site-footer strong {
+  display: block;
+  margin: 0;
+  color: var(--premium-ink);
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.premium-public-header + main > #contact > .public-site-footer span {
+  display: block;
+  color: var(--premium-muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .premium-public-header + main > #contact {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 24px;
+  }
+  .premium-public-header + main > #contact .booking-form {
+    justify-self: stretch;
+    max-width: 100%;
+  }
+}
