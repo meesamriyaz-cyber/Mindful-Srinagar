@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 
-const positions = [[-1.72, 0.72, 0.12], [0, -0.82, 0.28], [1.72, 0.72, 0.12]];
+const positions = [[-1.62, 0.82, 0.18], [0, -0.92, 0.34], [1.62, 0.82, 0.18]];
 
 function labelSprite(text) {
   const canvas = document.createElement("canvas");
@@ -36,7 +36,7 @@ export function ThreeOperationsScene({ services = [] }) {
     if (!mount) return undefined;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-    camera.position.set(0, 0, 6.5);
+    camera.position.set(0, 0, 6.9);
     let renderer;
     try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); }
     catch { mount.classList.add("three-scene-fallback"); return undefined; }
@@ -57,11 +57,11 @@ export function ThreeOperationsScene({ services = [] }) {
 
     const loader = new THREE.TextureLoader();
     const cards = positions.map((p, i) => {
-      const frame = new THREE.Mesh(new THREE.PlaneGeometry(1.12, 0.78), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
+      const frame = new THREE.Mesh(new THREE.PlaneGeometry(1.28, 0.88), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
       frame.position.set(...p); group.add(frame);
-      const photo = new THREE.Mesh(new THREE.PlaneGeometry(1.04, 0.70), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
+      const photo = new THREE.Mesh(new THREE.PlaneGeometry(1.20, 0.80), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
       photo.position.set(p[0], p[1], p[2] + 0.02); group.add(photo);
-      const label = labelSprite(""); label.sprite.position.set(p[0], p[1] - 0.54, p[2] + 0.04); group.add(label.sprite);
+      const label = labelSprite(""); label.sprite.position.set(p[0], p[1] - 0.61, p[2] + 0.04); group.add(label.sprite);
       return { frame, photo, label, position: p, texture: null };
     });
 
@@ -73,7 +73,7 @@ export function ThreeOperationsScene({ services = [] }) {
       card.texture = texture; card.photo.material.map = texture; card.photo.material.needsUpdate = true;
       group.remove(card.label.sprite); card.label.texture.dispose(); card.label.material.dispose();
       card.label = labelSprite(service?.title || "Care service");
-      card.label.sprite.position.set(card.position[0], card.position[1] - 0.54, card.position[2] + 0.04);
+      card.label.sprite.position.set(card.position[0], card.position[1] - 0.61, card.position[2] + 0.04);
       group.add(card.label.sprite);
     };
 
@@ -107,7 +107,7 @@ export function ThreeOperationsScene({ services = [] }) {
       group.rotation.y = Math.sin(time * 0.35) * 0.18; group.rotation.x = Math.sin(time * 0.28) * 0.045;
       core.rotation.y += delta * 0.48; core.rotation.x += delta * 0.24;
       cards.forEach((card, i) => {
-        const scale = THREE.MathUtils.damp(card.photo.scale.x || 1, hovered === card.photo ? 1.48 : 1, 9, delta);
+        const scale = THREE.MathUtils.damp(card.photo.scale.x || 1, hovered === card.photo ? 1.42 : 1, 9, delta);
         const z = THREE.MathUtils.damp(card.photo.position.z, hovered === card.photo ? 1.05 : card.position[2] + 0.02, 9, delta);
         card.photo.scale.set(scale, scale, 1); card.frame.scale.set(scale, scale, 1);
         card.photo.position.z = z; card.frame.position.z = z - 0.025; card.label.sprite.position.z = z + 0.04;
