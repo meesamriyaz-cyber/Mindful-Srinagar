@@ -110,6 +110,6 @@ export function Hero() {
           <span><strong>Srinagar</strong> multidisciplinary team</span>
         </div>
       </div>
-
+    </section>
   );
 }
