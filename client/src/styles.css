@@ -3964,15 +3964,18 @@ footer span {
   .content-toast, .content-confirm-overlay, .content-confirm-dialog { animation: none !important; }
 }
 
-/* Public homepage: viewport-sized sections with gentle section-to-section snapping.
-   The sticky header remains visible while each section settles beneath it. */
+/* Public homepage section positioning.
+   Keep normal document flow (no scroll snapping): tall sections must remain
+   naturally scrollable, and anchor navigation must leave room for the sticky
+   header. Internal top spacing keeps section content clear during manual scroll. */
 :root {
   --public-header-offset: 88px;
 }
 
 html {
-  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
   scroll-padding-top: var(--public-header-offset);
+  scroll-snap-type: none;
 }
 
 #home,
@@ -3981,96 +3984,34 @@ html {
 #operations,
 #referrals,
 #contact {
-  min-height: calc(100svh - var(--public-header-offset));
-  scroll-snap-align: start;
-  scroll-margin-top: var(--public-header-offset);
+  scroll-margin-top: 0;
 }
 
-/* Keep the hero's existing viewport treatment consistent with the other sections. */
 .hero {
   min-height: calc(100svh - var(--public-header-offset));
 }
 
-/* Content-heavy sections may grow beyond one screen; never clip their content. */
 .services-section,
 .public-content-section,
 .operations-section,
 .referral-section,
 .contact-section {
-  height: auto;
   min-height: calc(100svh - var(--public-header-offset));
+  height: auto;
+  padding-top: max(clamp(48px, 7vw, 82px), calc(var(--public-header-offset) + 24px));
+}
+
+/* The care-process layout is intentionally allowed to grow if its content
+   needs more than one viewport; nothing is clipped or hidden. */
+.operations-section {
+  align-content: start;
 }
 
 @media (max-width: 760px) {
   :root {
-    --public-header-offset: 76px;
+    --public-header-offset: 88px;
   }
 
-  html {
-    scroll-snap-type: y proximity;
-  }
-
-  #home,
-  #services,
-  #stories,
-  #operations,
-  #referrals,
-  #contact,
-  .hero,
-  .services-section,
-  .public-content-section,
-  .operations-section,
-  .referral-section,
-  .contact-section {
-    min-height: calc(100svh - var(--public-header-offset));
-    scroll-margin-top: var(--public-header-offset);
-  }
-}
-
-/* Correct section snap alignment: scroll-padding already accounts for the
-   sticky header, so section scroll margins must not add a second offset. */
-#home,
-#services,
-#stories,
-#operations,
-#referrals,
-#contact,
-.hero,
-.services-section,
-.public-content-section,
-.operations-section,
-.referral-section,
-.contact-section {
-  scroll-margin-top: 0 !important;
-}
-
-/* Keep section headings clear of the sticky public header during manual scroll
-   and snap transitions. The section background remains full-bleed. */
-#services,
-#stories,
-#operations,
-#referrals,
-#contact {
-  scroll-margin-top: var(--public-header-offset) !important;
-}
-
-#services,
-#stories,
-#operations,
-#referrals,
-#contact {
-  scroll-padding-top: 0;
-}
-
-.services-section,
-.public-content-section,
-.operations-section,
-.referral-section,
-.contact-section {
-  padding-top: max(clamp(48px, 7vw, 82px), calc(var(--public-header-offset) + 24px));
-}
-
-@media (max-width: 760px) {
   .services-section,
   .public-content-section,
   .operations-section,
