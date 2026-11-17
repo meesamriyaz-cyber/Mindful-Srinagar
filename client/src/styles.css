@@ -3963,3 +3963,66 @@ footer span {
 @media (prefers-reduced-motion: reduce) {
   .content-toast, .content-confirm-overlay, .content-confirm-dialog { animation: none !important; }
 }
+
+/* Public homepage: viewport-sized sections with gentle section-to-section snapping.
+   The sticky header remains visible while each section settles beneath it. */
+:root {
+  --public-header-offset: 88px;
+}
+
+html {
+  scroll-snap-type: y proximity;
+  scroll-padding-top: var(--public-header-offset);
+}
+
+#home,
+#services,
+#stories,
+#operations,
+#referrals,
+#contact {
+  min-height: calc(100svh - var(--public-header-offset));
+  scroll-snap-align: start;
+  scroll-margin-top: var(--public-header-offset);
+}
+
+/* Keep the hero's existing viewport treatment consistent with the other sections. */
+.hero {
+  min-height: calc(100svh - var(--public-header-offset));
+}
+
+/* Content-heavy sections may grow beyond one screen; never clip their content. */
+.services-section,
+.public-content-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  height: auto;
+  min-height: calc(100svh - var(--public-header-offset));
+}
+
+@media (max-width: 760px) {
+  :root {
+    --public-header-offset: 76px;
+  }
+
+  html {
+    scroll-snap-type: y proximity;
+  }
+
+  #home,
+  #services,
+  #stories,
+  #operations,
+  #referrals,
+  #contact,
+  .hero,
+  .services-section,
+  .public-content-section,
+  .operations-section,
+  .referral-section,
+  .contact-section {
+    min-height: calc(100svh - var(--public-header-offset));
+    scroll-margin-top: var(--public-header-offset);
+  }
+}
