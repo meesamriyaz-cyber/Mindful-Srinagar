@@ -1,7 +1,9 @@
 import { ArrowRight, MapPin, ShieldCheck } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { lazy, Suspense, useEffect, useState } from "react";
 import { CelebrationConfetti } from "./CelebrationConfetti.jsx";
 import { API_BASE_URL } from "../lib/api.js";
+
+const ThreeOperationsScene = lazy(() => import("./ThreeOperationsScene.jsx").then((module) => ({ default: module.ThreeOperationsScene })));
 
 const careServices = [
   { slug: "psychology", title: "Psychology", description: "Mental health support" },
@@ -87,23 +89,13 @@ export function Hero() {
           </a>
         </div>
       </div>
-      <div className="hero-visual hero-care-visual" aria-label="Mindful care services">
-        <div className="hero-care-grid">
-          {careServices.map((service) => {
-            const media = serviceImages[service.slug];
-            return (
-              <article className={"hero-care-card" + (media?.secureUrl ? " has-image" : " is-placeholder")} key={service.slug}>
-                {media?.secureUrl
-                  ? <img src={media.secureUrl} alt={media.altText || service.title} loading="lazy" />
-                  : <div className={"hero-care-placeholder hero-care-placeholder-" + service.slug} aria-hidden="true"><span>{service.title.split(" ").map((word) => word[0]).join("").slice(0, 2)}</span></div>}
-                <div className="hero-care-card-caption">
-                  <strong>{service.title}</strong>
-                  <span>{service.description}</span>
-                </div>
-              </article>
-            );
-          })}
-        </div>
+      <div className="hero-visual hero-care-visual" aria-label="Mindful multidisciplinary care network">
+        <Suspense fallback={<div className="three-scene three-scene-loading" aria-label="Loading care network" />}>
+          <ThreeOperationsScene services={careServices.map((service) => ({
+            ...service,
+            image: serviceImages[service.slug]?.secureUrl || ""
+          }))} />
+        </Suspense>
         <div className="hero-metrics">
           <span><strong>9</strong> care services</span>
           <span><strong>1</strong> coordinated plan</span>
