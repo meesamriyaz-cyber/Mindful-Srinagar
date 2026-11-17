@@ -262,10 +262,6 @@ export function Contact() {
           allowFullScreen
         />
       </div>
-      <footer className="public-site-footer">
-        <strong>Mindful Centre for Rehabilitation Research &amp; Training Foundation for Persons with Disabilities</strong>
-        <span>Integrated rehabilitation care in Srinagar for persons with disabilities.</span>
-      </footer>
     </section>
   );
 }
