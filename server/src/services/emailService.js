@@ -116,28 +116,6 @@ function emailShell({ logoUrl, siteUrl, preheader, body }) {
 
 export async function sendPasswordResetEmail({ to, name, resetUrl }) {
   const safeName = String(name || "there").replace(/[<>]/g, "");
-<<<<<<< HEAD
-  console.log("Brevo sender diagnostic:", {
-  senderEmail: JSON.stringify(senderEmail),
-  senderName,
-  apiKeyPresent: Boolean(apiKey),
-  apiKeyPrefix: apiKey?.slice(0, 8)
-});
-  const response = await fetch(BREVO_API_URL, {
-    method: "POST",
-    headers: {
-      "accept": "application/json",
-      "api-key": apiKey,
-      "content-type": "application/json"
-    },
-    body: JSON.stringify({
-      sender: { name: senderName, email: senderEmail },
-      to: [{ email: to, name: safeName }],
-      subject: "Reset your Mindful staff password",
-      textContent: `Hello ${safeName},\n\nWe received a request to reset your Mindful staff account password. Use the link below within 30 minutes:\n\n${resetUrl}\n\nIf you did not request this, you can ignore this email. Your password will remain unchanged.\n\nMindful Centre`,
-      htmlContent: `<p>Hello,</p><p>We received a request to reset your Mindful staff account password.</p><p><a href="${resetUrl}">Reset your password</a></p><p>This link expires in 30 minutes. If you did not request this, you can ignore this email.</p><p>Mindful Centre</p>`
-    })
-=======
   console.info("[password-reset-email] Submitting request to Brevo");
   const result = await submitBrevoEmail({
     to: [{ email: to, name: safeName }],
@@ -191,7 +169,6 @@ export async function sendEnquiryNotificationEmail({ referral }) {
       body
     }),
     logLabel: "enquiry-notification-email"
->>>>>>> f61674b1769c5ac0771af186a1c4af84fde79373
   });
 }
 

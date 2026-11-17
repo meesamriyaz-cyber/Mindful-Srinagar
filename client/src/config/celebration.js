@@ -1,11 +1,7 @@
 // Homepage welcome celebration settings.
 export const celebrationConfig = {
   enabled: true,
-<<<<<<< HEAD
   maxRuns: 1,
-=======
-  maxRuns: 2,
->>>>>>> f61674b1769c5ac0771af186a1c4af84fde79373
   durationMs: 5500,
   fadeOutMs: 1500,
 
