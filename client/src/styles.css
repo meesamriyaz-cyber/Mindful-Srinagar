@@ -3964,18 +3964,13 @@ footer span {
   .content-toast, .content-confirm-overlay, .content-confirm-dialog { animation: none !important; }
 }
 
-/* Public homepage section positioning.
-   Keep normal document flow (no scroll snapping): tall sections must remain
-   naturally scrollable, and anchor navigation must leave room for the sticky
-   header. Internal top spacing keeps section content clear during manual scroll. */
-:root {
-  --public-header-offset: 88px;
-}
-
+/* Public homepage: the navbar is a floating overlay, not a reserved
+   88px row in the document flow. Let section anchors align to the viewport
+   and place their content below the floating header with one consistent inset. */
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: var(--public-header-offset);
   scroll-snap-type: none;
+  scroll-padding-top: 0;
 }
 
 #home,
@@ -3984,11 +3979,7 @@ html {
 #operations,
 #referrals,
 #contact {
-  scroll-margin-top: 0;
-}
-
-.hero {
-  min-height: calc(100svh - var(--public-header-offset));
+  scroll-margin-top: 0 !important;
 }
 
 .services-section,
@@ -3996,27 +3987,17 @@ html {
 .operations-section,
 .referral-section,
 .contact-section {
-  min-height: calc(100svh - var(--public-header-offset));
+  min-height: 0;
   height: auto;
-  padding-top: max(clamp(48px, 7vw, 82px), calc(var(--public-header-offset) + 24px));
-}
-
-/* The care-process layout is intentionally allowed to grow if its content
-   needs more than one viewport; nothing is clipped or hidden. */
-.operations-section {
-  align-content: start;
+  padding-top: 104px;
 }
 
 @media (max-width: 760px) {
-  :root {
-    --public-header-offset: 88px;
-  }
-
   .services-section,
   .public-content-section,
   .operations-section,
   .referral-section,
   .contact-section {
-    padding-top: max(48px, calc(var(--public-header-offset) + 16px));
+    padding-top: 92px;
   }
 }
