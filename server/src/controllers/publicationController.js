@@ -215,3 +215,33 @@ export async function getPublicPublication(req, res, next) {
     return next(error);
   }
 }
+
+
+const CARE_SERVICE_TAG_PREFIX = "care:";
+
+export async function listPublicCareServices(_req, res, next) {
+  try {
+    const assets = await MediaAsset.find({
+      status: "ready",
+      resourceType: "image",
+      tags: { $regex: "^care:" }
+    }).sort({ updatedAt: -1, createdAt: -1 }).lean();
+
+    const services = {};
+    for (const asset of assets) {
+      if (!canExposeMediaAsset(asset)) continue;
+      const serviceSlug = (asset.tags || []).find((tag) => tag.startsWith(CARE_SERVICE_TAG_PREFIX))?.slice(CARE_SERVICE_TAG_PREFIX.length);
+      if (!serviceSlug || services[serviceSlug]) continue;
+      services[serviceSlug] = {
+        _id: asset._id,
+        title: asset.title,
+        caption: asset.caption,
+        altText: asset.altText,
+        secureUrl: asset.secureUrl
+      };
+    }
+    return res.json({ services });
+  } catch (error) {
+    return next(error);
+  }
+}

@@ -1,14 +1,31 @@
 import { ArrowRight, MapPin, ShieldCheck } from "lucide-react";
-import React, { lazy, Suspense } from "react";
-import { useDeferredMount } from "../hooks/useDeferredMount.js";
+import React, { useEffect, useState } from "react";
 import { CelebrationConfetti } from "./CelebrationConfetti.jsx";
+import { API_BASE_URL } from "../lib/api.js";
 
-const ThreeOperationsScene = lazy(() =>
-  import("./ThreeOperationsScene.jsx").then((module) => ({ default: module.ThreeOperationsScene }))
-);
+const careServices = [
+  { slug: "psychology", title: "Psychology", description: "Mental health support" },
+  { slug: "special-education", title: "Special Education", description: "Individual learning support" },
+  { slug: "occupational-therapy", title: "Occupational Therapy", description: "Everyday skills and function" },
+  { slug: "diagnostics", title: "Diagnostics", description: "Comprehensive assessments" },
+  { slug: "audiology", title: "Audiology", description: "Hearing assessment and support" },
+  { slug: "speech-therapy", title: "Speech Therapy", description: "Communication and language" },
+  { slug: "physical-therapy", title: "Physical Therapy", description: "Movement and mobility" },
+  { slug: "rehabilitation", title: "Rehabilitation", description: "Coordinated rehabilitation" },
+  { slug: "vocational-training", title: "Vocational Training", description: "Skills for independence" }
+];
 
 export function Hero() {
-  const showScene = useDeferredMount({ delay: 450 });
+  const [serviceImages, setServiceImages] = useState({});
+
+  useEffect(() => {
+    let active = true;
+    fetch(`${API_BASE_URL}/public/media/care-services`)
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("Care images unavailable")))
+      .then((data) => { if (active) setServiceImages(data.services || {}); })
+      .catch(() => { if (active) setServiceImages({}); });
+    return () => { active = false; };
+  }, []);
 
   return (
     <section className="hero" id="home">
@@ -70,18 +87,23 @@ export function Hero() {
           </a>
         </div>
       </div>
-      <div className="hero-visual" aria-label="Centre operations summary">
-        <div className={showScene ? "hero-visual-fallback is-hidden" : "hero-visual-fallback"}>
-          <span>Psychology</span>
-          <span>Speech therapy</span>
-          <span>Physical therapy</span>
-          <span>Special education</span>
+      <div className="hero-visual hero-care-visual" aria-label="Mindful care services">
+        <div className="hero-care-grid">
+          {careServices.map((service) => {
+            const media = serviceImages[service.slug];
+            return (
+              <article className={"hero-care-card" + (media?.secureUrl ? " has-image" : " is-placeholder")} key={service.slug}>
+                {media?.secureUrl
+                  ? <img src={media.secureUrl} alt={media.altText || service.title} loading="lazy" />
+                  : <div className={"hero-care-placeholder hero-care-placeholder-" + service.slug} aria-hidden="true"><span>{service.title.split(" ").map((word) => word[0]).join("").slice(0, 2)}</span></div>}
+                <div className="hero-care-card-caption">
+                  <strong>{service.title}</strong>
+                  <span>{service.description}</span>
+                </div>
+              </article>
+            );
+          })}
         </div>
-        {showScene && (
-          <Suspense fallback={<div className="three-scene three-scene-fallback" />}>
-            <ThreeOperationsScene />
-          </Suspense>
-        )}
         <div className="hero-metrics">
           <span><strong>9</strong> care services</span>
           <span><strong>1</strong> coordinated plan</span>
