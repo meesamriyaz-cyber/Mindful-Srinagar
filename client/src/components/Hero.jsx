@@ -1,6 +1,5 @@
 import { ArrowRight, MapPin, ShieldCheck } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useDeferredMount } from "../hooks/useDeferredMount.js";
 import { CelebrationConfetti } from "./CelebrationConfetti.jsx";
 import { API_BASE_URL } from "../lib/api.js";
 
