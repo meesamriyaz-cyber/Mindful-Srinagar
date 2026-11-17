@@ -2316,3 +2316,100 @@ body:has(.premium-staff-header) {
     transition: none;
   }
 }
+
+
+/* Keep the navbar itself visually quiet. Apply only a restrained hint of
+   the booking-button forest green to individual links on interaction. */
+.premium-public-header .nav {
+  gap: clamp(8px, 1.35vw, 20px);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.premium-public-header .nav > a:not(.nav-staff-link) {
+  min-height: 0;
+  padding: 9px 5px;
+  border: 0;
+  border-radius: 8px;
+  color: var(--premium-ink-soft);
+  background: transparent;
+  box-shadow: none;
+  font-size: .84rem;
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.premium-public-header .nav > a:not(.nav-staff-link):hover,
+.premium-public-header .nav > a:not(.nav-staff-link):focus-visible {
+  color: var(--premium-forest);
+  background: rgba(36, 91, 76, .07);
+  box-shadow: none;
+  transform: none;
+}
+
+.premium-public-header .nav .nav-staff-link {
+  min-height: 0;
+  margin-left: 2px;
+  padding: 8px 11px;
+  border: 1px solid rgba(36, 91, 76, .16);
+  border-radius: 8px;
+  color: var(--premium-forest);
+  background: rgba(36, 91, 76, .055);
+  font-size: .82rem;
+  transition: color 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+.premium-public-header .nav .nav-staff-link:hover,
+.premium-public-header .nav .nav-staff-link:focus-visible {
+  border-color: rgba(36, 91, 76, .24);
+  color: var(--premium-forest-deep);
+  background: rgba(36, 91, 76, .10);
+  transform: none;
+}
+
+@media (max-width: 1050px) and (min-width: 821px) {
+  .premium-public-header .nav {
+    gap: 5px;
+    padding: 0;
+  }
+  .premium-public-header .nav > a:not(.nav-staff-link) {
+    padding-inline: 4px;
+    font-size: .78rem;
+  }
+  .premium-public-header .nav .nav-staff-link {
+    padding-inline: 8px;
+    font-size: .76rem;
+  }
+}
+
+@media (max-width: 820px) {
+  .premium-public-header .nav {
+    align-items: stretch;
+    gap: 7px;
+    padding: 12px;
+    border: 1px solid #e2eae2;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .98);
+    box-shadow: 0 16px 36px rgba(27, 57, 47, .13);
+  }
+  .premium-public-header .nav > a:not(.nav-staff-link),
+  .premium-public-header .nav .nav-staff-link {
+    justify-content: flex-start;
+    min-height: 42px;
+    margin: 0;
+    padding: 10px 14px;
+    border: 1px solid #e7eee7;
+    border-radius: 10px;
+    background: #f7faf6;
+    font-size: .88rem;
+  }
+  .premium-public-header .nav > a:not(.nav-staff-link):hover,
+  .premium-public-header .nav .nav-staff-link:hover {
+    border-color: #cddfcf;
+    background: #edf5ed;
+    box-shadow: none;
+    transform: none;
+  }
+}
