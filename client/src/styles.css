@@ -4043,3 +4043,39 @@ html {
 .contact-section {
   scroll-margin-top: 0 !important;
 }
+
+/* Keep section headings clear of the sticky public header during manual scroll
+   and snap transitions. The section background remains full-bleed. */
+#services,
+#stories,
+#operations,
+#referrals,
+#contact {
+  scroll-margin-top: var(--public-header-offset) !important;
+}
+
+#services,
+#stories,
+#operations,
+#referrals,
+#contact {
+  scroll-padding-top: 0;
+}
+
+.services-section,
+.public-content-section,
+.operations-section,
+.referral-section,
+.contact-section {
+  padding-top: max(clamp(48px, 7vw, 82px), calc(var(--public-header-offset) + 24px));
+}
+
+@media (max-width: 760px) {
+  .services-section,
+  .public-content-section,
+  .operations-section,
+  .referral-section,
+  .contact-section {
+    padding-top: max(48px, calc(var(--public-header-offset) + 16px));
+  }
+}
