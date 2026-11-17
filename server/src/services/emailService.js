@@ -9,6 +9,12 @@ export async function sendPasswordResetEmail({ to, name, resetUrl }) {
   }
 
   const safeName = String(name || "there").replace(/[<>]/g, "");
+  console.log("Brevo sender diagnostic:", {
+  senderEmail: JSON.stringify(senderEmail),
+  senderName,
+  apiKeyPresent: Boolean(apiKey),
+  apiKeyPrefix: apiKey?.slice(0, 8)
+});
   const response = await fetch(BREVO_API_URL, {
     method: "POST",
     headers: {
