@@ -50,10 +50,6 @@ export default function App() {
         <ReferralTracker />
         <Contact />
       </main>
-      <footer>
-        <strong>Mindful Centre for Rehabilitation Research & Training Foundation for Persons with Disabilities</strong>
-        <span>Integrated rehabilitation care in Srinagar for persons with disabilities.</span>
-      </footer>
     </>
   );
 }
