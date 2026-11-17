@@ -71,7 +71,7 @@ function escapeHtml(value) {
 function getBrandAssets() {
   const siteUrl = String(process.env.CLIENT_URL || process.env.CLIENT_ORIGIN || "https://www.mindfulrehabcentre.in")
     .split(",")[0].trim().replace(/\/+$/, "");
-  const logoUrl = process.env.EMAIL_LOGO_URL || `${siteUrl}/mindful-logo.svg`;
+  const logoUrl = process.env.EMAIL_LOGO_URL || `${siteUrl}/mindful-logo-email.png`;
   return { siteUrl, logoUrl };
 }
 
@@ -85,10 +85,19 @@ function emailShell({ logoUrl, siteUrl, preheader, body }) {
     <tr><td align="center">
       <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e2e9eb;border-radius:16px;overflow:hidden;">
         <tr><td style="padding:26px 32px;background:#ffffff;border-bottom:1px solid #e8eeee;">
-          <a href="${escapeHtml(siteUrl)}" style="text-decoration:none;color:#174b5b;">
-            <img src="${escapeHtml(logoUrl)}" alt="Mindful Centre" width="112" style="display:block;width:112px;max-width:100%;height:auto;border:0;">
-          </a>
-          <p style="margin:12px 0 0;color:#607781;font-size:13px;line-height:1.5;">Centre for Rehabilitation Research &amp; Training Foundation</p>
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+            <tr>
+              <td valign="middle" style="padding:0 16px 0 0;">
+                <a href="${escapeHtml(siteUrl)}" style="text-decoration:none;">
+                  <img src="${escapeHtml(logoUrl)}" alt="Mindful logo" width="72" height="87" style="display:block;width:72px;height:auto;max-width:72px;border:0;outline:none;text-decoration:none;">
+                </a>
+              </td>
+              <td valign="middle" style="padding:0;">
+                <a href="${escapeHtml(siteUrl)}" style="font-family:Arial,Helvetica,sans-serif;color:#174b5b;text-decoration:none;font-size:27px;line-height:1.2;font-weight:700;">Mindful</a>
+                <p style="margin:5px 0 0;color:#607781;font-size:13px;line-height:1.5;">Centre for Rehabilitation Research &amp; Training Foundation</p>
+              </td>
+            </tr>
+          </table>
         </td></tr>
         <tr><td style="padding:32px;">${body}</td></tr>
         <tr><td style="padding:22px 32px;background:#f7faf9;border-top:1px solid #e8eeee;color:#607781;font-size:12px;line-height:1.7;">
