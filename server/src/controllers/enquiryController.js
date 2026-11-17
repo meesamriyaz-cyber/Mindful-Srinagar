@@ -4,6 +4,7 @@ import { Patient } from "../models/Patient.js";
 import mongoose from "mongoose";
 import { User } from "../models/User.js";
 import { getNextWorkingDayDeadline } from "../security/referralRules.js";
+import { sendEnquiryAcknowledgementEmail, sendEnquiryNotificationEmail } from "../services/emailService.js";
 
 export const PRIVACY_NOTICE_VERSION = "2026-11-12-v1";
 
@@ -97,6 +98,20 @@ export async function createEnquiry(req, res, next) {
       followUpDate: getNextWorkingDayDeadline(),
       notes: `Preferred contact: ${preferredContact}. Urgency: ${urgency}.`
     });
+
+    // Email delivery is deliberately non-blocking: a Brevo outage must not undo
+    // a successfully saved enquiry or prevent the visitor from seeing confirmation.
+    const emailJobs = [
+      sendEnquiryNotificationEmail({ referral })
+        .catch((error) => console.error("[enquiry-notification-email] Delivery failed:", error.message))
+    ];
+    if (email) {
+      emailJobs.push(
+        sendEnquiryAcknowledgementEmail({ to: email, contactName })
+          .catch((error) => console.error("[enquiry-acknowledgement-email] Delivery failed:", error.message))
+      );
+    }
+    void Promise.all(emailJobs);
 
     res.status(201).json({
       id: referral._id,
