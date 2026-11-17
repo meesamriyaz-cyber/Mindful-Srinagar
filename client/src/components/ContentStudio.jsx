@@ -152,7 +152,7 @@ export function ContentStudio({ token }) {
     if (!asset) return;
     setSavingServiceSlug(service.slug);
     try {
-      const tags = [...new Set([...(asset.tags || []).filter((tag) => !tag.startsWith("care-service:")), "care-service:" + service.slug])];
+      const tags = [...new Set([...(asset.tags || []).filter((tag) => !tag.startsWith("care:")), "care:" + service.slug])];
       await api("/media/" + asset._id, token, { method: "PATCH", body: JSON.stringify({ tags }) });
       setAssets((current) => current.map((item) => item._id === asset._id ? { ...item, tags } : item));
       showToast(service.title + " image assigned to the public Hero.");
@@ -163,7 +163,7 @@ export function ContentStudio({ token }) {
     }
   };
 
-  const serviceImageFor = (slug) => assets.find((asset) => (asset.tags || []).includes("care-service:" + slug));
+  const serviceImageFor = (slug) => assets.find((asset) => (asset.tags || []).includes("care:" + slug));
   const eligibleCareImages = assets.filter((asset) => asset.resourceType === "image" && asset.status !== "archived" &&
     (!asset.identifiablePeople || (asset.consentStatus === "verified" && ["website", "website-and-social", "all-public"].includes(asset.consentScope))));
   function toggleAsset(id) {
