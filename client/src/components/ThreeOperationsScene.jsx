@@ -96,7 +96,7 @@ export function ThreeOperationsScene({ services = [] }) {
       renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix();
     };
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(resize) : null;
-    observer?.observe(mount); window.addEventListener("resize", resize);
+    observer?.observe(mount);
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let activeSet = -1; let frameId = 0; let last = 0;
     const animate = (stamp = 0) => {
