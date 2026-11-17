@@ -17,8 +17,6 @@ export function Contact() {
     const patientName = formData.get("patientName")?.toString().trim();
     const ageValue = formData.get("age")?.toString().trim();
     const patientAge = ageValue ? Number(ageValue) : undefined;
-    const guardianName = formData.get("guardianName")?.toString().trim();
-    const guardianRelationship = formData.get("guardianRelationship")?.toString().trim();
     const contactName = formData.get("contactName")?.toString().trim();
     const contactRelationship = formData.get("contactRelationship")?.toString();
     const phone = formData.get("phone")?.toString().trim();
@@ -42,8 +40,6 @@ export function Contact() {
       const response = await createEnquiry({
         patientName,
         ...(patientAge !== undefined ? { patientAge } : {}),
-        ...(guardianName ? { guardianName } : {}),
-        ...(guardianRelationship ? { guardianRelationship } : {}),
         contactName,
         contactRelationship,
         phone,
@@ -108,16 +104,6 @@ export function Contact() {
           <label>
             Patient's age (optional)
             <input name="age" type="number" min="0" max="120" placeholder="Age" />
-          </label>
-        </div>
-        <div className="form-row">
-          <label>
-            Parent / guardian name (if applicable)
-            <input name="guardianName" placeholder="Guardian's full name" maxLength={90} />
-          </label>
-          <label>
-            Relationship to patient
-            <input name="guardianRelationship" placeholder="Parent, uncle, spouse..." maxLength={80} />
           </label>
         </div>
         <div className="form-row">
