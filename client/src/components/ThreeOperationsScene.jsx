@@ -66,7 +66,7 @@ export function ThreeOperationsScene({ services = [] }) {
     });
 
     const setCard = (card, service, index) => {
-      const texture = service?.image ? loader.load(service.image) : placeholderTexture(service?.title, index);
+      const texture = service?.image ? loader.load(service.image, () => renderer.render(scene, camera)) : placeholderTexture(service?.title, index);
       texture.colorSpace = THREE.SRGBColorSpace;
       if (service?.image) texture.onUpdate = () => { texture.colorSpace = THREE.SRGBColorSpace; };
       if (card.texture) card.texture.dispose();
@@ -115,7 +115,7 @@ export function ThreeOperationsScene({ services = [] }) {
         card.photo.position.y = y; card.frame.position.y = y; card.label.sprite.position.y = y - 0.54;
       });
       renderer.render(scene, camera);
-      if (!reduceMotion) frameId = requestAnimationFrame(animate);
+      if (!reduceMotion || !list.length) frameId = requestAnimationFrame(animate);
     };
     resize(); animate(); window.addEventListener("resize", resize);
     return () => {
