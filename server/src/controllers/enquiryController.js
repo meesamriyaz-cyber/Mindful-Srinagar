@@ -111,7 +111,7 @@ export async function createEnquiry(req, res, next) {
           .catch((error) => console.error("[enquiry-acknowledgement-email] Delivery failed:", error.message))
       );
     }
-    await Promise.all(emailJobs);
+    void Promise.all(emailJobs);
 
     res.status(201).json({
       id: referral._id,
