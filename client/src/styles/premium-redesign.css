@@ -2172,3 +2172,10 @@ body:has(.premium-staff-header) {
     font-size: .72rem;
   }
 }
+
+
+/* Tint the compact Hero-state emblem to Mindful's forest-green palette. */
+.premium-public-header .brand-home-logo .brand-logo-image {
+  filter: grayscale(1) sepia(1) saturate(2.1) hue-rotate(91deg) brightness(.68) contrast(1.08);
+  transition: filter 180ms ease;
+}
