@@ -90,12 +90,14 @@ export function Hero() {
         </div>
       </div>
       <div className="hero-visual hero-care-visual" aria-label="Mindful multidisciplinary care network">
+        <div className="hero-network-stage">
         <Suspense fallback={<div className="three-scene three-scene-loading" aria-label="Loading care network" />}>
           <ThreeOperationsScene services={careServices.map((service) => ({
             ...service,
             image: serviceImages[service.slug]?.secureUrl || ""
           }))} />
         </Suspense>
+        </div>
         <div className="hero-metrics">
           <span><strong>9</strong> care services</span>
           <span><strong>1</strong> coordinated plan</span>
