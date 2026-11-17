@@ -1414,3 +1414,98 @@ input:focus, select:focus, textarea:focus {
     transition-duration: .01ms !important;
   }
 }
+
+/* Full-screen public panels: the main element owns page-to-page scrolling,
+   while each panel owns its own content scrolling. Staff mode is unaffected. */
+.premium-public-header + main {
+  display: block;
+  height: 100svh;
+  max-height: 100svh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.premium-public-header + main::-webkit-scrollbar,
+.premium-public-header + main > section[id]::-webkit-scrollbar {
+  display: none;
+}
+.premium-public-header + main > section[id] {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100svh;
+  min-height: 100svh;
+  max-height: 100svh;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: auto;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  scroll-margin: 0;
+  scrollbar-width: none;
+  padding: 112px clamp(18px, 5vw, 72px) 32px;
+  align-content: start;
+}
+.premium-public-header + main > #home {
+  padding-top: clamp(126px, 10vw, 148px);
+}
+.premium-public-header + main > #services,
+.premium-public-header + main > #stories,
+.premium-public-header + main > #operations,
+.premium-public-header + main > #referrals,
+.premium-public-header + main > #contact {
+  min-height: 100svh;
+  height: 100svh;
+  max-height: 100svh;
+}
+.premium-public-header + main > #services,
+.premium-public-header + main > #stories,
+.premium-public-header + main > #operations,
+.premium-public-header + main > #referrals,
+.premium-public-header + main > #contact {
+  content-visibility: visible;
+  contain-intrinsic-size: none;
+}
+.premium-public-header + main > #referrals {
+  align-content: center;
+}
+.premium-public-header + main > #contact {
+  grid-template-rows: auto auto auto auto;
+}
+.premium-public-header + main > #contact .contact-map iframe {
+  min-height: 220px;
+}
+.premium-public-header + main .public-site-footer {
+  margin-top: 24px;
+  padding: 18px 0 8px;
+  border-top: 1px solid var(--premium-line);
+  color: var(--premium-muted);
+  font-size: 0.82rem;
+}
+.premium-public-header + main .public-site-footer strong,
+.premium-public-header + main .public-site-footer span {
+  display: block;
+}
+.premium-public-header + main .public-site-footer strong {
+  margin-bottom: 5px;
+  color: var(--premium-ink);
+}
+@media (max-width: 820px) {
+  .premium-public-header + main > section[id] {
+    padding: 100px 18px 28px;
+  }
+  .premium-public-header + main > #home {
+    padding-top: 112px;
+  }
+}
+@media (max-width: 520px) {
+  .premium-public-header + main > section[id] {
+    padding: 94px 14px 24px;
+  }
+  .premium-public-header + main > #home {
+    padding-top: 108px;
+  }
+}
