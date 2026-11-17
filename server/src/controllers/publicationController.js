@@ -217,14 +217,14 @@ export async function getPublicPublication(req, res, next) {
 }
 
 
-const CARE_SERVICE_TAG_PREFIX = "care-service:";
+const CARE_SERVICE_TAG_PREFIX = "care:";
 
 export async function listPublicCareServices(_req, res, next) {
   try {
     const assets = await MediaAsset.find({
       status: "ready",
       resourceType: "image",
-      tags: { $regex: "^care-service:" }
+      tags: { $regex: "^care:" }
     }).sort({ updatedAt: -1, createdAt: -1 }).lean();
 
     const services = {};
