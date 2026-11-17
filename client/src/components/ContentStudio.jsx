@@ -10,6 +10,17 @@ const emptyPublication = () => ({ title: "", type: "news", summary: "", bodyText
 const emptyGallery = () => ({ title: "", description: "", category: "centre-activities", coverMedia: "", mediaItems: [], eventDate: "" });
 const categories = ["centre-activities", "workshops", "awareness", "training", "research", "facilities", "other"];
 const statusLabels = { draft: "Draft", published: "Published", archived: "Archived" };
+const careServiceDefinitions = [
+  { slug: "psychology", title: "Psychology" },
+  { slug: "special-education", title: "Special Education" },
+  { slug: "occupational-therapy", title: "Occupational Therapy" },
+  { slug: "diagnostics", title: "Diagnostics" },
+  { slug: "audiology", title: "Audiology" },
+  { slug: "speech-therapy", title: "Speech Therapy" },
+  { slug: "physical-therapy", title: "Physical Therapy" },
+  { slug: "rehabilitation", title: "Rehabilitation" },
+  { slug: "vocational-training", title: "Vocational Training" }
+];
 
 async function api(path, token, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}`, ...options.headers } });
@@ -62,6 +73,7 @@ export function ContentStudio({ token }) {
   const [form, setForm] = useState(emptyPublication());
   const [assetPicker, setAssetPicker] = useState(false);
   const [assetSearch, setAssetSearch] = useState("");
+  const [savingServiceSlug, setSavingServiceSlug] = useState("");
 
   const base = tab === "publications" ? "/publications" : "/galleries";
   const load = useCallback(async (nextPage = page) => {
@@ -75,7 +87,7 @@ export function ContentStudio({ token }) {
     finally { setLoading(false); }
   }, [base, token, page, query, status]);
 
-  useEffect(() => { load(1); }, [tab, status, query, load]);
+  useEffect(() => { if (tab !== "care-services") load(1); }, [tab, status, query, load]);
   useEffect(() => {
     api("/media?status=ready&limit=100", token).then((result) => setAssets(result.items || [])).catch((err) => showToast(err.message || "The request could not be completed.", "error"));
   }, [token]);
@@ -134,6 +146,26 @@ export function ContentStudio({ token }) {
     } finally { setTransitioning(false); }
   }
 
+  const assignCareServiceImage = async (service, assetId) => {
+    if (!assetId || savingServiceSlug) return;
+    const asset = assets.find((item) => item._id === assetId);
+    if (!asset) return;
+    setSavingServiceSlug(service.slug);
+    try {
+      const tags = [...new Set([...(asset.tags || []).filter((tag) => !tag.startsWith("care-service:")), "care-service:" + service.slug])];
+      await api("/media/" + asset._id, token, { method: "PATCH", body: JSON.stringify({ tags }) });
+      setAssets((current) => current.map((item) => item._id === asset._id ? { ...item, tags } : item));
+      showToast(service.title + " image assigned to the public Hero.");
+    } catch (err) {
+      showToast(err.message || "The care image could not be assigned.", "error");
+    } finally {
+      setSavingServiceSlug("");
+    }
+  };
+
+  const serviceImageFor = (slug) => assets.find((asset) => (asset.tags || []).includes("care-service:" + slug));
+  const eligibleCareImages = assets.filter((asset) => asset.resourceType === "image" && asset.status !== "archived" &&
+    (!asset.identifiablePeople || (asset.consentStatus === "verified" && ["website", "website-and-social", "all-public"].includes(asset.consentScope))));
   function toggleAsset(id) {
     const selected = form.mediaItems || [];
     setForm({ ...form, mediaItems: selected.includes(id) ? selected.filter((value) => value !== id) : [...selected, id] });
@@ -148,9 +180,37 @@ export function ContentStudio({ token }) {
       <div className="content-studio-tabs" role="tablist" aria-label="Content type">
         <button type="button" role="tab" aria-selected={tab === "publications"} className={tab === "publications" ? "active" : ""} onClick={() => { setTab("publications"); setEditing(null); setStatus("draft"); setPage(1); }}><Newspaper size={16}/> Publications</button>
         <button type="button" role="tab" aria-selected={tab === "galleries"} className={tab === "galleries" ? "active" : ""} onClick={() => { setTab("galleries"); setEditing(null); setStatus("draft"); setPage(1); }}><Images size={16}/> Galleries</button>
+        <button type="button" role="tab" aria-selected={tab === "care-services"} className={tab === "care-services" ? "active" : ""} onClick={() => { setTab("care-services"); setEditing(null); }}><Images size={16}/> Care services</button>
       </div>
       {toast && <div className={`content-toast ${toast.kind === "error" ? "is-error" : "is-success"}`} role={toast.kind === "error" ? "alert" : "status"} key={toast.id}>{toast.kind === "error" ? <AlertCircle size={19}/> : <CheckCircle2 size={19}/>}<span>{toast.message}</span><button type="button" onClick={() => setToast(null)} aria-label="Dismiss notification"><X size={16}/></button></div>}
-      {editing !== null ? (
+      {tab === "care-services" ? (
+        <div className="care-service-manager">
+          <div className="care-service-manager-intro">
+            <h4>Hero care service photographs</h4>
+            <p>Choose a photograph from the Media Library for each service. Images appear on the public Hero after assignment. Photos showing identifiable people are selectable only when website consent is verified.</p>
+          </div>
+          <div className="care-service-manager-grid">
+            {careServiceDefinitions.map((service) => {
+              const assigned = serviceImageFor(service.slug);
+              return (
+                <article className="care-service-manager-card" key={service.slug}>
+                  <div className="care-service-manager-preview">
+                    {assigned?.secureUrl ? <img src={assigned.secureUrl} alt={assigned.altText || service.title} /> : <span>Photo not assigned</span>}
+                  </div>
+                  <label>{service.title}
+                    <select value={assigned?._id || ""} disabled={Boolean(savingServiceSlug)} onChange={(event) => assignCareServiceImage(service, event.target.value)}>
+                      <option value="">Choose a media image</option>
+                      {eligibleCareImages.map((asset) => <option key={asset._id} value={asset._id}>{asset.title || asset.caption || asset.publicId}</option>)}
+                    </select>
+                  </label>
+                  {savingServiceSlug === service.slug && <small>Saving image assignment…</small>}
+                </article>
+              );
+            })}
+          </div>
+          <p className="care-service-manager-note">Upload new photographs and manage consent in the Media Library. Replacing a service image here does not alter the original media asset.</p>
+        </div>
+      ) : editing !== null ? (
         <form className="content-editor" onSubmit={save}>
           <div className="content-editor-top"><div><p className="eyebrow">{editing === "new" ? "NEW DRAFT" : "EDIT DRAFT"}</p><h4>{editing === "new" ? "Create " : "Update "}{tab === "publications" ? "publication" : "gallery"}</h4></div><button className="icon-button" type="button" onClick={closeEditor} aria-label="Close editor"><X size={18}/></button></div>
           <label>Title<input required minLength="3" maxLength="160" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })}/></label>
