@@ -147,17 +147,26 @@ export function ContentStudio({ token }) {
   }
 
   const assignCareServiceImage = async (service, assetId) => {
-    if (!assetId || savingServiceSlug) return;
-    const asset = assets.find((item) => item._id === assetId);
-    if (!asset) return;
+    if (savingServiceSlug) return;
+    const marker = "care:" + service.slug;
+    const target = assetId ? assets.find((item) => item._id === assetId) : null;
+    if (assetId && !target) return;
     setSavingServiceSlug(service.slug);
     try {
-      const tags = [...new Set([...(asset.tags || []).filter((tag) => !tag.startsWith("care:")), "care:" + service.slug])];
-      await api("/media/" + asset._id, token, { method: "PATCH", body: JSON.stringify({ tags }) });
-      setAssets((current) => current.map((item) => item._id === asset._id ? { ...item, tags } : item));
-      showToast(service.title + " image assigned to the public Hero.");
+      const currentAssignments = assets.filter((item) => (item.tags || []).includes(marker));
+      for (const existing of currentAssignments) {
+        const tags = (existing.tags || []).filter((tag) => tag !== marker);
+        await api("/media/" + existing._id, token, { method: "PATCH", body: JSON.stringify({ tags }) });
+        setAssets((current) => current.map((item) => item._id === existing._id ? { ...item, tags } : item));
+      }
+      if (target) {
+        const tags = [...new Set([...(target.tags || []).filter((tag) => !tag.startsWith("care:")), marker])];
+        await api("/media/" + target._id, token, { method: "PATCH", body: JSON.stringify({ tags }) });
+        setAssets((current) => current.map((item) => item._id === target._id ? { ...item, tags } : item));
+      }
+      showToast(target ? service.title + " image assigned to the public Hero." : service.title + " image removed from the public Hero.");
     } catch (err) {
-      showToast(err.message || "The care image could not be assigned.", "error");
+      showToast(err.message || "The care image could not be updated.", "error");
     } finally {
       setSavingServiceSlug("");
     }
@@ -175,7 +184,7 @@ export function ContentStudio({ token }) {
     <section className="content-studio admin-content-workspace">
       <div className="content-studio-heading">
         <div><p className="eyebrow">WEBSITE CONTENT</p><h3>Content studio</h3><p>Create and manage approved stories, centre updates, events and photo galleries.</p></div>
-        <Button type="button" onClick={beginCreate} className="admin-workspace-primary"><Plus size={17} /> New {tab === "publications" ? "publication" : "gallery"}</Button>
+        {tab !== "care-services" && <Button type="button" onClick={beginCreate} className="admin-workspace-primary"><Plus size={17} /> New {tab === "publications" ? "publication" : "gallery"}</Button>}
       </div>
       <div className="content-studio-tabs" role="tablist" aria-label="Content type">
         <button type="button" role="tab" aria-selected={tab === "publications"} className={tab === "publications" ? "active" : ""} onClick={() => { setTab("publications"); setEditing(null); setStatus("draft"); setPage(1); }}><Newspaper size={16}/> Publications</button>
@@ -199,7 +208,7 @@ export function ContentStudio({ token }) {
                   </div>
                   <label>{service.title}
                     <select value={assigned?._id || ""} disabled={Boolean(savingServiceSlug)} onChange={(event) => assignCareServiceImage(service, event.target.value)}>
-                      <option value="">Choose a media image</option>
+                      <option value="">No image assigned</option>
                       {eligibleCareImages.map((asset) => <option key={asset._id} value={asset._id}>{asset.title || asset.caption || asset.publicId}</option>)}
                     </select>
                   </label>
