@@ -1971,3 +1971,85 @@ input:focus, select:focus, textarea:focus {
     transition: none;
   }
 }
+
+
+/* Referral panel — bring the partner area back into the same warm ivory,
+   forest and soft-sage palette used throughout the public site. */
+.premium-public-header + main > #referrals {
+  background:
+    radial-gradient(ellipse at 85% 18%, rgba(218, 232, 218, .38), transparent 42%),
+    var(--premium-ivory);
+}
+
+.premium-public-header + main > #referrals .referral-action {
+  border: 1px solid #dce7dc;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #edf4ec 0%, #e5eee5 100%);
+  box-shadow: 0 18px 42px rgba(34, 68, 52, .09);
+}
+
+.premium-public-header + main > #referrals .referral-audience {
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.premium-public-header + main > #referrals .referral-partner-card {
+  min-height: 150px;
+  border: 1px solid #dfe8df;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .88);
+  box-shadow: 0 7px 18px rgba(35, 66, 51, .055);
+  color: var(--premium-ink);
+}
+
+.premium-public-header + main > #referrals .referral-partner-card svg {
+  color: var(--premium-forest);
+}
+
+.premium-public-header + main > #referrals .referral-partner-card strong {
+  color: #315346;
+  font-weight: 700;
+}
+
+.premium-public-header + main > #referrals .referral-action > .primary-button {
+  border: 1px solid var(--premium-forest);
+  border-radius: 14px;
+  color: #fff;
+  background: var(--premium-forest);
+  box-shadow: 0 8px 20px rgba(34, 82, 64, .16);
+}
+
+.premium-public-header + main > #referrals .referral-action > .primary-button:hover {
+  background: var(--premium-forest-deep);
+  box-shadow: 0 11px 24px rgba(34, 82, 64, .2);
+}
+
+.premium-public-header + main > #referrals .callout {
+  border-color: #dce7dc;
+  border-left-color: #c49a55;
+  background: rgba(255, 255, 255, .62);
+  color: #536f62;
+}
+
+.premium-public-header + main > #referrals .callout svg {
+  color: var(--premium-forest);
+}
+
+/* The staff header and workspace should sit on one continuous page canvas.
+   Keep the white navigation capsule distinct, but remove the ivory/green split
+   behind it so the entire area around the console uses the same background. */
+body:has(.premium-staff-header) {
+  background: var(--premium-ivory);
+}
+
+.premium-staff-header,
+.premium-staff-header + main,
+.premium-staff-header + main > .dashboard-section {
+  background: var(--premium-ivory);
+}
+
+.premium-staff-header {
+  border-color: transparent;
+}
