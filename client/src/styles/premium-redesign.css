@@ -1509,3 +1509,15 @@ input:focus, select:focus, textarea:focus {
     padding-top: 108px;
   }
 }
+
+/* The enquiry form is intentionally the one expandable public panel.
+   Let the page scroll through its full content instead of clipping the form
+   into a single viewport-height frame. */
+.premium-public-header + main > #contact {
+  height: auto;
+  min-height: 100svh;
+  max-height: none;
+  overflow: visible;
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
