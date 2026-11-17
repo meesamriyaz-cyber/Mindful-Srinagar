@@ -1605,3 +1605,50 @@ input:focus, select:focus, textarea:focus {
     max-width: 100%;
   }
 }
+
+
+/* Final Contact cleanup: the contact page should end immediately after its
+   actual content. Do not reserve an extra viewport of empty space for the
+   footer, and keep the footer as a compact, full-width closing line. */
+.premium-public-header + main > #contact {
+  min-height: 0;
+  height: auto;
+  max-height: none;
+  align-content: start;
+  grid-auto-rows: max-content;
+}
+
+.premium-public-header + main > #contact > .public-site-footer {
+  display: block;
+  flex: none;
+  width: 100%;
+  min-height: 0;
+  margin: 18px 0 0;
+  padding: 14px 0 0;
+  border: 0;
+  border-top: 1px solid var(--premium-line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--premium-muted);
+  text-align: left;
+}
+
+.premium-public-header + main > #contact > .public-site-footer strong {
+  margin: 0 0 4px;
+  color: var(--premium-ink);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.premium-public-header + main > #contact > .public-site-footer span {
+  color: var(--premium-muted);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 900px) {
+  .premium-public-header + main > #contact {
+    min-height: 0;
+  }
+}
