@@ -1739,3 +1739,66 @@ input:focus, select:focus, textarea:focus {
     border-radius: 0;
   }
 }
+
+
+/* Center the contact details consistently across desktop and mobile. */
+.premium-public-header + main > #contact > .contact-strip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px clamp(18px, 3vw, 42px);
+  padding: 16px clamp(14px, 3vw, 36px);
+  text-align: center;
+}
+
+.premium-public-header + main > #contact > .contact-strip a,
+.premium-public-header + main > #contact > .contact-strip span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 0;
+  color: #557184;
+  font-size: clamp(0.82rem, 1vw, 1rem);
+  line-height: 1.45;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.premium-public-header + main > #contact > .contact-strip svg {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 820px) {
+  .premium-public-header + main > #contact > .contact-strip {
+    justify-content: center;
+    gap: 10px 20px;
+    padding: 14px 16px;
+  }
+  .premium-public-header + main > #contact > .contact-strip a,
+  .premium-public-header + main > #contact > .contact-strip span {
+    font-size: clamp(0.78rem, 2.2vw, 0.9rem);
+  }
+}
+
+@media (max-width: 520px) {
+  .premium-public-header + main > #contact > .contact-strip {
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    padding: 13px 12px;
+  }
+  .premium-public-header + main > #contact > .contact-strip a,
+  .premium-public-header + main > #contact > .contact-strip span {
+    width: 100%;
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+  .premium-public-header + main > #contact > .contact-strip svg {
+    width: 16px;
+    height: 16px;
+  }
+}
