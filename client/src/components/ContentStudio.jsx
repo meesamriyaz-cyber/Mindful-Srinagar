@@ -163,7 +163,7 @@ export function ContentStudio({ token }) {
     }
   };
 
-  const serviceImageFor = (slug) => assets.find((asset) => (asset.tags || []).includes("care:" + slug));
+  const serviceImageFor = (slug) => assets.filter((asset) => (asset.tags || []).includes("care:" + slug)).sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt))[0];
   const eligibleCareImages = assets.filter((asset) => asset.resourceType === "image" && asset.status !== "archived" &&
     (!asset.identifiablePeople || (asset.consentStatus === "verified" && ["website", "website-and-social", "all-public"].includes(asset.consentScope))));
   function toggleAsset(id) {
