@@ -177,8 +177,8 @@ export function ContentStudio({ token }) {
     try {
       const payload = {
         ...announcementForm,
-        startsAt: announcementForm.startsAt || null,
-        endsAt: announcementForm.endsAt || null
+        startsAt: announcementForm.startsAt ? new Date(announcementForm.startsAt).toISOString() : null,
+        endsAt: announcementForm.endsAt ? new Date(announcementForm.endsAt).toISOString() : null
       };
       const result = await api("/announcement", token, { method: "PATCH", body: JSON.stringify(payload) });
       const item = result.announcement || payload;
