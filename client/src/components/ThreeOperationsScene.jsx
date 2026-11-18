@@ -38,6 +38,40 @@ function fitTextureToThumbnail(texture, targetAspect = 1.5) {
   texture.needsUpdate = true;
 }
 
+function createMindfulHubTexture() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 512;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, 512, 512);
+
+  // A restrained brand medallion, matching the site's forest-green identity.
+  ctx.shadowColor = "rgba(28, 67, 54, .18)";
+  ctx.shadowBlur = 26;
+  ctx.fillStyle = "#1e5142";
+  ctx.beginPath();
+  ctx.roundRect(42, 42, 428, 428, 112);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = "rgba(255,255,255,.7)";
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.roundRect(52, 52, 408, 408, 100);
+  ctx.stroke();
+
+  ctx.fillStyle = "#ffffff";
+  ctx.font = "700 230px Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("M", 256, 222);
+
+  ctx.fillStyle = "rgba(255,255,255,.9)";
+  ctx.font = "700 43px Arial, sans-serif";
+  ctx.letterSpacing = "9px";
+  ctx.fillText("MINDFUL", 256, 370);
+  return new THREE.CanvasTexture(canvas);
+}
+
 function placeholderTexture(title, index) {
   const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 360;
   const ctx = canvas.getContext("2d");
@@ -71,8 +105,30 @@ export function ThreeOperationsScene({ services = [] }) {
     const lineGeometry = new THREE.BufferGeometry().setFromPoints(positions.map((p) => new THREE.Vector3(...p)));
     const lineMaterial = new THREE.LineBasicMaterial({ color: 0x31566a, transparent: true, opacity: 0.34 });
     group.add(new THREE.Line(lineGeometry, lineMaterial));
-    const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.54, 2), new THREE.MeshStandardMaterial({ color: 0x1c8f8b, roughness: 0.34, metalness: 0.22 }));
-    group.add(core);
+    // Replace the artificial glowing sphere with a branded central hub.
+    // A softly raised badge feels more grounded and ties the network to Mindful.
+    const hubBacking = new THREE.Mesh(
+      new THREE.CircleGeometry(0.62, 64),
+      new THREE.MeshBasicMaterial({ color: 0xe7f0eb, transparent: true, opacity: 0.98 })
+    );
+    hubBacking.position.set(0, 0, 0.42);
+    group.add(hubBacking);
+
+    const hubTexture = createMindfulHubTexture();
+    const hub = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.94, 0.94),
+      new THREE.MeshBasicMaterial({ map: hubTexture, transparent: true, depthWrite: false })
+    );
+    hub.position.set(0, 0, 0.47);
+    hub.renderOrder = 5;
+    group.add(hub);
+
+    const hubRim = new THREE.Mesh(
+      new THREE.TorusGeometry(0.63, 0.018, 8, 96),
+      new THREE.MeshBasicMaterial({ color: 0x8bb9a8, transparent: true, opacity: 0.65 })
+    );
+    hubRim.position.z = 0.43;
+    group.add(hubRim);
     const ring = new THREE.Mesh(new THREE.TorusGeometry(1.95, 0.012, 12, 120), new THREE.MeshBasicMaterial({ color: 0x6da6a1, transparent: true, opacity: 0.28 }));
     ring.rotation.x = Math.PI / 2.8; group.add(ring);
 
@@ -128,7 +184,7 @@ export function ThreeOperationsScene({ services = [] }) {
       const set = list.length > 3 ? Math.floor(cycleElapsed / 5) % Math.ceil(list.length / 3) : 0;
       if (set !== activeSet) { activeSet = set; cards.forEach((card, i) => setCard(card, list[(set * 3 + i) % Math.max(list.length, 1)], i)); }
       group.rotation.y = Math.sin(time * 0.35) * 0.18; group.rotation.x = Math.sin(time * 0.28) * 0.045;
-      core.rotation.y += delta * 0.48; core.rotation.x += delta * 0.24;
+      hub.rotation.z = Math.sin(time * 0.22) * 0.012;
       cards.forEach((card, i) => {
         const isHovered = hovered === card.photo;
         const scale = THREE.MathUtils.damp(card.photo.scale.x || 1, isHovered ? 1.78 : 1, 9, delta);
@@ -171,7 +227,10 @@ export function ThreeOperationsScene({ services = [] }) {
       renderer.domElement.removeEventListener("pointermove", onPointerMove); renderer.domElement.removeEventListener("pointerleave", onPointerLeave);
       renderer.dispose(); lineGeometry.dispose(); lineMaterial.dispose();
       cards.forEach((card) => { card.photo.geometry.dispose(); card.photo.material.dispose(); card.frame.geometry.dispose(); card.frame.material.dispose(); card.label.texture.dispose(); card.label.material.dispose(); card.texture?.dispose(); });
-      core.geometry.dispose(); core.material.dispose(); ring.geometry.dispose(); ring.material.dispose();
+      hubBacking.geometry.dispose(); hubBacking.material.dispose();
+      hub.geometry.dispose(); hub.material.dispose(); hubTexture.dispose();
+      hubRim.geometry.dispose(); hubRim.material.dispose();
+      ring.geometry.dispose(); ring.material.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };
   }, []);
