@@ -112,6 +112,7 @@ export function ThreeOperationsScene({ services = [] }) {
       new THREE.MeshBasicMaterial({ color: 0xe7f0eb, transparent: true, opacity: 0.98 })
     );
     hubBacking.position.set(0, 0, 0.48);
+    hubBacking.renderOrder = 18;
     group.add(hubBacking);
 
     const hubTexture = createMindfulHubTexture();
@@ -120,7 +121,7 @@ export function ThreeOperationsScene({ services = [] }) {
       new THREE.MeshBasicMaterial({ map: hubTexture, transparent: true, depthWrite: false })
     );
     hub.position.set(0, 0, 0.53);
-    hub.renderOrder = 5;
+    hub.renderOrder = 20;
     group.add(hub);
 
     const hubRim = new THREE.Mesh(
@@ -128,15 +129,16 @@ export function ThreeOperationsScene({ services = [] }) {
       new THREE.MeshBasicMaterial({ color: 0x8bb9a8, transparent: true, opacity: 0.65 })
     );
     hubRim.position.z = 0.49;
+    hubRim.renderOrder = 21;
     group.add(hubRim);
     const ring = new THREE.Mesh(new THREE.TorusGeometry(1.95, 0.012, 12, 120), new THREE.MeshBasicMaterial({ color: 0x6da6a1, transparent: true, opacity: 0.28 }));
     ring.rotation.x = Math.PI / 2.8; group.add(ring);
 
     const loader = new THREE.TextureLoader();
     const cards = positions.map((p, i) => {
-      const frame = new THREE.Mesh(new THREE.PlaneGeometry(1.28, 0.88), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
+      const frame = new THREE.Mesh(new THREE.PlaneGeometry(1.28, 0.88), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, depthWrite: false }));
       frame.position.set(...p); group.add(frame);
-      const photo = new THREE.Mesh(new THREE.PlaneGeometry(1.20, 0.80), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }));
+      const photo = new THREE.Mesh(new THREE.PlaneGeometry(1.20, 0.80), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, depthWrite: false }));
       photo.position.set(p[0], p[1], p[2] + 0.02); group.add(photo);
       const label = labelSprite(""); label.sprite.position.set(p[0], p[1] - 0.61, p[2] + 0.04); group.add(label.sprite);
       return { frame, photo, label, position: p, texture: null };
@@ -193,13 +195,17 @@ export function ThreeOperationsScene({ services = [] }) {
         card.photo.position.z = z; card.frame.position.z = z - 0.025; card.label.sprite.position.z = z + 0.04;
         // WebGL depth buffering can let neighbouring cards or the core cover
         // the enlarged thumbnail. Render only the hovered card in the foreground.
-        card.photo.renderOrder = isHovered ? 100 : 10;
-        card.frame.renderOrder = isHovered ? 99 : 9;
-        card.label.sprite.renderOrder = isHovered ? 101 : 11;
+        card.frame.renderOrder = isHovered ? 98 : 22;
+        card.photo.renderOrder = isHovered ? 100 : 23;
+        card.label.sprite.renderOrder = isHovered ? 101 : 24;
         // Photos remain just in front of the central badge, including the
         // lower card where their projected bounds overlap.
+        card.photo.material.transparent = true;
         card.photo.material.depthTest = false;
+        card.photo.material.depthWrite = false;
+        card.frame.material.transparent = true;
         card.frame.material.depthTest = false;
+        card.frame.material.depthWrite = false;
         card.label.material.depthTest = false;
         // Pull the active thumbnail slightly toward the centre of the
         // canvas as it enlarges. This keeps its edges inside the WebGL viewport
