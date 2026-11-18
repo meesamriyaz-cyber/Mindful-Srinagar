@@ -3037,3 +3037,29 @@ body:has(.premium-staff-header) {
     animation: none;
   }
 }
+
+
+/* Explicit opt-in shown only when the browser blocks announcement autoplay. */
+.premium-public-header + main > #home .hero-announcement-sound-enable {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 1px solid rgba(32, 93, 80, .22);
+  border-radius: 9px;
+  color: #205d50;
+  background: rgba(255, 255, 255, .72);
+  font-size: .74rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+.premium-public-header + main > #home .hero-announcement-sound-enable:hover {
+  color: #fff;
+  background: #205d50;
+}
+@media (max-width: 620px) {
+  .premium-public-header + main > #home .hero-announcement-sound-enable {
+    align-self: center;
+    padding: 7px 8px;
+    font-size: .68rem;
+  }
+}
