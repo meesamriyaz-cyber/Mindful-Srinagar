@@ -36,15 +36,13 @@ function canShowAnnouncementToast(announcement) {
   }
 }
 
-function playAnnouncementChime() {
+async function playAnnouncementChime() {
+  let context;
   try {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextClass) return;
-    const context = new AudioContextClass();
-    if (context.state === "suspended") {
-      context.resume().then(() => context.close()).catch(() => context.close());
-      return;
-    }
+    context = new AudioContextClass();
+    if (context.state === "suspended") await context.resume();
     const gain = context.createGain();
     gain.gain.setValueAtTime(0.0001, context.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.045, context.currentTime + 0.025);
@@ -58,9 +56,10 @@ function playAnnouncementChime() {
       oscillator.start(context.currentTime + index * 0.11);
       oscillator.stop(context.currentTime + index * 0.11 + 0.22);
     });
-    window.setTimeout(() => context.close().catch(() => {}), 650);
+    window.setTimeout(() => context?.close().catch(() => {}), 650);
   } catch {
     // Sound is an enhancement only; announcement display must never depend on it.
+    if (context && context.state !== "closed") context.close().catch(() => {});
   }
 }
 
@@ -89,7 +88,7 @@ export function Hero() {
     const version = String(announcement.version || announcement.title || "announcement");
     if (soundedAnnouncementRef.current === version) return;
     soundedAnnouncementRef.current = version;
-    playAnnouncementChime();
+    void playAnnouncementChime();
   }, [announcement, announcementVisible]);
 
   useEffect(() => {
