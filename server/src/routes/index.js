@@ -42,6 +42,7 @@ import publicationRoutes from "./publicationRoutes.js";
 import publicMediaRoutes from "./publicMediaRoutes.js";
 import galleryRoutes from "./galleryRoutes.js";
 import publicGalleryRoutes from "./publicGalleryRoutes.js";
+import { getAnnouncement, getPublicAnnouncement, updateAnnouncement } from "../controllers/announcementController.js";
 const router = express.Router();
 const management = ["director", "admin"];
 const reception = ["director", "admin", "reception", "coordinator"];
@@ -87,7 +88,10 @@ router.post("/enquiries", createRateLimiter({ windowMs: 900000, max: 8, message:
 // Public media reads must be mounted before staff authentication.
 router.use("/public/media", publicMediaRoutes);
 router.use("/public/galleries", publicGalleryRoutes);
+router.get("/public/announcement", getPublicAnnouncement);
 router.use(protect);
+router.get("/announcement", permit("director", "admin"), getAnnouncement);
+router.patch("/announcement", permit("director", "admin"), updateAnnouncement);
 router.use("/media", permit("director", "admin"), mediaRoutes);
 router.use("/publications", permit("director", "admin"), publicationRoutes);
 router.use("/galleries", permit("director", "admin"), galleryRoutes);
