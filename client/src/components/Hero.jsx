@@ -45,7 +45,7 @@ async function playAnnouncementChime() {
     if (context.state === "suspended") await context.resume();
     const gain = context.createGain();
     gain.gain.setValueAtTime(0.0001, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.045, context.currentTime + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.09, context.currentTime + 0.025);
     gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.42);
     gain.connect(context.destination);
     [660, 880].forEach((frequency, index) => {
@@ -68,6 +68,7 @@ export function Hero() {
   const [announcement, setAnnouncement] = useState(null);
   const [announcementVisible, setAnnouncementVisible] = useState(false);
   const soundedAnnouncementRef = useRef("");
+  const userInteractedRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -84,11 +85,27 @@ export function Hero() {
   }, []);
 
   useEffect(() => {
-    if (!announcement || !announcementVisible || announcement.soundEnabled === false) return;
-    const version = String(announcement.version || announcement.title || "announcement");
-    if (soundedAnnouncementRef.current === version) return;
-    soundedAnnouncementRef.current = version;
-    void playAnnouncementChime();
+    const tryPlayAnnouncementSound = () => {
+      userInteractedRef.current = true;
+      if (!announcement || !announcementVisible || announcement.soundEnabled === false) return;
+      const version = String(announcement.version || announcement.title || "announcement");
+      if (soundedAnnouncementRef.current === version) return;
+      // Mark it only when attempting playback from a real user gesture, so a
+      // browser autoplay rejection cannot permanently silence this announcement.
+      soundedAnnouncementRef.current = version;
+      void playAnnouncementChime();
+    };
+
+    // Browsers commonly block audio on page load. Wait for the visitor's first
+    // tap/click/key press, then play while the browser has user activation.
+    window.addEventListener("pointerdown", tryPlayAnnouncementSound);
+    window.addEventListener("keydown", tryPlayAnnouncementSound);
+    if (userInteractedRef.current) tryPlayAnnouncementSound();
+
+    return () => {
+      window.removeEventListener("pointerdown", tryPlayAnnouncementSound);
+      window.removeEventListener("keydown", tryPlayAnnouncementSound);
+    };
   }, [announcement, announcementVisible]);
 
   useEffect(() => {
