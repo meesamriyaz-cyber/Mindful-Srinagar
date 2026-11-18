@@ -18,8 +18,11 @@ DirectoryIndex index.html
     RewriteCond %{REQUEST_FILENAME} -d
     RewriteRule ^ - [L]
 
-    # React SPA fallback
-    RewriteRule ^ index.html [L]
+    # Redirect unknown paths to the homepage.
+    # Existing files/directories (assets, favicon, etc.) are served above.
+    # Staff mode uses the #staff hash, so valid app access is unaffected.
+    RewriteRule ^$ - [L]
+    RewriteRule ^ / [R=302,L]
 </IfModule>
 
 # Security headers
