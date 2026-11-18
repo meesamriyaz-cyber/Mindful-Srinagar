@@ -9,6 +9,9 @@ const announcementSchema = new mongoose.Schema({
   actionLabel: { type: String, trim: true, maxlength: 40, default: "" },
   actionUrl: { type: String, trim: true, maxlength: 300, default: "" },
   style: { type: String, enum: ["notice", "event", "urgent"], default: "notice" },
+  displayMode: { type: String, enum: ["persistent", "toast"], default: "persistent" },
+  toastDuration: { type: Number, enum: [10, 15, 20, 30], default: 15 },
+  dailyFrequency: { type: String, enum: ["once", "twice"], default: "once" },
   startsAt: { type: Date, default: null },
   endsAt: { type: Date, default: null },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null }
