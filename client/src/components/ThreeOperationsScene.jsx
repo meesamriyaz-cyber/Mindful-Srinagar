@@ -9,7 +9,7 @@ function labelSprite(text) {
   const ctx = canvas.getContext("2d");
   ctx.fillStyle = "rgba(255,255,255,.94)"; ctx.strokeStyle = "rgba(36,63,107,.16)"; ctx.lineWidth = 4;
   ctx.beginPath(); ctx.roundRect(10, 8, 492, 96, 26); ctx.fill(); ctx.stroke();
-  ctx.fillStyle = "#243f6b"; ctx.font = "700 30px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillStyle = "#173b36"; ctx.font = "800 38px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
   ctx.fillText(String(text || "Care service").slice(0, 30), 256, 56);
   const texture = new THREE.CanvasTexture(canvas);
   const material = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false });
@@ -22,7 +22,7 @@ function placeholderTexture(title, index) {
   const ctx = canvas.getContext("2d");
   ctx.fillStyle = ["#d9eae2", "#d7e4f0", "#f1e4d2"][index % 3]; ctx.fillRect(0, 0, 512, 360);
   ctx.fillStyle = "rgba(255,255,255,.7)"; ctx.beginPath(); ctx.arc(256, 145, 74, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = "#31566a"; ctx.font = "bold 30px Arial"; ctx.textAlign = "center"; ctx.fillText(String(title || "Mindful").slice(0, 22), 256, 275);
+  ctx.fillStyle = "#173b36"; ctx.font = "800 36px Arial"; ctx.textAlign = "center"; ctx.fillText(String(title || "Mindful").slice(0, 22), 256, 275);
   return new THREE.CanvasTexture(canvas);
 }
 
@@ -98,17 +98,20 @@ export function ThreeOperationsScene({ services = [] }) {
     const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(resize) : null;
     observer?.observe(mount);
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let activeSet = -1; let frameId = 0; let last = 0;
+    let activeSet = -1; let frameId = 0; let last = 0; let cycleElapsed = 0;
     const animate = (stamp = 0) => {
       const time = stamp * 0.001; const list = servicesRef.current || [];
-      const set = list.length > 3 ? Math.floor(time / 5) % Math.ceil(list.length / 3) : 0;
-      if (set !== activeSet) { activeSet = set; cards.forEach((card, i) => setCard(card, list[(set * 3 + i) % Math.max(list.length, 1)], i)); }
       const delta = last ? Math.min((stamp - last) / 1000, 0.05) : 0.016; last = stamp;
+      // Pause the service carousel while a thumbnail is hovered. Resume from
+      // the same point when the pointer leaves the 3D scene.
+      if (!hovered) cycleElapsed += delta;
+      const set = list.length > 3 ? Math.floor(cycleElapsed / 5) % Math.ceil(list.length / 3) : 0;
+      if (set !== activeSet) { activeSet = set; cards.forEach((card, i) => setCard(card, list[(set * 3 + i) % Math.max(list.length, 1)], i)); }
       group.rotation.y = Math.sin(time * 0.35) * 0.18; group.rotation.x = Math.sin(time * 0.28) * 0.045;
       core.rotation.y += delta * 0.48; core.rotation.x += delta * 0.24;
       cards.forEach((card, i) => {
-        const scale = THREE.MathUtils.damp(card.photo.scale.x || 1, hovered === card.photo ? 1.42 : 1, 9, delta);
-        const z = THREE.MathUtils.damp(card.photo.position.z, hovered === card.photo ? 1.05 : card.position[2] + 0.02, 9, delta);
+        const scale = THREE.MathUtils.damp(card.photo.scale.x || 1, hovered === card.photo ? 1.78 : 1, 9, delta);
+        const z = THREE.MathUtils.damp(card.photo.position.z, hovered === card.photo ? 1.72 : card.position[2] + 0.02, 9, delta);
         card.photo.scale.set(scale, scale, 1); card.frame.scale.set(scale, scale, 1);
         card.photo.position.z = z; card.frame.position.z = z - 0.025; card.label.sprite.position.z = z + 0.04;
         const y = card.position[1] + Math.sin(time * 1.2 + i) * 0.045;
