@@ -1,6 +1,6 @@
 import { Announcement } from "../models/Announcement.js";
 
-const fields = ["enabled", "eyebrow", "title", "message", "actionLabel", "actionUrl", "style", "displayMode", "toastDuration", "dailyFrequency", "startsAt", "endsAt"];
+const fields = ["enabled", "eyebrow", "title", "message", "actionLabel", "actionUrl", "style", "displayMode", "toastDuration", "dailyFrequency", "soundEnabled", "startsAt", "endsAt"];
 
 function normalize(payload) {
   const value = {};
@@ -44,7 +44,7 @@ export async function getPublicAnnouncement(_req, res, next) {
       eyebrow: item.eyebrow, title: item.title, message: item.message,
       actionLabel: item.actionLabel, actionUrl: item.actionUrl, style: item.style,
       displayMode: item.displayMode || "persistent", toastDuration: item.toastDuration || 15,
-      dailyFrequency: item.dailyFrequency || "once", version: item.updatedAt || item.createdAt || null
+      dailyFrequency: item.dailyFrequency || "once", soundEnabled: item.soundEnabled !== false, version: item.updatedAt || item.createdAt || null
     } });
   } catch (error) { return next(error); }
 }
@@ -54,7 +54,7 @@ export async function getAnnouncement(_req, res, next) {
     const item = await Announcement.findOne({ key: "hero" }).lean();
     return res.json({ announcement: item || {
       key: "hero", enabled: false, eyebrow: "IMPORTANT ANNOUNCEMENT", title: "", message: "",
-      actionLabel: "", actionUrl: "", style: "notice", displayMode: "persistent", toastDuration: 15, dailyFrequency: "once", startsAt: null, endsAt: null
+      actionLabel: "", actionUrl: "", style: "notice", displayMode: "persistent", toastDuration: 15, dailyFrequency: "once", soundEnabled: true, startsAt: null, endsAt: null
     } });
   } catch (error) { return next(error); }
 }
