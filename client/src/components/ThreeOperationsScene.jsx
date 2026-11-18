@@ -110,12 +110,21 @@ export function ThreeOperationsScene({ services = [] }) {
       group.rotation.y = Math.sin(time * 0.35) * 0.18; group.rotation.x = Math.sin(time * 0.28) * 0.045;
       core.rotation.y += delta * 0.48; core.rotation.x += delta * 0.24;
       cards.forEach((card, i) => {
-        const scale = THREE.MathUtils.damp(card.photo.scale.x || 1, hovered === card.photo ? 1.78 : 1, 9, delta);
-        const z = THREE.MathUtils.damp(card.photo.position.z, hovered === card.photo ? 1.72 : card.position[2] + 0.02, 9, delta);
+        const isHovered = hovered === card.photo;
+        const scale = THREE.MathUtils.damp(card.photo.scale.x || 1, isHovered ? 1.78 : 1, 9, delta);
+        const z = THREE.MathUtils.damp(card.photo.position.z, isHovered ? 1.72 : card.position[2] + 0.02, 9, delta);
         card.photo.scale.set(scale, scale, 1); card.frame.scale.set(scale, scale, 1);
         card.photo.position.z = z; card.frame.position.z = z - 0.025; card.label.sprite.position.z = z + 0.04;
+        // WebGL depth buffering can let neighbouring cards or the core cover
+        // the enlarged thumbnail. Render only the hovered card in the foreground.
+        card.photo.renderOrder = isHovered ? 100 : 1;
+        card.frame.renderOrder = isHovered ? 99 : 0;
+        card.label.sprite.renderOrder = isHovered ? 101 : 2;
+        card.photo.material.depthTest = !isHovered;
+        card.frame.material.depthTest = !isHovered;
+        card.label.material.depthTest = !isHovered;
         const y = card.position[1] + Math.sin(time * 1.2 + i) * 0.045;
-        card.photo.position.y = y; card.frame.position.y = y; card.label.sprite.position.y = y - 0.54;
+        card.photo.position.y = y; card.frame.position.y = y; card.label.sprite.position.y = y - 0.61;
       });
       renderer.render(scene, camera);
       if (!reduceMotion || !list.length) frameId = requestAnimationFrame(animate);
