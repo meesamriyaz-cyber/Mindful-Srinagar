@@ -52,8 +52,8 @@ export function Hero() {
           </div>
           {announcement.actionLabel && announcement.actionUrl && (
             <a className="hero-announcement-action" href={announcement.actionUrl}
-              target={/^https?:\\/\\//i.test(announcement.actionUrl) ? "_blank" : undefined}
-              rel={/^https?:\\/\\//i.test(announcement.actionUrl) ? "noreferrer" : undefined}>
+              target={/^https?:\/\//i.test(announcement.actionUrl) ? "_blank" : undefined}
+              rel={/^https?:\/\//i.test(announcement.actionUrl) ? "noreferrer" : undefined}>
               {announcement.actionLabel}<ArrowRight size={15} />
             </a>
           )}
