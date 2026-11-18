@@ -17,22 +17,34 @@ const careServices = [
   { slug: "vocational-training", title: "Vocational Training", description: "Skills for independence" }
 ];
 
+function getAnnouncementToastStorage(announcement) {
+  const today = new Date();
+  const dateKey = today.getFullYear() + "-" + String(today.getMonth() + 1).padStart(2, "0") + "-" + String(today.getDate()).padStart(2, "0");
+  const version = announcement.version || String(announcement.title || "") + "-" + String(announcement.message || "");
+  return { dateKey, storageKey: "mindful-announcement-" + version };
+}
+
 function canShowAnnouncementToast(announcement) {
   try {
-    const today = new Date();
-    const dateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-    const version = announcement.version || `${announcement.title}-${announcement.message}`;
-    const storageKey = `mindful-announcement-${version}`;
+    const { dateKey, storageKey } = getAnnouncementToastStorage(announcement);
     const saved = JSON.parse(window.localStorage.getItem(storageKey) || "{}");
     const count = saved.date === dateKey ? Number(saved.count || 0) : 0;
     const limit = announcement.dailyFrequency === "twice" ? 2 : 1;
-    if (count >= limit) return false;
-    window.localStorage.setItem(storageKey, JSON.stringify({ date: dateKey, count: count + 1 }));
-    return true;
+    return count < limit;
   } catch {
-    // If browser storage is unavailable, show the announcement rather than
-    // silently suppressing an important centre update.
+    // Storage restrictions must never silently suppress an important update.
     return true;
+  }
+}
+
+function recordAnnouncementToast(announcement) {
+  try {
+    const { dateKey, storageKey } = getAnnouncementToastStorage(announcement);
+    const saved = JSON.parse(window.localStorage.getItem(storageKey) || "{}");
+    const count = saved.date === dateKey ? Number(saved.count || 0) : 0;
+    window.localStorage.setItem(storageKey, JSON.stringify({ date: dateKey, count: count + 1 }));
+  } catch {
+    // Display remains unaffected when browser storage is unavailable.
   }
 }
 
@@ -111,8 +123,15 @@ export function Hero() {
     return () => { active = false; };
   }, [announcement, announcementVisible, announcementSoundUnlocked]);
 
+  const recordedToastRef = useRef("");
+
   useEffect(() => {
     if (!announcement || announcement.displayMode !== "toast" || !announcementVisible) return undefined;
+    const version = String(announcement.version || announcement.title || "announcement");
+    if (recordedToastRef.current !== version) {
+      recordAnnouncementToast(announcement);
+      recordedToastRef.current = version;
+    }
     const timer = window.setTimeout(() => setAnnouncementVisible(false), Math.max(10, Number(announcement.toastDuration) || 15) * 1000);
     return () => window.clearTimeout(timer);
   }, [announcement, announcementVisible]);
