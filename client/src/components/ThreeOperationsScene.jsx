@@ -138,17 +138,42 @@ export function ThreeOperationsScene({ services = [] }) {
     const cards = positions.map((p, i) => {
       const frame = new THREE.Mesh(new THREE.PlaneGeometry(1.28, 0.88), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, depthWrite: false }));
       frame.position.set(...p); group.add(frame);
-      const photo = new THREE.Mesh(new THREE.PlaneGeometry(1.20, 0.80), new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, depthWrite: false }));
-      photo.position.set(p[0], p[1], p[2] + 0.02); group.add(photo);
+      const photoGeometry = new THREE.PlaneGeometry(1.20, 0.80);
+      const photoMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide, transparent: true, depthWrite: false, opacity: 1 });
+      const photo = new THREE.Mesh(photoGeometry, photoMaterial);
+      photo.position.set(p[0], p[1], p[2] + 0.46); group.add(photo);
+      // A second image plane enables a true cross-fade instead of replacing
+      // the texture in one frame (which caused the visible flicker).
+      const nextPhoto = new THREE.Mesh(photoGeometry, new THREE.MeshBasicMaterial({
+        color: 0xffffff, side: THREE.DoubleSide, transparent: true, depthWrite: false, opacity: 0
+      }));
+      nextPhoto.position.copy(photo.position);
+      nextPhoto.visible = false;
+      group.add(nextPhoto);
       const label = labelSprite(""); label.sprite.position.set(p[0], p[1] - 0.61, p[2] + 0.04); group.add(label.sprite);
-      return { frame, photo, label, position: p, texture: null };
+      return { frame, photo, nextPhoto, label, position: p, texture: null, nextTexture: null, transition: 1 };
     });
 
+    const beginCardTransition = (card, texture) => {
+      if (card.nextTexture) card.nextTexture.dispose();
+      card.nextTexture = texture;
+      card.nextPhoto.material.map = texture;
+      card.nextPhoto.material.needsUpdate = true;
+      card.nextPhoto.material.opacity = 0;
+      card.nextPhoto.visible = true;
+      card.transition = 0;
+    };
+
     const setCard = (card, service, index) => {
-      const texture = service?.image ? loader.load(service.image, (loaded) => { fitTextureToThumbnail(loaded, 1.5); loaded.colorSpace = THREE.SRGBColorSpace; renderer.render(scene, camera); }) : placeholderTexture(service?.title, index);
-      texture.colorSpace = THREE.SRGBColorSpace;
-      if (card.texture) card.texture.dispose();
-      card.texture = texture; card.photo.material.map = texture; card.photo.material.needsUpdate = true;
+      if (service?.image) {
+        loader.load(service.image, (loaded) => {
+          fitTextureToThumbnail(loaded, 1.5);
+          loaded.colorSpace = THREE.SRGBColorSpace;
+          beginCardTransition(card, loaded);
+        });
+      } else {
+        beginCardTransition(card, placeholderTexture(service?.title, index));
+      }
       group.remove(card.label.sprite); card.label.texture.dispose(); card.label.material.dispose();
       card.label = labelSprite(service?.title || "Care service");
       card.label.sprite.position.set(card.position[0], card.position[1] - 0.61, card.position[2] + 0.04);
@@ -188,21 +213,41 @@ export function ThreeOperationsScene({ services = [] }) {
       group.rotation.y = Math.sin(time * 0.35) * 0.18; group.rotation.x = Math.sin(time * 0.28) * 0.045;
       hub.rotation.z = Math.sin(time * 0.22) * 0.012;
       cards.forEach((card, i) => {
+        if (card.transition < 1) {
+          card.transition = Math.min(1, card.transition + delta / 0.75);
+          const progress = card.transition;
+          card.photo.material.opacity = 1 - progress;
+          card.nextPhoto.material.opacity = progress;
+          if (progress >= 1) {
+            if (card.texture) card.texture.dispose();
+            card.texture = card.nextTexture;
+            card.nextTexture = null;
+            card.photo.material.map = card.texture;
+            card.photo.material.needsUpdate = true;
+            card.photo.material.opacity = 1;
+            card.nextPhoto.material.map = null;
+            card.nextPhoto.material.opacity = 0;
+            card.nextPhoto.visible = false;
+          }
+        }
         const isHovered = hovered === card.photo;
         const scale = THREE.MathUtils.damp(card.photo.scale.x || 1, isHovered ? 1.78 : 1, 9, delta);
         const z = THREE.MathUtils.damp(card.photo.position.z, isHovered ? 1.72 : card.position[2] + 0.46, 9, delta);
-        card.photo.scale.set(scale, scale, 1); card.frame.scale.set(scale, scale, 1);
-        card.photo.position.z = z; card.frame.position.z = z - 0.025; card.label.sprite.position.z = z + 0.04;
+        card.photo.scale.set(scale, scale, 1); card.nextPhoto.scale.set(scale, scale, 1); card.frame.scale.set(scale, scale, 1);
+        card.photo.position.z = z; card.nextPhoto.position.copy(card.photo.position); card.frame.position.z = z - 0.025; card.label.sprite.position.z = z + 0.04;
         // WebGL depth buffering can let neighbouring cards or the core cover
         // the enlarged thumbnail. Render only the hovered card in the foreground.
         card.frame.renderOrder = isHovered ? 98 : 22;
         card.photo.renderOrder = isHovered ? 100 : 23;
+        card.nextPhoto.renderOrder = isHovered ? 100 : 23;
         card.label.sprite.renderOrder = isHovered ? 101 : 24;
         // Photos remain just in front of the central badge, including the
         // lower card where their projected bounds overlap.
         card.photo.material.transparent = true;
         card.photo.material.depthTest = false;
         card.photo.material.depthWrite = false;
+        card.nextPhoto.material.depthTest = false;
+        card.nextPhoto.material.depthWrite = false;
         card.frame.material.transparent = true;
         card.frame.material.depthTest = false;
         card.frame.material.depthWrite = false;
@@ -212,10 +257,10 @@ export function ThreeOperationsScene({ services = [] }) {
         // instead of letting the canvas boundary crop the foreground image.
         const targetX = isHovered ? card.position[0] * 0.68 : card.position[0];
         const x = THREE.MathUtils.damp(card.photo.position.x, targetX, 9, delta);
-        card.photo.position.x = x; card.frame.position.x = x; card.label.sprite.position.x = x;
+        card.photo.position.x = x; card.nextPhoto.position.x = x; card.frame.position.x = x; card.label.sprite.position.x = x;
         const targetY = isHovered ? card.position[1] * 0.72 : card.position[1];
         const y = THREE.MathUtils.damp(card.photo.position.y, targetY + Math.sin(time * 1.2 + i) * 0.045, 9, delta);
-        card.photo.position.y = y; card.frame.position.y = y; card.label.sprite.position.y = y - 0.61;
+        card.photo.position.y = y; card.nextPhoto.position.y = y; card.frame.position.y = y; card.label.sprite.position.y = y - 0.61;
         if (isHovered) {
           card.photo.material.depthWrite = false;
           card.frame.material.depthWrite = false;
@@ -234,7 +279,7 @@ export function ThreeOperationsScene({ services = [] }) {
       cancelAnimationFrame(frameId); observer?.disconnect(); window.removeEventListener("resize", resize);
       renderer.domElement.removeEventListener("pointermove", onPointerMove); renderer.domElement.removeEventListener("pointerleave", onPointerLeave);
       renderer.dispose(); lineGeometry.dispose(); lineMaterial.dispose();
-      cards.forEach((card) => { card.photo.geometry.dispose(); card.photo.material.dispose(); card.frame.geometry.dispose(); card.frame.material.dispose(); card.label.texture.dispose(); card.label.material.dispose(); card.texture?.dispose(); });
+      cards.forEach((card) => { card.photo.geometry.dispose(); card.photo.material.dispose(); card.nextPhoto.material.dispose(); card.nextTexture?.dispose(); card.frame.geometry.dispose(); card.frame.material.dispose(); card.label.texture.dispose(); card.label.material.dispose(); card.texture?.dispose(); });
       hubBacking.geometry.dispose(); hubBacking.material.dispose();
       hub.geometry.dispose(); hub.material.dispose(); hubTexture.dispose();
       hubRim.geometry.dispose(); hubRim.material.dispose();
