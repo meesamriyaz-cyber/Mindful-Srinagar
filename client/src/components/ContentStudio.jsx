@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Archive, AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, Edit3, Eye, FilePlus2, Images, LoaderCircle, Newspaper, Plus, RefreshCw, Save, Send, X } from "lucide-react";
+import { Archive, AlertCircle, CheckCircle2, ChevronLeft, ChevronRight, Edit3, Eye, FilePlus2, Images, LoaderCircle, Newspaper, Plus, RefreshCw, Save, Send, X, Megaphone } from "lucide-react";
 import { API_BASE_URL } from "../lib/api.js";
 import { Button } from "./ui/button.jsx";
 import { Badge } from "./ui/badge.jsx";
@@ -8,6 +8,14 @@ import "./admin-content-workspace.css";
 const emptyDoc = () => ({ type: "doc", content: [{ type: "paragraph", content: [] }] });
 const emptyPublication = () => ({ title: "", type: "news", summary: "", bodyText: "", category: "General", tags: "", coverMedia: "", mediaItems: [], eventDate: "", venue: "", identifiablePeople: false, consentStatus: "not-required", consentScope: "internal-only", consentNotes: "" });
 const emptyGallery = () => ({ title: "", description: "", category: "centre-activities", coverMedia: "", mediaItems: [], eventDate: "" });
+const emptyAnnouncement = () => ({ enabled: false, eyebrow: "IMPORTANT ANNOUNCEMENT", title: "", message: "", actionLabel: "", actionUrl: "", style: "notice", startsAt: "", endsAt: "" });
+function toLocalDateTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 16);
+}
 const categories = ["centre-activities", "workshops", "awareness", "training", "research", "facilities", "other"];
 const statusLabels = { draft: "Draft", published: "Published", archived: "Archived" };
 const careServiceDefinitions = [
@@ -74,6 +82,9 @@ export function ContentStudio({ token }) {
   const [assetPicker, setAssetPicker] = useState(false);
   const [assetSearch, setAssetSearch] = useState("");
   const [savingServiceSlug, setSavingServiceSlug] = useState("");
+  const [announcementForm, setAnnouncementForm] = useState(emptyAnnouncement());
+  const [loadingAnnouncement, setLoadingAnnouncement] = useState(false);
+  const [savingAnnouncement, setSavingAnnouncement] = useState(false);
 
   const base = tab === "publications" ? "/publications" : "/galleries";
   const load = useCallback(async (nextPage = page) => {
@@ -87,7 +98,21 @@ export function ContentStudio({ token }) {
     finally { setLoading(false); }
   }, [base, token, page, query, status]);
 
-  useEffect(() => { if (tab !== "care-services") load(1); }, [tab, status, query, load]);
+  useEffect(() => { if (tab !== "care-services" && tab !== "announcements") load(1); }, [tab, status, query, load]);
+  useEffect(() => {
+    if (tab !== "announcements") return;
+    let active = true;
+    setLoadingAnnouncement(true);
+    api("/announcement", token)
+      .then((result) => {
+        if (!active) return;
+        const item = result.announcement || {};
+        setAnnouncementForm({ ...emptyAnnouncement(), ...item, startsAt: toLocalDateTime(item.startsAt), endsAt: toLocalDateTime(item.endsAt) });
+      })
+      .catch((err) => showToast(err.message || "Announcement settings could not be loaded.", "error"))
+      .finally(() => { if (active) setLoadingAnnouncement(false); });
+    return () => { active = false; };
+  }, [tab, token]);
   useEffect(() => {
     api("/media?status=ready&limit=100", token).then((result) => setAssets(result.items || [])).catch((err) => showToast(err.message || "The request could not be completed.", "error"));
   }, [token]);
@@ -146,6 +171,26 @@ export function ContentStudio({ token }) {
     } finally { setTransitioning(false); }
   }
 
+  async function saveAnnouncement(event) {
+    event.preventDefault();
+    setSavingAnnouncement(true);
+    try {
+      const payload = {
+        ...announcementForm,
+        startsAt: announcementForm.startsAt || null,
+        endsAt: announcementForm.endsAt || null
+      };
+      const result = await api("/announcement", token, { method: "PATCH", body: JSON.stringify(payload) });
+      const item = result.announcement || payload;
+      setAnnouncementForm({ ...emptyAnnouncement(), ...item, startsAt: toLocalDateTime(item.startsAt), endsAt: toLocalDateTime(item.endsAt) });
+      showToast(announcementForm.enabled ? "Hero announcement saved and enabled." : "Hero announcement saved. It is currently disabled.");
+    } catch (err) {
+      showToast(err.message || "The announcement could not be saved.", "error");
+    } finally {
+      setSavingAnnouncement(false);
+    }
+  }
+
   const assignCareServiceImage = async (service, assetId) => {
     if (savingServiceSlug) return;
     const marker = "care:" + service.slug;
@@ -190,9 +235,50 @@ export function ContentStudio({ token }) {
         <button type="button" role="tab" aria-selected={tab === "publications"} className={tab === "publications" ? "active" : ""} onClick={() => { setTab("publications"); setEditing(null); setStatus("draft"); setPage(1); }}><Newspaper size={16}/> Publications</button>
         <button type="button" role="tab" aria-selected={tab === "galleries"} className={tab === "galleries" ? "active" : ""} onClick={() => { setTab("galleries"); setEditing(null); setStatus("draft"); setPage(1); }}><Images size={16}/> Galleries</button>
         <button type="button" role="tab" aria-selected={tab === "care-services"} className={tab === "care-services" ? "active" : ""} onClick={() => { setTab("care-services"); setEditing(null); }}><Images size={16}/> Care services</button>
+        <button type="button" role="tab" aria-selected={tab === "announcements"} className={tab === "announcements" ? "active" : ""} onClick={() => { setTab("announcements"); setEditing(null); }}><Megaphone size={16}/> Announcements</button>
       </div>
       {toast && <div className={`content-toast ${toast.kind === "error" ? "is-error" : "is-success"}`} role={toast.kind === "error" ? "alert" : "status"} key={toast.id}>{toast.kind === "error" ? <AlertCircle size={19}/> : <CheckCircle2 size={19}/>}<span>{toast.message}</span><button type="button" onClick={() => setToast(null)} aria-label="Dismiss notification"><X size={16}/></button></div>}
-      {tab === "care-services" ? (
+      {tab === "announcements" ? (
+        <div className="hero-announcement-manager">
+          <div className="care-service-manager-intro">
+            <h4>Hero announcement</h4>
+            <p>Publish a timely notice, upcoming event or urgent update in the slim announcement strip above the Hero content. You can schedule it and preview its appearance before enabling it.</p>
+          </div>
+          {loadingAnnouncement ? <div className="content-empty"><LoaderCircle className="media-spin"/> Loading announcement settings…</div> : (
+            <form className="hero-announcement-editor" onSubmit={saveAnnouncement}>
+              <label className="content-check hero-announcement-toggle"><input type="checkbox" checked={announcementForm.enabled} onChange={(e) => setAnnouncementForm({ ...announcementForm, enabled: e.target.checked })}/> Show announcement on the public website</label>
+              <div className="content-form-grid">
+                <label>Small heading / eyebrow<input maxLength="48" value={announcementForm.eyebrow} onChange={(e) => setAnnouncementForm({ ...announcementForm, eyebrow: e.target.value })} placeholder="IMPORTANT ANNOUNCEMENT"/></label>
+                <label>Display style<select value={announcementForm.style} onChange={(e) => setAnnouncementForm({ ...announcementForm, style: e.target.value })}><option value="notice">Standard notice</option><option value="event">Event / update</option><option value="urgent">Urgent alert</option></select></label>
+              </div>
+              <label>Announcement title<input maxLength="100" value={announcementForm.title} onChange={(e) => setAnnouncementForm({ ...announcementForm, title: e.target.value })} placeholder="e.g. New assessment slots available" required={announcementForm.enabled}/><small>Keep the title concise so it fits comfortably on desktop and mobile.</small></label>
+              <label>Message<textarea rows="3" maxLength="280" value={announcementForm.message} onChange={(e) => setAnnouncementForm({ ...announcementForm, message: e.target.value })} placeholder="Add the key information visitors should know…" required={announcementForm.enabled}/><small>{announcementForm.message.length}/280 characters</small></label>
+              <div className="content-form-grid">
+                <label>Button label (optional)<input maxLength="40" value={announcementForm.actionLabel} onChange={(e) => setAnnouncementForm({ ...announcementForm, actionLabel: e.target.value })} placeholder="Learn more"/></label>
+                <label>Button link (optional)<input maxLength="300" value={announcementForm.actionUrl} onChange={(e) => setAnnouncementForm({ ...announcementForm, actionUrl: e.target.value })} placeholder="#contact or https://…"/></label>
+              </div>
+              <div className="content-form-grid">
+                <label>Start showing (optional)<input type="datetime-local" value={announcementForm.startsAt} onChange={(e) => setAnnouncementForm({ ...announcementForm, startsAt: e.target.value })}/></label>
+                <label>Stop showing (optional)<input type="datetime-local" value={announcementForm.endsAt} onChange={(e) => setAnnouncementForm({ ...announcementForm, endsAt: e.target.value })}/></label>
+              </div>
+              <div className={`hero-announcement-preview hero-announcement-${announcementForm.style || "notice"}`}>
+                <span className="hero-announcement-icon"><Megaphone size={18}/></span>
+                <div className="hero-announcement-copy">
+                  {announcementForm.eyebrow && <span className="hero-announcement-eyebrow">{announcementForm.eyebrow}</span>}
+                  <strong>{announcementForm.title || "Your announcement title will appear here"}</strong>
+                  <p>{announcementForm.message || "Your announcement message will appear here."}</p>
+                </div>
+                {announcementForm.actionLabel && <span className="hero-announcement-action">{announcementForm.actionLabel} <ChevronRight size={15}/></span>}
+              </div>
+              <div className="content-editor-actions">
+                <button type="button" className="secondary-button" onClick={() => setAnnouncementForm(emptyAnnouncement())}>Clear form</button>
+                <button type="submit" className="primary-button" disabled={savingAnnouncement}><Save size={16}/>{savingAnnouncement ? "Saving…" : "Save announcement"}</button>
+              </div>
+              <p className="hero-announcement-help">When disabled or outside its scheduled dates, the announcement is hidden from the public Hero. Saving does not publish it unless the enable switch is on.</p>
+            </form>
+          )}
+        </div>
+      ) : tab === "care-services" ? (
         <div className="care-service-manager">
           <div className="care-service-manager-intro">
             <h4>Hero care service photographs</h4>
