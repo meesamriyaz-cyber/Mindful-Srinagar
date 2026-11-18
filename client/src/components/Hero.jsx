@@ -1,5 +1,5 @@
 import { ArrowRight, MapPin, Megaphone, ShieldCheck, X } from "lucide-react";
-import React, { lazy, Suspense, useEffect, useState } from "react";
+import React, { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { CelebrationConfetti } from "./CelebrationConfetti.jsx";
 import { API_BASE_URL } from "../lib/api.js";
 
@@ -36,10 +36,38 @@ function canShowAnnouncementToast(announcement) {
   }
 }
 
+async function playAnnouncementChime() {
+  let context;
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    context = new AudioContextClass();
+    if (context.state === "suspended") await context.resume();
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(0.0001, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.045, context.currentTime + 0.025);
+    gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.42);
+    gain.connect(context.destination);
+    [660, 880].forEach((frequency, index) => {
+      const oscillator = context.createOscillator();
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(frequency, context.currentTime + index * 0.11);
+      oscillator.connect(gain);
+      oscillator.start(context.currentTime + index * 0.11);
+      oscillator.stop(context.currentTime + index * 0.11 + 0.22);
+    });
+    window.setTimeout(() => context?.close().catch(() => {}), 650);
+  } catch {
+    // Sound is an enhancement only; announcement display must never depend on it.
+    if (context && context.state !== "closed") context.close().catch(() => {});
+  }
+}
+
 export function Hero() {
   const [serviceImages, setServiceImages] = useState({});
   const [announcement, setAnnouncement] = useState(null);
   const [announcementVisible, setAnnouncementVisible] = useState(false);
+  const soundedAnnouncementRef = useRef("");
 
   useEffect(() => {
     let active = true;
@@ -54,6 +82,14 @@ export function Hero() {
       .catch(() => { if (active) setAnnouncement(null); });
     return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    if (!announcement || !announcementVisible || announcement.soundEnabled === false) return;
+    const version = String(announcement.version || announcement.title || "announcement");
+    if (soundedAnnouncementRef.current === version) return;
+    soundedAnnouncementRef.current = version;
+    void playAnnouncementChime();
+  }, [announcement, announcementVisible]);
 
   useEffect(() => {
     if (!announcement || announcement.displayMode !== "toast" || !announcementVisible) return undefined;

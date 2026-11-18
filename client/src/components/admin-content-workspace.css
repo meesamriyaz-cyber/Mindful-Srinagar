@@ -540,3 +540,30 @@
   font-weight: 450;
   line-height: 1.45;
 }
+
+
+.admin-content-workspace .hero-announcement-sound-toggle {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 10px !important;
+  padding: 12px 14px;
+  border: 1px solid #dce9e2;
+  border-radius: 11px;
+  background: #fff;
+  color: #35564e;
+  font-weight: 650;
+  line-height: 1.45;
+}
+.admin-content-workspace .hero-announcement-sound-toggle input {
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  margin-top: 2px;
+  accent-color: #246653;
+}
+.admin-content-workspace .hero-announcement-sound-toggle small {
+  display: block;
+  color: #71827b;
+  font-size: .76rem;
+  font-weight: 450;
+}

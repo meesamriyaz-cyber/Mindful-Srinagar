@@ -8,7 +8,7 @@ import "./admin-content-workspace.css";
 const emptyDoc = () => ({ type: "doc", content: [{ type: "paragraph", content: [] }] });
 const emptyPublication = () => ({ title: "", type: "news", summary: "", bodyText: "", category: "General", tags: "", coverMedia: "", mediaItems: [], eventDate: "", venue: "", identifiablePeople: false, consentStatus: "not-required", consentScope: "internal-only", consentNotes: "" });
 const emptyGallery = () => ({ title: "", description: "", category: "centre-activities", coverMedia: "", mediaItems: [], eventDate: "" });
-const emptyAnnouncement = () => ({ enabled: false, eyebrow: "IMPORTANT ANNOUNCEMENT", title: "", message: "", actionLabel: "", actionUrl: "", style: "notice", displayMode: "persistent", toastDuration: 15, dailyFrequency: "once", startsAt: "", endsAt: "" });
+const emptyAnnouncement = () => ({ enabled: false, eyebrow: "IMPORTANT ANNOUNCEMENT", title: "", message: "", actionLabel: "", actionUrl: "", style: "notice", displayMode: "persistent", toastDuration: 15, dailyFrequency: "once", soundEnabled: true, startsAt: "", endsAt: "" });
 function toLocalDateTime(value) {
   if (!value) return "";
   const date = new Date(value);
@@ -188,6 +188,7 @@ export function ContentStudio({ token }) {
         displayMode: announcementForm.displayMode,
         toastDuration: Number(announcementForm.toastDuration),
         dailyFrequency: announcementForm.dailyFrequency,
+        soundEnabled: announcementForm.soundEnabled,
         startsAt: announcementForm.startsAt ? new Date(announcementForm.startsAt).toISOString() : null,
         endsAt: announcementForm.endsAt ? new Date(announcementForm.endsAt).toISOString() : null
       };
@@ -270,6 +271,8 @@ export function ContentStudio({ token }) {
               </div>
               <div className="hero-announcement-display-settings">
                 <h5>How should visitors see this announcement?</h5>
+                <label className="hero-announcement-sound-toggle"><input type="checkbox" checked={announcementForm.soundEnabled} onChange={(e) => setAnnouncementForm({ ...announcementForm, soundEnabled: e.target.checked })}/> Play a short, subtle notification sound when the announcement appears <small>Some browsers only allow sound after the visitor has interacted with the page.</small></label>
+              
                 <div className="content-form-grid">
                   <label>Display behaviour<select value={announcementForm.displayMode} onChange={(e) => setAnnouncementForm({ ...announcementForm, displayMode: e.target.value })}><option value="persistent">Keep visible in the Hero</option><option value="toast">Show as a temporary toast</option></select><small>Persistent notices remain visible. Toasts appear briefly and dismiss automatically.</small></label>
                   {announcementForm.displayMode === "toast" && <label>Toast duration<select value={announcementForm.toastDuration} onChange={(e) => setAnnouncementForm({ ...announcementForm, toastDuration: Number(e.target.value) })}><option value={10}>10 seconds</option><option value={15}>15 seconds</option><option value={20}>20 seconds</option><option value={30}>30 seconds</option></select></label>}

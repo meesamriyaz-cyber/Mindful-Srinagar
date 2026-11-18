@@ -12,6 +12,7 @@ const announcementSchema = new mongoose.Schema({
   displayMode: { type: String, enum: ["persistent", "toast"], default: "persistent" },
   toastDuration: { type: Number, enum: [10, 15, 20, 30], default: 15 },
   dailyFrequency: { type: String, enum: ["once", "twice"], default: "once" },
+  soundEnabled: { type: Boolean, default: true },
   startsAt: { type: Date, default: null },
   endsAt: { type: Date, default: null },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null }
