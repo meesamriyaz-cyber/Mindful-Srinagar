@@ -1,4 +1,4 @@
-import { ArrowRight, MapPin, ShieldCheck } from "lucide-react";
+import { ArrowRight, MapPin, Megaphone, ShieldCheck } from "lucide-react";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { CelebrationConfetti } from "./CelebrationConfetti.jsx";
 import { API_BASE_URL } from "../lib/api.js";
@@ -19,6 +19,16 @@ const careServices = [
 
 export function Hero() {
   const [serviceImages, setServiceImages] = useState({});
+  const [announcement, setAnnouncement] = useState(null);
+
+  useEffect(() => {
+    let active = true;
+    fetch(`${API_BASE_URL}/public/announcement`)
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error("Announcement unavailable")))
+      .then((data) => { if (active) setAnnouncement(data.announcement || null); })
+      .catch(() => { if (active) setAnnouncement(null); });
+    return () => { active = false; };
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -32,6 +42,23 @@ export function Hero() {
   return (
     <section className="hero" id="home">
       <CelebrationConfetti />
+      {announcement && (
+        <aside className={`hero-announcement hero-announcement-${announcement.style || "notice"}`} aria-label="Important announcement">
+          <span className="hero-announcement-icon"><Megaphone size={18} /></span>
+          <div className="hero-announcement-copy">
+            {announcement.eyebrow && <span className="hero-announcement-eyebrow">{announcement.eyebrow}</span>}
+            {announcement.title && <strong>{announcement.title}</strong>}
+            {announcement.message && <p>{announcement.message}</p>}
+          </div>
+          {announcement.actionLabel && announcement.actionUrl && (
+            <a className="hero-announcement-action" href={announcement.actionUrl}
+              target={/^https?:\\/\\//i.test(announcement.actionUrl) ? "_blank" : undefined}
+              rel={/^https?:\\/\\//i.test(announcement.actionUrl) ? "noreferrer" : undefined}>
+              {announcement.actionLabel}<ArrowRight size={15} />
+            </a>
+          )}
+        </aside>
+      )}
       <div className="hero-copy">
         <div className="hero-identity" aria-label="Mindful Centre for Rehabilitation Research and Training Foundation for Persons with Disabilities">
           <p className="hero-identity-name">Mindful</p>
