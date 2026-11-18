@@ -40,9 +40,10 @@ async function playAnnouncementChime() {
   let context;
   try {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return;
+    if (!AudioContextClass) return false;
     context = new AudioContextClass();
     if (context.state === "suspended") await context.resume();
+    if (context.state !== "running") return false;
     const gain = context.createGain();
     gain.gain.setValueAtTime(0.0001, context.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.09, context.currentTime + 0.025);
@@ -57,9 +58,11 @@ async function playAnnouncementChime() {
       oscillator.stop(context.currentTime + index * 0.11 + 0.22);
     });
     window.setTimeout(() => context?.close().catch(() => {}), 650);
+    return true;
   } catch {
     // Sound is an enhancement only; announcement display must never depend on it.
     if (context && context.state !== "closed") context.close().catch(() => {});
+    return false;
   }
 }
 
@@ -67,8 +70,9 @@ export function Hero() {
   const [serviceImages, setServiceImages] = useState({});
   const [announcement, setAnnouncement] = useState(null);
   const [announcementVisible, setAnnouncementVisible] = useState(false);
+  const [announcementSoundNeedsEnable, setAnnouncementSoundNeedsEnable] = useState(false);
+  const [announcementSoundUnlocked, setAnnouncementSoundUnlocked] = useState(false);
   const soundedAnnouncementRef = useRef("");
-  const userInteractedRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -85,28 +89,27 @@ export function Hero() {
   }, []);
 
   useEffect(() => {
-    const tryPlayAnnouncementSound = () => {
-      userInteractedRef.current = true;
-      if (!announcement || !announcementVisible || announcement.soundEnabled === false) return;
-      const version = String(announcement.version || announcement.title || "announcement");
-      if (soundedAnnouncementRef.current === version) return;
-      // Mark it only when attempting playback from a real user gesture, so a
-      // browser autoplay rejection cannot permanently silence this announcement.
-      soundedAnnouncementRef.current = version;
-      void playAnnouncementChime();
-    };
+    if (!announcement || !announcementVisible || announcement.soundEnabled === false) {
+      setAnnouncementSoundNeedsEnable(false);
+      return;
+    }
+    const version = String(announcement.version || announcement.title || "announcement");
+    if (soundedAnnouncementRef.current === version) return;
 
-    // Browsers commonly block audio on page load. Wait for the visitor's first
-    // tap/click/key press, then play while the browser has user activation.
-    window.addEventListener("pointerdown", tryPlayAnnouncementSound);
-    window.addEventListener("keydown", tryPlayAnnouncementSound);
-    if (userInteractedRef.current) tryPlayAnnouncementSound();
-
-    return () => {
-      window.removeEventListener("pointerdown", tryPlayAnnouncementSound);
-      window.removeEventListener("keydown", tryPlayAnnouncementSound);
-    };
-  }, [announcement, announcementVisible]);
+    let active = true;
+    // Attempt autoplay first. If the browser blocks it, show a clear opt-in
+    // control instead of waiting for an unrelated click anywhere on the page.
+    void playAnnouncementChime().then((played) => {
+      if (!active) return;
+      if (played) {
+        soundedAnnouncementRef.current = version;
+        setAnnouncementSoundNeedsEnable(false);
+      } else if (!announcementSoundUnlocked) {
+        setAnnouncementSoundNeedsEnable(true);
+      }
+    });
+    return () => { active = false; };
+  }, [announcement, announcementVisible, announcementSoundUnlocked]);
 
   useEffect(() => {
     if (!announcement || announcement.displayMode !== "toast" || !announcementVisible) return undefined;
@@ -140,6 +143,22 @@ export function Hero() {
               rel={/^https?:\/\//i.test(announcement.actionUrl) ? "noreferrer" : undefined}>
               {announcement.actionLabel}<ArrowRight size={15} />
             </a>
+          )}
+          {announcementSoundNeedsEnable && announcement.soundEnabled !== false && (
+            <button
+              type="button"
+              className="hero-announcement-sound-enable"
+              onClick={async () => {
+                const played = await playAnnouncementChime();
+                if (played) {
+                  soundedAnnouncementRef.current = String(announcement.version || announcement.title || "announcement");
+                  setAnnouncementSoundUnlocked(true);
+                  setAnnouncementSoundNeedsEnable(false);
+                }
+              }}
+            >
+              Enable announcement sound
+            </button>
           )}
           {announcement.displayMode === "toast" && <button type="button" className="hero-announcement-dismiss" onClick={() => setAnnouncementVisible(false)} aria-label="Dismiss announcement"><X size={17}/></button>}
         </aside>
