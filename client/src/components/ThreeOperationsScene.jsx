@@ -123,8 +123,24 @@ export function ThreeOperationsScene({ services = [] }) {
         card.photo.material.depthTest = !isHovered;
         card.frame.material.depthTest = !isHovered;
         card.label.material.depthTest = !isHovered;
-        const y = card.position[1] + Math.sin(time * 1.2 + i) * 0.045;
+        // Pull the active thumbnail slightly toward the centre of the
+        // canvas as it enlarges. This keeps its edges inside the WebGL viewport
+        // instead of letting the canvas boundary crop the foreground image.
+        const targetX = isHovered ? card.position[0] * 0.68 : card.position[0];
+        const x = THREE.MathUtils.damp(card.photo.position.x, targetX, 9, delta);
+        card.photo.position.x = x; card.frame.position.x = x; card.label.sprite.position.x = x;
+        const targetY = isHovered ? card.position[1] * 0.72 : card.position[1];
+        const y = THREE.MathUtils.damp(card.photo.position.y, targetY + Math.sin(time * 1.2 + i) * 0.045, 9, delta);
         card.photo.position.y = y; card.frame.position.y = y; card.label.sprite.position.y = y - 0.61;
+        if (isHovered) {
+          card.photo.material.depthWrite = false;
+          card.frame.material.depthWrite = false;
+          card.label.material.depthWrite = false;
+        } else {
+          card.photo.material.depthWrite = true;
+          card.frame.material.depthWrite = true;
+          card.label.material.depthWrite = false;
+        }
       });
       renderer.render(scene, camera);
       if (!reduceMotion || !list.length) frameId = requestAnimationFrame(animate);
