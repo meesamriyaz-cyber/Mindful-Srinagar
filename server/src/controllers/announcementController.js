@@ -1,6 +1,6 @@
 import { Announcement } from "../models/Announcement.js";
 
-const fields = ["enabled", "eyebrow", "title", "message", "actionLabel", "actionUrl", "style", "startsAt", "endsAt"];
+const fields = ["enabled", "eyebrow", "title", "message", "actionLabel", "actionUrl", "style", "displayMode", "toastDuration", "dailyFrequency", "startsAt", "endsAt"];
 
 function normalize(payload) {
   const value = {};
@@ -17,6 +17,9 @@ function validate(value) {
   if (value.title !== undefined && value.title.length > 100) return "Announcement title must be 100 characters or fewer";
   if (value.message !== undefined && value.message.length > 280) return "Announcement message must be 280 characters or fewer";
   if (value.style !== undefined && !["notice", "event", "urgent"].includes(value.style)) return "Select a valid announcement style";
+  if (value.displayMode !== undefined && !["persistent", "toast"].includes(value.displayMode)) return "Select a valid announcement display behaviour";
+  if (value.toastDuration !== undefined && ![10, 15, 20, 30].includes(Number(value.toastDuration))) return "Toast duration must be 10, 15, 20 or 30 seconds";
+  if (value.dailyFrequency !== undefined && !["once", "twice"].includes(value.dailyFrequency)) return "Select once or twice daily";
   if (value.actionUrl) {
     const isAnchor = /^#[a-z][a-z0-9_-]*$/i.test(value.actionUrl);
     let isWebUrl = false;
@@ -39,7 +42,9 @@ export async function getPublicAnnouncement(_req, res, next) {
     }
     return res.json({ announcement: {
       eyebrow: item.eyebrow, title: item.title, message: item.message,
-      actionLabel: item.actionLabel, actionUrl: item.actionUrl, style: item.style
+      actionLabel: item.actionLabel, actionUrl: item.actionUrl, style: item.style,
+      displayMode: item.displayMode || "persistent", toastDuration: item.toastDuration || 15,
+      dailyFrequency: item.dailyFrequency || "once", version: item.updatedAt || item.createdAt || null
     } });
   } catch (error) { return next(error); }
 }
@@ -49,7 +54,7 @@ export async function getAnnouncement(_req, res, next) {
     const item = await Announcement.findOne({ key: "hero" }).lean();
     return res.json({ announcement: item || {
       key: "hero", enabled: false, eyebrow: "IMPORTANT ANNOUNCEMENT", title: "", message: "",
-      actionLabel: "", actionUrl: "", style: "notice", startsAt: null, endsAt: null
+      actionLabel: "", actionUrl: "", style: "notice", displayMode: "persistent", toastDuration: 15, dailyFrequency: "once", startsAt: null, endsAt: null
     } });
   } catch (error) { return next(error); }
 }
