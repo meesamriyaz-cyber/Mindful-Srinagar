@@ -1,4 +1,4 @@
-import { ArrowRight, MapPin, Megaphone, ShieldCheck } from "lucide-react";
+import { ArrowRight, MapPin, Megaphone, ShieldCheck, X } from "lucide-react";
 import React, { lazy, Suspense, useEffect, useState } from "react";
 import { CelebrationConfetti } from "./CelebrationConfetti.jsx";
 import { API_BASE_URL } from "../lib/api.js";
@@ -17,18 +17,49 @@ const careServices = [
   { slug: "vocational-training", title: "Vocational Training", description: "Skills for independence" }
 ];
 
+function canShowAnnouncementToast(announcement) {
+  try {
+    const today = new Date();
+    const dateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+    const version = announcement.version || `${announcement.title}-${announcement.message}`;
+    const storageKey = `mindful-announcement-${version}`;
+    const saved = JSON.parse(window.localStorage.getItem(storageKey) || "{}");
+    const count = saved.date === dateKey ? Number(saved.count || 0) : 0;
+    const limit = announcement.dailyFrequency === "twice" ? 2 : 1;
+    if (count >= limit) return false;
+    window.localStorage.setItem(storageKey, JSON.stringify({ date: dateKey, count: count + 1 }));
+    return true;
+  } catch {
+    // If browser storage is unavailable, show the announcement rather than
+    // silently suppressing an important centre update.
+    return true;
+  }
+}
+
 export function Hero() {
   const [serviceImages, setServiceImages] = useState({});
   const [announcement, setAnnouncement] = useState(null);
+  const [announcementVisible, setAnnouncementVisible] = useState(false);
 
   useEffect(() => {
     let active = true;
     fetch(`${API_BASE_URL}/public/announcement`)
       .then((response) => response.ok ? response.json() : Promise.reject(new Error("Announcement unavailable")))
-      .then((data) => { if (active) setAnnouncement(data.announcement || null); })
+      .then((data) => {
+        if (!active) return;
+        const item = data.announcement || null;
+        setAnnouncement(item);
+        setAnnouncementVisible(Boolean(item) && (item.displayMode !== "toast" || canShowAnnouncementToast(item)));
+      })
       .catch(() => { if (active) setAnnouncement(null); });
     return () => { active = false; };
   }, []);
+
+  useEffect(() => {
+    if (!announcement || announcement.displayMode !== "toast" || !announcementVisible) return undefined;
+    const timer = window.setTimeout(() => setAnnouncementVisible(false), Math.max(10, Number(announcement.toastDuration) || 15) * 1000);
+    return () => window.clearTimeout(timer);
+  }, [announcement, announcementVisible]);
 
   useEffect(() => {
     let active = true;
@@ -42,8 +73,8 @@ export function Hero() {
   return (
     <section className="hero" id="home">
       <CelebrationConfetti />
-      {announcement && (
-        <aside className={`hero-announcement hero-announcement-${announcement.style || "notice"}`} aria-label="Important announcement">
+      {announcement && announcementVisible && (
+        <aside className={`hero-announcement hero-announcement-${announcement.style || "notice"} ${announcement.displayMode === "toast" ? "hero-announcement-toast" : ""}`} aria-label="Important announcement" role="status">
           <span className="hero-announcement-icon"><Megaphone size={18} /></span>
           <div className="hero-announcement-copy">
             {announcement.eyebrow && <span className="hero-announcement-eyebrow">{announcement.eyebrow}</span>}
@@ -57,6 +88,7 @@ export function Hero() {
               {announcement.actionLabel}<ArrowRight size={15} />
             </a>
           )}
+          {announcement.displayMode === "toast" && <button type="button" className="hero-announcement-dismiss" onClick={() => setAnnouncementVisible(false)} aria-label="Dismiss announcement"><X size={17}/></button>}
         </aside>
       )}
       <div className="hero-copy">
