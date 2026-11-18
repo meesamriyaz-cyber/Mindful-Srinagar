@@ -17,6 +17,27 @@ function labelSprite(text) {
   return { sprite, texture, material };
 }
 
+function fitTextureToThumbnail(texture, targetAspect = 1.5) {
+  const image = texture.image;
+  const width = image?.naturalWidth || image?.videoWidth || image?.width;
+  const height = image?.naturalHeight || image?.videoHeight || image?.height;
+  if (!width || !height) return;
+  const imageAspect = width / height;
+  texture.wrapS = THREE.ClampToEdgeWrapping;
+  texture.wrapT = THREE.ClampToEdgeWrapping;
+  texture.center.set(0.5, 0.5);
+  if (imageAspect > targetAspect) {
+    const visibleWidth = targetAspect / imageAspect;
+    texture.repeat.set(visibleWidth, 1);
+    texture.offset.set((1 - visibleWidth) / 2, 0);
+  } else {
+    const visibleHeight = imageAspect / targetAspect;
+    texture.repeat.set(1, visibleHeight);
+    texture.offset.set(0, (1 - visibleHeight) / 2);
+  }
+  texture.needsUpdate = true;
+}
+
 function placeholderTexture(title, index) {
   const canvas = document.createElement("canvas"); canvas.width = 512; canvas.height = 360;
   const ctx = canvas.getContext("2d");
@@ -66,9 +87,8 @@ export function ThreeOperationsScene({ services = [] }) {
     });
 
     const setCard = (card, service, index) => {
-      const texture = service?.image ? loader.load(service.image, () => renderer.render(scene, camera)) : placeholderTexture(service?.title, index);
+      const texture = service?.image ? loader.load(service.image, (loaded) => { fitTextureToThumbnail(loaded, 1.5); loaded.colorSpace = THREE.SRGBColorSpace; renderer.render(scene, camera); }) : placeholderTexture(service?.title, index);
       texture.colorSpace = THREE.SRGBColorSpace;
-      if (service?.image) texture.onUpdate = () => { texture.colorSpace = THREE.SRGBColorSpace; };
       if (card.texture) card.texture.dispose();
       card.texture = texture; card.photo.material.map = texture; card.photo.material.needsUpdate = true;
       group.remove(card.label.sprite); card.label.texture.dispose(); card.label.material.dispose();
