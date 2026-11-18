@@ -175,8 +175,16 @@ export function ContentStudio({ token }) {
     event.preventDefault();
     setSavingAnnouncement(true);
     try {
+      // The GET endpoint also returns the database key ("hero") and
+      // timestamps. Send only editable fields accepted by the update API.
       const payload = {
-        ...announcementForm,
+        enabled: announcementForm.enabled,
+        eyebrow: announcementForm.eyebrow,
+        title: announcementForm.title,
+        message: announcementForm.message,
+        actionLabel: announcementForm.actionLabel,
+        actionUrl: announcementForm.actionUrl,
+        style: announcementForm.style,
         startsAt: announcementForm.startsAt ? new Date(announcementForm.startsAt).toISOString() : null,
         endsAt: announcementForm.endsAt ? new Date(announcementForm.endsAt).toISOString() : null
       };
