@@ -108,26 +108,26 @@ export function ThreeOperationsScene({ services = [] }) {
     // Replace the artificial glowing sphere with a branded central hub.
     // A softly raised badge feels more grounded and ties the network to Mindful.
     const hubBacking = new THREE.Mesh(
-      new THREE.CircleGeometry(0.62, 64),
+      new THREE.CircleGeometry(0.42, 64),
       new THREE.MeshBasicMaterial({ color: 0xe7f0eb, transparent: true, opacity: 0.98 })
     );
-    hubBacking.position.set(0, 0, 0.42);
+    hubBacking.position.set(0, 0, 0.48);
     group.add(hubBacking);
 
     const hubTexture = createMindfulHubTexture();
     const hub = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.94, 0.94),
+      new THREE.PlaneGeometry(0.64, 0.64),
       new THREE.MeshBasicMaterial({ map: hubTexture, transparent: true, depthWrite: false })
     );
-    hub.position.set(0, 0, 0.47);
+    hub.position.set(0, 0, 0.53);
     hub.renderOrder = 5;
     group.add(hub);
 
     const hubRim = new THREE.Mesh(
-      new THREE.TorusGeometry(0.63, 0.018, 8, 96),
+      new THREE.TorusGeometry(0.43, 0.014, 8, 96),
       new THREE.MeshBasicMaterial({ color: 0x8bb9a8, transparent: true, opacity: 0.65 })
     );
-    hubRim.position.z = 0.43;
+    hubRim.position.z = 0.49;
     group.add(hubRim);
     const ring = new THREE.Mesh(new THREE.TorusGeometry(1.95, 0.012, 12, 120), new THREE.MeshBasicMaterial({ color: 0x6da6a1, transparent: true, opacity: 0.28 }));
     ring.rotation.x = Math.PI / 2.8; group.add(ring);
@@ -188,17 +188,19 @@ export function ThreeOperationsScene({ services = [] }) {
       cards.forEach((card, i) => {
         const isHovered = hovered === card.photo;
         const scale = THREE.MathUtils.damp(card.photo.scale.x || 1, isHovered ? 1.78 : 1, 9, delta);
-        const z = THREE.MathUtils.damp(card.photo.position.z, isHovered ? 1.72 : card.position[2] + 0.02, 9, delta);
+        const z = THREE.MathUtils.damp(card.photo.position.z, isHovered ? 1.72 : card.position[2] + 0.46, 9, delta);
         card.photo.scale.set(scale, scale, 1); card.frame.scale.set(scale, scale, 1);
         card.photo.position.z = z; card.frame.position.z = z - 0.025; card.label.sprite.position.z = z + 0.04;
         // WebGL depth buffering can let neighbouring cards or the core cover
         // the enlarged thumbnail. Render only the hovered card in the foreground.
-        card.photo.renderOrder = isHovered ? 100 : 1;
-        card.frame.renderOrder = isHovered ? 99 : 0;
-        card.label.sprite.renderOrder = isHovered ? 101 : 2;
-        card.photo.material.depthTest = !isHovered;
-        card.frame.material.depthTest = !isHovered;
-        card.label.material.depthTest = !isHovered;
+        card.photo.renderOrder = isHovered ? 100 : 10;
+        card.frame.renderOrder = isHovered ? 99 : 9;
+        card.label.sprite.renderOrder = isHovered ? 101 : 11;
+        // Photos remain just in front of the central badge, including the
+        // lower card where their projected bounds overlap.
+        card.photo.material.depthTest = false;
+        card.frame.material.depthTest = false;
+        card.label.material.depthTest = false;
         // Pull the active thumbnail slightly toward the centre of the
         // canvas as it enlarges. This keeps its edges inside the WebGL viewport
         // instead of letting the canvas boundary crop the foreground image.
