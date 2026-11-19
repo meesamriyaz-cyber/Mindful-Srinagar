@@ -69,6 +69,7 @@ export async function getDashboard(req, res, next) {
       lowStock,
       openTasks,
       paymentsReceivedThisMonth,
+      invoicesThisMonth,
       unpaidInvoices,
       patientStatusMix,
       serviceDemand,
@@ -98,6 +99,7 @@ export async function getDashboard(req, res, next) {
         { $match: { "payments.receivedAt": { $gte: monthStart } } },
         { $group: { _id: null, total: { $sum: "$payments.amount" } } }
       ]),
+      Invoice.find({ createdAt: { $gte: monthStart }, status: { $ne: "void" } }).select("items discount paidAmount status"),
       Invoice.find({ status: { $in: ["draft", "partial"] } })
         .populate("patient", "fullName mrn")
         .sort({ createdAt: -1 })
