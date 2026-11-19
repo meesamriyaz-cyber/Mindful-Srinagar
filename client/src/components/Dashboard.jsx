@@ -1624,39 +1624,43 @@ export function Dashboard() {
             </button>
             <button className="premium-sidebar-mobile-close" type="button" onClick={() => setMobileNavigationOpen(false)} aria-label="Close navigation"><X size={19} /></button>
           </div>
-          {Object.entries(
-            visibleViewItems.reduce((acc, item) => {
-              const section = item.section || "Other";
-              if (!acc[section]) acc[section] = [];
-              acc[section].push(item);
-              return acc;
-            }, {})
-          ).map(([section, items]) => (
-            <div className={`sidebar-section${items.length === 1 ? " sidebar-section-single" : ""}`} key={section}>
-              <div className="sidebar-section-title">{section}</div>
-              {items.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    className={item.id === activeView ? "side-link active" : "side-link"}
-                    type="button"
-                    key={item.id}
-                    aria-current={item.id === activeView ? "page" : undefined}
-                    onClick={() => {
-                      setActiveView(item.id);
-                      setMobileNavigationOpen(false);
-                      setQuery("");
-                      setActionError("");
-                      setNavigationScrollRequest((request) => request + 1);
-                    }}
-                  >
-                    <Icon size={17} />
-                    <span>{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          ))}
+          <nav className="sidebar-navigation" aria-label="Workspace navigation">
+            {Object.entries(
+              visibleViewItems.reduce((acc, item) => {
+                const section = item.section || "Other";
+                if (!acc[section]) acc[section] = [];
+                acc[section].push(item);
+                return acc;
+              }, {})
+            ).map(([section, items]) => (
+              <div className={`sidebar-section${items.length === 1 ? " sidebar-section-single" : ""}`} key={section} role="group" aria-label={section}>
+                <div className="sidebar-section-title" aria-hidden="true">{section}</div>
+                {items.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      className={item.id === activeView ? "side-link active" : "side-link"}
+                      type="button"
+                      key={item.id}
+                      aria-label={item.label}
+                      title={item.label}
+                      aria-current={item.id === activeView ? "page" : undefined}
+                      onClick={() => {
+                        setActiveView(item.id);
+                        setMobileNavigationOpen(false);
+                        setQuery("");
+                        setActionError("");
+                        setNavigationScrollRequest((request) => request + 1);
+                      }}
+                    >
+                      <Icon size={17} aria-hidden="true" />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </nav>
           <div className="sidebar-footer">
             <span className="sidebar-footer-indicator" />
             <span>Mindful Centre · Srinagar</span>
