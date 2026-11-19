@@ -65,7 +65,7 @@ function EmptyState({ children }) {
   return <div className="practitioner-empty-state"><span aria-hidden="true">—</span><p>{children}</p></div>;
 }
 
-export function PractitionerDashboard({ token }) {
+export function PractitionerDashboard({ token, onNavigate }) {
   const [state, setState] = useState({ data: null, loading: true, error: "" });
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -153,7 +153,13 @@ export function PractitionerDashboard({ token }) {
       </section>
 
 
-      <section className="practitioner-metrics-grid" aria-label="My clinical activity">
+      const now = new Date();
+  const soon = new Date(now);
+  soon.setDate(soon.getDate() + 7);
+  const overdueTasks = assignedTasks.filter((task) => task.dueDate && new Date(task.dueDate) < now);
+  const dueSoonTasks = assignedTasks.filter((task) => task.dueDate && new Date(task.dueDate) >= now && new Date(task.dueDate) <= soon);
+
+  <section className="practitioner-metrics-grid" aria-label="My clinical activity">
         <Metric label="Patients under my care" value={metrics.patientsUnderCare} icon={UsersRound} description="Linked patient records" />
         <Metric label="Appointments today" value={metrics.appointmentsToday} icon={CalendarClock} description="Today's schedule" />
         <Metric label="Completed sessions" value={metrics.completedSessionsThisMonth} icon={CheckCircle2} description="This month" />
