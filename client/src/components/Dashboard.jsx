@@ -1295,6 +1295,10 @@ export function Dashboard() {
   const [session, setSession] = useState(getStoredSession);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const mobileNavigationSidebarRef = React.useRef(null);
+  const mobileNavigationTriggerRef = React.useRef(null);
+  const mobileNavigationCloseRef = React.useRef(null);
   const [authNotice, setAuthNotice] = useState("");
   const consoleHeaderRef = React.useRef(null);
   const [navigationScrollRequest, setNavigationScrollRequest] = useState(0);
@@ -1305,6 +1309,61 @@ export function Dashboard() {
     if (role === "accounts") return "billing";
     return "overview";
   });
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 820px)");
+    const updateViewport = () => {
+      setIsMobileViewport(media.matches);
+      if (!media.matches) setMobileNavigationOpen(false);
+    };
+    updateViewport();
+    media.addEventListener?.("change", updateViewport);
+    return () => media.removeEventListener?.("change", updateViewport);
+  }, []);
+
+  useEffect(() => {
+    if (!mobileNavigationOpen || !isMobileViewport) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const frame = window.requestAnimationFrame(() => mobileNavigationCloseRef.current?.focus());
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.body.style.overflow = previousOverflow;
+      if (mobileNavigationTriggerRef.current?.isConnected) mobileNavigationTriggerRef.current.focus();
+    };
+  }, [mobileNavigationOpen, isMobileViewport]);
+
+  useEffect(() => {
+    if (!mobileNavigationOpen || !isMobileViewport) return undefined;
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setMobileNavigationOpen(false);
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = mobileNavigationSidebarRef.current?.querySelectorAll(
+        'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      );
+      const items = Array.from(focusable || []).filter((item) => item.getClientRects().length > 0);
+      if (!items.length) {
+        event.preventDefault();
+        mobileNavigationSidebarRef.current?.focus();
+        return;
+      }
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [mobileNavigationOpen, isMobileViewport]);
+
   useEffect(() => {
     const handleUnauthorized = (event) => {
       clearSession();
@@ -1605,7 +1664,16 @@ export function Dashboard() {
     <section className="dashboard-section" id="dashboard">
       <div className={`dashboard-shell dashboard-role-${session.user?.role || "staff"}${isDirector ? " premium-director-navigation" : ""}${sidebarCollapsed && isDirector ? " premium-sidebar-collapsed" : ""}${isPractitioner ? " premium-clinical-navigation" : ""}${mobileNavigationOpen ? " premium-mobile-navigation-open" : ""}`}>
         {mobileNavigationOpen && <button className="premium-sidebar-backdrop" type="button" aria-label="Close navigation" onClick={() => setMobileNavigationOpen(false)} />}
-        <aside className="sidebar" aria-label="Staff workspace navigation">
+        <aside
+          ref={mobileNavigationSidebarRef}
+          className="sidebar"
+          id="staff-workspace-navigation"
+          aria-label="Staff workspace navigation"
+          aria-hidden={isMobileViewport && !mobileNavigationOpen ? "true" : undefined}
+          role={mobileNavigationOpen && isMobileViewport ? "dialog" : undefined}
+          aria-modal={mobileNavigationOpen && isMobileViewport ? "true" : undefined}
+          tabIndex={mobileNavigationOpen && isMobileViewport ? -1 : undefined}
+        >
           <div className="sidebar-brand">
             <div className="brand compact">
               <span className="brand-mark">M</span>
@@ -1622,7 +1690,7 @@ export function Dashboard() {
             <button className="premium-sidebar-collapse" type="button" onClick={() => setSidebarCollapsed((value) => !value)} aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"} aria-pressed={sidebarCollapsed}>
               {sidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
             </button>
-            <button className="premium-sidebar-mobile-close" type="button" onClick={() => setMobileNavigationOpen(false)} aria-label="Close navigation"><X size={19} /></button>
+            <button ref={mobileNavigationCloseRef} className="premium-sidebar-mobile-close" type="button" onClick={() => setMobileNavigationOpen(false)} aria-label="Close navigation"><X size={19} /></button>
           </div>
           <nav className="sidebar-navigation" aria-label="Workspace navigation">
             {Object.entries(
@@ -1669,7 +1737,7 @@ export function Dashboard() {
         <div className="console">
           <div ref={consoleHeaderRef} className="console-header management-console-header">
             <div className="premium-console-title">
-              <button className="premium-sidebar-mobile-trigger" type="button" onClick={() => setMobileNavigationOpen(true)} aria-label="Open workspace navigation" aria-expanded={mobileNavigationOpen}><Menu size={19} /></button>
+              <button ref={mobileNavigationTriggerRef} className="premium-sidebar-mobile-trigger" type="button" onClick={() => setMobileNavigationOpen(true)} aria-label="Open workspace navigation" aria-expanded={mobileNavigationOpen} aria-controls="staff-workspace-navigation"><Menu size={19} /></button>
               <div>
               <p className="eyebrow">{isDirector ? "Director command centre" : isPractitioner ? "Clinical workspace" : "Operations dashboard"}</p>
               <h2>{activeView === "overview" ? (["doctor","therapist"].includes(session.user?.role) ? "My clinical activity" : "Whole-centre operating view") : activeConfig.label}</h2>
