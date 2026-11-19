@@ -161,4 +161,3 @@ export function Header({ staffMode = false }) {
     </header>
   );
 }
-      )}
