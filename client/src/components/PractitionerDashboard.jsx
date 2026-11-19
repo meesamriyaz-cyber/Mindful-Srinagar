@@ -154,6 +154,7 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
                 <div className="practitioner-time-block"><strong>{formatDateTime(item.startsAt, { day: "2-digit", month: "short" })}</strong><span>{formatDateTime(item.startsAt, { hour: "2-digit", minute: "2-digit" })}</span></div>
                 <div className="practitioner-row-main"><strong>{item.patient?.fullName || "Patient"}</strong><span>{item.service || "Service not specified"}</span></div>
                 <Badge variant={statusVariant(item.status)}>{item.status || "scheduled"}</Badge>
+                <Button size="sm" variant="outline" onClick={() => onOpenPatient?.(item.patient?._id || item.patient)} disabled={!item.patient?._id && !item.patient}><UserRound size={14} /> Patient</Button>
               </article>
             ))}
           </div> : <EmptyState>No upcoming appointments currently scheduled.</EmptyState>}
