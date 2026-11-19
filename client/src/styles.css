@@ -4032,3 +4032,24 @@ html {
   .premium-staff-header .header-actions { gap: 6px; }
   .premium-staff-header .secondary-button { display: none; }
 }
+
+/* Batch 3B-2C — Patient Journey mobile containment */
+@media (max-width: 640px) {
+  .journey-overlay { align-items:stretch; justify-content:center; padding:8px; overflow:hidden; }
+  .journey-modal { width:100%; max-width:100%; min-width:0; max-height:calc(100dvh - 16px); height:auto; border-radius:14px; }
+  .journey-modal .journey-header { flex:0 0 auto; min-width:0; gap:10px; padding:14px 16px; }
+  .journey-modal .journey-header > div { min-width:0; flex:1; }
+  .journey-modal .journey-header h3 { font-size:clamp(1rem,4.5vw,1.2rem); line-height:1.3; overflow-wrap:anywhere; }
+  .journey-modal .journey-header p { overflow-wrap:anywhere; }
+  .journey-steps { display:flex; flex-wrap:nowrap; gap:8px; padding:10px 12px; overflow-x:auto; overflow-y:hidden; max-width:100%; -webkit-overflow-scrolling:touch; scrollbar-width:thin; }
+  .journey-step { flex:0 0 auto; white-space:nowrap; }
+  .journey-content { min-width:0; padding:12px; overflow-x:hidden; }
+  .management-journey-card-body { min-width:0; overflow-wrap:anywhere; }
+  .journey-card { min-width:0; max-width:100%; }
+  .journey-card-header { flex-wrap:wrap; align-items:flex-start; gap:8px; }
+  .journey-card-body p, .journey-card-body li { overflow-wrap:anywhere; word-break:normal; }
+  .journey-create-form { min-width:0; padding:12px; }
+  .journey-create-form label, .journey-create-form input, .journey-create-form select, .journey-create-form textarea { min-width:0; max-width:100%; }
+  .management-journey-footer { flex:0 0 auto; padding:10px 12px; }
+  .management-journey-footer > * { max-width:100%; }
+}
