@@ -44,7 +44,7 @@ export function MediaLibrary({ token }) {
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState("");
 
-  const load = useCallback(async (nextPage = page) => {
+  const load = useCallback(async (nextPage = 1) => {
     setLoading(true); setError("");
     try {
       const params = new URLSearchParams({ page: String(nextPage), limit: "24", status });
@@ -55,7 +55,7 @@ export function MediaLibrary({ token }) {
       setItems(data.items || []); setTotal(data.total || 0); setPages(data.pages || 1); setPage(data.page || nextPage);
     } catch (err) { setError(err.message); }
     finally { setLoading(false); }
-  }, [token, page, query, type, category, status]);
+  }, [token, query, type, category, status]);
 
   useEffect(() => { load(1); }, [query, type, category, status, load]);
   useEffect(() => { if (selected) setMeta({ title: selected.title || "", caption: selected.caption || "", description: selected.description || "", altText: selected.altText || "", category: selected.category || "other", tags: (selected.tags || []).join(", "), identifiablePeople: Boolean(selected.identifiablePeople), consentStatus: selected.consentStatus || "not-required", consentScope: selected.consentScope || "internal-only", consentNotes: selected.consentNotes || "" }); }, [selected]);
