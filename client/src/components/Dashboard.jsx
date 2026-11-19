@@ -96,7 +96,8 @@ function getVisibleViewItems(role) {
     therapist: ["overview","patients","appointments","assessments","treatment-plans","progress-notes","tasks"],
     accounts: ["billing","tasks"]
   };
-  if (["director","admin"].includes(role)) return viewItems;
+  if (role === "director") return viewItems;
+  if (role === "admin") return viewItems.filter((item) => item.id !== "reports");
   return viewItems.filter((item) => (item.roles ? item.roles.includes(role) : (allowed[role] || []).includes(item.id)));
 }
 
