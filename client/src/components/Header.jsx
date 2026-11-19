@@ -109,17 +109,21 @@ export function Header({ staffMode = false }) {
         )}
       </a>
 
-      <button
-        className="icon-button menu-button"
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        aria-label={open ? "Close navigation menu" : "Open navigation menu"}
-        aria-expanded={open}
-        aria-controls="primary-navigation"
-      >
-        {open ? <X size={21} /> : <Menu size={21} />}
-      </button>
-
+      {!staffMode && (
+        <button
+          className="icon-button menu-button"
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={open}
+          aria-controls="primary-navigation"
+        >
+          {open ? <X size={21} /> : <Menu size={21} />}
+        </button>
+  
+  
+      )}
+      {!staffMode && (
       <nav
         className={open ? "nav nav-open" : "nav"}
         aria-label="Primary navigation"
@@ -159,3 +163,4 @@ export function Header({ staffMode = false }) {
     </header>
   );
 }
+      )}
