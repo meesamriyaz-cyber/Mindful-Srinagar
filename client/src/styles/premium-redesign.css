@@ -515,7 +515,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
     border-radius: 0 22px 22px 0;
     box-shadow: 18px 0 55px rgba(15, 39, 31, .18);
     transform: translateX(-110%);
-    transition: transform 240ms cubic-bezier(.2,.75,.25,1);
   }
   .dashboard-section .premium-director-navigation.premium-mobile-navigation-open > .sidebar {
     visibility: visible;
@@ -965,7 +964,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
     border-radius: 0 20px 20px 0;
     box-shadow: 18px 0 55px rgba(15, 39, 31, .18);
     transform: translateX(-110%);
-    transition: transform 240ms cubic-bezier(.2,.75,.25,1);
   }
   .dashboard-section .premium-clinical-navigation.premium-mobile-navigation-open > .sidebar {
     visibility: visible;
