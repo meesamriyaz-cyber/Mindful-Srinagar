@@ -292,3 +292,9 @@
 @media (prefers-reduced-motion: reduce) {
   .clinical-resource-panel *, .practitioner-workspace * { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+.prescription-medications-builder { display: grid; gap: 12px; width: 100%; }
+.prescription-medication-card { border: 1px solid var(--border, #d8e3e8); border-radius: 14px; padding: 14px; background: var(--surface-muted, #f8fbfc); display: grid; gap: 12px; }
+.prescription-medication-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.prescription-medication-card label { display: grid; gap: 6px; min-width: 0; }
+.prescription-medication-card input { width: 100%; min-width: 0; }
