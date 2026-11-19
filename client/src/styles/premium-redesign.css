@@ -3077,3 +3077,50 @@ body:has(.premium-staff-header) {
     font-size: .68rem;
   }
 }
+
+
+/* Batch 2C hotfix — enforce mobile drawer geometry after all responsive overrides. */
+@media (max-width: 820px) {
+  .dashboard-section .dashboard-shell.premium-director-navigation > aside.sidebar,
+  .dashboard-section .dashboard-shell.premium-clinical-navigation > aside.sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    inset: 0 auto 0 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-content: stretch !important;
+    align-items: stretch !important;
+    box-sizing: border-box !important;
+    width: min(310px, calc(100vw - 54px)) !important;
+    max-width: min(310px, calc(100vw - 54px)) !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    max-height: 100dvh !important;
+    margin: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    border-radius: 0 22px 22px 0 !important;
+    transform: translateX(-110%) !important;
+    visibility: hidden !important;
+    z-index: 1301 !important;
+  }
+  .dashboard-section .dashboard-shell.premium-director-navigation.premium-mobile-navigation-open > aside.sidebar,
+  .dashboard-section .dashboard-shell.premium-clinical-navigation.premium-mobile-navigation-open > aside.sidebar {
+    transform: translateX(0) !important;
+    visibility: visible !important;
+  }
+  .dashboard-section .dashboard-shell.premium-director-navigation > aside.sidebar .sidebar-brand,
+  .dashboard-section .dashboard-shell.premium-clinical-navigation > aside.sidebar .sidebar-brand {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+  }
+  .dashboard-section .dashboard-shell.premium-director-navigation > aside.sidebar .sidebar-navigation,
+  .dashboard-section .dashboard-shell.premium-clinical-navigation > aside.sidebar .sidebar-navigation {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    width: 100% !important;
+  }
+}
