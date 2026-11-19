@@ -140,7 +140,8 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
               <article className="practitioner-list-row" key={item._id}>
                 <div className="practitioner-time-block"><strong>{formatDateTime(item.startsAt, { hour: "2-digit", minute: "2-digit" })}</strong><span>{item.durationMinutes || "—"} min</span></div>
                 <div className="practitioner-row-main"><strong>{item.patient?.fullName || "Patient"}</strong><span>{item.service || "Service not specified"}</span></div>
-                <Badge variant={statusVariant(item.status)}>{item.status || "scheduled"}</Badge>\n                <Button size="sm" variant="outline" onClick={() => onOpenPatient?.(item.patient?._id || item.patient)} disabled={!item.patient?._id && !item.patient}><UserRound size={14} /> Patient</Button>
+                <Badge variant={statusVariant(item.status)}>{item.status || "scheduled"}</Badge>
+                <Button size="sm" variant="outline" onClick={() => onOpenPatient?.(item.patient?._id || item.patient)} disabled={!item.patient?._id && !item.patient}><UserRound size={14} /> Patient</Button>
               </article>
             ))}
           </div> : <EmptyState>No appointments scheduled for today.</EmptyState>}
