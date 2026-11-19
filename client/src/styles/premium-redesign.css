@@ -497,6 +497,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
     min-height: 0;
   }
   .dashboard-section .premium-director-navigation > .sidebar {
+    box-sizing: border-box;
+    height: 100dvh;
+    min-height: 100dvh;
+    inset: 0 auto 0 0;
     visibility: hidden;
     transition: transform 240ms cubic-bezier(.2,.75,.25,1), visibility 0s linear 240ms;
     position: fixed;
@@ -946,6 +950,10 @@ button, a { -webkit-tap-highlight-color: transparent; }
     overflow: visible;
   }
   .dashboard-section .premium-clinical-navigation > .sidebar {
+    box-sizing: border-box;
+    height: 100dvh;
+    min-height: 100dvh;
+    inset: 0 auto 0 0;
     visibility: hidden;
     transition: transform 240ms cubic-bezier(.2,.75,.25,1), visibility 0s linear 240ms;
     position: fixed;
