@@ -1458,7 +1458,7 @@ export function Dashboard() {
   const visibleViewItems = getVisibleViewItems(session.user?.role);
   const { data, loading, refreshing, error, updatedAt, refresh } = useDashboard(canViewOverview ? session.token : null);
   const resourceState = useResourceRecords({ activeView, token: session.token, query, refreshSignal: resourceRefresh });
-  const isDirector = ["director", "admin"].includes(session.user?.role);
+  const isDirector = session.user?.role === "director";
   const isPractitioner = ["doctor", "therapist"].includes(session.user?.role);
   const activeConfig = getViewConfig(activeView);
 
