@@ -583,13 +583,23 @@ function OverviewWorkspace({ data, isDirector }) {
           icon={TrendingUp}
           tone={data.metrics.urgentReferrals ? "risk" : ""}
         />
-        <StatCard
-          label="Collections"
-          value={INR.format(data.metrics.revenueThisMonth || 0)}
-          trend={`${INR.format(data.metrics.outstanding || 0)} outstanding`}
-          icon={IndianRupee}
-          tone={data.metrics.outstanding ? "risk" : ""}
-        />
+        {isDirector ? (
+          <StatCard
+            label="Collections"
+            value={INR.format(data.metrics.revenueThisMonth || 0)}
+            trend={`${INR.format(data.metrics.outstanding || 0)} outstanding`}
+            icon={IndianRupee}
+            tone={data.metrics.outstanding ? "risk" : ""}
+          />
+        ) : (
+          <StatCard
+            label="Pending tasks"
+            value={(data.openTasks || []).length}
+            trend={`${data.metrics.overdueTasks || 0} overdue`}
+            icon={ListChecks}
+            tone={data.metrics.overdueTasks ? "risk" : ""}
+          />
+        )}
       </div>
 
       <PriorityWork data={data} />
