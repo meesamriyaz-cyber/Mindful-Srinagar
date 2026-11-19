@@ -11,7 +11,15 @@ const publicNavItems = [
 
 export function Header({ staffMode = false }) {
   const [open, setOpen] = useState(false);
+  const [staffNavigationOpen, setStaffNavigationOpen] = useState(false);
   const [heroVisible, setHeroVisible] = useState(!staffMode);
+
+  useEffect(() => {
+    if (!staffMode) return undefined;
+    const handleStaffNavigationState = (event) => setStaffNavigationOpen(Boolean(event.detail?.open));
+    window.addEventListener("mindful:staff-navigation-state", handleStaffNavigationState);
+    return () => window.removeEventListener("mindful:staff-navigation-state", handleStaffNavigationState);
+  }, [staffMode]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -145,7 +153,19 @@ export function Header({ staffMode = false }) {
 
       <div className="header-actions">
         {staffMode ? (
-          <a className="secondary-button" href="#home">Back to public site</a>
+          <>
+            <a className="secondary-button" href="#home">Back to public site</a>
+            <button
+              className="icon-button staff-mobile-nav-trigger"
+              type="button"
+              onClick={() => window.dispatchEvent(new CustomEvent("mindful:staff-navigation-toggle"))}
+              aria-label={staffNavigationOpen ? "Close workspace navigation" : "Open workspace navigation"}
+              aria-expanded={staffNavigationOpen}
+              aria-controls="staff-workspace-navigation"
+            >
+              {staffNavigationOpen ? <X size={21} /> : <Menu size={21} />}
+            </button>
+          </>
         ) : (
           <>
             <a className="icon-button" href="tel:+919906897822" aria-label="Call centre">
