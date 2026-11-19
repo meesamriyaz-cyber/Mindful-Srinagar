@@ -126,19 +126,8 @@ export function PractitionerDashboard({ token }) {
         </CardContent>
       </Card>
 
-      <section className="practitioner-metrics-grid" aria-label="My clinical activity">
-        <Metric label="Patients under my care" value={metrics.patientsUnderCare} icon={UsersRound} description="Linked patient records" />
-        <Metric label="Appointments today" value={metrics.appointmentsToday} icon={CalendarClock} description="Today's schedule" />
-        <Metric label="Upcoming appointments" value={metrics.upcomingAppointments} icon={CalendarClock} description="Scheduled ahead" />
-        <Metric label="Completed sessions" value={metrics.completedSessionsThisMonth} icon={CheckCircle2} description="This month" />
-        <Metric label="Pending assessments" value={metrics.pendingAssessments} icon={ClipboardCheck} description="Awaiting completion" />
-        <Metric label="Active treatment plans" value={metrics.activeTreatmentPlans} icon={FileText} description="Current care plans" />
-        <Metric label="Open assigned tasks" value={metrics.openTasks} icon={ListChecks} description="Awaiting action" />
-        {role === "doctor" && <Metric label="Active prescriptions" value={metrics.activePrescriptions} icon={FileText} description="Current prescriptions" />}
-      </section>
-
-      <section className="practitioner-sections-grid" aria-label="Appointments">
-        <SectionCard icon={CalendarClock} title="Today's appointments" description="Your scheduled sessions today">
+      <section className="practitioner-sections-grid" aria-label="Today’s clinical schedule">
+        <SectionCard icon={CalendarClock} title="Today's appointments" description="Your primary clinical schedule">
           {todaysAppointments.length ? <div className="practitioner-list">
             {todaysAppointments.map((item) => (
               <article className="practitioner-list-row" key={item._id}>
@@ -161,6 +150,15 @@ export function PractitionerDashboard({ token }) {
             ))}
           </div> : <EmptyState>No upcoming appointments currently scheduled.</EmptyState>}
         </SectionCard>
+      </section>
+
+
+      <section className="practitioner-metrics-grid" aria-label="My clinical activity">
+        <Metric label="Patients under my care" value={metrics.patientsUnderCare} icon={UsersRound} description="Linked patient records" />
+        <Metric label="Appointments today" value={metrics.appointmentsToday} icon={CalendarClock} description="Today's schedule" />
+        <Metric label="Completed sessions" value={metrics.completedSessionsThisMonth} icon={CheckCircle2} description="This month" />
+        <Metric label="Pending assessments" value={metrics.pendingAssessments} icon={ClipboardCheck} description="Awaiting completion" />
+        {role === "doctor" && <Metric label="Active prescriptions" value={metrics.activePrescriptions} icon={FileText} description="Current prescriptions" />}
       </section>
 
       <section className="practitioner-sections-grid" aria-label="Clinical activity and tasks">
