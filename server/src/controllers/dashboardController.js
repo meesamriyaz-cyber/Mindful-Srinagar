@@ -54,7 +54,8 @@ function buildBusinessInsights({ outstanding, lowStockCount, overdueTasksCount, 
 
 export async function getDashboard(req, res, next) {
   try {
-    const { start: todayStart, end: todayEnd, monthStart } = getCentreDayBounds();
+    const now = new Date();
+    const { start: todayStart, end: todayEnd, monthStart } = getCentreDayBounds(now);
 
     const [
       patients,
@@ -96,7 +97,7 @@ export async function getDashboard(req, res, next) {
       Task.find({ status: { $ne: "done" } }).sort({ dueDate: 1 }).limit(10),
       Invoice.aggregate([
         { $unwind: "$payments" },
-        { $match: { "payments.receivedAt": { $gte: monthStart } } },
+        { $match: { "payments.receivedAt": { $gte: monthStart, $lte: now } } },
         { $group: { _id: null, total: { $sum: "$payments.amount" } } }
       ]),
       Invoice.find({ createdAt: { $gte: monthStart }, status: { $ne: "void" } }).select("items discount paidAmount status"),
