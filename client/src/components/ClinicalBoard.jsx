@@ -94,7 +94,7 @@ const CONFIGS = {
     updateFn: updatePrescription,
     fields: [
       { name: "patient", label: "Patient", type: "patient" },
-      { name: "medications", label: "Medications (JSON array)", type: "textarea", placeholder: '[{"name":"...","dosage":"...","frequency":"...","duration":"...","instructions":"..."}]' },
+      { name: "medications", label: "Medications", type: "medications" },
       { name: "notes", label: "Notes", type: "textarea" },
       { name: "status", label: "Status", type: "select", options: ["active", "completed", "cancelled"] }
     ]
@@ -230,7 +230,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
   }
 
   function openCreate() {
-    setForm({ patient: patientId || "", ...(activeView === "assessments" ? { assessmentType: "initial" } : {}), ...(activeView === "treatment-plans" ? { status: "planned" } : {}), ...(activeView === "progress-notes" ? { noteType: "session" } : {}) });
+    setForm({ patient: patientId || "", ...(activeView === "prescriptions" ? { medications: [{ name: "", dosage: "", frequency: "", duration: "", instructions: "" }] } : {}), ...(activeView === "assessments" ? { assessmentType: "initial" } : {}), ...(activeView === "treatment-plans" ? { status: "planned" } : {}), ...(activeView === "progress-notes" ? { noteType: "session" } : {}) });
     setEditingId(null);
     setShowForm(true);
   }
@@ -252,7 +252,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
         if (["appointment", "assessment"].includes(field.name) && value && typeof value === "object") value = value._id;
         if (field.type === "chips" && !Array.isArray(value)) value = [];
         if (field.name === "domains" && Array.isArray(value)) value = value.join(", ");
-        if (field.name === "medications" && Array.isArray(value)) value = JSON.stringify(value, null, 2);
+        if (field.name === "medications" && Array.isArray(value)) value = value.length ? value.map((medication) => ({ name: medication.name || "", dosage: medication.dosage || "", frequency: medication.frequency || "", duration: medication.duration || "", instructions: medication.instructions || "" })) : [{ name: "", dosage: "", frequency: "", duration: "", instructions: "" }];
         values[field.name] = value ?? "";
       });
     setAmendingRecord(record);
@@ -301,7 +301,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
         val = val._id;
       } else if (f.type === "chips") {
         val = Array.isArray(val) ? val : (typeof val === "string" ? val.split(",").map(s => s.trim()).filter(Boolean) : []);
-      } else if (Array.isArray(val)) val = val.join(", ");
+      } else if (f.name === "medications" && Array.isArray(val)) val = val.map((medication) => ({ name: medication.name || "", dosage: medication.dosage || "", frequency: medication.frequency || "", duration: medication.duration || "", instructions: medication.instructions || "" }));\n      else if (Array.isArray(val)) val = val.join(", ");
       else if (typeof val === "object" && val !== null) val = JSON.stringify(val, null, 2);
       flat[f.name] = val ?? "";
     });
@@ -326,7 +326,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
           val = Array.isArray(val) ? val : [];
         } else if (f.name === "domains" && typeof val === "string") {
           val = val.split(",").map((item) => item.trim()).filter(Boolean);
-        } else if (f.type === "textarea" && typeof val === "string" && val.startsWith("[") && val.endsWith("]")) {
+        } else if (f.name === "medications") {\n          val = Array.isArray(val) ? val.filter((medication) => medication.name?.trim() || medication.dosage?.trim() || medication.frequency?.trim()) : [];\n        } else if (f.type === "textarea" && typeof val === "string" && val.startsWith("[") && val.endsWith("]")) {
           try { val = JSON.parse(val); } catch { /* keep as string */ }
         }
         payload[f.name] = val;
@@ -513,7 +513,7 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
                 {config.fields.filter((field) => !["patient", "status"].includes(field.name) && !(activeView === "treatment-plans" && field.name === "assessment")).map((field) => (
                   <label key={field.name}>
                     {field.label}
-                    {field.type === "textarea" ? (
+                    {field.type === "medications" ? (\n                      <div className="prescription-medications-builder">\n                        {(Array.isArray(form.medications) ? form.medications : []).map((medication, index) => (\n                          <div className="prescription-medication-card" key={index}>\n                            <div className="prescription-medication-heading"><strong>Medication {index + 1}</strong>{form.medications.length > 1 && <button type="button" className="secondary-button compact-button" onClick={() => setForm((current) => ({ ...current, medications: current.medications.filter((_, medicationIndex) => medicationIndex !== index) }))}>Remove</button>}</div>\n                            <label>Medicine name<input value={medication.name} onChange={(event) => setForm((current) => ({ ...current, medications: current.medications.map((item, medicationIndex) => medicationIndex === index ? { ...item, name: event.target.value } : item) }))} placeholder="Medicine name" required /></label>\n                            <div className="form-row"><label>Dosage<input value={medication.dosage} onChange={(event) => setForm((current) => ({ ...current, medications: current.medications.map((item, medicationIndex) => medicationIndex === index ? { ...item, dosage: event.target.value } : item) }))} placeholder="e.g. 25 mg" required /></label><label>Frequency<input value={medication.frequency} onChange={(event) => setForm((current) => ({ ...current, medications: current.medications.map((item, medicationIndex) => medicationIndex === index ? { ...item, frequency: event.target.value } : item) }))} placeholder="e.g. once daily" required /></label></div>\n                            <div className="form-row"><label>Duration<input value={medication.duration} onChange={(event) => setForm((current) => ({ ...current, medications: current.medications.map((item, medicationIndex) => medicationIndex === index ? { ...item, duration: event.target.value } : item) }))} placeholder="e.g. 1 month" /></label><label>Instructions<input value={medication.instructions} onChange={(event) => setForm((current) => ({ ...current, medications: current.medications.map((item, medicationIndex) => medicationIndex === index ? { ...item, instructions: event.target.value } : item) }))} placeholder="e.g. after meals / at bedtime" /></label></div>\n                          </div>\n                        ))}\n                        <button type="button" className="secondary-button compact-button" onClick={() => setForm((current) => ({ ...current, medications: [...(current.medications || []), { name: "", dosage: "", frequency: "", duration: "", instructions: "" }] }))}>+ Add medication</button>\n                      </div>\n                    ) : field.type === "textarea" ? (
                       <textarea rows={4} value={amendmentValues[field.name] ?? ""} onChange={(event) => setAmendmentValues((current) => ({ ...current, [field.name]: event.target.value }))} />
                     ) : field.type === "select" ? (
                       <select value={amendmentValues[field.name] ?? ""} onChange={(event) => setAmendmentValues((current) => ({ ...current, [field.name]: event.target.value }))}>
