@@ -1737,7 +1737,7 @@ export function Dashboard() {
         <div className="console">
           <div ref={consoleHeaderRef} className="console-header management-console-header">
             <div className="premium-console-title">
-              <button ref={mobileNavigationTriggerRef} className="premium-sidebar-mobile-trigger" type="button" onClick={() => setMobileNavigationOpen(true)} aria-label="Open workspace navigation" aria-expanded={mobileNavigationOpen} aria-controls="staff-workspace-navigation"><Menu size={19} /></button>
+              <button ref={mobileNavigationTriggerRef} className="premium-sidebar-mobile-trigger" type="button" onClick={() => setMobileNavigationOpen(true)} aria-label="Open workspace navigation" aria-expanded={mobileNavigationOpen} aria-haspopup="dialog" aria-controls="staff-workspace-navigation"><Menu size={19} /></button>
               <div>
               <p className="eyebrow">{isDirector ? "Director command centre" : isPractitioner ? "Clinical workspace" : "Operations dashboard"}</p>
               <h2>{activeView === "overview" ? (["doctor","therapist"].includes(session.user?.role) ? "My clinical activity" : "Whole-centre operating view") : activeConfig.label}</h2>
