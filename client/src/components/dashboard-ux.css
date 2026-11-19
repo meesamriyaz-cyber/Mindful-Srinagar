@@ -276,3 +276,43 @@
     flex: 0 0 auto;
   }
 }
+
+
+/* Batch 2A — dashboard shell containment.
+   Keeps the role-specific desktop/mobile layouts intact while allowing
+   nested shell columns and content grids to shrink to their viewport. */
+.dashboard-section {
+  width: 100%;
+  min-width: 0;
+}
+
+.dashboard-section .dashboard-shell {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.dashboard-section .dashboard-shell > .sidebar,
+.dashboard-section .dashboard-shell > .console,
+.dashboard-section .dashboard-shell .console-grid,
+.dashboard-section .dashboard-shell .console-header,
+.dashboard-section .dashboard-shell .console-tools,
+.dashboard-section .dashboard-shell .workspace-view,
+.dashboard-section .dashboard-shell .management-workspace-view {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.dashboard-section .dashboard-shell :where(.stats-grid, .stat-grid, .record-grid, .clinical-record-grid, .practitioner-record-grid, .staff-directory-grid, .staff-record-grid) {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+@media (max-width: 820px) {
+  .dashboard-section .dashboard-shell {
+    width: 100%;
+  }
+
+  .dashboard-section .dashboard-shell > .console {
+    width: 100%;
+  }
+}
