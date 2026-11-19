@@ -23,7 +23,6 @@ import {
   Stethoscope,
   WalletCards,
   Images,
-  Menu,
   PanelLeftClose,
   PanelLeftOpen
 } from "lucide-react";
