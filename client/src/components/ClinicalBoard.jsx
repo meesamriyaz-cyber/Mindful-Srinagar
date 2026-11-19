@@ -301,7 +301,8 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
         val = val._id;
       } else if (f.type === "chips") {
         val = Array.isArray(val) ? val : (typeof val === "string" ? val.split(",").map(s => s.trim()).filter(Boolean) : []);
-      } else if (f.name === "medications" && Array.isArray(val)) val = val.map((medication) => ({ name: medication.name || "", dosage: medication.dosage || "", frequency: medication.frequency || "", duration: medication.duration || "", instructions: medication.instructions || "" }));\n      else if (Array.isArray(val)) val = val.join(", ");
+      } else if (f.name === "medications" && Array.isArray(val)) val = val.map((medication) => ({ name: medication.name || "", dosage: medication.dosage || "", frequency: medication.frequency || "", duration: medication.duration || "", instructions: medication.instructions || "" }));
+      else if (Array.isArray(val)) val = val.join(", ");
       else if (typeof val === "object" && val !== null) val = JSON.stringify(val, null, 2);
       flat[f.name] = val ?? "";
     });
@@ -326,7 +327,9 @@ export function ClinicalBoard({ activeView, token, query, refreshSignal, patient
           val = Array.isArray(val) ? val : [];
         } else if (f.name === "domains" && typeof val === "string") {
           val = val.split(",").map((item) => item.trim()).filter(Boolean);
-        } else if (f.name === "medications") {\n          val = Array.isArray(val) ? val.filter((medication) => medication.name?.trim() || medication.dosage?.trim() || medication.frequency?.trim()) : [];\n        } else if (f.type === "textarea" && typeof val === "string" && val.startsWith("[") && val.endsWith("]")) {
+        } else if (f.name === "medications") {
+          val = Array.isArray(val) ? val.filter((medication) => medication.name?.trim() || medication.dosage?.trim() || medication.frequency?.trim()) : [];
+        } else if (f.type === "textarea" && typeof val === "string" && val.startsWith("[") && val.endsWith("]")) {
           try { val = JSON.parse(val); } catch { /* keep as string */ }
         }
         payload[f.name] = val;
