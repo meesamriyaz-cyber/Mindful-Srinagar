@@ -618,7 +618,7 @@ function OverviewWorkspace({ data, isDirector }) {
       </div>
 
       <div className="console-grid lower-console-grid management-console-grid">
-        <CashWatch data={data} />
+        {isDirector && <CashWatch data={data} />}
         <article className="action-panel">
           <div className="panel-title">
             <AlertTriangle size={21} />
@@ -627,7 +627,7 @@ function OverviewWorkspace({ data, isDirector }) {
           <div className="risk-stack">
             <span><strong>{data.metrics.lowStockCount || 0}</strong> low-stock items</span>
             <span><strong>{data.metrics.overdueTasks || 0}</strong> overdue tasks</span>
-            <span><strong>{data.metrics.unpaidInvoiceCount || 0}</strong> invoices pending</span>
+            {isDirector && <span><strong>{data.metrics.unpaidInvoiceCount || 0}</strong> invoices pending</span>}
           </div>
         </article>
       </div>
