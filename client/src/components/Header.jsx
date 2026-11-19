@@ -120,30 +120,28 @@ export function Header({ staffMode = false }) {
         >
           {open ? <X size={21} /> : <Menu size={21} />}
         </button>
-  
-  
       )}
+
       {!staffMode && (
-      <nav
-        className={open ? "nav nav-open" : "nav"}
-        aria-label="Primary navigation"
-        id="primary-navigation"
-      >
-        {navItems.map((item) => (
-          <a key={item.label} href={item.href} onClick={() => {
-            closeMenu();
-            if (item.tab) window.dispatchEvent(new CustomEvent("mindful:public-content-tab", { detail: { tab: item.tab } }));
-          }}>
-            {item.label}
-          </a>
-        ))}
-        {!staffMode && (
+        <nav
+          className={open ? "nav nav-open" : "nav"}
+          aria-label="Primary navigation"
+          id="primary-navigation"
+        >
+          {navItems.map((item) => (
+            <a key={item.label} href={item.href} onClick={() => {
+              closeMenu();
+              if (item.tab) window.dispatchEvent(new CustomEvent("mindful:public-content-tab", { detail: { tab: item.tab } }));
+            }}>
+              {item.label}
+            </a>
+          ))}
           <a className="nav-staff-link" href="#staff" onClick={closeMenu}>
             <LockKeyhole size={15} />
             Staff console
           </a>
-        )}
-      </nav>
+        </nav>
+      )}
 
       <div className="header-actions">
         {staffMode ? (
