@@ -1410,7 +1410,7 @@ export function Dashboard() {
   const [operationHistory, setOperationHistory] = useState(null);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [operationForm, setOperationForm] = useState({ amount: "", method: "cash", reference: "", type: "receipt", quantity: "", reason: "" });
-  const [journeyPatientId, setJourneyPatientId] = useState(null);
+  const [journeyPatientId, setJourneyPatientId] = useState(null);\n  const [journeyInitialCreateStep, setJourneyInitialCreateStep] = useState(null);
   const [showBilling, setShowBilling] = useState(false);
   const [billingRecord, setBillingRecord] = useState(null);
   const [billingItems, setBillingItems] = useState([]);
@@ -1812,7 +1812,7 @@ export function Dashboard() {
                 />
               ) : activeView === "overview" ? (
                 ["doctor", "therapist"].includes(session.user?.role)
-                  ? <PractitionerDashboard token={session.token} onNavigate={setActiveView} onOpenPatient={setJourneyPatientId} />
+                  ? <PractitionerDashboard token={session.token} onNavigate={setActiveView} onOpenPatient={(id, action) => { setJourneyInitialCreateStep(action || null); setJourneyPatientId(id); }} />
                   : <OverviewWorkspace data={data} isDirector={isDirector} />
               ) : ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeView) ? (
                 <ClinicalBoard
