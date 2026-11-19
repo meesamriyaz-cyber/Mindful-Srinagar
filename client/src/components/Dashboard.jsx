@@ -1297,7 +1297,6 @@ export function Dashboard() {
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
   const mobileNavigationSidebarRef = React.useRef(null);
-  const mobileNavigationTriggerRef = React.useRef(null);
   const mobileNavigationCloseRef = React.useRef(null);
   const [authNotice, setAuthNotice] = useState("");
   const consoleHeaderRef = React.useRef(null);
@@ -1321,6 +1320,16 @@ export function Dashboard() {
   }, []);
 
   useEffect(() => {
+    const handleNavigationToggle = () => setMobileNavigationOpen((open) => !open);
+    window.addEventListener("mindful:staff-navigation-toggle", handleNavigationToggle);
+    return () => window.removeEventListener("mindful:staff-navigation-toggle", handleNavigationToggle);
+  }, []);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("mindful:staff-navigation-state", { detail: { open: mobileNavigationOpen } }));
+  }, [mobileNavigationOpen]);
+
+  useEffect(() => {
     if (!mobileNavigationOpen || !isMobileViewport) return undefined;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -1328,7 +1337,7 @@ export function Dashboard() {
     return () => {
       window.cancelAnimationFrame(frame);
       document.body.style.overflow = previousOverflow;
-      if (mobileNavigationTriggerRef.current?.isConnected) mobileNavigationTriggerRef.current.focus();
+      document.querySelector('.staff-mobile-nav-trigger')?.focus();
     };
   }, [mobileNavigationOpen, isMobileViewport]);
 
@@ -1737,7 +1746,6 @@ export function Dashboard() {
         <div className="console">
           <div ref={consoleHeaderRef} className="console-header management-console-header">
             <div className="premium-console-title">
-              <button ref={mobileNavigationTriggerRef} className="premium-sidebar-mobile-trigger" type="button" onClick={() => setMobileNavigationOpen(true)} aria-label="Open workspace navigation" aria-expanded={mobileNavigationOpen} aria-haspopup="dialog" aria-controls="staff-workspace-navigation"><Menu size={19} /></button>
               <div>
               <p className="eyebrow">{isDirector ? "Director command centre" : isPractitioner ? "Clinical workspace" : "Operations dashboard"}</p>
               <h2>{activeView === "overview" ? (["doctor","therapist"].includes(session.user?.role) ? "My clinical activity" : "Whole-centre operating view") : activeConfig.label}</h2>
