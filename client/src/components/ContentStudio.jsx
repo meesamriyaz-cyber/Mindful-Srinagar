@@ -87,7 +87,7 @@ export function ContentStudio({ token }) {
   const [savingAnnouncement, setSavingAnnouncement] = useState(false);
 
   const base = tab === "publications" ? "/publications" : "/galleries";
-  const load = useCallback(async (nextPage = page) => {
+  const load = useCallback(async (nextPage = 1) => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page: String(nextPage), limit: "12", status });
@@ -96,7 +96,7 @@ export function ContentStudio({ token }) {
       setItems(result.items || []); setTotal(result.total || 0); setPages(result.pages || 1); setPage(result.page || nextPage);
     } catch (err) { showToast(err.message || "The request could not be completed.", "error"); }
     finally { setLoading(false); }
-  }, [base, token, page, query, status]);
+  }, [base, token, query, status]);
 
   useEffect(() => { if (tab !== "care-services" && tab !== "announcements") load(1); }, [tab, status, query, load]);
   useEffect(() => {
