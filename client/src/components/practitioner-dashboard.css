@@ -119,3 +119,10 @@
 @media (prefers-reduced-motion: reduce) {
   .practitioner-dashboard *, .practitioner-dashboard *::before, .practitioner-dashboard *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* Batch 3B-2A: prioritize the practitioner's daily clinical schedule */
+.practitioner-today-primary { grid-template-columns: minmax(0, 1.35fr) minmax(260px, .85fr); }
+.practitioner-today-primary > .practitioner-section-card:first-child { border-color: #cfe3e0; box-shadow: 0 9px 28px rgba(36,127,131,.075); }
+.practitioner-today-primary > .practitioner-section-card:first-child .practitioner-section-header { background: linear-gradient(90deg, #f2faf8, #fff); }
+.practitioner-today-primary > .practitioner-section-card:first-child .practitioner-section-icon { color: #176e70; background: #dff1ed; }
+@media (max-width: 760px) { .practitioner-today-primary { grid-template-columns: minmax(0,1fr); } }
