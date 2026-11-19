@@ -4001,3 +4001,34 @@ html {
     padding-top: 92px;
   }
 }
+
+
+/* Staff mobile navigation trigger belongs in the global navbar. */
+.staff-mobile-nav-trigger { display: none; }
+@media (max-width: 820px) {
+  .premium-staff-header .header-actions {
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+  .premium-staff-header .staff-mobile-nav-trigger {
+    display: inline-flex;
+    flex: 0 0 42px;
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    color: var(--teal-dark);
+    background: #fff;
+  }
+  .premium-staff-header .secondary-button { min-height: 38px; padding-inline: 10px; font-size: .78rem; }
+}
+@media (max-width: 480px) {
+  .premium-staff-header { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 10px 12px; }
+  .premium-staff-header .brand { min-width: 0; }
+  .premium-staff-header .brand small { max-width: 210px; }
+  .premium-staff-header .header-actions { gap: 6px; }
+  .premium-staff-header .secondary-button { display: none; }
+}
