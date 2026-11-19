@@ -1174,7 +1174,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
   const Icon = config.icon;
 
   if (activeView === "reports") {
-    return <ReportsView data={data} />;
+    return userRole === "director" ? <ReportsView data={data} /> : <p className="form-status error-status" role="alert">You do not have permission to view executive reports.</p>;
   }
 
   const records = state.records || [];
