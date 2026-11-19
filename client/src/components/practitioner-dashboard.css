@@ -144,3 +144,17 @@
 .practitioner-attention-card.is-risk > b { color:#a34e3d; }
 @media(max-width:1050px) { .practitioner-attention-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 @media(max-width:540px) { .practitioner-attention-grid { grid-template-columns:minmax(0,1fr); } .practitioner-attention-card { padding:12px; } }
+
+/* Batch 3B-2C — responsive appointment quick actions */
+.practitioner-appointment-actions { display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+.practitioner-appointment-actions button { white-space:nowrap; }
+@media (max-width:540px) {
+  .practitioner-list-row { display:grid; grid-template-columns:62px minmax(0,1fr); align-items:start; gap:8px 10px; }
+  .practitioner-time-block { grid-column:1; grid-row:1 / span 3; flex-basis:auto; min-width:0; }
+  .practitioner-row-main { grid-column:2; grid-row:1; min-width:0; }
+  .practitioner-list-row > [data-slot="badge"] { grid-column:2; grid-row:2; justify-self:start; max-width:100%; white-space:nowrap; }
+  .practitioner-appointment-actions { grid-column:1 / -1; grid-row:4; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; width:100%; }
+  .practitioner-appointment-actions button { width:100%; min-width:0; justify-content:center; padding-inline:8px; }
+  .practitioner-appointment-actions button svg { flex:0 0 auto; }
+  .practitioner-row-main > strong, .practitioner-row-main > span { overflow-wrap:normal; word-break:normal; }
+}
