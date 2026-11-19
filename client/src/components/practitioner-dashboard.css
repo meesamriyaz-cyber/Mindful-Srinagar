@@ -126,3 +126,21 @@
 .practitioner-today-primary > .practitioner-section-card:first-child .practitioner-section-header { background: linear-gradient(90deg, #f2faf8, #fff); }
 .practitioner-today-primary > .practitioner-section-card:first-child .practitioner-section-icon { color: #176e70; background: #dff1ed; }
 @media (max-width: 760px) { .practitioner-today-primary { grid-template-columns: minmax(0,1fr); } }
+
+/* Batch 3B-2B — clinical attention prioritization */
+.practitioner-attention-section { display:grid; gap:12px; }
+.practitioner-attention-heading h3 { margin:4px 0; color:#173f59; font-size:1.05rem; font-weight:800; }
+.practitioner-attention-heading p { margin:0; color:#7b8d97; font-size:.75rem; }
+.practitioner-attention-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+.practitioner-attention-card { display:flex; align-items:center; gap:10px; min-width:0; padding:14px; text-align:left; border:1px solid #e1eaed; border-radius:14px; background:#fff; color:#294b5e; cursor:pointer; transition: border-color .16s, box-shadow .16s, transform .16s; }
+.practitioner-attention-card:hover { border-color:#b8d8d5; box-shadow:0 6px 18px rgba(36,127,131,.07); transform:translateY(-1px); }
+.practitioner-attention-card:focus-visible { outline:3px solid #75b9b4; outline-offset:2px; }
+.practitioner-attention-card.is-risk { border-color:#f0d1c8; background:#fffaf8; }
+.practitioner-attention-icon { display:grid; place-items:center; width:34px; height:34px; flex:0 0 auto; border-radius:10px; color:#247f83; background:#e7f3f1; }
+.practitioner-attention-copy { display:grid; flex:1; min-width:0; gap:3px; }
+.practitioner-attention-copy strong { font-size:.75rem; line-height:1.35; }
+.practitioner-attention-copy small { color:#82939c; font-size:.64rem; line-height:1.4; }
+.practitioner-attention-card > b { color:#173f59; font-size:1.25rem; font-variant-numeric:tabular-nums; }
+.practitioner-attention-card.is-risk > b { color:#a34e3d; }
+@media(max-width:1050px) { .practitioner-attention-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:540px) { .practitioner-attention-grid { grid-template-columns:minmax(0,1fr); } .practitioner-attention-card { padding:12px; } }
