@@ -3164,3 +3164,21 @@ body:has(.premium-staff-header) {
     border: 1px solid #dfe9e2; border-radius: 12px; color: #285c4b; background: #f7faf7;
   }
 }
+
+/* Shared collapsed sidebar behavior for non-director staff dashboards */
+.dashboard-section .premium-staff-navigation.premium-sidebar-collapsed { grid-template-columns: 88px minmax(0,1fr); }
+.dashboard-section .premium-staff-navigation.premium-sidebar-collapsed > .sidebar { padding-inline: 10px; }
+.dashboard-section .premium-staff-navigation.premium-sidebar-collapsed .sidebar-context,
+.dashboard-section .premium-staff-navigation.premium-sidebar-collapsed .sidebar-section-title,
+.dashboard-section .premium-staff-navigation.premium-sidebar-collapsed .side-link span,
+.dashboard-section .premium-staff-navigation.premium-sidebar-collapsed .sidebar-footer span:last-child,
+.dashboard-section .premium-staff-navigation.premium-sidebar-collapsed .brand > span:last-child { display: none; }
+.dashboard-section .premium-staff-navigation.premium-sidebar-collapsed .sidebar-brand { justify-items: center; padding-bottom: 14px; }
+.dashboard-section .premium-staff-navigation.premium-sidebar-collapsed .sidebar-brand > .brand { padding: 0; }
+.dashboard-section .premium-staff-navigation.premium-sidebar-collapsed .premium-sidebar-collapse { position: static; margin: 0 auto; }
+.dashboard-section .premium-staff-navigation.premium-sidebar-collapsed .side-link { display: grid; grid-template-columns: 1fr; justify-items: center; min-height: 44px; padding: 0; }
+.dashboard-section .premium-staff-navigation.premium-sidebar-collapsed .side-link svg { width: 19px; height: 19px; }
+.dashboard-section .premium-staff-navigation.premium-sidebar-collapsed .sidebar-footer { display: flex; justify-content: center; padding-inline: 0; }
+@media (max-width: 820px) {
+  .dashboard-section .premium-staff-navigation.premium-sidebar-collapsed { grid-template-columns: minmax(0,1fr); }
+}
