@@ -4,6 +4,8 @@ import { InventoryItem } from "../models/InventoryItem.js";
 import { Patient } from "../models/Patient.js";
 import { Referral } from "../models/Referral.js";
 import { Task } from "../models/Task.js";
+import { getCentreDayBounds } from "../security/centreTime.js";
+import { sumPaymentAggregation } from "./dashboardMetrics.js";
 
 const openReferralStatuses = ["new", "contacted", "scheduled"];
 
@@ -52,11 +54,7 @@ function buildBusinessInsights({ outstanding, lowStockCount, overdueTasksCount, 
 
 export async function getDashboard(req, res, next) {
   try {
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date(todayStart);
-    todayEnd.setDate(todayEnd.getDate() + 1);
-    const monthStart = new Date(todayStart.getFullYear(), todayStart.getMonth(), 1);
+    const { start: todayStart, end: todayEnd, monthStart } = getCentreDayBounds();
 
     const [
       patients,
@@ -66,10 +64,11 @@ export async function getDashboard(req, res, next) {
       convertedReferrals,
       referralRecords,
       todaysAppointments,
+      appointmentsTodayCount,
       completedAppointmentsThisMonth,
       lowStock,
       openTasks,
-      invoicesThisMonth,
+      paymentsReceivedThisMonth,
       unpaidInvoices,
       patientStatusMix,
       serviceDemand,
@@ -90,10 +89,15 @@ export async function getDashboard(req, res, next) {
         .populate("practitioner", "name discipline")
         .sort({ startsAt: 1 })
         .limit(12),
+      Appointment.countDocuments({ startsAt: { $gte: todayStart, $lt: todayEnd } }),
       Appointment.countDocuments({ status: "completed", startsAt: { $gte: monthStart } }),
       InventoryItem.find({ $expr: { $lte: ["$quantity", "$reorderLevel"] } }).limit(10),
       Task.find({ status: { $ne: "done" } }).sort({ dueDate: 1 }).limit(10),
-      Invoice.find({ createdAt: { $gte: monthStart }, status: { $ne: "void" } }).select("items discount paidAmount status"),
+      Invoice.aggregate([
+        { $unwind: "$payments" },
+        { $match: { "payments.receivedAt": { $gte: monthStart } } },
+        { $group: { _id: null, total: { $sum: "$payments.amount" } } }
+      ]),
       Invoice.find({ status: { $in: ["draft", "partial"] } })
         .populate("patient", "fullName mrn")
         .sort({ createdAt: -1 })
@@ -120,7 +124,7 @@ export async function getDashboard(req, res, next) {
       InventoryItem.countDocuments({ $expr: { $lte: ["$quantity", "$reorderLevel"] } })
     ]);
 
-    const revenueThisMonth = invoicesThisMonth.reduce((sum, invoice) => sum + invoice.paidAmount, 0);
+    const revenueThisMonth = sumPaymentAggregation(paymentsReceivedThisMonth);
     const billedThisMonth = sumInvoiceTotal(invoicesThisMonth);
     const outstanding = unpaidInvoices.reduce((sum, invoice) => {
       const total = sumInvoiceTotal([invoice]);
@@ -147,7 +151,7 @@ export async function getDashboard(req, res, next) {
         referrals,
         convertedReferrals,
         monthlyReferrals,
-        appointmentsToday: todaysAppointments.length,
+        appointmentsToday: appointmentsTodayCount,
         checkedInToday: appointmentStatusToday["checked-in"] || 0,
         completedAppointmentsToday: appointmentStatusToday.completed || 0,
         noShowsToday: appointmentStatusToday["no-show"] || 0,
