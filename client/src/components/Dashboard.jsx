@@ -505,7 +505,7 @@ function PriorityWork({ data }) {
     <article className="action-panel management-priority-panel">
       <div className="panel-title">
         <ClipboardCheck size={21} />
-        <h3>Priority work</h3>
+        <h3>Needs attention</h3>
       </div>
       <ul className="priority-list">
         {urgentReferrals.slice(0, 3).map((referral) => (
@@ -517,17 +517,17 @@ function PriorityWork({ data }) {
         {openTasks.slice(0, 4).map((task) => (
           <li key={task._id}>
             <strong>{task.title}</strong>
-            <span>{task.department} - {task.priority}</span>
+            <span>{task.department} · {task.priority} priority</span>
           </li>
         ))}
-        {!urgentReferrals.length && !openTasks.length && <li>No open tasks.</li>}
+        {!urgentReferrals.length && !openTasks.length && <li><strong>No urgent work</strong><span>There are no urgent referrals or open tasks in this summary.</span></li>}
       </ul>
-      <div className="warning">
-        <AlertTriangle size={20} />
-        {lowStock.length
-          ? `${lowStock.length} inventory item(s) need reorder.`
-          : "No low-stock alerts right now."}
-      </div>
+      {lowStock.length > 0 && (
+        <div className="warning">
+          <AlertTriangle size={20} />
+          {lowStock.length} inventory item(s) need reorder.
+        </div>
+      )}
     </article>
   );
 }
@@ -592,6 +592,8 @@ function OverviewWorkspace({ data, isDirector }) {
         />
       </div>
 
+      <PriorityWork data={data} />
+
       {isDirector && <DirectorView data={data} />}
 
       <div className="console-grid management-console-grid">
@@ -602,7 +604,6 @@ function OverviewWorkspace({ data, isDirector }) {
           </div>
           <AppointmentList appointments={data.todaysAppointments || []} />
         </article>
-        <PriorityWork data={data} />
       </div>
 
       <div className="console-grid lower-console-grid management-console-grid">
