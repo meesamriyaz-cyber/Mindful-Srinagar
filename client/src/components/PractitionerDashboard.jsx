@@ -112,6 +112,12 @@ export function PractitionerDashboard({ token, onNavigate }) {
     assignedTasks = []
   } = state.data;
 
+  const now = new Date();
+  const soon = new Date(now);
+  soon.setDate(soon.getDate() + 7);
+  const overdueTasks = assignedTasks.filter((task) => task.dueDate && new Date(task.dueDate) < now);
+  const dueSoonTasks = assignedTasks.filter((task) => task.dueDate && new Date(task.dueDate) >= now && new Date(task.dueDate) <= soon);
+
   return (
     <div className="practitioner-dashboard">
       <Card className="practitioner-welcome-card">
@@ -152,12 +158,6 @@ export function PractitionerDashboard({ token, onNavigate }) {
         </SectionCard>
       </section>
 
-
-      const now = new Date();
-  const soon = new Date(now);
-  soon.setDate(soon.getDate() + 7);
-  const overdueTasks = assignedTasks.filter((task) => task.dueDate && new Date(task.dueDate) < now);
-  const dueSoonTasks = assignedTasks.filter((task) => task.dueDate && new Date(task.dueDate) >= now && new Date(task.dueDate) <= soon);
 
   <section className="practitioner-metrics-grid" aria-label="My clinical activity">
         <Metric label="Patients under my care" value={metrics.patientsUnderCare} icon={UsersRound} description="Linked patient records" />
