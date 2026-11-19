@@ -1682,7 +1682,7 @@ export function Dashboard() {
 
   return (
     <section className="dashboard-section" id="dashboard">
-      <div className={`dashboard-shell dashboard-role-${session.user?.role || "staff"}${isDirector || session.user?.role === "admin" ? " premium-director-navigation" : ""}${sidebarCollapsed && isDirector ? " premium-sidebar-collapsed" : ""}${isPractitioner ? " premium-clinical-navigation" : ""}${mobileNavigationOpen ? " premium-mobile-navigation-open" : ""}`}>
+      <div className={`dashboard-shell dashboard-role-${session.user?.role || "staff"} premium-staff-navigation${isDirector || session.user?.role === "admin" ? " premium-director-navigation" : ""}${sidebarCollapsed && isDirector ? " premium-sidebar-collapsed" : ""}${isPractitioner ? " premium-clinical-navigation" : ""}${mobileNavigationOpen ? " premium-mobile-navigation-open" : ""}`}>
         {mobileNavigationOpen && <button className="premium-sidebar-backdrop" type="button" aria-label="Close navigation" onClick={() => setMobileNavigationOpen(false)} />}
         <aside
           ref={mobileNavigationSidebarRef}
