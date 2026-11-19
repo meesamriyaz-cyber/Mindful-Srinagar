@@ -579,6 +579,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
     padding: 16px 13px 22px;
   }
   .dashboard-section .premium-director-navigation .premium-console-title {
+    align-items: center;
+  }
+  .dashboard-section .premium-director-navigation .premium-sidebar-mobile-trigger {
+    position: relative;
+    z-index: 60;
+  }
+  .dashboard-section .premium-director-navigation .premium-console-title {
     gap: 9px;
   }
   .dashboard-section .premium-director-navigation .premium-sidebar-mobile-trigger {
@@ -1027,6 +1034,13 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media (max-width: 620px) {
   .dashboard-section .premium-clinical-navigation .console {
     padding: 15px 12px 20px;
+  }
+  .dashboard-section .premium-clinical-navigation .premium-console-title {
+    align-items: center;
+  }
+  .dashboard-section .premium-clinical-navigation .premium-sidebar-mobile-trigger {
+    position: relative;
+    z-index: 60;
   }
   .dashboard-section .premium-clinical-navigation .premium-console-title {
     gap: 9px;
