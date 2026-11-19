@@ -4053,3 +4053,13 @@ html {
   .management-journey-footer { flex:0 0 auto; padding:10px 12px; }
   .management-journey-footer > * { max-width:100%; }
 }
+
+/* Mobile Patient Journey: compact section picker */
+.journey-mobile-section-picker { display:none; }
+@media (max-width:640px) {
+  .journey-mobile-section-picker { display:flex; position:sticky; top:0; z-index:5; flex-direction:column; gap:6px; padding:10px 12px; background:var(--surface, #fff); border-bottom:1px solid var(--border, #dbe5e7); }
+  .journey-mobile-section-picker label { font-size:12px; font-weight:700; color:var(--muted-foreground, #64748b); }
+  .journey-mobile-section-picker select { width:100%; min-width:0; height:44px; padding:0 12px; border:1px solid var(--border, #dbe5e7); border-radius:10px; background:var(--surface, #fff); color:inherit; font:inherit; }
+  .journey-steps { display:none !important; }
+  .journey-content { padding-top:12px; }
+}
