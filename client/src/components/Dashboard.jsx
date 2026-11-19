@@ -1812,7 +1812,7 @@ export function Dashboard() {
                 />
               ) : activeView === "overview" ? (
                 ["doctor", "therapist"].includes(session.user?.role)
-                  ? <PractitionerDashboard token={session.token} />
+                  ? <PractitionerDashboard token={session.token} onNavigate={setActiveView} />
                   : <OverviewWorkspace data={data} isDirector={isDirector} />
               ) : ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeView) ? (
                 <ClinicalBoard
