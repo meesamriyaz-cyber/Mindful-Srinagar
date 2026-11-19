@@ -497,6 +497,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
     min-height: 0;
   }
   .dashboard-section .premium-director-navigation > .sidebar {
+    visibility: hidden;
+    transition: transform 240ms cubic-bezier(.2,.75,.25,1), visibility 0s linear 240ms;
     position: fixed;
     top: 0;
     bottom: 0;
@@ -516,6 +518,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
     transition: transform 240ms cubic-bezier(.2,.75,.25,1);
   }
   .dashboard-section .premium-director-navigation.premium-mobile-navigation-open > .sidebar {
+    visibility: visible;
+    transition: transform 240ms cubic-bezier(.2,.75,.25,1), visibility 0s;
     transform: translateX(0);
   }
   .dashboard-section .premium-director-navigation .premium-sidebar-backdrop {
@@ -943,6 +947,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
     overflow: visible;
   }
   .dashboard-section .premium-clinical-navigation > .sidebar {
+    visibility: hidden;
+    transition: transform 240ms cubic-bezier(.2,.75,.25,1), visibility 0s linear 240ms;
     position: fixed;
     top: 0;
     bottom: 0;
@@ -962,6 +968,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
     transition: transform 240ms cubic-bezier(.2,.75,.25,1);
   }
   .dashboard-section .premium-clinical-navigation.premium-mobile-navigation-open > .sidebar {
+    visibility: visible;
+    transition: transform 240ms cubic-bezier(.2,.75,.25,1), visibility 0s;
     transform: translateX(0);
   }
   .dashboard-section .premium-clinical-navigation .premium-sidebar-backdrop {
