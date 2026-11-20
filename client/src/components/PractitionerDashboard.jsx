@@ -8,13 +8,15 @@ import {
   UsersRound,
   RefreshCw,
   AlertCircle,
-  UserRound
+  UserRound,
+  ChevronDown
 } from "lucide-react";
 import { apiRequest } from "../lib/api.js";
 import { Badge } from "./ui/badge.jsx";
 import { Button } from "./ui/button.jsx";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card.jsx";
 import { Skeleton } from "./ui/skeleton.jsx";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu.jsx";
 import "./staff-console.css";
 import "./clinical-workspace.css";
 import "./dashboard-ux.css";
@@ -143,8 +145,15 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
                 <Badge variant={statusVariant(item.status)}>{item.status || "scheduled"}</Badge>
                 <div className="practitioner-appointment-actions">
                   <Button size="sm" variant="outline" onClick={() => onOpenPatient?.(item.patient || item.patient?._id)} disabled={!item.patient?._id && !item.patient}><UserRound size={14} /> Patient</Button>
-                  <Button size="sm" onClick={() => onOpenPatient?.(item.patient || item.patient?._id, "progress-notes", item._id)} disabled={!item.patient?._id && !item.patient}><FileText size={14} /> New Note</Button>
-                  <Button size="sm" onClick={() => onOpenPatient?.(item.patient || item.patient?._id, "assessments", item._id)} disabled={!item.patient?._id && !item.patient}><ClipboardCheck size={14} /> New Assessment</Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="outline" disabled={!item.patient?._id && !item.patient}>Clinical actions <ChevronDown size={14} /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => onOpenPatient?.(item.patient || item.patient?._id, "progress-notes", item._id)}><FileText size={15} /> New Progress Note</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => onOpenPatient?.(item.patient || item.patient?._id, "assessments", item._id)}><ClipboardCheck size={15} /> New Assessment</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </article>
             ))}
@@ -160,8 +169,15 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
                 <Badge variant={statusVariant(item.status)}>{item.status || "scheduled"}</Badge>
                 <div className="practitioner-appointment-actions">
                   <Button size="sm" variant="outline" onClick={() => onOpenPatient?.(item.patient?._id || item.patient)} disabled={!item.patient?._id && !item.patient}><UserRound size={14} /> Patient</Button>
-                  <Button size="sm" onClick={() => onOpenPatient?.(item.patient?._id || item.patient, "progress-notes")} disabled={!item.patient?._id && !item.patient}><FileText size={14} /> New Note</Button>
-                  <Button size="sm" onClick={() => onOpenPatient?.(item.patient?._id || item.patient, "assessments")} disabled={!item.patient?._id && !item.patient}><ClipboardCheck size={14} /> New Assessment</Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="outline" disabled={!item.patient?._id && !item.patient}>Clinical actions <ChevronDown size={14} /></Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onSelect={() => onOpenPatient?.(item.patient?._id || item.patient, "progress-notes", item._id)}><FileText size={15} /> New Progress Note</DropdownMenuItem>
+                      <DropdownMenuItem onSelect={() => onOpenPatient?.(item.patient?._id || item.patient, "assessments", item._id)}><ClipboardCheck size={15} /> New Assessment</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </article>
             ))}
