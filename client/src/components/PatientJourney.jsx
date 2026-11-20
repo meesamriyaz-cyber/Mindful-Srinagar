@@ -517,29 +517,33 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                       required
                     />
                   ) : field.type === "appointment" ? (
-                    <select
-                      value={createForm[field.name] || ""}
-                      onChange={(e) => setCreateForm({ ...createForm, [field.name]: e.target.value })}
-                      required={createForm.noteType === "session" || !createForm.noteType}
-                    >
-                      <option value="">Select checked-in appointment...</option>
-                      {data.appointments.filter((item) => ["checked-in", "completed"].includes(item.status)).map((item) => (
-                        <option key={item._id} value={item._id}>{item.service} · {formatDateTime(item.startsAt)}</option>
-                      ))}
-                    </select>
-                    {pageInfo.appointments?.hasMore && <button className="secondary-button compact-button" type="button" disabled={loadingMore} onClick={() => loadMoreResource("appointments")}>{loadingMore ? "Loading appointments..." : "Load older eligible appointments"}</button>}
+                    <>
+                      <select
+                        value={createForm[field.name] || ""}
+                        onChange={(e) => setCreateForm({ ...createForm, [field.name]: e.target.value })}
+                        required={createForm.noteType === "session" || !createForm.noteType}
+                      >
+                        <option value="">Select checked-in appointment...</option>
+                        {data.appointments.filter((item) => ["checked-in", "completed"].includes(item.status)).map((item) => (
+                          <option key={item._id} value={item._id}>{item.service} · {formatDateTime(item.startsAt)}</option>
+                        ))}
+                      </select>
+                      {pageInfo.appointments?.hasMore && <button className="secondary-button compact-button" type="button" disabled={loadingMore} onClick={() => loadMoreResource("appointments")}>{loadingMore ? "Loading appointments..." : "Load older eligible appointments"}</button>}
+                    </>}
                   ) : field.type === "assessment" ? (
-                    <select
-                      value={createForm[field.name] || ""}
-                      onChange={(e) => setCreateForm({ ...createForm, [field.name]: e.target.value })}
-                      required
-                    >
-                      <option value="">Select completed assessment...</option>
-                      {data.assessments.filter((item) => item.status === "completed").map((item) => (
-                        <option key={item._id} value={item._id}>{(item.domains || []).join(", ") || "Assessment"} · {formatDate(item.assessedAt)}</option>
-                      ))}
-                    </select>
-                    {pageInfo.assessments?.hasMore && <button className="secondary-button compact-button" type="button" disabled={loadingMore} onClick={() => loadMoreResource("assessments")}>{loadingMore ? "Loading assessments..." : "Load older completed assessments"}</button>}
+                    <>
+                      <select
+                        value={createForm[field.name] || ""}
+                        onChange={(e) => setCreateForm({ ...createForm, [field.name]: e.target.value })}
+                        required
+                      >
+                        <option value="">Select completed assessment...</option>
+                        {data.assessments.filter((item) => item.status === "completed").map((item) => (
+                          <option key={item._id} value={item._id}>{(item.domains || []).join(", ") || "Assessment"} · {formatDate(item.assessedAt)}</option>
+                        ))}
+                      </select>
+                      {pageInfo.assessments?.hasMore && <button className="secondary-button compact-button" type="button" disabled={loadingMore} onClick={() => loadMoreResource("assessments")}>{loadingMore ? "Loading assessments..." : "Load older completed assessments"}</button>}
+                    </>}
                   ) : field.type === "select" ? (
                     <select
                       value={createForm[field.name] || ""}
