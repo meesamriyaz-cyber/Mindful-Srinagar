@@ -960,3 +960,147 @@
     gap: var(--workspace-panel-gap);
   }
 }
+
+
+
+/* Batch 4.3.3 — consolidated data presentation consistency.
+   Presentation-only: existing data, sorting, filtering and workflow behavior remain unchanged. */
+
+/* Tabular data: readable hierarchy, aligned values and predictable overflow. */
+.dashboard-section [data-slot="table-container"],
+.dashboard-section .table-container,
+.dashboard-section .data-table-container {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--workspace-panel-border, #e2eaed);
+  border-radius: 12px;
+}
+.dashboard-section [data-slot="table"] {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-section [data-slot="table"] thead th {
+  color: #617987;
+  background: #f7fafb;
+  font-size: .72rem;
+  font-weight: 750;
+  line-height: 1.4;
+  letter-spacing: .025em;
+  white-space: nowrap;
+}
+.dashboard-section [data-slot="table"] tbody td {
+  color: #3d5b6c;
+  font-size: .78rem;
+  line-height: 1.5;
+  vertical-align: middle;
+}
+.dashboard-section [data-slot="table"] tbody tr {
+  transition: background-color .14s ease;
+}
+.dashboard-section [data-slot="table"] tbody tr:hover {
+  background: #f8fbfc;
+}
+.dashboard-section [data-slot="table"] tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Record and compact lists: consistent separation without excess density. */
+.dashboard-section :is(.compact-record-list, .appointment-list, .management-appointment-list, .priority-list, .risk-stack, .staff-console-list, .practitioner-list, .director-demand-list, .director-referral-list, .director-patient-status-list) {
+  min-width: 0;
+}
+.dashboard-section :is(.compact-record, .appointment-row, .staff-console-record, .staff-console-appointment, .practitioner-list-row, .management-record-card, .clinical-record-card, .practitioner-record-card) {
+  min-width: 0;
+}
+.dashboard-section :is(.compact-record, .appointment-row, .staff-console-record, .staff-console-appointment, .practitioner-list-row) {
+  border-color: #edf1f3;
+}
+.dashboard-section :is(.compact-record, .appointment-row, .staff-console-record, .staff-console-appointment, .practitioner-list-row) :is(strong, span, p, small) {
+  overflow-wrap: anywhere;
+}
+.dashboard-section :is(.compact-record, .appointment-row, .staff-console-record, .staff-console-appointment, .practitioner-list-row) :is(time, [data-slot="badge"], mark) {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Metadata and numeric values are easier to scan when secondary and aligned. */
+.dashboard-section :is(.management-record-meta, .clinical-record-meta, .management-record-detail, .clinical-record-detail, .practitioner-contact, .practitioner-link-state, .availability-caption) {
+  color: #718491;
+  font-size: .74rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.dashboard-section :is(.management-record-main, .record-main, .management-record-meta, .clinical-record-meta) {
+  min-width: 0;
+}
+.dashboard-section :is(.management-record-main, .record-main) > strong {
+  color: #294b5e;
+  line-height: 1.4;
+}
+.dashboard-section :is(.stat-card, .director-finance-metric, .director-demand-label, .director-referral-row, .admin-report-kpi, .admin-report-finance-values, .admin-report-risk-row, .admin-report-bar-row, .practitioner-metric-copy, .practitioner-attention-card) {
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-section :is(.director-finance-metric, .admin-report-kpi, .admin-report-finance-values, .admin-report-risk-row, .admin-report-bar-row) :is(strong, b) {
+  overflow-wrap: anywhere;
+}
+
+/* Status labels: consistent compact shape while retaining existing semantic colors. */
+.dashboard-section :is([data-slot="badge"], .status-badge, .status-pill, .sync-pill, .availability-chip, .task-priority, .task-completed-indicator) {
+  max-width: 100%;
+  line-height: 1.35;
+  font-weight: 700;
+}
+.dashboard-section :is([data-slot="badge"], .status-badge, .status-pill, .availability-chip) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.dashboard-section .sync-pill {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Empty/loading/error states share a calm, legible rhythm. */
+.dashboard-section :is(.empty-state, .director-empty-state, .admin-report-empty, .practitioner-empty-state, .practitioner-error-card, .task-board-empty-state, .staff-directory-state) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dashboard-section :is(.empty-state, .director-empty-state, .admin-report-empty, .practitioner-empty-state, .task-board-empty-state, .staff-directory-state) :is(p, span, small) {
+  line-height: 1.55;
+}
+.dashboard-section :is(.form-status, .error-status, .success-status, .warning) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
+}
+
+/* Responsive data density and long-content safety. */
+@media (max-width: 820px) {
+  .dashboard-section :is(.compact-record, .appointment-row, .staff-console-record, .staff-console-appointment, .practitioner-list-row) {
+    gap: 10px;
+  }
+  .dashboard-section [data-slot="table"] tbody td {
+    padding-block: 10px;
+  }
+}
+@media (max-width: 620px) {
+  .dashboard-section :is(.compact-record, .appointment-row, .staff-console-record, .staff-console-appointment, .practitioner-list-row) {
+    align-items: flex-start;
+  }
+  .dashboard-section :is(.management-record-meta, .clinical-record-meta, .management-record-detail, .clinical-record-detail) {
+    font-size: .72rem;
+  }
+  .dashboard-section :is(.task-priority, .task-completed-indicator, [data-slot="badge"], .status-badge, .status-pill) {
+    font-size: .68rem;
+  }
+  .dashboard-section [data-slot="table"] {
+    min-width: 560px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-section [data-slot="table"] tbody tr,
+  .dashboard-section :is(.compact-record, .appointment-row, .staff-console-record, .staff-console-appointment, .practitioner-list-row) {
+    transition: none;
+  }
+}
