@@ -144,6 +144,7 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
                 <div className="practitioner-appointment-actions">
                   <Button size="sm" variant="outline" onClick={() => onOpenPatient?.(item.patient?._id || item.patient)} disabled={!item.patient?._id && !item.patient}><UserRound size={14} /> Patient</Button>
                   <Button size="sm" onClick={() => onOpenPatient?.(item.patient?._id || item.patient, "progress-notes")} disabled={!item.patient?._id && !item.patient}><FileText size={14} /> New Note</Button>
+                  <Button size="sm" onClick={() => onOpenPatient?.(item.patient?._id || item.patient, "assessments")} disabled={!item.patient?._id && !item.patient}><ClipboardCheck size={14} /> New Assessment</Button>
                 </div>
               </article>
             ))}
@@ -160,6 +161,7 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
                 <div className="practitioner-appointment-actions">
                   <Button size="sm" variant="outline" onClick={() => onOpenPatient?.(item.patient?._id || item.patient)} disabled={!item.patient?._id && !item.patient}><UserRound size={14} /> Patient</Button>
                   <Button size="sm" onClick={() => onOpenPatient?.(item.patient?._id || item.patient, "progress-notes")} disabled={!item.patient?._id && !item.patient}><FileText size={14} /> New Note</Button>
+                  <Button size="sm" onClick={() => onOpenPatient?.(item.patient?._id || item.patient, "assessments")} disabled={!item.patient?._id && !item.patient}><ClipboardCheck size={14} /> New Assessment</Button>
                 </div>
               </article>
             ))}
