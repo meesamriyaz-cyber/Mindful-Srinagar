@@ -470,7 +470,8 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
         <div className="journey-content management-journey-content">
           {createStep ? (
             <form onSubmit={handleCreateSubmit} className="journey-create-form management-journey-create-form">
-              <h4>New {STEP_LABELS[createStep]}</h4>\n              <div className="clinical-create-patient-context" style={{ marginBottom: 16, padding: "12px 14px", borderRadius: 10, background: "var(--surface-soft, #f2f7f6)", border: "1px solid var(--border, #dce8e5)" }}><strong>Patient:</strong> {patient?.fullName || "Patient details loading"} {patient?.mrn ? <span>· MRN: {patient.mrn}</span> : null}</div>
+              <h4>New {STEP_LABELS[createStep]}</h4>
+              <div className="clinical-create-patient-context" style={{ marginBottom: 16, padding: "12px 14px", borderRadius: 10, background: "var(--surface-soft, #f2f7f6)", border: "1px solid var(--border, #dce8e5)" }}><strong>Patient:</strong> {patient?.fullName || "Patient details loading"} {patient?.mrn ? <span>· MRN: {patient.mrn}</span> : null}</div>
               {createError && <p className="form-status error-status" role="alert" aria-live="assertive">{createError}</p>}
               {(CREATE_FIELDS[createStep] || []).map((field) => (
                 <label key={field.name}>
