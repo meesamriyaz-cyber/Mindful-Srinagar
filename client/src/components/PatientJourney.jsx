@@ -587,13 +587,13 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
               {pageInfo[activeStep]?.total > 0 && <p className="history-count">Showing {activeRecords.length} of {pageInfo[activeStep].total} records</p>}
               {timelineError && <p className="form-status error-status" role="alert" aria-live="assertive">{timelineError}</p>}
               {(activeStep === "referral" ? [data.referral] : activeRecords).map((record, idx) => (
-                <div key={record?._id || idx} className="journey-card">
-                  <div className="journey-card-header">
+                <div key={record?._id || idx} className="journey-card journey-clinical-record-card">
+                  <div className="journey-card-header journey-clinical-record-header">
                     <strong>{STEP_LABELS[activeStep]} Record</strong>
-                    <span>{formatDateTime(record?.createdAt)}</span>
-                    {record?.status && <mark className={["completed", "active", "paid", "converted", "ready"].includes(record.status) ? "good" : ""}>{record.status}</mark>}
+                    <span className="journey-record-date">{formatDateTime(record?.createdAt)}</span>
+                    {record?.status && <mark className={`journey-record-status ${["completed", "active", "paid", "converted", "ready"].includes(record.status) ? "good" : ""}`}>{record.status}</mark>}
                   </div>
-                  <div className="journey-card-body management-journey-card-body">
+                  <div className="journey-card-body management-journey-card-body journey-clinical-record-content">
                     {describeRecord(record)}
                     {planApprovalError && activeStep === "treatment-plans" && <p className="form-status error-status" role="alert" aria-live="assertive">{planApprovalError}</p>}
                     {activeStep === "treatment-plans" && record.status === "planned" && canApprovePlans && (
