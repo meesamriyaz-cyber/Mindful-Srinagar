@@ -1436,3 +1436,155 @@
     width: 100%;
   }
 }
+
+
+/* Batch 4.8 — Overview and resource workspace refinement.
+   Presentation-only; data, permissions, navigation and operational actions are unchanged. */
+.dashboard-section .management-stats-grid {
+  align-items: stretch;
+  gap: 14px;
+}
+.dashboard-section .management-stats-grid > .stat-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+.dashboard-section .management-stats-grid .stat-card > :is(strong, h3, h4) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-section .management-priority-panel .priority-list,
+.dashboard-section .management-priority-panel .priority-list li {
+  min-width: 0;
+}
+.dashboard-section .management-priority-panel .priority-list li {
+  gap: 6px;
+  padding-block: 11px;
+}
+.dashboard-section .management-priority-panel .priority-list li > :is(strong, span) {
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+.dashboard-section .management-appointment-list {
+  display: grid;
+  gap: 2px;
+}
+.dashboard-section .management-appointment-list .appointment-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 11px 0;
+}
+.dashboard-section .management-appointment-list .appointment-row > time {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-section .management-appointment-list .appointment-row > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.dashboard-section .management-appointment-list .appointment-row > div > :is(strong, span) {
+  overflow-wrap: anywhere;
+  line-height: 1.4;
+}
+.dashboard-section .risk-stack {
+  display: grid;
+  gap: 9px;
+}
+.dashboard-section .risk-stack > span {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 9px 11px;
+  border: 1px solid #edf1f3;
+  border-radius: 10px;
+  background: #fbfcfd;
+  overflow-wrap: anywhere;
+}
+.dashboard-section .risk-stack > span > strong {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-section .management-record-grid {
+  align-items: stretch;
+}
+.dashboard-section .management-record-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.dashboard-section .management-record-main {
+  align-items: flex-start;
+  gap: 10px;
+}
+.dashboard-section .management-record-main > div {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: grid;
+  gap: 5px;
+}
+.dashboard-section .management-record-main > div > :is(strong, span) {
+  overflow-wrap: anywhere;
+  line-height: 1.45;
+}
+.dashboard-section .management-record-main > mark {
+  flex: 0 0 auto;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.dashboard-section .management-record-meta,
+.dashboard-section .management-record-detail {
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.dashboard-section .management-record-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  min-width: 0;
+}
+.dashboard-section .management-record-actions > * {
+  min-width: 0;
+  max-width: 100%;
+}
+@media (max-width: 900px) {
+  .dashboard-section .management-stats-grid { gap: 11px; }
+  .dashboard-section .management-record-grid { gap: 12px; }
+}
+@media (max-width: 620px) {
+  .dashboard-section .management-stats-grid { gap: 9px; }
+  .dashboard-section .management-stats-grid > .stat-card { padding: 13px; }
+  .dashboard-section .management-appointment-list .appointment-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 6px 10px;
+    padding: 12px 0;
+  }
+  .dashboard-section .management-appointment-list .appointment-row > time {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .dashboard-section .management-appointment-list .appointment-row > div {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .dashboard-section .management-appointment-list .appointment-row > mark {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    justify-self: end;
+  }
+  .dashboard-section .risk-stack > span { padding: 8px 10px; }
+  .dashboard-section .management-record-card { gap: 10px; }
+  .dashboard-section .management-record-actions { gap: 7px; }
+}
