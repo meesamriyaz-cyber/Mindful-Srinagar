@@ -142,9 +142,9 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
                 <div className="practitioner-row-main"><strong>{item.patient?.fullName || "Patient"}</strong><span>{item.service || "Service not specified"}</span></div>
                 <Badge variant={statusVariant(item.status)}>{item.status || "scheduled"}</Badge>
                 <div className="practitioner-appointment-actions">
-                  <Button size="sm" variant="outline" onClick={() => onOpenPatient?.(item.patient?._id || item.patient)} disabled={!item.patient?._id && !item.patient}><UserRound size={14} /> Patient</Button>
-                  <Button size="sm" onClick={() => onOpenPatient?.(item.patient?._id || item.patient, "progress-notes")} disabled={!item.patient?._id && !item.patient}><FileText size={14} /> New Note</Button>
-                  <Button size="sm" onClick={() => onOpenPatient?.(item.patient?._id || item.patient, "assessments")} disabled={!item.patient?._id && !item.patient}><ClipboardCheck size={14} /> New Assessment</Button>
+                  <Button size="sm" variant="outline" onClick={() => onOpenPatient?.(item.patient || item.patient?._id)} disabled={!item.patient?._id && !item.patient}><UserRound size={14} /> Patient</Button>
+                  <Button size="sm" onClick={() => onOpenPatient?.(item.patient || item.patient?._id, "progress-notes")} disabled={!item.patient?._id && !item.patient}><FileText size={14} /> New Note</Button>
+                  <Button size="sm" onClick={() => onOpenPatient?.(item.patient || item.patient?._id, "assessments")} disabled={!item.patient?._id && !item.patient}><ClipboardCheck size={14} /> New Assessment</Button>
                 </div>
               </article>
             ))}
