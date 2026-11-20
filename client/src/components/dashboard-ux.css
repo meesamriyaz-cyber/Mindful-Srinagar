@@ -1104,3 +1104,182 @@
     transition: none;
   }
 }
+
+/* Batch 4.4 — dashboard forms and dialogs consistency. Presentation-only. */
+.dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) {
+  min-width: 0;
+  display: grid;
+  gap: 16px;
+}
+.dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) :is(.form-row, .form-grid, .field-grid, .content-form-grid) {
+  min-width: 0;
+  gap: 14px;
+}
+.dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) label {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: #38586a;
+  font-size: .78rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  border: 1px solid #dce6e9;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  color: #24485d;
+  font: inherit;
+  font-size: .84rem;
+  line-height: 1.45;
+  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) textarea {
+  min-height: 108px;
+  resize: vertical;
+}
+.dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) :is(input, select, textarea):focus {
+  outline: none;
+  border-color: #63a6a3;
+  box-shadow: 0 0 0 3px rgba(36, 127, 131, .12);
+}
+.dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) :is(input, select, textarea)::placeholder {
+  color: #91a1aa;
+}
+.dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) :is(input, select, textarea):disabled {
+  background: #f3f6f7;
+  color: #718491;
+  cursor: not-allowed;
+}
+.dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) :is(small, .field-help, .helper-text, .form-hint) {
+  color: #718491;
+  font-size: .72rem;
+  font-weight: 450;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) fieldset {
+  min-width: 0;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #e2ebed;
+  border-radius: 12px;
+}
+.dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) legend {
+  padding: 0 6px;
+  color: #31586b;
+  font-size: .78rem;
+  font-weight: 800;
+}
+.dashboard-section :is(.form-status, .error-status, .success-status, .warning, [role="alert"]) {
+  max-width: 100%;
+  margin-block: 4px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.dashboard-section :is(.modal-overlay, .dialog-overlay, .content-confirm-overlay) {
+  box-sizing: border-box;
+  padding: clamp(8px, 2vw, 22px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.dashboard-section :is(.modal, .dialog, .clinical-editor-modal, .clinical-billing-modal, .media-editor-modal, .content-confirm-dialog) {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: min(100%, 820px);
+  max-height: min(90dvh, 900px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border-radius: 16px;
+}
+.dashboard-section :is(.modal-header, .dialog-header, .modal-title-row) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+.dashboard-section :is(.modal-header, .dialog-header, .modal-title-row) :is(h2, h3, h4, p) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dashboard-section :is(.modal-actions, .dialog-actions, .form-actions, .modal-footer) {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+.dashboard-section :is(.modal-actions, .dialog-actions, .form-actions, .modal-footer) button {
+  min-height: 40px;
+}
+.dashboard-section :is(.modal-overlay, .dialog-overlay) button[aria-label*="close" i],
+.dashboard-section :is(.modal-overlay, .dialog-overlay) button[aria-label*="dismiss" i] {
+  flex: 0 0 auto;
+  min-width: 36px;
+  min-height: 36px;
+}
+.dashboard-section :is(.prescription-medications-builder, .prescription-medication-card) {
+  min-width: 0;
+  gap: 12px;
+}
+.dashboard-section .prescription-medication-card {
+  padding: 14px;
+  border: 1px solid #e2ebed;
+  border-radius: 12px;
+  background: #f8fbfc;
+}
+.dashboard-section .prescription-medication-heading {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.dashboard-section .prescription-medication-card :is(input, select, textarea) {
+  min-width: 0;
+  max-width: 100%;
+}
+.dashboard-section :is(form, .clinical-form) button[type="submit"] {
+  min-height: 42px;
+}
+@media (max-width: 620px) {
+  .dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) {
+    gap: 13px;
+  }
+  .dashboard-section :is(.modal-overlay, .dialog-overlay, .content-confirm-overlay) {
+    align-items: flex-end;
+    padding: 8px;
+  }
+  .dashboard-section :is(.modal, .dialog, .clinical-editor-modal, .clinical-billing-modal, .media-editor-modal, .content-confirm-dialog) {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - 16px);
+    border-radius: 16px;
+  }
+  .dashboard-section :is(.modal-actions, .dialog-actions, .form-actions, .modal-footer) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  .dashboard-section :is(.modal-actions, .dialog-actions, .form-actions, .modal-footer) button {
+    width: 100%;
+    min-width: 0;
+  }
+  .dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) :is(.form-row, .form-grid, .field-grid, .content-form-grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-section :is(form, .clinical-form, .task-form, .appointment-form, .enquiry-form, .follow-up-form) *,
+  .dashboard-section :is(.modal, .dialog, .clinical-editor-modal, .clinical-billing-modal, .media-editor-modal, .content-confirm-dialog) * {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}
