@@ -529,7 +529,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                         ))}
                       </select>
                       {pageInfo.appointments?.hasMore && <button className="secondary-button compact-button" type="button" disabled={loadingMore} onClick={() => loadMoreResource("appointments")}>{loadingMore ? "Loading appointments..." : "Load older eligible appointments"}</button>}
-                    </>}
+                    </>)}
                   ) : field.type === "assessment" ? (
                     <>
                       <select
