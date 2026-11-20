@@ -425,3 +425,15 @@
   .dashboard-section .management-record-card-tasks .management-record-detail { font-size: .76rem; }
   .dashboard-section .task-create-form { padding: 13px; }
 }
+
+
+/* Batch 3B-3B — task board grouping */
+.dashboard-section .task-board-group-heading { grid-column: 1 / -1; display: flex; align-items: center; margin: 6px 0 0; padding: 10px 2px 8px; border-bottom: 1px solid #e6eef1; }
+.dashboard-section .task-board-group-heading > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; width: 100%; }
+.dashboard-section .task-board-group-heading strong { color: #24495e; font-size: .88rem; font-weight: 800; }
+.dashboard-section .task-board-group-heading span { color: #8294a0; font-size: .72rem; font-weight: 650; white-space: nowrap; }
+.dashboard-section .management-record-grid-tasks .management-record-card-tasks { min-width: 0; }
+@media (max-width: 680px) {
+  .dashboard-section .task-board-group-heading { padding: 8px 1px 6px; }
+  .dashboard-section .task-board-group-heading strong { font-size: .82rem; }
+}
