@@ -517,7 +517,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                       required
                     />
                   ) : field.type === "appointment" ? (
-                    <>
+                    <div>
                       <select
                         value={createForm[field.name] || ""}
                         onChange={(e) => setCreateForm({ ...createForm, [field.name]: e.target.value })}
@@ -528,10 +528,14 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                           <option key={item._id} value={item._id}>{item.service} · {formatDateTime(item.startsAt)}</option>
                         ))}
                       </select>
-                      {pageInfo.appointments?.hasMore && <button className="secondary-button compact-button" type="button" disabled={loadingMore} onClick={() => loadMoreResource("appointments")}>{loadingMore ? "Loading appointments..." : "Load older eligible appointments"}</button>}
-                    </>)}
+                      {pageInfo.appointments?.hasMore && (
+                        <button className="secondary-button compact-button" type="button" disabled={loadingMore} onClick={() => loadMoreResource("appointments")}>
+                          {loadingMore ? "Loading appointments..." : "Load older eligible appointments"}
+                        </button>
+                      )}
+                    </div>
                   ) : field.type === "assessment" ? (
-                    <>
+                    <div>
                       <select
                         value={createForm[field.name] || ""}
                         onChange={(e) => setCreateForm({ ...createForm, [field.name]: e.target.value })}
@@ -542,8 +546,12 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                           <option key={item._id} value={item._id}>{(item.domains || []).join(", ") || "Assessment"} · {formatDate(item.assessedAt)}</option>
                         ))}
                       </select>
-                      {pageInfo.assessments?.hasMore && <button className="secondary-button compact-button" type="button" disabled={loadingMore} onClick={() => loadMoreResource("assessments")}>{loadingMore ? "Loading assessments..." : "Load older completed assessments"}</button>}
-                    </>}
+                      {pageInfo.assessments?.hasMore && (
+                        <button className="secondary-button compact-button" type="button" disabled={loadingMore} onClick={() => loadMoreResource("assessments")}>
+                          {loadingMore ? "Loading assessments..." : "Load older completed assessments"}
+                        </button>
+                      )}
+                    </div>
                   ) : field.type === "select" ? (
                     <select
                       value={createForm[field.name] || ""}
