@@ -437,3 +437,98 @@
   .dashboard-section .task-board-group-heading { padding: 8px 1px 6px; }
   .dashboard-section .task-board-group-heading strong { font-size: .82rem; }
 }
+
+
+/* Batch 3B-3C — task board interaction refinement */
+.dashboard-section .task-create-form {
+  display: grid;
+  gap: 16px;
+  border-color: #cfe2e5;
+  background: linear-gradient(145deg, #f7fbfb, #ffffff);
+  box-shadow: 0 8px 24px rgba(35, 74, 93, .06);
+}
+.dashboard-section .task-create-form-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e1ecee;
+}
+.dashboard-section .task-create-form-heading h4 {
+  margin: 0;
+  color: #24495e;
+  font-size: 1rem;
+  font-weight: 800;
+}
+.dashboard-section .task-create-form-heading p {
+  margin: 4px 0 0;
+  color: #718691;
+  font-size: .82rem;
+}
+.dashboard-section .task-form-section {
+  display: grid;
+  gap: 12px;
+}
+.dashboard-section .task-form-section-label {
+  color: #52717e;
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.dashboard-section .task-create-form .form-row {
+  align-items: start;
+}
+.dashboard-section .task-create-form .modal-actions {
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 2px;
+}
+.dashboard-section .task-create-toggle {
+  white-space: nowrap;
+}
+.dashboard-section .task-complete-button {
+  color: #2f735e;
+  border-color: #c7e4d8;
+  background: #f0faf5;
+  font-weight: 750;
+}
+.dashboard-section .task-complete-button:hover:not(:disabled) {
+  background: #e2f4eb;
+  border-color: #9fcfba;
+}
+.dashboard-section .task-board-empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 34px 20px;
+  border: 1px dashed #cbdde2;
+  border-radius: 14px;
+  background: #f8fbfc;
+  color: #718691;
+  text-align: center;
+}
+.dashboard-section .task-board-empty-state > svg {
+  color: #5e9399;
+}
+.dashboard-section .task-board-empty-state strong {
+  color: #24495e;
+  font-size: .95rem;
+}
+.dashboard-section .task-board-empty-state p {
+  margin: 0;
+  font-size: .82rem;
+}
+@media (max-width: 680px) {
+  .dashboard-section .task-create-form .modal-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+  .dashboard-section .task-create-form .modal-actions > button {
+    min-width: 0;
+  }
+  .dashboard-section .task-create-form .form-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
