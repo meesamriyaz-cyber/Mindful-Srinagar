@@ -1852,7 +1852,9 @@ export function Dashboard() {
           patient={journeyPatientData || resourceState.records.find(r => r._id === journeyPatientId) || { _id: journeyPatientId }}
           token={session.token}
           userRole={session.user?.role}
-          onClose={() => setJourneyPatientId(null)}
+          initialStep={journeyInitialCreateStep || undefined}
+          initialCreateStep={journeyInitialCreateStep || undefined}
+          onClose={() => { setJourneyPatientId(null); setJourneyPatientData(null); setJourneyInitialCreateStep(null); }}
           onRefresh={() => { setResourceRefresh((value) => value + 1); refresh(); }}
         />
       )}
