@@ -1230,6 +1230,8 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
       {state.error && <p className="form-status error-status" role="alert" aria-live="assertive">{state.error}</p>}
       {activeView === "tasks" && showTaskCreate && (
         <form className="clinical-form task-create-form" onSubmit={submitTask}>
+          <div className="task-create-form-heading"><div><h4>New operational task</h4><p>Define the work, responsibility and deadline.</p></div></div>
+          <div className="task-form-section"><span className="task-form-section-label">Task details</span>
           <label>Task title
             <input value={taskForm.title} maxLength={180} onChange={(event) => setTaskForm({ ...taskForm, title: event.target.value })} required placeholder="Describe the action that needs to be completed" />
           </label>
@@ -1246,6 +1248,8 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
               </select>
             </label>
           </div>
+          </div>
+          <div className="task-form-section"><span className="task-form-section-label">Ownership & urgency</span>
           <div className="form-row">
             <label>Assigned staff member
               <select value={taskForm.assignedTo} onChange={(event) => setTaskForm({ ...taskForm, assignedTo: event.target.value })} required>
@@ -1261,6 +1265,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
             <label>Due date
               <input type="date" value={taskForm.dueDate} onChange={(event) => setTaskForm({ ...taskForm, dueDate: event.target.value })} />
             </label>
+          </div>
           </div>
           {taskError && <p className="form-status error-status" role="alert" aria-live="assertive">{taskError}</p>}
           <div className="modal-actions">
