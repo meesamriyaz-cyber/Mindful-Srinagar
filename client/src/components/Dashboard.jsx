@@ -1189,6 +1189,26 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
   }
 
   const records = state.records || [];
+  const taskBoardRecords = activeView === "tasks"
+    ? [...records].sort((a, b) => {
+        const isDoneA = a.status === "done";
+        const isDoneB = b.status === "done";
+        if (isDoneA !== isDoneB) return isDoneA ? 1 : -1;
+        if (isDoneA) return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0);
+        const dueA = toValidDate(a.dueDate);
+        const dueB = toValidDate(b.dueDate);
+        const overdueA = dueA && dueA.getTime() < Date.now();
+        const overdueB = dueB && dueB.getTime() < Date.now();
+        if (overdueA !== overdueB) return overdueA ? -1 : 1;
+        const priorityRank = { high: 0, medium: 1, low: 2 };
+        const priorityDiff = (priorityRank[a.priority || "medium"] ?? 1) - (priorityRank[b.priority || "medium"] ?? 1);
+        if (priorityDiff) return priorityDiff;
+        if (dueA && dueB) return dueA - dueB;
+        if (dueA) return -1;
+        if (dueB) return 1;
+        return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+      })
+    : records;
 
   return (
     <article className={`table-panel resource-panel resource-panel-${activeView}`}>
@@ -1254,10 +1274,16 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
         <AnimatePresence mode="popLayout">
           {records.length ? (
             <div className={`record-grid management-record-grid management-record-grid-${activeView}`}>
-              {records.map((record) => {
+              {taskBoardRecords.map((record, index) => {
                 const summary = describeRecord(activeView, record);
                 const actions = recordActions(activeView, record, userRole);
                 return (
+                  <React.Fragment key={record._id}>
+                    {activeView === "tasks" && (index === 0 || (taskBoardRecords[index - 1]?.status === "done") !== (record.status === "done")) && (
+                      <div className="task-board-group-heading">
+                        <div><strong>{record.status === "done" ? "Completed tasks" : "Outstanding tasks"}</strong><span>{taskBoardRecords.filter((task) => (task.status === "done") === (record.status === "done")).length} tasks</span></div>
+                      </div>
+                    )}
                   <motion.div
                     className={`record-card management-record-card management-record-card-${activeView}`}
                     key={record._id}
@@ -1307,6 +1333,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                       </div>
                     )}
                   </motion.div>
+                  </React.Fragment>
                 );
               })}
             </div>
