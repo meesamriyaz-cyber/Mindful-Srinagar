@@ -387,3 +387,245 @@
     width: 100%;
   }
 }
+
+
+/* Batch 4.6 — Staff Management Workspace refinement */
+.staff-management-workspace {
+  gap: 20px;
+}
+.staff-management-workspace > .staff-workspace-heading {
+  padding: 4px 0 2px;
+}
+.staff-management-workspace > .staff-workspace-heading > div {
+  min-width: 0;
+}
+.staff-management-workspace .staff-workspace-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 7px;
+}
+.staff-management-workspace .staff-workspace-heading h2 {
+  margin: 0 0 7px;
+  line-height: 1.15;
+}
+.staff-management-workspace .staff-workspace-heading p:not(.staff-workspace-eyebrow) {
+  max-width: 60ch;
+  line-height: 1.55;
+}
+.staff-management-workspace .staff-workspace-heading > button {
+  flex: 0 0 auto;
+  min-height: 42px;
+  box-shadow: 0 5px 14px rgba(36, 127, 131, .13);
+}
+.staff-management-workspace > .staff-board-summary {
+  gap: 13px;
+}
+.staff-management-workspace > .staff-board-summary .staff-summary-card {
+  overflow: hidden;
+  position: relative;
+  transition: box-shadow 160ms ease, border-color 160ms ease;
+}
+.staff-management-workspace > .staff-board-summary .staff-summary-card:hover {
+  border-color: #cbdfe1;
+  box-shadow: 0 8px 20px rgba(23, 63, 89, .06);
+}
+.staff-management-workspace > .staff-board-summary .staff-summary-card > div {
+  gap: 9px;
+}
+.staff-management-workspace > .staff-board-summary .staff-summary-value {
+  gap: 12px;
+}
+.staff-management-workspace > .staff-board-summary .staff-summary-value strong {
+  letter-spacing: -.035em;
+}
+.staff-management-workspace .staff-management-board {
+  border-radius: 17px;
+}
+.staff-management-workspace .staff-board-card-header {
+  padding: 22px 23px 17px;
+}
+.staff-management-workspace .staff-board-card-header h3 {
+  letter-spacing: -.015em;
+}
+.staff-management-workspace .staff-board-card-header p {
+  margin-top: 5px;
+  line-height: 1.5;
+}
+.staff-management-workspace .staff-board-card-header > span {
+  white-space: nowrap;
+}
+.staff-management-workspace .staff-management-board > div:last-child {
+  padding: 0 23px 23px;
+}
+.staff-management-workspace .staff-board-toolbar {
+  gap: 13px;
+  padding: 15px;
+  border: 1px solid #e7eef0;
+  border-radius: 13px;
+  background: #f8fbfc;
+}
+.staff-management-workspace .staff-search-field > label,
+.staff-management-workspace .staff-filter-control > label {
+  color: #587383;
+  font-size: .72rem;
+  letter-spacing: .01em;
+}
+.staff-management-workspace .staff-search-input-wrap,
+.staff-management-workspace .staff-filter-control select {
+  min-height: 42px;
+  border-radius: 10px;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.staff-management-workspace .staff-filter-control select:focus-visible,
+.staff-management-workspace .staff-search-input-wrap:focus-within {
+  outline: none;
+  border-color: #62a5a2;
+  box-shadow: 0 0 0 3px rgba(36, 127, 131, .12);
+}
+.staff-management-workspace .staff-results-line {
+  margin: 15px 1px 12px;
+  font-size: .75rem;
+}
+.staff-management-workspace .staff-directory-grid {
+  gap: 14px;
+}
+.staff-management-workspace .staff-directory-person {
+  padding: 18px;
+  gap: 14px;
+}
+.staff-management-workspace .staff-person-top {
+  gap: 12px;
+}
+.staff-management-workspace .staff-person-identity h3 {
+  letter-spacing: -.01em;
+}
+.staff-management-workspace .staff-person-identity p {
+  line-height: 1.5;
+}
+.staff-management-workspace .staff-person-top > span {
+  align-self: start;
+  margin-top: 1px;
+}
+.staff-management-workspace .staff-person-meta {
+  gap: 14px;
+}
+.staff-management-workspace .staff-person-meta > div > span {
+  letter-spacing: .075em;
+}
+.staff-management-workspace .staff-person-actions {
+  margin-top: 0;
+  padding-top: 13px;
+}
+.staff-management-workspace .staff-person-actions button {
+  min-height: 37px;
+}
+.staff-management-workspace .staff-practitioner-note {
+  border-radius: 10px;
+  background: #f7fafb;
+  line-height: 1.5;
+}
+.staff-management-workspace .staff-directory-state {
+  min-height: 190px;
+  align-content: center;
+  background: #fbfdfd;
+}
+.staff-management-workspace .staff-alert {
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.staff-management-workspace .staff-create-dialog {
+  max-height: min(90vh, 820px);
+  overflow-y: auto;
+}
+.staff-management-workspace .staff-create-form {
+  gap: 18px;
+}
+.staff-management-workspace .staff-form-grid {
+  gap: 15px;
+}
+.staff-management-workspace .staff-form-field {
+  gap: 7px;
+}
+.staff-management-workspace .staff-form-field > label {
+  color: #526d7c;
+  font-size: .76rem;
+  font-weight: 700;
+}
+.staff-management-workspace .staff-form-field input,
+.staff-management-workspace .staff-form-field select {
+  min-height: 42px;
+}
+.staff-management-workspace .staff-form-field p {
+  margin: 2px 0 0;
+  color: #82939c;
+  font-size: .71rem;
+  line-height: 1.45;
+}
+.staff-management-workspace .staff-security-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid #dcebea;
+  border-radius: 11px;
+  background: #f2f9f8;
+}
+.staff-management-workspace .staff-security-note svg {
+  flex: 0 0 auto;
+  color: #247f83;
+}
+.staff-management-workspace .staff-security-note p {
+  margin: 0;
+  color: #55727e;
+  font-size: .74rem;
+  line-height: 1.5;
+}
+@media (max-width: 760px) {
+  .staff-management-workspace > .staff-workspace-heading {
+    gap: 13px;
+  }
+  .staff-management-workspace > .staff-workspace-heading > button {
+    width: 100%;
+  }
+  .staff-management-workspace .staff-board-card-header {
+    padding: 18px 18px 14px;
+  }
+  .staff-management-workspace .staff-management-board > div:last-child {
+    padding: 0 18px 18px;
+  }
+  .staff-management-workspace .staff-board-toolbar {
+    padding: 12px;
+  }
+}
+@media (max-width: 480px) {
+  .staff-management-workspace {
+    gap: 15px;
+  }
+  .staff-management-workspace > .staff-board-summary {
+    gap: 9px;
+  }
+  .staff-management-workspace > .staff-board-summary .staff-summary-card > div {
+    padding: 13px;
+  }
+  .staff-management-workspace > .staff-board-summary .staff-summary-value {
+    gap: 8px;
+  }
+  .staff-management-workspace > .staff-board-summary .staff-summary-value svg {
+    width: 17px;
+    height: 17px;
+  }
+  .staff-management-workspace .staff-directory-person {
+    padding: 15px;
+  }
+  .staff-management-workspace .staff-person-meta {
+    gap: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .staff-management-workspace > .staff-board-summary .staff-summary-card,
+  .staff-management-workspace .staff-search-input-wrap,
+  .staff-management-workspace .staff-filter-control select {
+    transition: none;
+  }
+}
