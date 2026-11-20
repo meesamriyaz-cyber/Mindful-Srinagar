@@ -1412,7 +1412,7 @@ export function Dashboard() {
   const [operationForm, setOperationForm] = useState({ amount: "", method: "cash", reference: "", type: "receipt", quantity: "", reason: "" });
   const [journeyPatientId, setJourneyPatientId] = useState(null);
   const [journeyPatientData, setJourneyPatientData] = useState(null);
-  const [journeyInitialCreateStep, setJourneyInitialCreateStep] = useState(null);
+  const [journeyInitialCreateStep, setJourneyInitialCreateStep] = useState(null);\n  const [journeyInitialAppointmentId, setJourneyInitialAppointmentId] = useState(null);
   const [showBilling, setShowBilling] = useState(false);
   const [billingRecord, setBillingRecord] = useState(null);
   const [billingItems, setBillingItems] = useState([]);
@@ -1814,7 +1814,7 @@ export function Dashboard() {
                 />
               ) : activeView === "overview" ? (
                 ["doctor", "therapist"].includes(session.user?.role)
-                  ? <PractitionerDashboard token={session.token} onNavigate={setActiveView} onOpenPatient={(patient, action) => { const patientId = typeof patient === "object" ? patient?._id : patient; setJourneyPatientData(typeof patient === "object" ? patient : null); setJourneyInitialCreateStep(action || null); setJourneyPatientId(patientId); }} />
+                  ? <PractitionerDashboard token={session.token} onNavigate={setActiveView} onOpenPatient={(patient, action, appointmentId) => { const patientId = typeof patient === "object" ? patient?._id : patient; const supplied = typeof patient === "object" ? patient : null; const resolved = supplied?.fullName ? supplied : patientsList.find((p) => p._id === patientId) || supplied; setJourneyPatientData(resolved); setJourneyInitialCreateStep(action || null); setJourneyInitialAppointmentId(appointmentId || null); setJourneyPatientId(patientId); }} />
                   : <OverviewWorkspace data={data} isDirector={isDirector} />
               ) : ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeView) ? (
                 <ClinicalBoard
@@ -1853,8 +1853,8 @@ export function Dashboard() {
           token={session.token}
           userRole={session.user?.role}
           initialStep={journeyInitialCreateStep || undefined}
-          initialCreateStep={journeyInitialCreateStep || undefined}
-          onClose={() => { setJourneyPatientId(null); setJourneyPatientData(null); setJourneyInitialCreateStep(null); }}
+          initialCreateStep={journeyInitialCreateStep || undefined}\n          initialAppointmentId={journeyInitialAppointmentId || undefined}
+          onClose={() => { setJourneyPatientId(null); setJourneyPatientData(null); setJourneyInitialCreateStep(null); setJourneyInitialAppointmentId(null); }}
           onRefresh={() => { setResourceRefresh((value) => value + 1); refresh(); }}
         />
       )}
