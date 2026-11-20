@@ -1854,7 +1854,8 @@ export function Dashboard() {
           token={session.token}
           userRole={session.user?.role}
           initialStep={journeyInitialCreateStep || undefined}
-          initialCreateStep={journeyInitialCreateStep || undefined}\n          initialAppointmentId={journeyInitialAppointmentId || undefined}
+          initialCreateStep={journeyInitialCreateStep || undefined}
+          initialAppointmentId={journeyInitialAppointmentId || undefined}
           onClose={() => { setJourneyPatientId(null); setJourneyPatientData(null); setJourneyInitialCreateStep(null); setJourneyInitialAppointmentId(null); }}
           onRefresh={() => { setResourceRefresh((value) => value + 1); refresh(); }}
         />
