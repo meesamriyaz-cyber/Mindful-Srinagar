@@ -1411,6 +1411,7 @@ export function Dashboard() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [operationForm, setOperationForm] = useState({ amount: "", method: "cash", reference: "", type: "receipt", quantity: "", reason: "" });
   const [journeyPatientId, setJourneyPatientId] = useState(null);
+  const [journeyPatientData, setJourneyPatientData] = useState(null);
   const [journeyInitialCreateStep, setJourneyInitialCreateStep] = useState(null);
   const [showBilling, setShowBilling] = useState(false);
   const [billingRecord, setBillingRecord] = useState(null);
@@ -1813,7 +1814,7 @@ export function Dashboard() {
                 />
               ) : activeView === "overview" ? (
                 ["doctor", "therapist"].includes(session.user?.role)
-                  ? <PractitionerDashboard token={session.token} onNavigate={setActiveView} onOpenPatient={(id, action) => { setJourneyInitialCreateStep(action || null); setJourneyPatientId(id); }} />
+                  ? <PractitionerDashboard token={session.token} onNavigate={setActiveView} onOpenPatient={(patient, action) => { const patientId = typeof patient === "object" ? patient?._id : patient; setJourneyPatientData(typeof patient === "object" ? patient : null); setJourneyInitialCreateStep(action || null); setJourneyPatientId(patientId); }} />
                   : <OverviewWorkspace data={data} isDirector={isDirector} />
               ) : ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeView) ? (
                 <ClinicalBoard
@@ -1848,7 +1849,7 @@ export function Dashboard() {
 
       {journeyPatientId && (
         <PatientJourney
-          patient={resourceState.records.find(r => r._id === journeyPatientId) || { _id: journeyPatientId }}
+          patient={journeyPatientData || resourceState.records.find(r => r._id === journeyPatientId) || { _id: journeyPatientId }}
           token={session.token}
           userRole={session.user?.role}
           onClose={() => setJourneyPatientId(null)}
