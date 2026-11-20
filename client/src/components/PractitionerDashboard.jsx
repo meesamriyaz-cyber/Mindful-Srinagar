@@ -150,7 +150,7 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
                       <Button size="sm" variant="outline" disabled={!item.patient?._id && !item.patient}>Clinical actions <ChevronDown size={14} /></Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onSelect={() => onOpenPatient?.(item.patient || item.patient?._id, "progress-notes", item._id)}><FileText size={15} /> New Progress Note</DropdownMenuItem>
+                      {["checked-in", "completed"].includes(String(item.status || "").toLowerCase()) && <DropdownMenuItem onSelect={() => onOpenPatient?.(item.patient || item.patient?._id, "progress-notes", item._id)}><FileText size={15} /> New Progress Note</DropdownMenuItem>}
                       <DropdownMenuItem onSelect={() => onOpenPatient?.(item.patient || item.patient?._id, "assessments", item._id)}><ClipboardCheck size={15} /> New Assessment</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -174,7 +174,7 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
                       <Button size="sm" variant="outline" disabled={!item.patient?._id && !item.patient}>Clinical actions <ChevronDown size={14} /></Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onSelect={() => onOpenPatient?.(item.patient?._id || item.patient, "progress-notes", item._id)}><FileText size={15} /> New Progress Note</DropdownMenuItem>
+                      {["checked-in", "completed"].includes(String(item.status || "").toLowerCase()) && <DropdownMenuItem onSelect={() => onOpenPatient?.(item.patient?._id || item.patient, "progress-notes", item._id)}><FileText size={15} /> New Progress Note</DropdownMenuItem>}
                       <DropdownMenuItem onSelect={() => onOpenPatient?.(item.patient?._id || item.patient, "assessments", item._id)}><ClipboardCheck size={15} /> New Assessment</DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
