@@ -778,3 +778,87 @@
     flex-basis: 42px;
   }
 }
+
+
+/* Batch 4.3.1 — shared workspace heading hierarchy.
+   CSS-only refinement: headings, descriptions, metadata and existing actions retain their behavior. */
+.dashboard-section :is(.staff-workspace-heading, .media-library-toolbar, .content-studio-heading, .clinical-board-heading, .practitioner-board-heading) {
+  min-width: 0;
+  gap: 18px;
+}
+
+.dashboard-section :is(.staff-workspace-heading, .media-library-toolbar, .content-studio-heading) > div:first-child,
+.dashboard-section :is(.clinical-board-heading, .practitioner-board-heading) > div {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+}
+
+.dashboard-section :is(.media-library-toolbar, .content-studio-heading) .eyebrow,
+.dashboard-section .staff-workspace-heading .staff-workspace-eyebrow {
+  margin: 0;
+  color: #56878b;
+  font-size: .66rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.dashboard-section :is(.staff-workspace-heading, .media-library-toolbar, .content-studio-heading) h2,
+.dashboard-section :is(.media-library-toolbar, .content-studio-heading) h3,
+.dashboard-section :is(.clinical-board-heading, .practitioner-board-heading) h3 {
+  margin: 0;
+  color: #24495e;
+  font-size: clamp(1.12rem, 1.7vw, 1.42rem);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -.018em;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-section :is(.staff-workspace-heading, .media-library-toolbar, .content-studio-heading) p:not(.eyebrow),
+.dashboard-section :is(.clinical-board-heading, .practitioner-board-heading) .resource-description {
+  margin: 0;
+  max-width: 68ch;
+  color: #718691;
+  font-size: .82rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-section :is(.clinical-board-heading, .practitioner-board-heading) .resource-count {
+  color: #56878b;
+  font-size: .72rem;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.dashboard-section :is(.staff-workspace-heading, .media-library-toolbar, .content-studio-heading, .clinical-board-heading, .practitioner-board-heading) > :is(button, .admin-workspace-primary) {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 820px) {
+  .dashboard-section :is(.staff-workspace-heading, .media-library-toolbar, .content-studio-heading, .clinical-board-heading, .practitioner-board-heading) {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 620px) {
+  .dashboard-section :is(.staff-workspace-heading, .media-library-toolbar, .content-studio-heading, .clinical-board-heading, .practitioner-board-heading) {
+    gap: 12px;
+  }
+
+  .dashboard-section :is(.staff-workspace-heading, .media-library-toolbar, .content-studio-heading) > :is(button, .admin-workspace-primary),
+  .dashboard-section :is(.clinical-board-heading, .practitioner-board-heading) > button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dashboard-section :is(.staff-workspace-heading, .media-library-toolbar, .content-studio-heading) h2,
+  .dashboard-section :is(.media-library-toolbar, .content-studio-heading) h3,
+  .dashboard-section :is(.clinical-board-heading, .practitioner-board-heading) h3 {
+    font-size: 1.15rem;
+  }
+}
