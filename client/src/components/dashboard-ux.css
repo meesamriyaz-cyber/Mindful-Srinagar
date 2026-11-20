@@ -616,3 +616,165 @@
     transition: none;
   }
 }
+
+
+/* Batch 4.2 — workspace header hierarchy and toolbar refinement.
+   Presentation-only: existing title, session identity and toolbar actions remain intact. */
+.dashboard-section .management-console-header {
+  gap: 22px;
+  padding: 22px 26px;
+  align-items: center;
+}
+
+.dashboard-section .premium-console-title {
+  min-width: 0;
+}
+
+.dashboard-section .premium-console-title > div {
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+}
+
+.dashboard-section .premium-console-title .eyebrow {
+  margin: 0;
+  color: #56878b;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.dashboard-section .premium-console-title h2 {
+  margin: 0;
+  color: #24495e;
+  font-size: clamp(1.45rem, 2.1vw, 1.95rem);
+  font-weight: 800;
+  line-height: 1.18;
+  letter-spacing: -.025em;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-section .premium-console-title .console-user {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 2px 0 0;
+  padding: 6px 10px;
+  border: 1px solid #e1ecee;
+  border-radius: 999px;
+  background: #f7fbfb;
+  color: #647d89;
+  font-size: .76rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-section .console-tools {
+  gap: 10px;
+  min-width: 0;
+  align-items: center;
+}
+
+.dashboard-section .console-tools .sync-pill {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border: 1px solid #dce9e9;
+  border-radius: 999px;
+  background: #f7fbfb;
+  font-size: .72rem;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.dashboard-section .console-tools .search-box {
+  min-width: 180px;
+  max-width: 320px;
+  min-height: 42px;
+  border-radius: 12px;
+}
+
+.dashboard-section .console-tools .icon-button {
+  width: 42px;
+  height: 42px;
+  flex-basis: 42px;
+  border-radius: 12px;
+}
+
+.dashboard-section .console-tools .icon-button:hover:not(:disabled) {
+  background: #edf6f6;
+  border-color: #c9e0e1;
+}
+
+@media (max-width: 1120px) {
+  .dashboard-section .management-console-header {
+    gap: 16px;
+    padding: 20px 22px;
+  }
+
+  .dashboard-section .console-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+  }
+
+  .dashboard-section .console-tools .search-box {
+    flex: 1 1 240px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .dashboard-section .management-console-header {
+    gap: 13px;
+    padding: 16px;
+  }
+
+  .dashboard-section .premium-console-title > div {
+    gap: 5px;
+  }
+
+  .dashboard-section .premium-console-title .eyebrow {
+    font-size: .62rem;
+    letter-spacing: .1em;
+  }
+
+  .dashboard-section .premium-console-title h2 {
+    font-size: clamp(1.35rem, 6vw, 1.65rem);
+    line-height: 1.2;
+  }
+
+  .dashboard-section .premium-console-title .console-user {
+    border-radius: 10px;
+    font-size: .72rem;
+    padding: 5px 8px;
+  }
+
+  .dashboard-section .console-tools {
+    grid-template-columns: minmax(0, 1fr) 42px 42px;
+    gap: 8px;
+  }
+
+  .dashboard-section .console-tools .sync-pill {
+    min-height: 28px;
+    padding: 5px 9px;
+    font-size: .68rem;
+  }
+
+  .dashboard-section .console-tools .search-box {
+    min-height: 42px;
+  }
+
+  .dashboard-section .console-tools .icon-button {
+    width: 42px;
+    min-width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+  }
+}
