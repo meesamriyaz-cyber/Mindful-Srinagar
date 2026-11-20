@@ -106,7 +106,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const [discharging, setDischarging] = useState(false);
   const [dischargeError, setDischargeError] = useState("");
   const [createStep, setCreateStep] = useState(initialCreateStep || null);
-  const [createForm, setCreateForm] = useState(() => initialCreateStep ? { patient: patient?._id, noteType: "session" } : {});
+  const [createForm, setCreateForm] = useState(() => initialCreateStep ? { patient: patient?._id, ...(initialCreateStep === "progress-notes" ? { noteType: "session" } : {}), ...(initialCreateStep === "assessments" ? { assessmentType: "initial" } : {}) } : {});
   const [createSaving, setCreateSaving] = useState(false);
   const [createError, setCreateError] = useState("");
   const [journeyKey, setJourneyKey] = useState(0);
