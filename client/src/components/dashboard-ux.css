@@ -1283,3 +1283,156 @@
     animation-duration: .01ms !important;
   }
 }
+
+
+/* Batch 4.7 — practitioner clarity improvements only.
+   Scoped presentation refinements; practitioner data and workflows are unchanged. */
+.dashboard-section .practitioner-board-heading {
+  align-items: flex-start;
+}
+.dashboard-section .practitioner-board-heading .resource-count {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.dashboard-section .practitioner-toolbar {
+  align-items: end;
+  gap: 12px;
+}
+.dashboard-section .practitioner-toolbar :is(.practitioner-search, .practitioner-status-filter) {
+  min-width: 0;
+}
+.dashboard-section .practitioner-search-label,
+.dashboard-section .practitioner-status-filter > span {
+  display: block;
+  margin-bottom: 6px;
+  color: #617987;
+  font-size: .72rem;
+  font-weight: 700;
+}
+.dashboard-section .practitioner-record-card {
+  display: grid;
+  align-content: start;
+  gap: 13px;
+}
+.dashboard-section .practitioner-record-card .record-main {
+  align-items: flex-start;
+  gap: 10px;
+}
+.dashboard-section .practitioner-record-card .record-main > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.dashboard-section .practitioner-record-card .record-main > div strong {
+  color: #294b5e;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.dashboard-section .practitioner-record-card .record-main > div span {
+  color: #617987;
+  font-size: .78rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.dashboard-section .practitioner-record-card .record-main > mark {
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: .68rem;
+  font-weight: 750;
+  text-transform: capitalize;
+}
+.dashboard-section .practitioner-contact {
+  display: grid;
+  gap: 4px;
+}
+.dashboard-section .practitioner-link-state {
+  margin: 0;
+  padding: 9px 10px;
+  border-radius: 9px;
+  background: #f7fafb;
+  line-height: 1.5;
+}
+.dashboard-section .practitioner-availability {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+.dashboard-section .practitioner-availability > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.dashboard-section .practitioner-availability .availability-caption {
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+}
+.dashboard-section .practitioner-availability .availability-chip {
+  padding: 5px 7px;
+  border-radius: 7px;
+  background: #eef6f6;
+  color: #426d72;
+  font-size: .68rem;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-section .practitioner-availability .availability-unset {
+  color: #8a969d;
+  font-size: .74rem;
+}
+.dashboard-section .practitioner-form .availability-editor {
+  gap: 10px;
+}
+.dashboard-section .practitioner-form .availability-editor > .empty-state {
+  margin: 0;
+  font-size: .74rem;
+}
+.dashboard-section .practitioner-form .availability-row {
+  display: grid;
+  grid-template-columns: minmax(115px, .85fr) minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px 0;
+  border-bottom: 1px solid #edf2f3;
+}
+.dashboard-section .practitioner-form .availability-row:last-child {
+  border-bottom: 0;
+}
+.dashboard-section .practitioner-form .availability-row .availability-day {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-size: .76rem;
+}
+.dashboard-section .practitioner-form .availability-row > span {
+  color: #718491;
+  font-size: .72rem;
+  text-align: center;
+}
+.dashboard-section .practitioner-form .availability-row input[type="time"] {
+  min-width: 0;
+  padding-inline: 7px;
+}
+.dashboard-section .practitioner-results-line {
+  margin: 0 0 12px;
+  color: #718491;
+  font-size: .74rem;
+}
+@media (max-width: 620px) {
+  .dashboard-section .practitioner-record-card {
+    gap: 11px;
+  }
+  .dashboard-section .practitioner-form .availability-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+  }
+  .dashboard-section .practitioner-form .availability-row .availability-day {
+    grid-column: 1 / -1;
+  }
+  .dashboard-section .practitioner-form .availability-row > span {
+    display: none;
+  }
+  .dashboard-section .practitioner-form .availability-row input[type="time"] {
+    width: 100%;
+  }
+}
