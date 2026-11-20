@@ -1343,7 +1343,20 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
               })}
             </div>
           ) : (
-            {activeView === "tasks" ? <div className="task-board-empty-state"><ListChecks size={24} /><strong>No tasks yet</strong><p>Operational tasks will appear here once created.</p>{["director","admin","reception","coordinator"].includes(userRole) && <button className="primary-button compact-button" type="button" onClick={() => setShowTaskCreate(true)}><Plus size={15} /> Create first task</button>}</div> : <p className="empty-state">No records match the current filters.</p>}
+            activeView === "tasks" ? (
+              <div className="task-board-empty-state">
+                <ListChecks size={24} />
+                <strong>No tasks yet</strong>
+                <p>Operational tasks will appear here once created.</p>
+                {["director", "admin", "reception", "coordinator"].includes(userRole) && (
+                  <button className="primary-button compact-button" type="button" onClick={() => setShowTaskCreate(true)}>
+                    <Plus size={15} /> Create first task
+                  </button>
+                )}
+              </div>
+            ) : (
+              <p className="empty-state">No records match the current filters.</p>
+            )
           )}
         </AnimatePresence>
       )}
