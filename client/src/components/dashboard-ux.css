@@ -532,3 +532,87 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/* Batch 4.1 — workspace navigation refinement.
+   Presentation-only; navigation destinations and role visibility remain unchanged. */
+.dashboard-section .sidebar-navigation {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  min-width: 0;
+}
+
+.dashboard-section .sidebar-section {
+  display: grid;
+  gap: 5px;
+}
+
+.dashboard-section .sidebar-section-title {
+  padding: 0 11px 5px;
+  color: #8195a2;
+  font-size: .64rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.dashboard-section .side-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 42px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  transition: background-color .16s ease, color .16s ease, border-color .16s ease;
+}
+
+.dashboard-section .side-link > svg {
+  flex: 0 0 18px;
+  width: 18px;
+}
+
+.dashboard-section .side-link:not(.active):hover {
+  background: rgba(36, 127, 131, .07);
+}
+
+.dashboard-section .side-link.active {
+  font-weight: 750;
+}
+
+.dashboard-section .sidebar-footer {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-section .premium-sidebar-collapse,
+.dashboard-section .premium-sidebar-mobile-close {
+  flex: 0 0 auto;
+}
+
+.dashboard-section .premium-sidebar-collapse:focus-visible,
+.dashboard-section .premium-sidebar-mobile-close:focus-visible,
+.dashboard-section .side-link:focus-visible {
+  outline-offset: 2px;
+}
+
+@media (max-width: 820px) {
+  .dashboard-section .sidebar-navigation {
+    gap: 14px;
+  }
+
+  .dashboard-section .sidebar-section-title {
+    padding-left: 9px;
+  }
+
+  .dashboard-section .side-link {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-section .side-link {
+    transition: none;
+  }
+}
