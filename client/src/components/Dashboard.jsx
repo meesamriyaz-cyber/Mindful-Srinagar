@@ -1220,7 +1220,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
           <span className="resource-count" aria-live="polite">{records.length} {records.length === 1 ? "record" : "records"} loaded</span>
         </div>
         {activeView === "tasks" && ["director","admin","reception","coordinator"].includes(userRole) && (
-          <button className="primary-button compact-button" type="button" onClick={() => setShowTaskCreate((value) => !value)}><Plus size={15} /> New task</button>
+          <button className="primary-button compact-button task-create-toggle" type="button" aria-expanded={showTaskCreate} onClick={() => setShowTaskCreate((value) => !value)}>{showTaskCreate ? <X size={15} /> : <Plus size={15} />} {showTaskCreate ? "Close form" : "New task"}</button>
         )}
         {activeView === "appointments" && ["director","admin","reception","coordinator"].includes(userRole) && (
           <button className="primary-button compact-button" type="button" onClick={onCreateAppointment}><Plus size={15} /> New appointment</button>
@@ -1265,7 +1265,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
           {taskError && <p className="form-status error-status" role="alert" aria-live="assertive">{taskError}</p>}
           <div className="modal-actions">
             <button className="primary-button" type="submit" disabled={taskSaving}>{taskSaving ? "Creating..." : "Create task"}</button>
-            <button className="secondary-button" type="button" onClick={() => setShowTaskCreate(false)}>Cancel</button>
+            <button className="secondary-button" type="button" onClick={() => { setShowTaskCreate(false); setTaskError(""); setTaskForm({ title: "", patient: "", department: "clinical", priority: "medium", dueDate: "", assignedTo: "" }); }}>Cancel</button>
           </div>
         </form>
       )}
@@ -1338,7 +1338,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
               })}
             </div>
           ) : (
-            <p className="empty-state">No records match the current filters.</p>
+            {activeView === "tasks" ? <div className="task-board-empty-state"><ListChecks size={24} /><strong>No tasks yet</strong><p>Operational tasks will appear here once created.</p>{["director","admin","reception","coordinator"].includes(userRole) && <button className="primary-button compact-button" type="button" onClick={() => setShowTaskCreate(true)}><Plus size={15} /> Create first task</button>}</div> : <p className="empty-state">No records match the current filters.</p>}
           )}
         </AnimatePresence>
       )}
