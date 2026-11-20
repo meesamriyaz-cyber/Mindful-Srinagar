@@ -1412,7 +1412,8 @@ export function Dashboard() {
   const [operationForm, setOperationForm] = useState({ amount: "", method: "cash", reference: "", type: "receipt", quantity: "", reason: "" });
   const [journeyPatientId, setJourneyPatientId] = useState(null);
   const [journeyPatientData, setJourneyPatientData] = useState(null);
-  const [journeyInitialCreateStep, setJourneyInitialCreateStep] = useState(null);\n  const [journeyInitialAppointmentId, setJourneyInitialAppointmentId] = useState(null);
+  const [journeyInitialCreateStep, setJourneyInitialCreateStep] = useState(null);
+  const [journeyInitialAppointmentId, setJourneyInitialAppointmentId] = useState(null);
   const [showBilling, setShowBilling] = useState(false);
   const [billingRecord, setBillingRecord] = useState(null);
   const [billingItems, setBillingItems] = useState([]);
