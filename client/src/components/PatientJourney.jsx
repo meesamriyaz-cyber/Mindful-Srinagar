@@ -86,7 +86,7 @@ const CREATE_FNS = {
   prescriptions: createPrescription
 };
 
-export function PatientJourney({ patient, token, userRole, onClose, onDischarge, onRefresh, initialStep, initialCreateStep }) {
+export function PatientJourney({ patient, token, userRole, onClose, onDischarge, onRefresh, initialStep, initialCreateStep, initialAppointmentId }) {
   const [data, setData] = useState({
     referral: null,
     appointments: [],
@@ -106,7 +106,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const [discharging, setDischarging] = useState(false);
   const [dischargeError, setDischargeError] = useState("");
   const [createStep, setCreateStep] = useState(initialCreateStep || null);
-  const [createForm, setCreateForm] = useState(() => initialCreateStep ? { patient: patient?._id, ...(initialCreateStep === "progress-notes" ? { noteType: "session" } : {}), ...(initialCreateStep === "assessments" ? { assessmentType: "initial" } : {}) } : {});
+  const [createForm, setCreateForm] = useState(() => initialCreateStep ? { patient: patient?._id, ...(initialCreateStep === "progress-notes" ? { noteType: "session", ...(initialAppointmentId ? { appointment: initialAppointmentId } : {}) } : {}), ...(initialCreateStep === "assessments" ? { assessmentType: "initial" } : {}) } : {});
   const [createSaving, setCreateSaving] = useState(false);
   const [createError, setCreateError] = useState("");
   const [journeyKey, setJourneyKey] = useState(0);
@@ -241,7 +241,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   }
 
   function openCreate() {
-    setCreateForm({ patient: patient._id, ...(activeStep === "assessments" ? { assessmentType: "initial" } : {}), ...(activeStep === "treatment-plans" ? { status: "planned" } : {}), ...(activeStep === "progress-notes" ? { noteType: "session" } : {}) });
+    setCreateForm({ patient: patient._id, ...(activeStep === "assessments" ? { assessmentType: "initial" } : {}), ...(activeStep === "treatment-plans" ? { status: "planned" } : {}), ...(activeStep === "progress-notes" ? { noteType: "session", ...(initialAppointmentId ? { appointment: initialAppointmentId } : {}) } : {}) });
     setCreateError("");
     setCreateStep(activeStep);
   }
@@ -470,7 +470,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
         <div className="journey-content management-journey-content">
           {createStep ? (
             <form onSubmit={handleCreateSubmit} className="journey-create-form management-journey-create-form">
-              <h4>New {STEP_LABELS[createStep]}</h4>
+              <h4>New {STEP_LABELS[createStep]}</h4>\n              <div className="clinical-create-patient-context"><strong>Patient:</strong> {patient?.fullName || "Patient details loading"} {patient?.mrn ? <span>· MRN: {patient.mrn}</span> : null}</div>
               {createError && <p className="form-status error-status" role="alert" aria-live="assertive">{createError}</p>}
               {(CREATE_FIELDS[createStep] || []).map((field) => (
                 <label key={field.name}>
