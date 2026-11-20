@@ -448,12 +448,12 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
         )}
 
         {!loading && (
-          <div className="patient-journey-overview" aria-label="Patient clinical overview">
+          <div className="patient-journey-overview" aria-label="Patient clinical overview" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10, margin: "12px 0" }}>
             {clinicalOverview.map((item) => (
-              <button key={item.step + item.label} type="button" className="patient-journey-overview-card" onClick={() => { setActiveStep(item.step); setCreateStep(null); }}>
-                <span>{item.label}</span>
-                <strong>{item.value}</strong>
-                <small>{item.detail}</small>
+              <button key={item.step + item.label} type="button" className="patient-journey-overview-card" onClick={() => { setActiveStep(item.step); setCreateStep(null); }} style={{ textAlign: "left", padding: "12px 14px", borderRadius: 12, border: "1px solid var(--border, #dce8e5)", background: "var(--surface-soft, #f4f8f7)", display: "flex", flexDirection: "column", gap: 5, minWidth: 0 }}>
+                <span style={{ fontSize: 12, opacity: 0.75 }}>{item.label}</span>
+                <strong style={{ fontSize: 14, overflowWrap: "anywhere" }}>{item.value}</strong>
+                <small style={{ opacity: 0.75 }}>{item.detail}</small>
               </button>
             ))}
           </div>
