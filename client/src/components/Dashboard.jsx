@@ -736,6 +736,17 @@ function describeRecord(viewId, record) {
     };
   }
 
+  if (viewId === "tasks") {
+    const dueDate = toValidDate(record.dueDate);
+    const overdue = record.status !== "done" && dueDate && dueDate.getTime() < Date.now();
+    return {
+      title: record.title,
+      meta: `Patient: ${record.patient?.fullName || "General task"} · Department: ${record.department || "Unassigned"}`,
+      detail: `Assigned to: ${record.assignedTo?.name || "Unassigned"} · Due: ${dueDate ? displayDate(dueDate) : "No deadline"} · Priority: ${record.priority || "medium"}`,
+      status: record.status === "done" ? "completed" : overdue ? "overdue" : "todo"
+    };
+  }
+
   return {
     title: record.title,
     meta: `Department: ${record.department || "Unassigned"} · Due: ${formatDate(record.dueDate)}`,
@@ -1264,6 +1275,12 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                       <mark className={statusClass(summary.status)}>{summary.status || "open"}</mark>
                     </div>
                     <p className="management-record-detail">{summary.detail}</p>
+                    {activeView === "tasks" && (
+                      <div className="task-card-indicators" aria-label="Task priority">
+                        <span className={`task-priority task-priority-${record.priority || "medium"}`}>{(record.priority || "medium").toUpperCase()} PRIORITY</span>
+                        {record.status === "done" && <span className="task-completed-indicator">COMPLETED</span>}
+                      </div>
+                    )}
                     {activeView === "referrals" && (
                       <ReferralNotesEditor
                         record={record}
