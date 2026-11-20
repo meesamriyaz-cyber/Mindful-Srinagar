@@ -903,7 +903,7 @@ function ReportsView({ data }) {
         <article className="admin-report-card">
           <div className="admin-report-card-heading">
             <span className="admin-report-icon is-teal"><TrendingUp size={18} /></span>
-            <div><h4>Referral journey</h4><p>Monthly referrals grouped by current status</p></div>
+            <div><h4>Referral journey</h4><p>Referrals grouped by current status</p></div>
           </div>
           {referralStatus.length ? (
             <div className="admin-report-bars">
@@ -937,7 +937,7 @@ function ReportsView({ data }) {
         <article className="admin-report-card">
           <div className="admin-report-card-heading">
             <span className="admin-report-icon is-teal"><BarChart3 size={18} /></span>
-            <div><h4>Service mix</h4><p>Services across current patient records</p></div>
+            <div><h4>Service mix</h4><p>Services recorded across current patient records</p></div>
           </div>
           {serviceMix.length ? (
             <div className="admin-report-bars">
@@ -954,7 +954,7 @@ function ReportsView({ data }) {
         <article className="admin-report-card">
           <div className="admin-report-card-heading">
             <span className="admin-report-icon is-amber"><UsersRound size={18} /></span>
-            <div><h4>Referral sources</h4><p>Where this month’s incoming enquiries originated</p></div>
+            <div><h4>Referral sources</h4><p>Sources of enquiries received this month</p></div>
           </div>
           {referralSources.length ? (
             <div className="admin-report-bars">
