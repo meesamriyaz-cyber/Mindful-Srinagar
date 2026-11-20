@@ -430,7 +430,14 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           </div>
         )}
 
-        <div className="journey-mobile-section-picker">\n          <label htmlFor="journey-mobile-section">Patient section</label>\n          <select id="journey-mobile-section" value={activeStep} onChange={(e) => { setActiveStep(e.target.value); setCreateStep(null); }}>\n            {steps.map((step) => <option key={step} value={step}>{STEP_LABELS[step]} ({Array.isArray(data[step]) ? data[step].length : (data[step] ? 1 : 0)})</option>)}\n          </select>\n        </div>\n\n        <div className="journey-steps" role="group" aria-label="Patient journey sections">
+        <div className="journey-mobile-section-picker">
+          <label htmlFor="journey-mobile-section">Patient section</label>
+          <select id="journey-mobile-section" value={activeStep} onChange={(e) => { setActiveStep(e.target.value); setCreateStep(null); }}>
+            {steps.map((step) => <option key={step} value={step}>{STEP_LABELS[step]} ({Array.isArray(data[step]) ? data[step].length : (data[step] ? 1 : 0)})</option>)}
+          </select>
+        </div>
+
+        <div className="journey-steps" role="group" aria-label="Patient journey sections">
           {steps.map((step) => {
             const Icon = STEP_ICONS[step];
             const selected = activeStep === step;
