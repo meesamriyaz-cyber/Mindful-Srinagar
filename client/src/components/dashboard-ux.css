@@ -399,3 +399,29 @@
     font-size: 0.78rem;
   }
 }
+
+
+/* Batch 3B-3A — operational task cards */
+.dashboard-section .management-record-card-tasks { border-left: 3px solid #dce8ed; }
+.dashboard-section .management-record-card-tasks:has(.status-overdue) { border-left-color: #d97745; background: linear-gradient(135deg,#fff 0%,#fffaf7 100%); }
+.dashboard-section .management-record-card-tasks:has(.status-completed) { border-left-color: #62a58b; background: #fbfdfc; }
+.dashboard-section .management-record-card-tasks .management-record-main { align-items: flex-start; }
+.dashboard-section .management-record-card-tasks .management-record-main > div { min-width: 0; }
+.dashboard-section .management-record-card-tasks .management-record-main strong { display: block; line-height: 1.4; overflow-wrap: anywhere; }
+.dashboard-section .management-record-card-tasks .management-record-meta { display: block; margin-top: 6px; line-height: 1.5; }
+.dashboard-section .management-record-card-tasks .management-record-detail { line-height: 1.6; overflow-wrap: anywhere; }
+.dashboard-section .task-card-indicators { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin: 10px 0 2px; }
+.dashboard-section .task-priority,
+.dashboard-section .task-completed-indicator { display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 8px; font-size: .64rem; font-weight: 800; letter-spacing: .06em; }
+.dashboard-section .task-priority-low { color: #557b73; background: #edf6f2; }
+.dashboard-section .task-priority-medium { color: #8b6b35; background: #fbf4e6; }
+.dashboard-section .task-priority-high { color: #a94e42; background: #fff0eb; }
+.dashboard-section .task-completed-indicator { color: #397b63; background: #eaf5ef; }
+.dashboard-section .task-create-form { padding: 18px; border: 1px solid #e3ecef; border-radius: 14px; background: #fbfdfd; }
+.dashboard-section .task-create-form .form-row { align-items: start; }
+@media (max-width: 680px) {
+  .dashboard-section .management-record-card-tasks .management-record-main { flex-wrap: wrap; gap: 8px; }
+  .dashboard-section .management-record-card-tasks .management-record-main mark { margin-left: 0; }
+  .dashboard-section .management-record-card-tasks .management-record-detail { font-size: .76rem; }
+  .dashboard-section .task-create-form { padding: 13px; }
+}
