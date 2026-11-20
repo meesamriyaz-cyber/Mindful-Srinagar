@@ -193,3 +193,273 @@
 @media (prefers-reduced-motion: reduce) {
   .clinical-resource-panel *, .clinical-resource-panel *::before, .clinical-resource-panel *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+
+
+/* Batch 4.5 — clinical workspace refinement.
+   Presentation-only overrides. Clinical workflows, data and permissions remain unchanged. */
+
+/* Clinical record header: stronger hierarchy and stable responsive alignment. */
+.dashboard-section .clinical-resource-panel .clinical-board-heading {
+  align-items: start;
+  gap: 16px;
+  padding-bottom: 20px;
+}
+.dashboard-section .clinical-resource-panel .clinical-board-heading > svg {
+  width: 22px;
+  height: 22px;
+  margin-top: 3px;
+  flex: 0 0 auto;
+}
+.dashboard-section .clinical-resource-panel .clinical-board-heading > div {
+  min-width: 0;
+  display: grid;
+  gap: 7px;
+}
+.dashboard-section .clinical-resource-panel .clinical-board-heading h3 {
+  font-size: clamp(1.2rem, 1.7vw, 1.5rem);
+  line-height: 1.25;
+}
+.dashboard-section .clinical-resource-panel .clinical-board-heading .resource-description {
+  margin: 0;
+  max-width: 66ch;
+  font-size: .82rem;
+}
+.dashboard-section .clinical-resource-panel .clinical-board-heading .resource-count {
+  margin-top: 2px;
+  width: fit-content;
+}
+
+/* Record grid and cards: consistent density, hierarchy and long-content safety. */
+.dashboard-section .clinical-resource-panel .clinical-record-grid {
+  gap: 16px;
+  align-items: stretch;
+}
+.dashboard-section .clinical-resource-panel .clinical-record-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  min-width: 0;
+  border-radius: 14px;
+  overflow-wrap: anywhere;
+}
+.dashboard-section .clinical-resource-panel .clinical-record-card .record-main {
+  align-items: flex-start;
+  gap: 12px;
+}
+.dashboard-section .clinical-resource-panel .clinical-record-card .record-main > div {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+.dashboard-section .clinical-resource-panel .clinical-record-card .record-main strong {
+  font-size: .9rem;
+  line-height: 1.45;
+  letter-spacing: -.01em;
+}
+.dashboard-section .clinical-resource-panel .clinical-record-card .clinical-record-meta {
+  font-size: .76rem;
+  line-height: 1.55;
+}
+.dashboard-section .clinical-resource-panel .clinical-record-card .clinical-record-detail {
+  margin: 0;
+  padding: 11px 12px;
+  font-size: .74rem;
+  line-height: 1.6;
+}
+.dashboard-section .clinical-resource-panel .clinical-record-card mark {
+  max-width: 140px;
+  white-space: normal;
+  text-align: center;
+  flex: 0 0 auto;
+}
+
+/* Resource-specific emphasis while preserving the existing card markup. */
+.dashboard-section .clinical-resource-assessments .clinical-record-card .clinical-record-meta,
+.dashboard-section .clinical-resource-progress-notes .clinical-record-card .clinical-record-meta,
+.dashboard-section .clinical-resource-prescriptions .clinical-record-card .clinical-record-meta {
+  color: #617b89;
+}
+.dashboard-section .clinical-resource-treatment-plans .clinical-record-card .clinical-record-detail {
+  border-left: 3px solid #78aaa7;
+}
+.dashboard-section .clinical-resource-progress-notes .clinical-record-card .clinical-record-detail {
+  border-left: 3px solid #8aa9bd;
+}
+.dashboard-section .clinical-resource-prescriptions .clinical-record-card .clinical-record-detail {
+  border-left: 3px solid #b5a2c8;
+}
+
+/* Clinical actions: clearer hierarchy and predictable wrapping. */
+.dashboard-section .clinical-resource-panel .clinical-record-card .record-actions {
+  gap: 8px;
+  align-items: stretch;
+  padding-top: 4px;
+}
+.dashboard-section .clinical-resource-panel .clinical-record-card .record-actions button {
+  min-height: 38px;
+  padding-inline: 12px;
+  font-size: .74rem;
+  line-height: 1.35;
+  white-space: normal;
+}
+.dashboard-section .clinical-resource-panel .clinical-record-card .record-actions .primary-button {
+  font-weight: 800;
+}
+
+/* Dialogs and read-only clinical detail values. */
+.dashboard-section .clinical-resource-panel .clinical-form {
+  gap: 17px;
+}
+.dashboard-section .clinical-resource-panel .clinical-form label {
+  gap: 8px;
+  line-height: 1.45;
+}
+.dashboard-section .clinical-resource-panel .form-readonly-value {
+  min-height: 42px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.65;
+}
+.dashboard-section .clinical-resource-panel .clinical-editor-modal,
+.dashboard-section .clinical-resource-panel .clinical-billing-modal {
+  width: min(100%, 780px);
+}
+.dashboard-section .clinical-resource-panel .modal-header {
+  gap: 14px;
+}
+.dashboard-section .clinical-resource-panel .modal-header h3 {
+  overflow-wrap: anywhere;
+}
+.dashboard-section .clinical-resource-panel .modal-actions {
+  gap: 10px;
+}
+.dashboard-section .clinical-resource-panel .modal-actions button {
+  min-width: 110px;
+}
+
+/* Medication entries: grouped, readable and responsive. */
+.dashboard-section .clinical-resource-prescriptions .prescription-medication-card,
+.dashboard-section .clinical-resource-panel .prescription-medication-card {
+  gap: 13px;
+  padding: 15px;
+}
+.dashboard-section .clinical-resource-panel .prescription-medication-card > strong,
+.dashboard-section .clinical-resource-panel .prescription-medication-heading > strong {
+  color: #31586b;
+  font-size: .82rem;
+  font-weight: 800;
+}
+.dashboard-section .clinical-resource-panel .prescription-medication-card .form-row {
+  align-items: start;
+}
+.dashboard-section .clinical-resource-panel .prescription-medication-card label {
+  gap: 7px;
+}
+
+/* Billing line items: avoid cramped fields at medium viewport widths. */
+.dashboard-section .clinical-resource-panel .billing-items {
+  min-width: 0;
+}
+.dashboard-section .clinical-resource-panel .billing-item-row {
+  grid-template-columns: minmax(0, 1fr) minmax(64px, 82px) minmax(84px, 112px) 36px;
+  gap: 8px;
+}
+.dashboard-section .clinical-resource-panel .billing-item-row input {
+  width: 100%;
+  min-width: 0;
+}
+
+/* Tablet layout. */
+@media (max-width: 820px) {
+  .dashboard-section .clinical-resource-panel .clinical-board-heading {
+    gap: 12px;
+  }
+  .dashboard-section .clinical-resource-panel .clinical-record-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dashboard-section .clinical-resource-panel .clinical-record-card {
+    padding: 16px;
+  }
+  .dashboard-section .clinical-resource-panel .billing-item-row {
+    grid-template-columns: minmax(0, 1fr) 72px 100px 36px;
+  }
+}
+
+/* Mobile layout. */
+@media (max-width: 620px) {
+  .dashboard-section .clinical-resource-panel .clinical-board-heading {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 11px;
+  }
+  .dashboard-section .clinical-resource-panel .clinical-board-heading > button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .dashboard-section .clinical-resource-panel .clinical-board-heading h3 {
+    font-size: 1.16rem;
+  }
+  .dashboard-section .clinical-resource-panel .clinical-board-heading .resource-description {
+    font-size: .78rem;
+  }
+  .dashboard-section .clinical-resource-panel .clinical-record-card .record-main {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .dashboard-section .clinical-resource-panel .clinical-record-card mark {
+    width: fit-content;
+    max-width: 100%;
+  }
+  .dashboard-section .clinical-resource-panel .clinical-record-card .record-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dashboard-section .clinical-resource-panel .clinical-record-card .record-actions button {
+    width: 100%;
+    min-width: 0;
+  }
+  .dashboard-section .clinical-resource-panel .modal-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dashboard-section .clinical-resource-panel .modal-actions button {
+    width: 100%;
+    min-width: 0;
+  }
+  .dashboard-section .clinical-resource-panel .billing-item-row {
+    grid-template-columns: minmax(0, 1fr) 64px 88px 32px;
+    gap: 5px;
+  }
+  .dashboard-section .clinical-resource-panel .billing-item-row input {
+    padding-inline: 7px;
+    font-size: .72rem;
+  }
+}
+
+/* Very narrow screens: billing fields stack without horizontal overflow. */
+@media (max-width: 400px) {
+  .dashboard-section .clinical-resource-panel .billing-item-row {
+    grid-template-columns: minmax(0, 1fr) 32px;
+  }
+  .dashboard-section .clinical-resource-panel .billing-item-row input:first-child {
+    grid-column: 1 / -1;
+  }
+  .dashboard-section .clinical-resource-panel .billing-item-row input:nth-child(2),
+  .dashboard-section .clinical-resource-panel .billing-item-row input:nth-child(3) {
+    grid-column: auto;
+  }
+  .dashboard-section .clinical-resource-panel .clinical-record-card .record-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Preserve motion preferences and keyboard-visible interaction. */
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-section .clinical-resource-panel .clinical-record-card,
+  .dashboard-section .clinical-resource-panel .clinical-record-card *,
+  .dashboard-section .clinical-resource-panel .modal *,
+  .dashboard-section .clinical-resource-panel .modal-overlay {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}
