@@ -298,3 +298,33 @@
   .director-demand-label,
   .director-referral-row > div:first-child { align-items: flex-start; }
 }
+
+
+/* Batch 4.9 — reports workspace clarity and responsive edge-case refinement. */
+.admin-report-workspace,
+.admin-report-card,
+.admin-report-kpi,
+.admin-report-primary-grid,
+.admin-report-secondary-grid { min-width: 0; }
+.admin-report-card-heading { align-items: flex-start; }
+.admin-report-card-heading h4,
+.admin-report-card-heading p { overflow-wrap: anywhere; }
+.admin-report-finance-values strong,
+.admin-report-kpi > strong,
+.admin-report-risk-row > strong,
+.admin-report-bar-row > div:first-child strong { font-variant-numeric: tabular-nums; }
+.admin-report-bar-row > div:first-child { min-width: 0; }
+.admin-report-bar-row > div:first-child span { min-width: 0; flex: 1; }
+.admin-report-bar-row > div:first-child strong { flex: 0 0 auto; }
+.admin-report-bar-track { min-width: 0; }
+@media (max-width: 480px) {
+  .admin-report-card-heading { gap: 10px; }
+  .admin-report-icon { flex-basis: 35px; width: 35px; height: 35px; }
+  .admin-report-finance-values { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .admin-report-finance-values > div { min-width: 0; }
+  .admin-report-finance-values span { overflow-wrap: anywhere; }
+  .admin-report-finance-values strong { font-size: .82rem; line-height: 1.25; }
+  .admin-report-risk-copy { overflow-wrap: anywhere; }
+  .admin-report-risk-row { gap: 8px; }
+  .admin-report-bar-row > div:first-child { align-items: flex-start; }
+}
