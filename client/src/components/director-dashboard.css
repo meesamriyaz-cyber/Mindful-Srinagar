@@ -263,3 +263,38 @@
   .admin-report-finance-values strong { font-size: .9rem; }
 }
 @media (prefers-reduced-motion: reduce) { .admin-report-workspace * { transition-duration: .01ms !important; } }
+
+
+/* Batch 4.8 — director analytics presentation refinement. */
+.director-command-centre,
+.director-analytics-grid,
+.director-finance-card,
+.director-analytics-card { min-width: 0; }
+.director-finance-metrics { align-items: stretch; }
+.director-finance-metric { min-width: 0; }
+.director-finance-metric > strong {
+  min-width: 0;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+.director-analytics-grid { gap: 18px; }
+.director-analytics-card > .p-6 { min-width: 0; }
+.director-card-heading { align-items: flex-start; }
+.director-card-heading > div { overflow-wrap: anywhere; }
+.director-demand-label,
+.director-referral-row > div:first-child { min-width: 0; }
+.director-demand-label span,
+.director-referral-row > div:first-child span { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 900px) {
+  .director-analytics-grid { gap: 14px; }
+}
+@media (max-width: 680px) {
+  .director-finance-metrics { min-width: 0; }
+  .director-finance-metric > strong { line-height: 1.25; }
+  .director-analytics-grid { gap: 11px; }
+  .director-card-heading { gap: 10px; }
+  .director-card-heading .text-lg { overflow-wrap: anywhere; }
+  .director-demand-label,
+  .director-referral-row > div:first-child { align-items: flex-start; }
+}
