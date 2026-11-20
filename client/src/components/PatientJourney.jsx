@@ -206,8 +206,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     { step: "appointments", label: "Next appointment", value: upcomingAppointment ? formatDateTime(upcomingAppointment.startsAt) : "None scheduled", detail: upcomingAppointment?.service || "No upcoming appointment" }
   ];
 
-  async function loadMoreHistory() {
-    const resource = activeStep;
+  async function loadMoreResource(resource) {
     const current = pageInfo[resource];
     if (!current?.hasMore || loadingMore || resource === "referral") return;
     setLoadingMore(true);
@@ -221,6 +220,10 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     } finally {
       setLoadingMore(false);
     }
+  }
+
+  async function loadMoreHistory() {
+    await loadMoreResource(activeStep);
   }
 
   function formatDate(val) {
@@ -524,6 +527,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                         <option key={item._id} value={item._id}>{item.service} · {formatDateTime(item.startsAt)}</option>
                       ))}
                     </select>
+                    {pageInfo.appointments?.hasMore && <button className="secondary-button compact-button" type="button" disabled={loadingMore} onClick={() => loadMoreResource("appointments")}>{loadingMore ? "Loading appointments..." : "Load older eligible appointments"}</button>}
                   ) : field.type === "assessment" ? (
                     <select
                       value={createForm[field.name] || ""}
@@ -535,6 +539,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                         <option key={item._id} value={item._id}>{(item.domains || []).join(", ") || "Assessment"} · {formatDate(item.assessedAt)}</option>
                       ))}
                     </select>
+                    {pageInfo.assessments?.hasMore && <button className="secondary-button compact-button" type="button" disabled={loadingMore} onClick={() => loadMoreResource("assessments")}>{loadingMore ? "Loading assessments..." : "Load older completed assessments"}</button>}
                   ) : field.type === "select" ? (
                     <select
                       value={createForm[field.name] || ""}
