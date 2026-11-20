@@ -168,8 +168,11 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           setTimelineError("");
           setLoading(false);
         }
-      } catch {
-        if (active) setLoading(false);
+      } catch (error) {
+        if (active) {
+          setTimelineError(error?.message || "Unable to load patient journey. Please try again.");
+          setLoading(false);
+        }
       }
     }
 
@@ -188,6 +191,20 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
   const isDischarged = patient?.status === "discharged";
   const canCreate = ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeStep);
   const canApprovePlans = ["director", "admin", "doctor"].includes(userRole);
+  const recordCount = (step) => pageInfo[step]?.total ?? (Array.isArray(data[step]) ? data[step].length : data[step] ? 1 : 0);
+  const latestRecord = (records, dateField = "createdAt") => [...(records || [])].sort((a, b) => new Date(b?.[dateField] || b?.createdAt || 0) - new Date(a?.[dateField] || a?.createdAt || 0))[0];
+  const latestAssessment = latestRecord(data.assessments, "assessedAt");
+  const latestPlan = latestRecord(data.treatmentPlans);
+  const latestNote = latestRecord(data.progressNotes);
+  const upcomingAppointment = [...data.appointments].filter((item) => item.startsAt && new Date(item.startsAt) >= new Date() && !["cancelled", "completed"].includes(item.status)).sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt))[0];
+  const clinicalOverview = [
+    ...(canViewClinical ? [
+      { step: "assessments", label: "Latest assessment", value: latestAssessment ? formatDate(latestAssessment.assessedAt || latestAssessment.createdAt) : "Not recorded", detail: latestAssessment?.status || "No assessment yet" },
+      { step: "treatment-plans", label: "Treatment plan", value: latestPlan ? (latestPlan.status || "Recorded") : "Not recorded", detail: latestPlan?.approvedAt ? "Approved" : latestPlan ? "Pending approval" : "No plan yet" },
+      { step: "progress-notes", label: "Latest progress note", value: latestNote ? formatDate(latestNote.createdAt) : "Not recorded", detail: latestNote?.noteType || "No note yet" }
+    ] : []),
+    { step: "appointments", label: "Next appointment", value: upcomingAppointment ? formatDateTime(upcomingAppointment.startsAt) : "None scheduled", detail: upcomingAppointment?.service || "No upcoming appointment" }
+  ];
 
   async function loadMoreHistory() {
     const resource = activeStep;
@@ -430,10 +447,22 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           </div>
         )}
 
+        {!loading && (
+          <div className="patient-journey-overview" aria-label="Patient clinical overview">
+            {clinicalOverview.map((item) => (
+              <button key={item.step + item.label} type="button" className="patient-journey-overview-card" onClick={() => { setActiveStep(item.step); setCreateStep(null); }}>
+                <span>{item.label}</span>
+                <strong>{item.value}</strong>
+                <small>{item.detail}</small>
+              </button>
+            ))}
+          </div>
+        )}
+        {timelineError && !loading && <p className="form-status error-status" role="alert" aria-live="assertive">{timelineError}</p>}
         <div className="journey-mobile-section-picker">
           <label htmlFor="journey-mobile-section">Patient section</label>
           <select id="journey-mobile-section" value={activeStep} onChange={(e) => { setActiveStep(e.target.value); setCreateStep(null); }}>
-            {steps.map((step) => <option key={step} value={step}>{STEP_LABELS[step]} ({Array.isArray(data[step]) ? data[step].length : (data[step] ? 1 : 0)})</option>)}
+            {steps.map((step) => <option key={step} value={step}>{STEP_LABELS[step]} ({recordCount(step)})</option>)}
           </select>
         </div>
 
@@ -441,7 +470,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           {steps.map((step) => {
             const Icon = STEP_ICONS[step];
             const selected = activeStep === step;
-            const count = Array.isArray(data[step]) ? data[step].length : (data[step] ? 1 : 0);
+            const count = recordCount(step);
             return (
               <div
                 key={step}
@@ -542,7 +571,17 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           ) : activeStep === "referral" && !data.referral ? (
             <p className="empty-state">No enquiry record linked to this patient.</p>
           ) : activeRecords.length === 0 ? (
-            <p className="empty-state">No {STEP_LABELS[activeStep].toLowerCase()} recorded yet.</p>
+            <div className="patient-journey-empty-state">
+              <p className="empty-state">No {STEP_LABELS[activeStep].toLowerCase()} recorded yet.</p>
+              {canCreate && (
+                <button className="primary-button" type="button" onClick={openCreate}>
+                  <Plus size={16} /> Create {STEP_LABELS[activeStep]}
+                </button>
+              )}
+              {activeStep === "assessments" && canViewClinical && <button className="secondary-button" type="button" onClick={() => setActiveStep("appointments")}>View appointments</button>}
+              {activeStep === "treatment-plans" && canViewClinical && <button className="secondary-button" type="button" onClick={() => setActiveStep("assessments")}>Review assessments</button>}
+              {activeStep === "progress-notes" && canViewClinical && <button className="secondary-button" type="button" onClick={() => setActiveStep("appointments")}>View appointments</button>}
+            </div>
           ) : (
             <div className="journey-list">
               {pageInfo[activeStep]?.total > 0 && <p className="history-count">Showing {activeRecords.length} of {pageInfo[activeStep].total} records</p>}
