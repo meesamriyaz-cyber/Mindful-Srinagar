@@ -27,7 +27,6 @@ export async function getPractitionerDashboard(req, res, next) {
     const patientAssignmentScope = { ...appointmentScope, status: { $nin: ["cancelled", "no-show"] } };
     const [
       todaysAppointments,
-      documentationPending,
       upcomingAppointments,
       assignedPatientIds,
       completedSessionsThisMonth,
@@ -85,6 +84,7 @@ export async function getPractitionerDashboard(req, res, next) {
         openTasks: assignedTasks.length
       },
       todaysAppointments,
+      documentationPending,
       upcomingAppointments,
       recentNotes,
       assignedTasks
