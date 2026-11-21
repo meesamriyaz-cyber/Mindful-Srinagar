@@ -24,7 +24,8 @@ export async function getPractitionerDashboard(req, res, next) {
 
     const now = new Date();
     const { start: todayStart, end: tomorrow, monthStart } = getCentreDayBounds(now);
-    const tasksDueSoonEnd = new Date(now);
+    const tasksDueSoonStart = new Date(tomorrow);
+    const tasksDueSoonEnd = new Date(tomorrow);
     tasksDueSoonEnd.setDate(tasksDueSoonEnd.getDate() + 7);
 
     const appointmentScope = { practitioner: practitioner._id };
