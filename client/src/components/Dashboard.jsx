@@ -586,7 +586,7 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }
   const scheduleTotal = Number(data.metrics?.appointmentsToday || 0);
   const checkedIn = Number(scheduleMetrics["checked-in"] || 0);
   const completed = Number(scheduleMetrics.completed || 0);
-  const remaining = Math.max(scheduleTotal - completed - Number(scheduleMetrics.cancelled || 0) - Number(scheduleMetrics["no-show"] || 0), 0);
+  const remaining = Number(data.metrics?.remainingAppointmentsToday ?? Math.max(scheduleTotal - completed - Number(scheduleMetrics.cancelled || 0) - Number(scheduleMetrics["no-show"] || 0), 0));
 
   return (
     <div className="operational-home">
