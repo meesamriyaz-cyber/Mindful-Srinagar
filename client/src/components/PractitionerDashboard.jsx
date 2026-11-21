@@ -118,7 +118,7 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
 
   return (
     <div className="practitioner-dashboard">
-      <Card className="practitioner-welcome-card">
+      <Card className="practitioner-welcome-card practitioner-welcome-compact">
         <CardContent>
           <div className="practitioner-welcome-mark"><UsersRound size={22} /></div>
           <div className="practitioner-welcome-copy">
@@ -130,7 +130,7 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
         </CardContent>
       </Card>
 
-      <section className="practitioner-sections-grid" aria-label="Today’s clinical schedule">
+      <section className="practitioner-sections-grid practitioner-today-primary" aria-label="Today’s clinical schedule">
         <SectionCard icon={CalendarClock} title="Today's appointments" description={`Your primary clinical schedule · ${metrics.appointmentsToday ?? todaysAppointments.length} appointments`}>
           {metrics.appointmentsToday > todaysAppointments.length && <p className="practitioner-worklist-overflow">Showing {todaysAppointments.length} of {metrics.appointmentsToday} appointments. Review the complete schedule in Appointments.</p>}
           {todaysAppointments.length ? <div className="practitioner-list">
@@ -182,7 +182,7 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
         </SectionCard>
       </section>
 
-      <SectionCard icon={FileText} title="Session notes pending" description={`Checked-in sessions awaiting documentation · ${metrics.documentationPending ?? documentationPending.length} pending`}>
+      <section className="practitioner-attention-section" aria-label="Attention required"><div className="practitioner-attention-heading"><h3>Attention required</h3><p>Clinical documentation and follow-up work</p></div><SectionCard icon={FileText} title="Session notes pending" description={`Checked-in sessions awaiting documentation · ${metrics.documentationPending ?? documentationPending.length} pending`}>
         {metrics.documentationPending > documentationPending.length && <p className="practitioner-worklist-overflow">Showing {documentationPending.length} appointments here; {metrics.documentationPending} sessions require documentation in total. Review today's appointments to access the complete list.</p>}
         {documentationPending.length ? <div className="practitioner-list">
           {documentationPending.map((item) => (
@@ -204,7 +204,7 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
         {role === "doctor" && <Metric label="Active prescriptions" value={metrics.activePrescriptions} icon={FileText} description="Current prescriptions" />}
       </section>
 
-      <section className="practitioner-sections-grid" aria-label="Clinical activity and tasks">
+      <section className="practitioner-sections-grid" aria-label="Recent clinical activity">
         <SectionCard icon={FileText} title="Recent progress notes" description="Notes authored by you">
           {recentNotes.length ? <div className="practitioner-list">
             {recentNotes.map((note) => (
@@ -215,8 +215,12 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
           </div> : <EmptyState>No progress notes authored yet.</EmptyState>}
         </SectionCard>
 
-        <SectionCard icon={ListChecks} title="My open tasks" description={`Tasks assigned to your account · ${metrics.openTasks ?? assignedTasks.length} open${metrics.overdueTasks ? ` · ${metrics.overdueTasks} overdue` : ""}${metrics.tasksDueToday ? ` · ${metrics.tasksDueToday} due today` : ""}${metrics.tasksDueSoon ? ` · ${metrics.tasksDueSoon} due in the next 7 days` : ""}`}>
-          {metrics.openTasks > assignedTasks.length && <p className="practitioner-worklist-overflow">Showing {assignedTasks.length} of {metrics.openTasks} open tasks. {metrics.overdueTasks || 0} overdue, ${metrics.tasksDueToday || 0} due today and {metrics.tasksDueSoon || 0} due in the next 7 days across your complete workload. Review Tasks for the full list.</p>}
+
+      </section>
+    </div>
+  );
+}        <SectionCard icon={ListChecks} title="My open tasks" description={`Tasks assigned to your account · ${metrics.openTasks ?? assignedTasks.length} open${metrics.overdueTasks ? ` · ${metrics.overdueTasks} overdue` : ""}${metrics.tasksDueToday ? ` · ${metrics.tasksDueToday} due today` : ""}${metrics.tasksDueSoon ? ` · ${metrics.tasksDueSoon} due in the next 7 days` : ""}`}>
+          {metrics.openTasks > assignedTasks.length && <p className="practitioner-worklist-overflow">Showing {assignedTasks.length} of {metrics.openTasks} open tasks. {metrics.overdueTasks || 0} overdue, {metrics.tasksDueToday || 0} due today and {metrics.tasksDueSoon || 0} due in the next 7 days across your complete workload. Review Tasks for the full list.</p>}
           {assignedTasks.length ? <div className="practitioner-list">
             {assignedTasks.map((task) => (
               <article className="practitioner-list-row" key={task._id}>
@@ -227,6 +231,5 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
           </div> : <EmptyState>No open tasks assigned to you.</EmptyState>}
         </SectionCard>
       </section>
-    </div>
-  );
-}
+
+
