@@ -154,7 +154,7 @@ export async function getDashboard(req, res, next) {
     const completedNoteSet = new Set(completedNoteIds.map(String));
     const billedAppointmentSet = new Set(linkedAppointmentInvoices.flatMap((invoice) => invoice.items || []).map((item) => item.appointment).filter(Boolean).map(String));
     const documentationPending = checkedInAppointments.filter((appointment) => !documentedSet.has(String(appointment._id)));
-    const billingPending = completedAppointmentsForBilling.filter((appointment) => completedNoteSet.has(String(appointment._id)) && !billedAppointmentSet.has(String(appointment._id)));
+    const billingPending = completedAppointmentsForBilling.filter((appointment) => !billedAppointmentSet.has(String(appointment._id)));
     const revenueThisMonth = sumPaymentAggregation(paymentsReceivedThisMonth);
     const billedThisMonth = sumInvoiceTotal(invoicesThisMonth);
     const outstanding = unpaidInvoices.reduce((sum, invoice) => {
