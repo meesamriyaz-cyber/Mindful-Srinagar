@@ -27,6 +27,7 @@ export async function getPractitionerDashboard(req, res, next) {
     const patientAssignmentScope = { ...appointmentScope, status: { $nin: ["cancelled", "no-show"] } };
     const [
       todaysAppointments,
+      documentationPending,
       upcomingAppointments,
       assignedPatientIds,
       completedSessionsThisMonth,
@@ -64,6 +65,10 @@ export async function getPractitionerDashboard(req, res, next) {
         .lean()
     ]);
 
+    const checkedInIds = todaysAppointments.filter((appointment) => appointment.status === "checked-in").map((appointment) => appointment._id);
+    const documentedAppointmentIds = await ProgressNote.distinct("appointment", { appointment: { $in: checkedInIds }, noteType: "session" });
+    const documentedSet = new Set(documentedAppointmentIds.map(String));
+    const documentationPending = todaysAppointments.filter((appointment) => appointment.status === "checked-in" && !documentedSet.has(String(appointment._id)));
     const patientCount = await Patient.countDocuments({ _id: { $in: assignedPatientIds } });
 
     return res.json({
