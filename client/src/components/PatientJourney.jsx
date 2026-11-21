@@ -462,6 +462,42 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
           </div>
         )}
         {timelineError && !loading && <p className="form-status error-status" role="alert" aria-live="assertive">{timelineError}</p>}
+        {!loading && (
+          <section className="patient-journey-timeline" aria-labelledby="patient-journey-timeline-title">
+            <header className="patient-journey-timeline-header">
+              <div>
+                <span className="patient-journey-timeline-eyebrow">PATIENT HISTORY</span>
+                <h4 id="patient-journey-timeline-title">Journey timeline</h4>
+                <p>Recent recorded milestones, arranged chronologically.</p>
+              </div>
+              <span className="patient-journey-timeline-count">{timelineEvents.length} events</span>
+            </header>
+            {timelineEvents.length ? (
+              <ol className="patient-journey-timeline-list">
+                {timelineEvents.map((event) => {
+                  const Icon = STEP_ICONS[event.step] || ClipboardList;
+                  return (
+                    <li className="patient-journey-timeline-event" key={event.id}>
+                      <span className="patient-journey-timeline-marker"><Icon size={15} /></span>
+                      <button type="button" className="patient-journey-timeline-entry" onClick={() => { setActiveStep(event.step); setCreateStep(null); }}>
+                        <span className="patient-journey-timeline-entry-top">
+                          <strong>{event.title}</strong>
+                          <time>{event.dateLabel}</time>
+                        </span>
+                        <span className="patient-journey-timeline-description">{event.description}</span>
+                        {event.status && <span className="patient-journey-timeline-status">{event.status}</span>}
+                        <span className="patient-journey-timeline-open">View {STEP_LABELS[event.step]} <ArrowRight size={13} /></span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ol>
+            ) : (
+              <div className="patient-journey-timeline-empty">No journey events are available in the records currently loaded.</div>
+            )}
+            <p className="patient-journey-timeline-footnote">Timeline reflects records currently loaded for each section. Open a section below to review its complete history or load older records.</p>
+          </section>
+        )}
         <div className="journey-mobile-section-picker">
           <label htmlFor="journey-mobile-section">Patient section</label>
           <select id="journey-mobile-section" value={activeStep} onChange={(e) => { setActiveStep(e.target.value); setCreateStep(null); }}>
