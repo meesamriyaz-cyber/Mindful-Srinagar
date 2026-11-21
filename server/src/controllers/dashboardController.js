@@ -145,7 +145,6 @@ export async function getDashboard(req, res, next) {
     ]);
 
     const checkedInIds = checkedInAppointments.map((appointment) => appointment._id);
-    const completedIds = completedAppointmentsForBilling.map((appointment) => appointment._id);
     const documentedAppointmentIds = await ProgressNote.distinct("appointment", { appointment: { $in: checkedInIds }, noteType: "session" });
     const documentedSet = new Set(documentedAppointmentIds.map(String));
     const billedAppointmentSet = new Set(linkedAppointmentInvoices.flatMap((invoice) => invoice.items || []).map((item) => item.appointment).filter(Boolean).map(String));
