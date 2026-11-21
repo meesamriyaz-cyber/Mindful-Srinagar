@@ -116,12 +116,6 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
     assignedTasks = []
   } = state.data;
 
-  const now = new Date();
-  const soon = new Date(now);
-  soon.setDate(soon.getDate() + 7);
-  const overdueTasks = assignedTasks.filter((task) => task.dueDate && new Date(task.dueDate) < now);
-  const dueSoonTasks = assignedTasks.filter((task) => task.dueDate && new Date(task.dueDate) >= now && new Date(task.dueDate) <= soon);
-
   return (
     <div className="practitioner-dashboard">
       <Card className="practitioner-welcome-card">
