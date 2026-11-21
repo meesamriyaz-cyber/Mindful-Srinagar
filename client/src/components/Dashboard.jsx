@@ -662,7 +662,7 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }
           {isDirector ? (
             <StatCard label="Collections" value={INR.format(data.metrics.revenueThisMonth || 0)} trend={INR.format(data.metrics.outstanding || 0) + " outstanding"} icon={IndianRupee} tone={data.metrics.outstanding ? "risk" : ""} />
           ) : (
-            <StatCard label="Pending tasks" value={(data.openTasks || []).length} trend={(data.metrics.overdueTasks || 0) + " overdue"} icon={ListChecks} tone={data.metrics.overdueTasks ? "risk" : ""} />
+            <StatCard label="Pending tasks" value={data.metrics.openTasksCount ?? (data.openTasks || []).length} trend={(data.metrics.overdueTasks || 0) + " overdue · " + (data.openTasks || []).length + " shown"} icon={ListChecks} tone={data.metrics.overdueTasks ? "risk" : ""} />
           )}
         </div>
         <div className="operational-risk-strip">
