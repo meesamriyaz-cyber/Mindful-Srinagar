@@ -78,6 +78,7 @@ export async function getDashboard(req, res, next) {
       monthlyReferralStatus,
       todaysAppointmentStatus,
       overdueTasks,
+      overdueTasksCount,
       urgentReferrals,
       urgentReferralsCount,
       openTasksCount,
@@ -129,6 +130,7 @@ export async function getDashboard(req, res, next) {
         { $group: { _id: "$status", count: { $sum: 1 } } }
       ]),
       Task.find({ status: { $ne: "done" }, dueDate: { $lt: todayStart } }).sort({ dueDate: 1 }).limit(8),
+      Task.countDocuments({ status: { $ne: "done" }, dueDate: { $lt: todayStart } }),
       Referral.find({ status: { $in: ["new", "contacted"] }, urgency: "urgent" })
         .sort({ createdAt: 1 })
         .limit(8),
@@ -192,7 +194,7 @@ export async function getDashboard(req, res, next) {
         outstanding,
         unpaidInvoiceCount: unpaidInvoices.length,
         lowStockCount,
-        overdueTasks: overdueTasks.length,
+        overdueTasks: overdueTasksCount,
         urgentReferrals: urgentReferralsCount,
         openTasksCount,
         conversionRate,
@@ -211,7 +213,7 @@ export async function getDashboard(req, res, next) {
       businessInsights: buildBusinessInsights({
         outstanding,
         lowStockCount,
-        overdueTasksCount: overdueTasks.length,
+        overdueTasksCount,
         urgentReferralsCount: urgentReferrals.length,
         serviceDemand
       }),
