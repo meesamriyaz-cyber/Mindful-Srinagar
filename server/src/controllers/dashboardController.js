@@ -6,7 +6,7 @@ import { Patient } from "../models/Patient.js";
 import { Referral } from "../models/Referral.js";
 import { Task } from "../models/Task.js";
 import { getCentreDayBounds } from "../security/centreTime.js";
-import { sumPaymentAggregation, filterDocumentationPendingAppointments, filterBillingPendingAppointments } from "./dashboardMetrics.js";
+import { sumPaymentAggregation, filterDocumentationPendingAppointments, filterBillingPendingAppointments, countDocumentationPendingAppointments, countBillingPendingAppointments } from "./dashboardMetrics.js";
 
 const openReferralStatuses = ["new", "contacted", "scheduled"];
 
@@ -154,9 +154,8 @@ export async function getDashboard(req, res, next) {
     const documentedAppointmentIds = await ProgressNote.distinct("appointment", { appointment: { $in: checkedInIds }, noteType: "session" });
     const documentationPending = filterDocumentationPendingAppointments(checkedInAppointments, documentedAppointmentIds);
     const billingPending = filterBillingPendingAppointments(completedAppointmentsForBilling, billedAppointmentIds);
-    const documentationPendingCount = Math.max(checkedInIds.length - documentedAppointmentIds.length, 0);
-    const billedAppointmentSet = new Set(billedAppointmentIds.map(String));
-    const billingPendingCount = allCompletedAppointmentIds.filter((appointment) => !billedAppointmentSet.has(String(appointment._id))).length;
+    const documentationPendingCount = countDocumentationPendingAppointments(checkedInIds, documentedAppointmentIds);
+    const billingPendingCount = countBillingPendingAppointments(allCompletedAppointmentIds.map((appointment) => appointment._id), billedAppointmentIds);
     const revenueThisMonth = sumPaymentAggregation(paymentsReceivedThisMonth);
     const billedThisMonth = sumInvoiceTotal(invoicesThisMonth);
     const outstanding = unpaidInvoices.reduce((sum, invoice) => {
