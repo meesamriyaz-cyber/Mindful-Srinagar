@@ -497,41 +497,6 @@ function AppointmentList({ appointments = [] }) {
   );
 }
 
-function PriorityWork({ data }) {
-  const openTasks = data.openTasks || [];
-  const urgentReferrals = data.urgentReferrals || [];
-  const lowStock = data.lowStock || [];
-
-  return (
-    <article className="action-panel management-priority-panel">
-      <div className="panel-title">
-        <ClipboardCheck size={21} />
-        <h3>Needs attention</h3>
-      </div>
-      <ul className="priority-list">
-        {urgentReferrals.slice(0, 3).map((referral) => (
-          <li key={referral._id}>
-            <strong>{referral.patientName}</strong>
-            <span>Urgent {referral.sourceType} referral</span>
-          </li>
-        ))}
-        {openTasks.slice(0, 4).map((task) => (
-          <li key={task._id}>
-            <strong>{task.title}</strong>
-            <span>{task.department} · {task.priority} priority</span>
-          </li>
-        ))}
-        {!urgentReferrals.length && !openTasks.length && <li><strong>No urgent work</strong><span>There are no urgent referrals or open tasks in this summary.</span></li>}
-      </ul>
-      {lowStock.length > 0 && (
-        <div className="warning">
-          <AlertTriangle size={20} />
-          {lowStock.length} inventory item(s) need reorder.
-        </div>
-      )}
-    </article>
-  );
-}
 
 function CashWatch({ data }) {
   const invoices = data.unpaidInvoices || [];
