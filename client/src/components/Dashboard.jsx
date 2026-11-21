@@ -636,7 +636,8 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate }) {
           ) : (
             <StatCard label="Pending tasks" value={(data.openTasks || []).length} trend={(data.metrics.overdueTasks || 0) + " overdue"} icon={ListChecks} tone={data.metrics.overdueTasks ? "risk" : ""} />
           )}
-        </div>        <div className="operational-risk-strip">
+        </div>
+        <div className="operational-risk-strip">
           <span><AlertTriangle size={16} /><strong>Operational risks</strong></span>
           <span>{data.metrics.lowStockCount || 0} low-stock items</span>
           <span>{data.metrics.overdueTasks || 0} overdue tasks</span>
