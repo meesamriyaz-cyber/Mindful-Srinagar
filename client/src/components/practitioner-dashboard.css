@@ -233,3 +233,62 @@
 
 /* Recent activity is a single focused panel in the new hierarchy. */
 .practitioner-recent-activity { grid-template-columns: minmax(0,1fr); }
+
+
+/* Upcoming Appointment Responsive Layout — container-aware card adaptation */
+.practitioner-today-primary > .practitioner-section-card:nth-child(2) {
+  container-name: upcoming-appointments;
+  container-type: inline-size;
+}
+
+@container upcoming-appointments (max-width: 680px) {
+  .practitioner-list-row {
+    display: grid;
+    grid-template-columns: 62px minmax(0, 1fr);
+    align-items: start;
+    gap: 8px 10px;
+  }
+
+  .practitioner-list-row .practitioner-time-block {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    min-width: 0;
+    flex-basis: auto;
+  }
+
+  .practitioner-list-row .practitioner-row-main {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .practitioner-list-row > [data-slot="badge"] {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .practitioner-list-row .practitioner-appointment-actions {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 8px;
+  }
+
+  .practitioner-list-row .practitioner-appointment-actions button {
+    width: 100%;
+    min-width: 0;
+    justify-content: center;
+    padding-inline: 8px;
+  }
+
+  .practitioner-list-row .practitioner-row-main > strong,
+  .practitioner-list-row .practitioner-row-main > span {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+}
