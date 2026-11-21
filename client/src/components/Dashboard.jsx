@@ -1212,7 +1212,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
     const date = toValidDate(record.followUpDate);
     const dateKey = date ? date.toLocaleDateString("en-CA") : "";
     if (!open) return "closed";
-    if (record.urgency === "urgent" && dateKey && dateKey <= referralTodayKey) return "urgent-overdue";
+    if (record.urgency === "urgent" && dateKey && dateKey < referralTodayKey) return "urgent-overdue";
     if (dateKey && dateKey < referralTodayKey) return "overdue";
     if (record.urgency === "urgent" && dateKey === referralTodayKey) return "urgent-today";
     if (dateKey === referralTodayKey) return "due-today";
