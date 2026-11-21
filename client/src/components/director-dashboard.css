@@ -328,3 +328,27 @@
   .admin-report-risk-row { gap: 8px; }
   .admin-report-bar-row > div:first-child { align-items: flex-start; }
 }
+
+/* Batch 4.15 — session closure handoffs */
+.operational-priority-item.tone-warning,
+.operational-priority-item.tone-task {
+  border-left: 3px solid var(--border, currentColor);
+}
+.operational-priority-item.tone-warning {
+  border-left-color: #d97706;
+}
+.operational-priority-item.tone-task {
+  border-left-color: #0d9488;
+}
+.operational-priority-item button {
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .operational-priority-item {
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .operational-priority-item button {
+    align-self: center;
+  }
+}
