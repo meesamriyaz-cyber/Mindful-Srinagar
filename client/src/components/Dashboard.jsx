@@ -526,7 +526,7 @@ function CashWatch({ data }) {
   );
 }
 
-function OverviewWorkspace({ data, isDirector, role, onNavigate }) {
+function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }) {
   const visibleViews = new Set(getVisibleViewItems(role).map((item) => item.id));
   const priorities = [
     ...(data.urgentReferrals || []).slice(0, 3).map((item) => ({
@@ -547,14 +547,15 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate }) {
       id: item._id,
       title: formatPatient(item),
       detail: `Session documentation pending · ${formatTime(item.startsAt)} · ${formatPractitioner(item)}`,
-      destination: "progress-notes",
+      destination: "appointments",
       tone: "warning"
     })),
     ...(data.billingPending || []).slice(0, 3).map((item) => ({
       id: item._id,
       title: formatPatient(item),
       detail: `Completed session · Billing pending · ${formatTime(item.startsAt)}`,
-      destination: "billing",
+      destination: "appointments",
+      action: "bill",
       tone: "task"
     })),
     ...(data.lowStock || []).slice(0, 2).map((item) => ({
@@ -603,7 +604,7 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate }) {
               {priorities.map((item) => (
                 <li key={item.id} className={`operational-priority-item tone-${item.tone}`}>
                   <div><strong>{item.title}</strong><span>{item.detail}</span></div>
-                  <button type="button" onClick={() => onNavigate(item.destination)} aria-label={`Open ${item.destination} workspace`}>Open <span aria-hidden="true">→</span></button>
+                  <button type="button" onClick={() => item.action === "bill" ? onOpenBilling?.(item.id) : onNavigate(item.destination)} aria-label={item.action === "bill" ? "Generate bill for completed appointment" : `Open ${item.destination} workspace`}>{item.action === "bill" ? "Generate bill" : "Open"} <span aria-hidden="true">→</span></button>
                 </li>
               ))}
             </ul>
@@ -1753,7 +1754,7 @@ export function Dashboard() {
       return;
     }
     if (extra?.action === "bill") {
-      const appointment = resourceState.records.find(r => r._id === id);
+      const appointment = resourceState.records.find(r => r._id === id) || data?.billingPending?.find(r => r._id === id) || data?.todaysAppointments?.find(r => r._id === id);
       if (appointment) {
         setBillingRecord(appointment);
         const defaultService = serviceCharges.find(s => s.service === appointment.service);
@@ -1994,7 +1995,7 @@ export function Dashboard() {
               ) : activeView === "overview" ? (
                 ["doctor", "therapist"].includes(session.user?.role)
                   ? <PractitionerDashboard token={session.token} onNavigate={setActiveView} onOpenPatient={(patient, action, appointmentId) => { const patientId = typeof patient === "object" ? patient?._id : patient; const supplied = typeof patient === "object" ? patient : null; const resolved = supplied?.fullName ? supplied : patientsList.find((p) => p._id === patientId) || supplied; setJourneyPatientData(resolved); setJourneyInitialCreateStep(action || null); setJourneyInitialAppointmentId(appointmentId || null); setJourneyPatientId(patientId); }} />
-                  : <OverviewWorkspace data={data} isDirector={isDirector} role={session.user?.role} onNavigate={(view) => { setActiveView(view); setMobileNavigationOpen(false); setNavigationScrollRequest((value) => value + 1); }} />
+                  : <OverviewWorkspace data={data} isDirector={isDirector} role={session.user?.role} onNavigate={(view) => { setActiveView(view); setMobileNavigationOpen(false); setNavigationScrollRequest((value) => value + 1); }} onOpenBilling={(appointmentId) => handleRecordAction("appointments", appointmentId, null, { action: "bill" })} />
               ) : ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeView) ? (
                 <ClinicalBoard
                   activeView={activeView}
