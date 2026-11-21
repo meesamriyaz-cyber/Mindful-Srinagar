@@ -543,6 +543,20 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate }) {
       destination: "tasks",
       tone: item.priority === "high" ? "urgent" : "task"
     })),
+    ...(data.documentationPending || []).slice(0, 3).map((item) => ({
+      id: item._id,
+      title: formatPatient(item),
+      detail: `Session documentation pending · ${formatTime(item.startsAt)} · ${formatPractitioner(item)}`,
+      destination: "progress-notes",
+      tone: "warning"
+    })),
+    ...(data.billingPending || []).slice(0, 3).map((item) => ({
+      id: item._id,
+      title: formatPatient(item),
+      detail: `Completed session · Billing pending · ${formatTime(item.startsAt)}`,
+      destination: "billing",
+      tone: "task"
+    })),
     ...(data.lowStock || []).slice(0, 2).map((item) => ({
       id: item._id,
       title: item.name || "Inventory item",
