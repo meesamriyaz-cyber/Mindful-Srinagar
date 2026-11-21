@@ -172,3 +172,61 @@
   .practitioner-list-row .practitioner-appointment-actions { grid-column:1 / -1; grid-row:3; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; gap:8px; }
   .practitioner-list-row .practitioner-appointment-actions button { min-width:0; width:100%; }
 }
+
+
+/* Batch 4.19.3 — practitioner dashboard hierarchy */
+.practitioner-dashboard { gap: 16px; margin-top: 16px; }
+.practitioner-welcome-compact > div { padding: 15px 20px; gap: 13px; }
+.practitioner-welcome-compact .practitioner-welcome-mark { width: 40px; height: 40px; border-radius: 12px; }
+.practitioner-welcome-compact .practitioner-welcome-copy h2 { margin: 3px 0; font-size: clamp(1.12rem, 1.8vw, 1.42rem); }
+.practitioner-welcome-compact .practitioner-welcome-copy p { font-size: .75rem; line-height: 1.45; }
+.practitioner-today-primary { grid-template-columns: minmax(0,1.25fr) minmax(260px,.85fr); gap: 14px; }
+.practitioner-today-primary > .practitioner-section-card:first-child { border-color: #cfe3e0; box-shadow: 0 7px 22px rgba(36,127,131,.055); }
+.practitioner-today-primary > .practitioner-section-card:first-child .practitioner-section-header { background: linear-gradient(90deg,#f2faf8,#fff); }
+.practitioner-attention-section { display: grid; gap: 10px; }
+.practitioner-attention-heading h3 { margin: 0; color: #173f59; font-size: .95rem; font-weight: 800; }
+.practitioner-attention-heading p { margin: 3px 0 0; color: #7b8d97; font-size: .72rem; }
+.practitioner-attention-section .practitioner-section-card { border-color: #e5ecee; }
+.practitioner-attention-section .practitioner-empty-state { padding: 14px 10px; }
+.practitioner-attention-section .practitioner-list-row { padding: 10px 0; }
+.practitioner-metrics-grid { grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 10px; }
+.practitioner-metric-content { padding: 14px; gap: 10px; }
+.practitioner-metric-copy > span { font-size: .7rem; }
+.practitioner-metric-copy > small { font-size: .64rem; }
+.practitioner-recent-activity { align-items: start; }
+.practitioner-recent-activity .practitioner-section-card { height: auto; }
+.practitioner-recent-activity .practitioner-empty-state { padding: 18px 10px; }
+.practitioner-note-row { align-items: flex-start; }
+.practitioner-note-row .practitioner-row-main { gap: 5px; }
+.practitioner-note-row .practitioner-row-main > p { max-width: 70ch; }
+.practitioner-dashboard-loading .practitioner-metrics-grid { grid-template-columns: repeat(4,minmax(0,1fr)); }
+@media (max-width: 1050px) {
+  .practitioner-today-primary { grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+  .practitioner-metrics-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 760px) {
+  .practitioner-dashboard { gap: 13px; margin-top: 12px; }
+  .practitioner-welcome-compact > div { padding: 14px; gap: 10px; }
+  .practitioner-welcome-compact .practitioner-welcome-copy { flex-basis: calc(100% - 52px); }
+  .practitioner-welcome-compact [data-slot="badge"] { margin-left: 50px; }
+  .practitioner-today-primary { grid-template-columns: minmax(0,1fr); gap: 12px; }
+  .practitioner-metrics-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .practitioner-section-header { padding: 14px 14px 10px; }
+  .practitioner-section-content { padding: 0 14px 12px; }
+}
+@media (max-width: 540px) {
+  .practitioner-metrics-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .practitioner-metric-content { padding: 11px; gap: 8px; }
+  .practitioner-metric-icon { width: 30px; height: 30px; }
+  .practitioner-metric-copy > span { font-size: .65rem; }
+  .practitioner-metric-copy > strong { font-size: 1.35rem; }
+  .practitioner-metric-copy > small { font-size: .59rem; }
+  .practitioner-list-row { display: grid; grid-template-columns: 58px minmax(0,1fr); align-items: start; gap: 7px 9px; }
+  .practitioner-list-row .practitioner-time-block { grid-column: 1; grid-row: 1 / span 2; min-width: 0; flex-basis: auto; }
+  .practitioner-list-row .practitioner-row-main { grid-column: 2; grid-row: 1; }
+  .practitioner-list-row > [data-slot="badge"] { grid-column: 2; grid-row: 2; justify-self: start; max-width: 100%; white-space: nowrap; }
+  .practitioner-list-row .practitioner-appointment-actions { grid-column: 1 / -1; grid-row: 3; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); width: 100%; gap: 7px; }
+  .practitioner-list-row .practitioner-appointment-actions button { width: 100%; min-width: 0; justify-content: center; padding-inline: 7px; }
+  .practitioner-list-row .practitioner-row-main > strong { overflow-wrap: anywhere; }
+  .practitioner-attention-section .practitioner-empty-state { padding: 12px 8px; }
+}
