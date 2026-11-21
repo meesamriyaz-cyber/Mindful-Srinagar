@@ -36,8 +36,16 @@ export async function getPractitionerDashboard(req, res, next) {
       recentNotes,
       activePrescriptions,
       assignedTasks,
+      appointmentsTodayCount,
+      upcomingAppointmentsCount,
+      openTasksCount,
+      overdueTasksCount,
       allCheckedInAppointmentIds
     ] = await Promise.all([
+      Appointment.countDocuments({ ...appointmentScope, startsAt: { $gte: todayStart, $lt: tomorrow }, status: { $nin: ["cancelled"] } }),
+      Appointment.countDocuments({ ...appointmentScope, startsAt: { $gte: tomorrow }, status: "scheduled" }),
+      Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" } }),
+      Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" }, dueDate: { $lt: todayStart } }),
       Appointment.find({ ...appointmentScope, startsAt: { $gte: todayStart, $lt: tomorrow }, status: { $nin: ["cancelled"] } })
         .populate("patient", "fullName mrn status")
         .sort({ startsAt: 1 })
@@ -79,13 +87,14 @@ export async function getPractitionerDashboard(req, res, next) {
       role: req.user.role,
       metrics: {
         patientsUnderCare: patientCount,
-        appointmentsToday: todaysAppointments.length,
-        upcomingAppointments: upcomingAppointments.length,
+        appointmentsToday: appointmentsTodayCount,
+        upcomingAppointments: upcomingAppointmentsCount,
         completedSessionsThisMonth,
         pendingAssessments,
         activeTreatmentPlans,
         activePrescriptions,
-        openTasks: assignedTasks.length,
+        openTasks: openTasksCount,
+        overdueTasks: overdueTasksCount,
         documentationPending: documentationPendingCount
       },
       todaysAppointments,
