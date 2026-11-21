@@ -4063,3 +4063,156 @@ html {
   .journey-steps { display:none !important; }
   .journey-content { padding-top:12px; }
 }
+
+
+/* Batch 4.12.1 — Patient Journey dialog and clinical form accessibility */
+.management-journey-modal {
+  width: min(100%, 1080px);
+  max-height: calc(100dvh - 32px);
+  min-height: 0;
+}
+
+.management-journey-modal > * {
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.management-journey-modal .journey-header {
+  flex: 0 0 auto;
+}
+
+.management-journey-modal .journey-steps {
+  flex: 0 0 auto;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.management-journey-modal .journey-content {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.management-journey-modal .management-journey-create-form {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  align-content: start;
+}
+
+.management-journey-modal .management-journey-create-form > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.management-journey-modal .management-journey-create-form textarea {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+}
+
+.management-journey-modal.is-creating .patient-journey-overview,
+.management-journey-modal.is-creating .patient-journey-timeline {
+  display: none !important;
+}
+
+.management-journey-modal.is-creating .journey-content {
+  padding: clamp(12px, 2vw, 20px);
+}
+
+@media (max-width: 640px) {
+  .journey-overlay {
+    align-items: stretch;
+    padding: 8px;
+  }
+
+  .management-journey-modal {
+    width: 100%;
+    max-width: none;
+    height: calc(100dvh - 16px);
+    max-height: calc(100dvh - 16px);
+    min-height: 0;
+    border-radius: 14px;
+  }
+
+  .management-journey-modal .journey-header {
+    padding: 12px 14px;
+  }
+
+  .management-journey-modal .journey-header small {
+    display: block;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .management-journey-modal .journey-steps {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 8px 10px;
+    gap: 6px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .management-journey-modal .journey-step {
+    flex: 0 0 auto;
+    padding: 7px 9px;
+    font-size: 0.76rem;
+  }
+
+  .management-journey-modal .journey-content {
+    padding: 10px;
+  }
+
+  .management-journey-modal.is-creating .journey-content {
+    padding: 12px;
+  }
+
+  .management-journey-modal .management-journey-create-form {
+    gap: 12px;
+    padding: 0;
+  }
+
+  .management-journey-modal .management-journey-create-form h4 {
+    font-size: 1rem;
+  }
+
+  .management-journey-modal .management-journey-create-form label {
+    gap: 6px;
+    font-size: 0.82rem;
+  }
+
+  .management-journey-modal .management-journey-create-form :is(input, select, textarea) {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .management-journey-modal .management-journey-create-form textarea {
+    min-height: 110px;
+  }
+}
+
+@media (max-width: 380px) {
+  .journey-overlay {
+    padding: 4px;
+  }
+
+  .management-journey-modal {
+    height: calc(100dvh - 8px);
+    max-height: calc(100dvh - 8px);
+    border-radius: 10px;
+  }
+
+  .management-journey-modal .journey-header {
+    padding: 10px;
+  }
+
+  .management-journey-modal .journey-content {
+    padding: 8px;
+  }
+}
