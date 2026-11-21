@@ -570,7 +570,7 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }
     visibleViews.has("referrals") ? Number(data.metrics?.urgentReferrals || 0) : 0,
     visibleViews.has("appointments") ? Number(data.metrics?.documentationPendingCount || 0) : 0,
     visibleViews.has("appointments") ? Number(data.metrics?.billingPendingCount || 0) : 0,
-    visibleViews.has("tasks") ? (data.openTasks || []).length : 0,
+    visibleViews.has("tasks") ? Number(data.metrics?.openTasksCount || 0) : 0,
     visibleViews.has("inventory") ? Number(data.metrics?.lowStockCount || 0) : 0
   ].reduce((sum, count) => sum + count, 0);
   const quickActions = [
