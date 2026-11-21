@@ -582,9 +582,11 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }
     { label: "Inventory", description: "Stock and reorder levels", destination: "inventory", icon: PackageOpen }
   ].filter((action) => visibleViews.has(action.destination));
   const appointments = data.todaysAppointments || [];
-  const checkedIn = appointments.filter((item) => item.status === "checked-in").length;
-  const completed = appointments.filter((item) => item.status === "completed").length;
-  const remaining = appointments.filter((item) => !["completed", "cancelled", "no-show"].includes(item.status)).length;
+  const scheduleMetrics = data.analytics?.appointmentStatusToday || {};
+  const scheduleTotal = Number(data.metrics?.appointmentsToday || 0);
+  const checkedIn = Number(scheduleMetrics["checked-in"] || 0);
+  const completed = Number(scheduleMetrics.completed || 0);
+  const remaining = Math.max(scheduleTotal - completed - Number(scheduleMetrics.cancelled || 0) - Number(scheduleMetrics["no-show"] || 0), 0);
 
   return (
     <div className="operational-home">
@@ -629,13 +631,14 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }
             <button type="button" className="operational-link-button" onClick={() => onNavigate("appointments")}>View schedule <span aria-hidden="true">→</span></button>
           </header>
           <div className="operational-schedule-summary">
-            <div><strong>{appointments.length}</strong><span>Appointments</span></div>
+            <div><strong>{scheduleTotal}</strong><span>Appointments</span></div>
             <div><strong>{checkedIn}</strong><span>Checked in</span></div>
             <div><strong>{completed}</strong><span>Completed</span></div>
             <div><strong>{remaining}</strong><span>Remaining</span></div>
           </div>
+          {appointments.length < scheduleTotal && <p className="operational-priority-overflow">Showing {appointments.length} of {scheduleTotal} appointments. Open the schedule for the complete list.</p>}
           <AppointmentList appointments={appointments.slice(0, 5)} />
-          {appointments.length > 5 && <button className="operational-more-button" type="button" onClick={() => onNavigate("appointments")}>View all {appointments.length} appointments</button>}
+          {appointments.length > 5 && <button className="operational-more-button" type="button" onClick={() => onNavigate("appointments")}>View all {scheduleTotal} appointments</button>}
         </article>
       </section>
 
