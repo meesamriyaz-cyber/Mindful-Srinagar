@@ -206,6 +206,77 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     { step: "appointments", label: "Next appointment", value: upcomingAppointment ? formatDateTime(upcomingAppointment.startsAt) : "None scheduled", detail: upcomingAppointment?.service || "No upcoming appointment" }
   ];
 
+  const timelineEvents = [
+    ...(data.referral ? [{
+      id: `referral-${data.referral._id || "record"}`,
+      step: "referral",
+      date: data.referral.createdAt || data.referral.receivedAt,
+      title: "Referral received",
+      description: [data.referral.sourceName, data.referral.sourceType, data.referral.concern].filter(Boolean).join(" · "),
+      status: data.referral.status
+    }] : []),
+    ...data.appointments.map((record) => ({
+      id: `appointment-${record._id}`,
+      step: "appointments",
+      date: record.startsAt || record.createdAt,
+      title: "Appointment",
+      description: [record.service, record.practitioner?.name ? `Practitioner: ${record.practitioner.name}` : null, record.room ? `Room: ${record.room}` : null].filter(Boolean).join(" · "),
+      status: record.status
+    })),
+    ...(canViewClinical ? data.assessments.map((record) => ({
+      id: `assessment-${record._id}`,
+      step: "assessments",
+      date: record.assessedAt || record.createdAt,
+      title: `Assessment · ${record.assessmentType || "Clinical"}`,
+      description: [record.domains?.length ? record.domains.join(", ") : null, record.findings].filter(Boolean).join(" · ").slice(0, 180),
+      status: record.status
+    })) : []),
+    ...(canViewClinical ? data.treatmentPlans.flatMap((record) => [
+      {
+        id: `plan-${record._id}`,
+        step: "treatment-plans",
+        date: record.createdAt,
+        title: "Treatment plan created",
+        description: [record.frequency, record.duration, record.goals].filter(Boolean).join(" · ").slice(0, 180),
+        status: record.status
+      },
+      ...(record.approvedAt ? [{
+        id: `plan-approved-${record._id}`,
+        step: "treatment-plans",
+        date: record.approvedAt,
+        title: "Treatment plan approved",
+        description: record.approvedBy?.name ? `Approved by ${record.approvedBy.name}` : "Approval recorded",
+        status: "approved"
+      }] : [])
+    ]) : []),
+    ...(canViewClinical ? data.progressNotes.map((record) => ({
+      id: `note-${record._id}`,
+      step: "progress-notes",
+      date: record.createdAt,
+      title: `Progress note · ${record.noteType || "Session"}`,
+      description: [record.appointment?.service, record.objective, record.plan].filter(Boolean).join(" · ").slice(0, 180),
+      status: record.appointment?.status
+    })) : []),
+    ...(canViewPrescriptions ? data.prescriptions.map((record) => ({
+      id: `prescription-${record._id}`,
+      step: "prescriptions",
+      date: record.createdAt,
+      title: "Prescription recorded",
+      description: (record.medications || []).map((item) => item.name).filter(Boolean).join(", ") || record.notes || "",
+      status: record.status
+    })) : []),
+    ...(canViewBilling ? data.invoices.map((record) => ({
+      id: `invoice-${record._id}`,
+      step: "invoices",
+      date: record.createdAt || record.issueDate,
+      title: `Invoice · ${record.invoiceNo || "Billing record"}`,
+      description: `Total ₹${Number(record.total || record.amount || 0).toLocaleString("en-IN")} · Paid ₹${Number(record.paidAmount || 0).toLocaleString("en-IN")}`,
+      status: record.status
+    })) : [])
+  ].filter((event) => event.date && !Number.isNaN(new Date(event.date).getTime()))
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .map((event) => ({ ...event, dateLabel: formatDateTime(event.date) }));
+
   async function loadMoreResource(resource) {
     const current = pageInfo[resource];
     if (!current?.hasMore || loadingMore || resource === "referral") return;
