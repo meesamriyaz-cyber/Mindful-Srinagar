@@ -22,3 +22,9 @@ export function countBillingPendingAppointments(appointmentIds = [], billedAppoi
   const billed = new Set(billedAppointmentIds.map(String));
   return appointmentIds.filter((id) => !billed.has(String(id))).length;
 }
+
+export function countRemainingAppointments(totalAppointments = 0, statusCounts = {}) {
+  const total = Math.max(Number(totalAppointments) || 0, 0);
+  const terminal = ["completed", "cancelled", "no-show"].reduce((sum, status) => sum + (Number(statusCounts[status]) || 0), 0);
+  return Math.max(total - terminal, 0);
+}
