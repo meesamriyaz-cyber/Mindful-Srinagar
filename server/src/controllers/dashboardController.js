@@ -82,6 +82,8 @@ export async function getDashboard(req, res, next) {
       lowStockCount,
       checkedInAppointments,
       completedAppointmentsForBilling,
+      allCheckedInAppointmentIds,
+      allCompletedAppointmentIds,
       billedAppointmentIds
     ] = await Promise.all([
       Patient.countDocuments(),
@@ -139,13 +141,18 @@ export async function getDashboard(req, res, next) {
         .populate("practitioner", "name discipline")
         .sort({ startsAt: 1 })
         .limit(20),
+      Appointment.find({ startsAt: { $gte: todayStart, $lt: todayEnd }, status: "checked-in" }).select("_id").lean(),
+      Appointment.find({ startsAt: { $gte: todayStart, $lt: todayEnd }, status: "completed" }).select("_id").lean(),
       Invoice.distinct("items.appointment", { status: { $ne: "void" } })
     ]);
 
-    const checkedInIds = checkedInAppointments.map((appointment) => appointment._id);
+    const checkedInIds = allCheckedInAppointmentIds.map((appointment) => appointment._id);
     const documentedAppointmentIds = await ProgressNote.distinct("appointment", { appointment: { $in: checkedInIds }, noteType: "session" });
     const documentationPending = filterDocumentationPendingAppointments(checkedInAppointments, documentedAppointmentIds);
     const billingPending = filterBillingPendingAppointments(completedAppointmentsForBilling, billedAppointmentIds);
+    const documentationPendingCount = Math.max(checkedInIds.length - documentedAppointmentIds.length, 0);
+    const billedAppointmentSet = new Set(billedAppointmentIds.map(String));
+    const billingPendingCount = allCompletedAppointmentIds.filter((appointment) => !billedAppointmentSet.has(String(appointment._id))).length;
     const revenueThisMonth = sumPaymentAggregation(paymentsReceivedThisMonth);
     const billedThisMonth = sumInvoiceTotal(invoicesThisMonth);
     const outstanding = unpaidInvoices.reduce((sum, invoice) => {
@@ -186,8 +193,8 @@ export async function getDashboard(req, res, next) {
         urgentReferrals: urgentReferrals.length,
         conversionRate,
         completedAppointmentsThisMonth,
-        documentationPendingCount: documentationPending.length,
-        billingPendingCount: billingPending.length
+        documentationPendingCount,
+        billingPendingCount
       },
       todaysAppointments,
       documentationPending,
