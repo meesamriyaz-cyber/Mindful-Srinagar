@@ -82,7 +82,7 @@ export async function getDashboard(req, res, next) {
       lowStockCount,
       checkedInAppointments,
       completedAppointmentsForBilling,
-      linkedAppointmentInvoices
+      billedAppointmentIds
     ] = await Promise.all([
       Patient.countDocuments(),
       Patient.countDocuments({ status: "active" }),
@@ -139,12 +139,11 @@ export async function getDashboard(req, res, next) {
         .populate("practitioner", "name discipline")
         .sort({ startsAt: 1 })
         .limit(20),
-      Invoice.find({ status: { $ne: "void" }, "items.appointment": { $exists: true } }).select("items.appointment")
+      Invoice.distinct("items.appointment", { status: { $ne: "void" } })
     ]);
 
     const checkedInIds = checkedInAppointments.map((appointment) => appointment._id);
     const documentedAppointmentIds = await ProgressNote.distinct("appointment", { appointment: { $in: checkedInIds }, noteType: "session" });
-    const billedAppointmentIds = linkedAppointmentInvoices.flatMap((invoice) => invoice.items || []).map((item) => item.appointment).filter(Boolean);
     const documentationPending = filterDocumentationPendingAppointments(checkedInAppointments, documentedAppointmentIds);
     const billingPending = filterBillingPendingAppointments(completedAppointmentsForBilling, billedAppointmentIds);
     const revenueThisMonth = sumPaymentAggregation(paymentsReceivedThisMonth);
