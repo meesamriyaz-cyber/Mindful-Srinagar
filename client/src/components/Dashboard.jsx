@@ -609,7 +609,7 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }
               ))}
             </ul>
           ) : (
-            <div className="operational-empty"><CheckCircle2 size={20} /><div><strong>You're clear for now</strong><span>No urgent referrals, open tasks or low-stock alerts in this summary.</span></div></div>
+            <div className="operational-empty"><CheckCircle2 size={20} /><div><strong>You're clear for now</strong><span>No urgent referrals, session handoffs, open tasks or low-stock alerts in this summary.</span></div></div>
           )}
         </article>
 
