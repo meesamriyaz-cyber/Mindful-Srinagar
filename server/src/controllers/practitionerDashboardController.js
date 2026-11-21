@@ -22,7 +22,10 @@ export async function getPractitionerDashboard(req, res, next) {
       });
     }
 
-    const { start: todayStart, end: tomorrow, monthStart } = getCentreDayBounds(new Date());
+    const now = new Date();
+    const { start: todayStart, end: tomorrow, monthStart } = getCentreDayBounds(now);
+    const tasksDueSoonEnd = new Date(now);
+    tasksDueSoonEnd.setDate(tasksDueSoonEnd.getDate() + 7);
 
     const appointmentScope = { practitioner: practitioner._id };
     const patientAssignmentScope = { ...appointmentScope, status: { $nin: ["cancelled", "no-show"] } };
@@ -31,6 +34,7 @@ export async function getPractitionerDashboard(req, res, next) {
       upcomingAppointmentsCount,
       openTasksCount,
       overdueTasksCount,
+      tasksDueSoonCount,
       todaysAppointments,
       upcomingAppointments,
       assignedPatientIds,
@@ -46,6 +50,7 @@ export async function getPractitionerDashboard(req, res, next) {
       Appointment.countDocuments({ ...appointmentScope, startsAt: { $gte: tomorrow }, status: "scheduled" }),
       Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" } }),
       Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" }, dueDate: { $lt: todayStart } }),
+      Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" }, dueDate: { $gte: now, $lte: tasksDueSoonEnd } }),
       Appointment.find({ ...appointmentScope, startsAt: { $gte: todayStart, $lt: tomorrow }, status: { $nin: ["cancelled"] } })
         .populate("patient", "fullName mrn status")
         .sort({ startsAt: 1 })
@@ -95,6 +100,7 @@ export async function getPractitionerDashboard(req, res, next) {
         activePrescriptions,
         openTasks: openTasksCount,
         overdueTasks: overdueTasksCount,
+        tasksDueSoon: tasksDueSoonCount,
         documentationPending: documentationPendingCount
       },
       todaysAppointments,
