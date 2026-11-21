@@ -1361,6 +1361,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                         <span className="management-record-meta">{summary.meta}</span>
                       </div>
                       <mark className={statusClass(summary.status)}>{summary.status || "open"}</mark>
+                      {activeView === "referrals" && <span className={`referral-worklist-badge referral-worklist-badge-${referralClassify(record)}`}>{({ "urgent-overdue": "Urgent · overdue", overdue: "Overdue", "urgent-today": "Urgent · today", "due-today": "Due today", unassigned: "Unassigned", unscheduled: "Needs scheduling", upcoming: "Upcoming", closed: "Closed" })[referralClassify(record)]}</span>}
                     </div>
                     <p className="management-record-detail">{summary.detail}</p>
                     {activeView === "tasks" && (
