@@ -2467,3 +2467,46 @@
 .task-activity-list { display: grid; gap: 6px; padding-top: 8px; border-top: 1px solid var(--border, #e4ebef); }
 .task-activity-entry { color: var(--muted-foreground, #64748b); font-size: .72rem; line-height: 1.45; }
 .task-activity-entry p { margin: 3px 0 0; color: var(--foreground, #475569); overflow-wrap: anywhere; }
+
+
+/* Batch 4.19.2 — Quick Access hierarchy */
+.dashboard-section .operational-quick-group {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.dashboard-section .operational-quick-group + .operational-quick-group {
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid #edf2f3;
+}
+.dashboard-section .operational-quick-group-label {
+  margin: 0;
+  color: #7a8d98;
+  font-size: .66rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.dashboard-section .operational-quick-primary-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.dashboard-section .operational-quick-action-primary {
+  border-color: #dbe9eb;
+  background: #f7fbfb;
+}
+.dashboard-section .operational-quick-action-primary .operational-quick-icon {
+  background: #e2f0f0;
+  color: #39747c;
+}
+@media (max-width: 1000px) {
+  .dashboard-section .operational-quick-primary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 620px) {
+  .dashboard-section .operational-quick-primary-grid,
+  .dashboard-section .operational-quick-secondary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
