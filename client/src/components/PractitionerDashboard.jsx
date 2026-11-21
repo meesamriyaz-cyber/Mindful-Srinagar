@@ -216,7 +216,7 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
         </SectionCard>
 
         <SectionCard icon={ListChecks} title="My open tasks" description={`Tasks assigned to your account · ${metrics.openTasks ?? assignedTasks.length} open${metrics.overdueTasks ? ` · ${metrics.overdueTasks} overdue` : ""}${metrics.tasksDueToday ? ` · ${metrics.tasksDueToday} due today` : ""}${metrics.tasksDueSoon ? ` · ${metrics.tasksDueSoon} due in the next 7 days` : ""}`}>
-          {metrics.openTasks > assignedTasks.length && <p className="practitioner-worklist-overflow">Showing {assignedTasks.length} of {metrics.openTasks} open tasks. {metrics.overdueTasks || 0} overdue and {metrics.tasksDueSoon || 0} due within 7 days across your complete workload. Review Tasks for the full list.</p>}
+          {metrics.openTasks > assignedTasks.length && <p className="practitioner-worklist-overflow">Showing {assignedTasks.length} of {metrics.openTasks} open tasks. {metrics.overdueTasks || 0} overdue, ${metrics.tasksDueToday || 0} due today and {metrics.tasksDueSoon || 0} due in the next 7 days across your complete workload. Review Tasks for the full list.</p>}
           {assignedTasks.length ? <div className="practitioner-list">
             {assignedTasks.map((task) => (
               <article className="practitioner-list-row" key={task._id}>
