@@ -35,6 +35,7 @@ export async function getPractitionerDashboard(req, res, next) {
       upcomingAppointmentsCount,
       openTasksCount,
       overdueTasksCount,
+      tasksDueTodayCount,
       tasksDueSoonCount,
       todaysAppointments,
       upcomingAppointments,
