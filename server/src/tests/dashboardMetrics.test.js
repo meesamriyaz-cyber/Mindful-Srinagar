@@ -63,13 +63,13 @@ test("remaining appointment count safely handles empty and inconsistent totals",
 });
 
 
-test("task deadline ranges separate overdue, today, and the following seven days", () => {
-  const todayStart = new Date("2026-11-21T00:00:00.000Z");
-  const tomorrow = new Date("2026-11-22T00:00:00.000Z");
+test("task deadline ranges match date-only UTC-midnight storage and centre calendar days", () => {
+  const todayStart = new Date("2026-11-20T18:30:00.000Z");
+  const tomorrow = new Date("2026-11-21T18:30:00.000Z");
   const ranges = getTaskDeadlineRanges(todayStart, tomorrow);
-  assert.equal(ranges.overdueBefore.toISOString(), todayStart.toISOString());
-  assert.equal(ranges.dueTodayStart.toISOString(), todayStart.toISOString());
-  assert.equal(ranges.dueTodayEnd.toISOString(), tomorrow.toISOString());
-  assert.equal(ranges.upcomingStart.toISOString(), tomorrow.toISOString());
+  assert.equal(ranges.overdueBefore.toISOString(), "2026-11-21T00:00:00.000Z");
+  assert.equal(ranges.dueTodayStart.toISOString(), "2026-11-21T00:00:00.000Z");
+  assert.equal(ranges.dueTodayEnd.toISOString(), "2026-11-22T00:00:00.000Z");
+  assert.equal(ranges.upcomingStart.toISOString(), "2026-11-22T00:00:00.000Z");
   assert.equal(ranges.upcomingEnd.toISOString(), "2026-11-29T00:00:00.000Z");
 });
