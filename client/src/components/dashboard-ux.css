@@ -2395,3 +2395,66 @@
 .patient-journey-timeline-empty { padding: 15px; border-radius: 10px; background: #f8fbfc; color: #7a8d97; font-size: .75rem; }
 .patient-journey-timeline-footnote { margin: 12px 0 0; color: #8797a0; font-size: .65rem; line-height: 1.5; }
 @media (max-width: 600px) { .patient-journey-timeline { padding: 12px; border-radius: 12px; } .patient-journey-timeline-entry { padding: 9px; } .patient-journey-timeline-entry-top { flex-direction: column; gap: 2px; } .patient-journey-timeline-entry time { font-size: .64rem; } }
+
+
+/* Batch 4.13.1 — Referral follow-up worklist */
+.referral-worklist {
+  display: grid;
+  gap: 14px;
+  margin: 0 0 18px;
+  min-width: 0;
+}
+.referral-worklist-summary {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+}
+.referral-worklist-summary button {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 12px 14px;
+  text-align: left;
+  border: 1px solid var(--border, rgba(120, 140, 150, .2));
+  border-radius: 14px;
+  background: var(--card, rgba(255,255,255,.72));
+  color: inherit;
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.referral-worklist-summary button:hover { transform: translateY(-1px); }
+.referral-worklist-summary button.is-active { border-color: currentColor; background: color-mix(in srgb, currentColor 7%, var(--card, white)); }
+.referral-worklist-summary button.is-danger { color: #b42318; }
+.referral-worklist-summary button.is-warning { color: #a15c00; }
+.referral-worklist-summary button.is-positive { color: #087f5b; }
+.referral-worklist-summary strong { font-size: 1.45rem; line-height: 1.1; font-weight: 750; }
+.referral-worklist-summary span { font-size: .78rem; font-weight: 600; opacity: .9; }
+.referral-worklist-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.referral-worklist-toolbar > strong { font-size: .96rem; }
+.referral-worklist-filters { display: flex; align-items: center; gap: 10px; color: var(--muted-foreground, #64748b); font-size: .8rem; }
+.referral-worklist-filters button { border: 1px solid var(--border, rgba(120,140,150,.25)); border-radius: 999px; padding: 6px 12px; background: transparent; color: inherit; cursor: pointer; }
+.referral-worklist-filters button.is-active { background: var(--primary, #0f766e); color: white; border-color: transparent; }
+.referral-worklist-badge { display: inline-flex; align-items: center; width: fit-content; border-radius: 999px; padding: 4px 8px; font-size: .68rem; line-height: 1.25; font-weight: 750; letter-spacing: .02em; white-space: nowrap; }
+.referral-worklist-badge-urgent-overdue, .referral-worklist-badge-overdue { color: #b42318; background: rgba(220, 38, 38, .10); }
+.referral-worklist-badge-urgent-today, .referral-worklist-badge-due-today { color: #a15c00; background: rgba(245, 158, 11, .13); }
+.referral-worklist-badge-unassigned, .referral-worklist-badge-unscheduled { color: #475569; background: rgba(100, 116, 139, .12); }
+.referral-worklist-badge-upcoming { color: #087f5b; background: rgba(16, 185, 129, .12); }
+.referral-worklist-badge-closed { color: #64748b; background: rgba(100, 116, 139, .1); }
+.management-record-card-referrals .management-record-main { flex-wrap: wrap; }
+.management-record-card-referrals .management-record-main > div:first-child { min-width: 0; flex: 1 1 180px; }
+.management-record-card-referrals .referral-worklist-badge { margin-left: auto; }
+@media (max-width: 900px) {
+  .referral-worklist-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .referral-worklist { gap: 10px; margin-bottom: 14px; }
+  .referral-worklist-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .referral-worklist-summary button { padding: 10px 12px; border-radius: 12px; }
+  .referral-worklist-summary strong { font-size: 1.25rem; }
+  .referral-worklist-summary span { font-size: .73rem; }
+  .referral-worklist-toolbar { align-items: flex-start; }
+  .referral-worklist-filters { width: 100%; justify-content: space-between; }
+  .management-record-card-referrals .management-record-main { gap: 8px; }
+  .management-record-card-referrals .referral-worklist-badge { margin-left: 0; }
+}
