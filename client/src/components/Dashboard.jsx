@@ -1274,8 +1274,8 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
         if (isDoneA) return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0);
         const dueA = toValidDate(a.dueDate);
         const dueB = toValidDate(b.dueDate);
-        const overdueA = dueA && dueA.getTime() < Date.now();
-        const overdueB = dueB && dueB.getTime() < Date.now();
+        const overdueA = dueA && dueA.toLocaleDateString("en-CA") < taskTodayKey;
+        const overdueB = dueB && dueB.toLocaleDateString("en-CA") < taskTodayKey;
         if (overdueA !== overdueB) return overdueA ? -1 : 1;
         const priorityRank = { high: 0, medium: 1, low: 2 };
         const priorityDiff = (priorityRank[a.priority || "medium"] ?? 1) - (priorityRank[b.priority || "medium"] ?? 1);
