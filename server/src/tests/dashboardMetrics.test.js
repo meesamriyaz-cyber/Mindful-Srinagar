@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { sumPaymentAggregation, filterDocumentationPendingAppointments, filterBillingPendingAppointments, countDocumentationPendingAppointments, countBillingPendingAppointments, countRemainingAppointments } from "../controllers/dashboardMetrics.js";
+import { sumPaymentAggregation, filterDocumentationPendingAppointments, filterBillingPendingAppointments, countDocumentationPendingAppointments, countBillingPendingAppointments, countRemainingAppointments, getTaskDeadlineRanges } from "../controllers/dashboardMetrics.js";
 
 test("dashboard monthly collections sum payment ledger aggregation rows", () => {
   assert.equal(sumPaymentAggregation([{ total: 1250.25 }]), 1250.25);
@@ -60,4 +60,16 @@ test("remaining appointment count uses complete status totals, not visible recor
 test("remaining appointment count safely handles empty and inconsistent totals", () => {
   assert.equal(countRemainingAppointments(0, {}), 0);
   assert.equal(countRemainingAppointments(4, { completed: 5 }), 0);
+});
+
+
+test("task deadline ranges separate overdue, today, and the following seven days", () => {
+  const todayStart = new Date("2026-11-21T00:00:00.000Z");
+  const tomorrow = new Date("2026-11-22T00:00:00.000Z");
+  const ranges = getTaskDeadlineRanges(todayStart, tomorrow);
+  assert.equal(ranges.overdueBefore.toISOString(), todayStart.toISOString());
+  assert.equal(ranges.dueTodayStart.toISOString(), todayStart.toISOString());
+  assert.equal(ranges.dueTodayEnd.toISOString(), tomorrow.toISOString());
+  assert.equal(ranges.upcomingStart.toISOString(), tomorrow.toISOString());
+  assert.equal(ranges.upcomingEnd.toISOString(), "2026-11-29T00:00:00.000Z");
 });
