@@ -566,6 +566,13 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }
       tone: "warning"
     }))
   ].filter((item) => visibleViews.has(item.destination));
+  const priorityTotal = [
+    visibleViews.has("referrals") ? Number(data.metrics?.urgentReferrals || 0) : 0,
+    visibleViews.has("appointments") ? Number(data.metrics?.documentationPendingCount || 0) : 0,
+    visibleViews.has("appointments") ? Number(data.metrics?.billingPendingCount || 0) : 0,
+    visibleViews.has("tasks") ? (data.openTasks || []).length : 0,
+    visibleViews.has("inventory") ? Number(data.metrics?.lowStockCount || 0) : 0
+  ].reduce((sum, count) => sum + count, 0);
   const quickActions = [
     { label: "Appointments", description: "Manage today's schedule", destination: "appointments", icon: CalendarClock },
     { label: "Patients", description: "Open patient records", destination: "patients", icon: UsersRound },
@@ -597,17 +604,20 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }
         <article className="operational-action-card">
           <header className="operational-card-heading">
             <div><ClipboardCheck size={19} /><h3>Priority queue</h3></div>
-            <span className={priorities.length ? "operational-count is-attention" : "operational-count"}>{priorities.length}</span>
+            <span className={priorityTotal ? "operational-count is-attention" : "operational-count"}>{priorityTotal}</span>
           </header>
           {priorities.length ? (
-            <ul className="operational-priority-list">
+            <>
+              {priorityTotal > priorities.length && <p className="operational-priority-overflow">Showing {priorities.length} visible item(s) from {priorityTotal} outstanding priorities. Open the relevant workspace for the full worklist.</p>}
+              <ul className="operational-priority-list">
               {priorities.map((item) => (
                 <li key={item.id} className={`operational-priority-item tone-${item.tone}`}>
                   <div><strong>{item.title}</strong><span>{item.detail}</span></div>
                   <button type="button" onClick={() => item.action === "bill" ? onOpenBilling?.(item.id) : onNavigate(item.destination)} aria-label={item.action === "bill" ? "Generate bill for completed appointment" : `Open ${item.destination} workspace`}>{item.action === "bill" ? "Generate bill" : "Open"} <span aria-hidden="true">→</span></button>
                 </li>
               ))}
-            </ul>
+              </ul>
+            </>
           ) : (
             <div className="operational-empty"><CheckCircle2 size={20} /><div><strong>You're clear for now</strong><span>No urgent referrals, session handoffs, open tasks or low-stock alerts in this summary.</span></div></div>
           )}
