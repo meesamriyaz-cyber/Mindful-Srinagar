@@ -561,77 +561,127 @@ function CashWatch({ data }) {
   );
 }
 
-function OverviewWorkspace({ data, isDirector }) {
+function OverviewWorkspace({ data, isDirector, role, onNavigate }) {
+  const visibleViews = new Set(getVisibleViewItems(role).map((item) => item.id));
+  const priorities = [
+    ...(data.urgentReferrals || []).slice(0, 3).map((item) => ({
+      id: item._id,
+      title: item.patientName || "Urgent referral",
+      detail: `Urgent referral · ${item.sourceType || "Source not recorded"}`,
+      destination: "referrals",
+      tone: "urgent"
+    })),
+    ...(data.openTasks || []).slice(0, 4).map((item) => ({
+      id: item._id,
+      title: item.title || "Open task",
+      detail: `${item.department || "Unassigned"} · ${item.priority || "Normal"} priority`,
+      destination: "tasks",
+      tone: item.priority === "high" ? "urgent" : "task"
+    })),
+    ...(data.lowStock || []).slice(0, 2).map((item) => ({
+      id: item._id,
+      title: item.name || "Inventory item",
+      detail: `Low stock · ${item.quantity ?? "--"} ${item.unit || "available"}`,
+      destination: "inventory",
+      tone: "warning"
+    }))
+  ].filter((item) => visibleViews.has(item.destination));
+  const quickActions = [
+    { label: "Appointments", description: "Manage today's schedule", destination: "appointments", icon: CalendarClock },
+    { label: "Patients", description: "Open patient records", destination: "patients", icon: UsersRound },
+    { label: "Referrals", description: "Review incoming referrals", destination: "referrals", icon: TrendingUp },
+    { label: "Tasks", description: "Manage follow-up work", destination: "tasks", icon: ListChecks },
+    { label: "Billing", description: "Invoices and payments", destination: "billing", icon: WalletCards },
+    { label: "Inventory", description: "Stock and reorder levels", destination: "inventory", icon: PackageOpen }
+  ].filter((action) => visibleViews.has(action.destination));
+  const appointments = data.todaysAppointments || [];
+  const checkedIn = appointments.filter((item) => item.status === "checked-in").length;
+  const completed = appointments.filter((item) => item.status === "completed").length;
+  const remaining = appointments.filter((item) => !["completed", "cancelled", "no-show"].includes(item.status)).length;
+
   return (
-    <>
-      <div className="stats-grid management-stats-grid">
-        <StatCard
-          label="Active patients"
-          value={data.metrics.activePatients ?? "--"}
-          trend={`${data.metrics.newPatientsThisMonth ?? 0} new this month`}
-          icon={UsersRound}
-        />
-        <StatCard
-          label="Appointments today"
-          value={data.metrics.appointmentsToday ?? "--"}
-          trend={`${data.metrics.checkedInToday ?? 0} checked in, ${data.metrics.noShowsToday ?? 0} no-show`}
-          icon={CalendarClock}
-        />
-        <StatCard
-          label="Open referrals"
-          value={data.metrics.referrals ?? "--"}
-          trend={`${data.metrics.urgentReferrals ?? 0} urgent, ${data.metrics.conversionRate ?? 0}% conversion`}
-          icon={TrendingUp}
-          tone={data.metrics.urgentReferrals ? "risk" : ""}
-        />
-        {isDirector ? (
-          <StatCard
-            label="Collections"
-            value={INR.format(data.metrics.revenueThisMonth || 0)}
-            trend={`${INR.format(data.metrics.outstanding || 0)} outstanding`}
-            icon={IndianRupee}
-            tone={data.metrics.outstanding ? "risk" : ""}
-          />
-        ) : (
-          <StatCard
-            label="Pending tasks"
-            value={(data.openTasks || []).length}
-            trend={`${data.metrics.overdueTasks || 0} overdue`}
-            icon={ListChecks}
-            tone={data.metrics.overdueTasks ? "risk" : ""}
-          />
-        )}
-      </div>
+    <div className="operational-home">
+      <section className="operational-home-intro">
+        <div>
+          <p className="operational-eyebrow">DAILY OPERATIONS</p>
+          <h2>Today's work, at a glance</h2>
+          <p>Start with the items that need attention, then move through the day's schedule.</p>
+        </div>
+        <div className="operational-date">
+          <CalendarClock size={17} />
+          <span>{new Intl.DateTimeFormat("en-IN", { weekday: "long", day: "numeric", month: "short" }).format(new Date())}</span>
+        </div>
+      </section>
 
-      <PriorityWork data={data} />
+      <section className="operational-action-grid" aria-label="Daily priorities and schedule">
+        <article className="operational-action-card">
+          <header className="operational-card-heading">
+            <div><ClipboardCheck size={19} /><h3>Priority queue</h3></div>
+            <span className={priorities.length ? "operational-count is-attention" : "operational-count"}>{priorities.length}</span>
+          </header>
+          {priorities.length ? (
+            <ul className="operational-priority-list">
+              {priorities.map((item) => (
+                <li key={item.id} className={`operational-priority-item tone-${item.tone}`}>
+                  <div><strong>{item.title}</strong><span>{item.detail}</span></div>
+                  <button type="button" onClick={() => onNavigate(item.destination)} aria-label={`Open ${item.destination} workspace}>Open <span aria-hidden="true">→</span></button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="operational-empty"><CheckCircle2 size={20} /><div><strong>You're clear for now</strong><span>No urgent referrals, open tasks or low-stock alerts in this summary.</span></div></div>
+          )}
+        </article>
 
+        <article className="operational-action-card operational-schedule-card">
+          <header className="operational-card-heading">
+            <div><CalendarClock size={19} /><h3>Today's schedule</h3></div>
+            <button type="button" className="operational-link-button" onClick={() => onNavigate("appointments")}>View schedule <span aria-hidden="true">→</span></button>
+          </header>
+          <div className="operational-schedule-summary">
+            <div><strong>{appointments.length}</strong><span>Appointments</span></div>
+            <div><strong>{checkedIn}</strong><span>Checked in</span></div>
+            <div><strong>{completed}</strong><span>Completed</span></div>
+            <div><strong>{remaining}</strong><span>Remaining</span></div>
+          </div>
+          <AppointmentList appointments={appointments.slice(0, 5)} />
+          {appointments.length > 5 && <button className="operational-more-button" type="button" onClick={() => onNavigate("appointments")}>View all {appointments.length} appointments</button>}
+        </article>
+      </section>
+
+      <section className="operational-quick-actions" aria-label="Quick access workspaces">
+        <header className="operational-card-heading"><div><Plus size={19} /><h3>Quick access</h3></div><span>Jump into common work</span></header>
+        <div className="operational-quick-action-grid">
+          {quickActions.map(({ label, description, destination, icon: Icon }) => (
+            <button type="button" className="operational-quick-action" key={destination} onClick={() => onNavigate(destination)}>
+              <span className="operational-quick-icon"><Icon size={18} /></span><span><strong>{label}</strong><small>{description}</small></span><span className="operational-quick-arrow" aria-hidden="true">→</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className="operational-centre-pulse">
+        <header className="operational-card-heading"><div><BarChart3 size={19} /><h3>Centre pulse</h3></div><span>Supporting context</span></header>
+        <div className="stats-grid management-stats-grid">
+          <StatCard label="Active patients" value={data.metrics.activePatients ?? "--"} trend={`${data.metrics.newPatientsThisMonth ?? 0} new this month`} icon={UsersRound} />
+          <StatCard label="Appointments today" value={data.metrics.appointmentsToday ?? "--"} trend={`${data.metrics.checkedInToday ?? 0} checked in · ${data.metrics.noShowsToday ?? 0} no-show`} icon={CalendarClock} />
+          <StatCard label="Open referrals" value={data.metrics.referrals ?? "--"} trend={`${data.metrics.urgentReferrals ?? 0} urgent · ${data.metrics.conversionRate ?? 0}% conversion`} icon={TrendingUp} tone={data.metrics.urgentReferrals ? "risk" : ""} />
+          {isDirector ? (
+            <StatCard label="Collections" value={INR.format(data.metrics.revenueThisMonth || 0)} trend={`${INR.format(data.metrics.outstanding || 0)} outstanding`} icon={IndianRupee} tone={data.metrics.outstanding ? "risk" : ""} />
+          ) : (
+            <StatCard label="Pending tasks" value={(data.openTasks || []).length} trend={`${data.metrics.overdueTasks || 0} overdue`} icon={ListChecks} tone={data.metrics.overdueTasks ? "risk" : ""} />
+          )}
+        </div>
+        <div className="operational-risk-strip">
+          <span><AlertTriangle size={16} /><strong>Operational risks</strong></span>
+          <span>{data.metrics.lowStockCount || 0} low-stock items</span>
+          <span>{data.metrics.overdueTasks || 0} overdue tasks</span>
+          {isDirector && <span>{data.metrics.unpaidInvoiceCount || 0} invoices pending</span>}
+        </div>
+      </section>
       {isDirector && <DirectorView data={data} />}
-
-      <div className="console-grid management-console-grid">
-        <article className="table-panel">
-          <div className="panel-title">
-            <CalendarClock size={21} />
-            <h3>Today's appointments</h3>
-          </div>
-          <AppointmentList appointments={data.todaysAppointments || []} />
-        </article>
-      </div>
-
-      <div className="console-grid lower-console-grid management-console-grid">
-        {isDirector && <CashWatch data={data} />}
-        <article className="action-panel">
-          <div className="panel-title">
-            <AlertTriangle size={21} />
-            <h3>Operational risks</h3>
-          </div>
-          <div className="risk-stack">
-            <span><strong>{data.metrics.lowStockCount || 0}</strong> low-stock items</span>
-            <span><strong>{data.metrics.overdueTasks || 0}</strong> overdue tasks</span>
-            {isDirector && <span><strong>{data.metrics.unpaidInvoiceCount || 0}</strong> invoices pending</span>}
-          </div>
-        </article>
-      </div>
-    </>
+      {isDirector && <CashWatch data={data} />}
+    </div>
   );
 }
 
@@ -1878,7 +1928,7 @@ export function Dashboard() {
               ) : activeView === "overview" ? (
                 ["doctor", "therapist"].includes(session.user?.role)
                   ? <PractitionerDashboard token={session.token} onNavigate={setActiveView} onOpenPatient={(patient, action, appointmentId) => { const patientId = typeof patient === "object" ? patient?._id : patient; const supplied = typeof patient === "object" ? patient : null; const resolved = supplied?.fullName ? supplied : patientsList.find((p) => p._id === patientId) || supplied; setJourneyPatientData(resolved); setJourneyInitialCreateStep(action || null); setJourneyInitialAppointmentId(appointmentId || null); setJourneyPatientId(patientId); }} />
-                  : <OverviewWorkspace data={data} isDirector={isDirector} />
+                  : <OverviewWorkspace data={data} isDirector={isDirector} role={session.user?.role} onNavigate={(view) => { setActiveView(view); setMobileNavigationOpen(false); setNavigationScrollRequest((value) => value + 1); }} />
               ) : ["assessments", "treatment-plans", "progress-notes", "prescriptions"].includes(activeView) ? (
                 <ClinicalBoard
                   activeView={activeView}
