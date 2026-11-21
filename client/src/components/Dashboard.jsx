@@ -566,6 +566,8 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }
       tone: "warning"
     }))
   ].filter((item) => visibleViews.has(item.destination));
+  const priorityRank = { urgent: 0, warning: 1, task: 2 };
+  priorities.sort((a, b) => (priorityRank[a.tone] ?? 3) - (priorityRank[b.tone] ?? 3));
   const priorityTotal = [
     visibleViews.has("referrals") ? Number(data.metrics?.urgentReferrals || 0) : 0,
     visibleViews.has("appointments") ? Number(data.metrics?.documentationPendingCount || 0) : 0,
