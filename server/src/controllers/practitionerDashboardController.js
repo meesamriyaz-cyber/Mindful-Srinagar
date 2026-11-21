@@ -7,6 +7,7 @@ import { Prescription } from "../models/Prescription.js";
 import { Task } from "../models/Task.js";
 import { TreatmentPlan } from "../models/TreatmentPlan.js";
 import { getCentreDayBounds } from "../security/centreTime.js";
+import { countDocumentationPendingAppointments } from "./dashboardMetrics.js";
 
 export async function getPractitionerDashboard(req, res, next) {
   try {
@@ -70,7 +71,7 @@ export async function getPractitionerDashboard(req, res, next) {
     const documentedAppointmentIds = await ProgressNote.distinct("appointment", { appointment: { $in: checkedInIds }, noteType: "session" });
     const documentedSet = new Set(documentedAppointmentIds.map(String));
     const documentationPending = todaysAppointments.filter((appointment) => appointment.status === "checked-in" && !documentedSet.has(String(appointment._id)));
-    const documentationPendingCount = Math.max(checkedInIds.length - documentedAppointmentIds.length, 0);
+    const documentationPendingCount = countDocumentationPendingAppointments(checkedInIds, documentedAppointmentIds);
     const patientCount = await Patient.countDocuments({ _id: { $in: assignedPatientIds } });
 
     return res.json({
