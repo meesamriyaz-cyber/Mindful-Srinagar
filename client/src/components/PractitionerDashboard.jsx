@@ -137,7 +137,8 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
       </Card>
 
       <section className="practitioner-sections-grid" aria-label="Today’s clinical schedule">
-        <SectionCard icon={CalendarClock} title="Today's appointments" description="Your primary clinical schedule">
+        <SectionCard icon={CalendarClock} title="Today's appointments" description={`Your primary clinical schedule · ${metrics.appointmentsToday ?? todaysAppointments.length} appointments`}>
+          {metrics.appointmentsToday > todaysAppointments.length && <p className="practitioner-worklist-overflow">Showing {todaysAppointments.length} of {metrics.appointmentsToday} appointments. Review the complete schedule in Appointments.</p>}
           {todaysAppointments.length ? <div className="practitioner-list">
             {todaysAppointments.map((item) => (
               <article className="practitioner-list-row" key={item._id}>
@@ -161,7 +162,8 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
           </div> : <EmptyState>No appointments scheduled for today.</EmptyState>}
         </SectionCard>
 
-        <SectionCard icon={CalendarClock} title="Coming up" description="Your next scheduled appointments">
+        <SectionCard icon={CalendarClock} title="Coming up" description={`Your next scheduled appointments · ${metrics.upcomingAppointments ?? upcomingAppointments.length} upcoming`}>
+          {metrics.upcomingAppointments > upcomingAppointments.length && <p className="practitioner-worklist-overflow">Showing {upcomingAppointments.length} of {metrics.upcomingAppointments} upcoming appointments. Review the complete schedule in Appointments.</p>}
           {upcomingAppointments.length ? <div className="practitioner-list">
             {upcomingAppointments.map((item) => (
               <article className="practitioner-list-row" key={item._id}>
@@ -219,7 +221,8 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
           </div> : <EmptyState>No progress notes authored yet.</EmptyState>}
         </SectionCard>
 
-        <SectionCard icon={ListChecks} title="My open tasks" description="Tasks assigned to your account">
+        <SectionCard icon={ListChecks} title="My open tasks" description={`Tasks assigned to your account · ${metrics.openTasks ?? assignedTasks.length} open${metrics.overdueTasks ? ` · ${metrics.overdueTasks} overdue` : ""}`}>
+          {metrics.openTasks > assignedTasks.length && <p className="practitioner-worklist-overflow">Showing {assignedTasks.length} of {metrics.openTasks} open tasks. {metrics.overdueTasks || 0} overdue across your complete workload. Review Tasks for the full list.</p>}
           {assignedTasks.length ? <div className="practitioner-list">
             {assignedTasks.map((task) => (
               <article className="practitioner-list-row" key={task._id}>
