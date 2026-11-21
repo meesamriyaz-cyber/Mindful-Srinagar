@@ -4216,3 +4216,54 @@ html {
     padding: 8px;
   }
 }
+
+
+/* Batch 4.12.1 follow-up — focused create-form state */
+.management-journey-modal.is-creating {
+  height: min(90dvh, 900px);
+  max-height: calc(100dvh - 32px);
+  min-height: 0;
+}
+
+.management-journey-modal.is-creating .journey-steps,
+.management-journey-modal.is-creating .journey-mobile-section-picker {
+  display: none !important;
+}
+
+.management-journey-modal.is-creating .journey-content {
+  display: block;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.management-journey-modal.is-creating .management-journey-create-form {
+  display: grid;
+  width: 100%;
+  min-height: min-content;
+  padding: 0;
+  gap: 14px;
+}
+
+.management-journey-modal.is-creating .management-journey-create-form .modal-actions {
+  flex-wrap: wrap;
+  padding-bottom: 8px;
+}
+
+@media (max-width: 640px) {
+  .management-journey-modal.is-creating {
+    height: calc(100dvh - 16px);
+    max-height: calc(100dvh - 16px);
+  }
+
+  .management-journey-modal.is-creating .journey-header {
+    padding: 10px 12px;
+  }
+
+  .management-journey-modal.is-creating .journey-content {
+    padding: 12px;
+  }
+}
