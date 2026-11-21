@@ -191,6 +191,8 @@ export async function getDashboard(req, res, next) {
         billingPendingCount: billingPending.length
       },
       todaysAppointments,
+      documentationPending,
+      billingPending,
       lowStock,
       openTasks,
       overdueTasks,
