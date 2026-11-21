@@ -103,6 +103,7 @@ export async function getPractitionerDashboard(req, res, next) {
         activePrescriptions,
         openTasks: openTasksCount,
         overdueTasks: overdueTasksCount,
+        tasksDueToday: tasksDueTodayCount,
         tasksDueSoon: tasksDueSoonCount,
         documentationPending: documentationPendingCount
       },
