@@ -493,7 +493,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="modal journey-modal management-journey-modal"
+        className={`modal journey-modal management-journey-modal${createStep ? " is-creating" : ""}`}
         ref={journeyDialogRef}
         role="dialog"
         aria-modal="true"
