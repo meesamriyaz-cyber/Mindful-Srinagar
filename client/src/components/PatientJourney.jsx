@@ -270,7 +270,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
       step: "invoices",
       date: record.createdAt || record.issueDate,
       title: `Invoice · ${record.invoiceNo || "Billing record"}`,
-      description: `Total ₹${Number(record.total || record.amount || 0).toLocaleString("en-IN")} · Paid ₹${Number(record.paidAmount || 0).toLocaleString("en-IN")}`,
+      description: `Total ₹${Math.max((record.items || []).reduce((sum, item) => sum + (Number(item.quantity || 0) * Number(item.rate || 0)), 0) - Number(record.discount || 0), 0).toLocaleString("en-IN")} · Paid ₹${Number(record.paidAmount || 0).toLocaleString("en-IN")}`,
       status: record.status
     })) : [])
   ].filter((event) => event.date && !Number.isNaN(new Date(event.date).getTime()))
