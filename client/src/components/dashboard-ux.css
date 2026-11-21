@@ -2458,3 +2458,12 @@
   .management-record-card-referrals .management-record-main { gap: 8px; }
   .management-record-card-referrals .referral-worklist-badge { margin-left: 0; }
 }
+
+/* Batch 4.14 — task completion accountability */
+.task-completion-form { display: grid; gap: 12px; margin: 12px 0; padding: 14px; border: 1px solid var(--workspace-panel-border, #dce7eb); border-radius: 12px; background: var(--surface, #fff); }
+.task-completion-form > div:first-child p { margin: 4px 0 0; color: var(--muted-foreground, #64748b); font-size: .8rem; }
+.task-completion-form label { display: grid; gap: 6px; font-size: .78rem; font-weight: 650; }
+.task-completion-form textarea { width: 100%; resize: vertical; min-height: 76px; padding: 9px 11px; border: 1px solid var(--border, #d8e2e8); border-radius: 9px; background: var(--background, white); color: inherit; font: inherit; }
+.task-activity-list { display: grid; gap: 6px; padding-top: 8px; border-top: 1px solid var(--border, #e4ebef); }
+.task-activity-entry { color: var(--muted-foreground, #64748b); font-size: .72rem; line-height: 1.45; }
+.task-activity-entry p { margin: 3px 0 0; color: var(--foreground, #475569); overflow-wrap: anywhere; }
