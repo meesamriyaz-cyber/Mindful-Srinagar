@@ -52,7 +52,8 @@ export async function getPractitionerDashboard(req, res, next) {
       Appointment.countDocuments({ ...appointmentScope, startsAt: { $gte: tomorrow }, status: "scheduled" }),
       Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" } }),
       Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" }, dueDate: { $lt: todayStart } }),
-      Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" }, dueDate: { $gte: now, $lte: tasksDueSoonEnd } }),
+      Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" }, dueDate: { $gte: todayStart, $lt: tomorrow } }),
+      Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" }, dueDate: { $gte: tasksDueSoonStart, $lte: tasksDueSoonEnd } }),
       Appointment.find({ ...appointmentScope, startsAt: { $gte: todayStart, $lt: tomorrow }, status: { $nin: ["cancelled"] } })
         .populate("patient", "fullName mrn status")
         .sort({ startsAt: 1 })
