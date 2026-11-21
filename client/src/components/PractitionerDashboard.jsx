@@ -186,6 +186,18 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
         </SectionCard>
       </section>
 
+      <SectionCard icon={FileText} title="Session notes pending" description="Checked-in sessions awaiting documentation">
+        {documentationPending.length ? <div className="practitioner-list">
+          {documentationPending.map((item) => (
+            <article className="practitioner-list-row" key={item._id}>
+              <div className="practitioner-time-block"><strong>{formatDateTime(item.startsAt, { hour: "2-digit", minute: "2-digit" })}</strong><span>{item.durationMinutes || "—"} min</span></div>
+              <div className="practitioner-row-main"><strong>{item.patient?.fullName || "Patient"}</strong><span>{item.service || "Service not specified"}</span></div>
+              <Badge variant="warning">Note pending</Badge>
+              <Button size="sm" variant="outline" onClick={() => onOpenPatient?.(item.patient, "progress-notes", item._id)} disabled={!item.patient?._id}><FileText size={14} /> Record note</Button>
+            </article>
+          ))}
+        </div> : <EmptyState>All checked-in sessions have documentation recorded.</EmptyState>}
+      </SectionCard>
 
   <section className="practitioner-metrics-grid" aria-label="My clinical activity">
         <Metric label="Patients under my care" value={metrics.patientsUnderCare} icon={UsersRound} description="Linked patient records" />
