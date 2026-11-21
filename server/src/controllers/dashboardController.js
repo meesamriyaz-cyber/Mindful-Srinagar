@@ -66,8 +66,6 @@ export async function getDashboard(req, res, next) {
       convertedReferrals,
       referralRecords,
       todaysAppointments,
-      documentationPending,
-      billingPending,
       appointmentsTodayCount,
       completedAppointmentsThisMonth,
       lowStock,
