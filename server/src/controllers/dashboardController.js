@@ -6,7 +6,7 @@ import { Patient } from "../models/Patient.js";
 import { Referral } from "../models/Referral.js";
 import { Task } from "../models/Task.js";
 import { getCentreDayBounds } from "../security/centreTime.js";
-import { sumPaymentAggregation, filterDocumentationPendingAppointments, filterBillingPendingAppointments, countDocumentationPendingAppointments, countBillingPendingAppointments } from "./dashboardMetrics.js";
+import { sumPaymentAggregation, filterDocumentationPendingAppointments, filterBillingPendingAppointments, countDocumentationPendingAppointments, countBillingPendingAppointments, countRemainingAppointments } from "./dashboardMetrics.js";
 
 const openReferralStatuses = ["new", "contacted", "scheduled"];
 
@@ -166,6 +166,7 @@ export async function getDashboard(req, res, next) {
     }, 0);
     const referralStatus = groupAggregation(monthlyReferralStatus);
     const appointmentStatusToday = groupAggregation(todaysAppointmentStatus);
+    const remainingAppointmentsToday = countRemainingAppointments(appointmentsTodayCount, appointmentStatusToday);
     const monthlyReferrals = Object.values(referralStatus).reduce((sum, count) => sum + count, 0);
     const monthlyConvertedReferrals = referralStatus.converted || 0;
     const conversionRate = monthlyReferrals ? Math.round((monthlyConvertedReferrals / monthlyReferrals) * 100) : 0;
@@ -188,6 +189,7 @@ export async function getDashboard(req, res, next) {
         appointmentsToday: appointmentsTodayCount,
         checkedInToday: appointmentStatusToday["checked-in"] || 0,
         completedAppointmentsToday: appointmentStatusToday.completed || 0,
+        remainingAppointmentsToday,
         noShowsToday: appointmentStatusToday["no-show"] || 0,
         revenueThisMonth,
         billedThisMonth,
