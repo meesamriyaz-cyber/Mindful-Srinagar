@@ -207,3 +207,24 @@ test("task CRUD record and update handlers enforce the assigned-user scope", asy
   assert.deepEqual(captured[1].filter, { _id: taskId, assignedTo: userId });
   assert.deepEqual(captured[1].update, { $set: { status: "done" } });
 });
+
+
+test("task completion stores actor, timestamp, outcome and activity history", async () => {
+  const actorId = "64b000000000000000000005";
+  const task = new Task({ title: "Call family", assignedTo: actorId });
+  task.status = "done";
+  task.completedAt = new Date();
+  task.completedBy = actorId;
+  task.completionNote = "Family contacted; appointment confirmed.";
+  task.activity.push({ type: "completed", actor: actorId, occurredAt: task.completedAt, note: task.completionNote });
+  await task.validate();
+  assert.equal(task.status, "done");
+  assert.equal(String(task.completedBy), actorId);
+  assert.equal(task.activity.length, 1);
+  assert.equal(task.activity[0].note, task.completionNote);
+});
+
+test("task completion note is bounded and task activity requires an actor", async () => {
+  const task = new Task({ title: "Follow up", completionNote: "x".repeat(1001), activity: [{ type: "completed", note: "Done" }] });
+  await assert.rejects(task.validate(), (error) => Boolean(error.errors?.completionNote && error.errors?.["activity.0.actor"]));
+});
