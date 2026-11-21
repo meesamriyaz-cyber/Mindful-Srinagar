@@ -230,3 +230,6 @@
   .practitioner-list-row .practitioner-row-main > strong { overflow-wrap: anywhere; }
   .practitioner-attention-section .practitioner-empty-state { padding: 12px 8px; }
 }
+
+/* Recent activity is a single focused panel in the new hierarchy. */
+.practitioner-recent-activity { grid-template-columns: minmax(0,1fr); }
