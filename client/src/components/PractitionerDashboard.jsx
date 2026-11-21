@@ -186,7 +186,8 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
         </SectionCard>
       </section>
 
-      <SectionCard icon={FileText} title="Session notes pending" description="Checked-in sessions awaiting documentation">
+      <SectionCard icon={FileText} title="Session notes pending" description={`Checked-in sessions awaiting documentation · ${metrics.documentationPending ?? documentationPending.length} pending`}>
+        {metrics.documentationPending > documentationPending.length && <p className="practitioner-worklist-overflow">Showing {documentationPending.length} appointments here; {metrics.documentationPending} sessions require documentation in total. Review today's appointments to access the complete list.</p>}
         {documentationPending.length ? <div className="practitioner-list">
           {documentationPending.map((item) => (
             <article className="practitioner-list-row" key={item._id}>
