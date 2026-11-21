@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { sumPaymentAggregation, filterDocumentationPendingAppointments, filterBillingPendingAppointments, countDocumentationPendingAppointments, countBillingPendingAppointments } from "../controllers/dashboardMetrics.js";
+import { sumPaymentAggregation, filterDocumentationPendingAppointments, filterBillingPendingAppointments, countDocumentationPendingAppointments, countBillingPendingAppointments, countRemainingAppointments } from "../controllers/dashboardMetrics.js";
 
 test("dashboard monthly collections sum payment ledger aggregation rows", () => {
   assert.equal(sumPaymentAggregation([{ total: 1250.25 }]), 1250.25);
@@ -51,4 +51,13 @@ test("billing backlog count is complete beyond the visible worklist limit", () =
 test("backlog count helpers safely handle object ids and empty inputs", () => {
   assert.equal(countDocumentationPendingAppointments([{ toString: () => "a" }, { toString: () => "b" }], ["a"]), 1);
   assert.equal(countBillingPendingAppointments([], []), 0);
+});
+
+test("remaining appointment count uses complete status totals, not visible records", () => {
+  assert.equal(countRemainingAppointments(36, { completed: 10, cancelled: 3, "no-show": 2, "checked-in": 7, scheduled: 14 }), 21);
+});
+
+test("remaining appointment count safely handles empty and inconsistent totals", () => {
+  assert.equal(countRemainingAppointments(0, {}), 0);
+  assert.equal(countRemainingAppointments(4, { completed: 5 }), 0);
 });
