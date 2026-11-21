@@ -79,6 +79,8 @@ export async function getDashboard(req, res, next) {
       todaysAppointmentStatus,
       overdueTasks,
       urgentReferrals,
+      urgentReferralsCount,
+      openTasksCount,
       lowStockCount,
       checkedInAppointments,
       completedAppointmentsForBilling,
@@ -130,6 +132,8 @@ export async function getDashboard(req, res, next) {
       Referral.find({ status: { $in: ["new", "contacted"] }, urgency: "urgent" })
         .sort({ createdAt: 1 })
         .limit(8),
+      Referral.countDocuments({ status: { $in: ["new", "contacted"] }, urgency: "urgent" }),
+      Task.countDocuments({ status: { $ne: "done" } }),
       InventoryItem.countDocuments({ $expr: { $lte: ["$quantity", "$reorderLevel"] } }),
       Appointment.find({ startsAt: { $gte: todayStart, $lt: todayEnd }, status: "checked-in" })
         .populate("patient", "fullName mrn")
@@ -190,7 +194,8 @@ export async function getDashboard(req, res, next) {
         unpaidInvoiceCount: unpaidInvoices.length,
         lowStockCount,
         overdueTasks: overdueTasks.length,
-        urgentReferrals: urgentReferrals.length,
+        urgentReferrals: urgentReferralsCount,
+        openTasksCount,
         conversionRate,
         completedAppointmentsThisMonth,
         documentationPendingCount,
