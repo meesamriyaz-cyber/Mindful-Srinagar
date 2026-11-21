@@ -536,13 +536,6 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }
       destination: "referrals",
       tone: "urgent"
     })),
-    ...(data.openTasks || []).slice(0, 4).map((item) => ({
-      id: item._id,
-      title: item.title || "Open task",
-      detail: `${item.department || "Unassigned"} · ${item.priority || "Normal"} priority`,
-      destination: "tasks",
-      tone: item.priority === "high" ? "urgent" : "task"
-    })),
     ...(data.documentationPending || []).slice(0, 3).map((item) => ({
       id: item._id,
       title: formatPatient(item),
@@ -557,6 +550,13 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }
       destination: "appointments",
       action: "bill",
       tone: "task"
+    })),
+    ...(data.openTasks || []).slice(0, 3).map((item) => ({
+      id: item._id,
+      title: item.title || "Open task",
+      detail: `${item.department || "Unassigned"} · ${item.priority || "Normal"} priority`,
+      destination: "tasks",
+      tone: item.priority === "high" ? "urgent" : "task"
     })),
     ...(data.lowStock || []).slice(0, 2).map((item) => ({
       id: item._id,
