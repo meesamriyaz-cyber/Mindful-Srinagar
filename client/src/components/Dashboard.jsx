@@ -628,16 +628,15 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate }) {
       <section className="operational-centre-pulse">
         <header className="operational-card-heading"><div><BarChart3 size={19} /><h3>Centre pulse</h3></div><span>Supporting context</span></header>
         <div className="stats-grid management-stats-grid">
-          <StatCard label="Active patients" value={data.metrics.activePatients ?? "--"} trend={`${data.metrics.newPatientsThisMonth ?? 0} new this month`} icon={UsersRound} />
-          <StatCard label="Appointments today" value={data.metrics.appointmentsToday ?? "--"} trend={`${data.metrics.checkedInToday ?? 0} checked in · ${data.metrics.noShowsToday ?? 0} no-show`} icon={CalendarClock} />
-          <StatCard label="Open referrals" value={data.metrics.referrals ?? "--"} trend={`${data.metrics.urgentReferrals ?? 0} urgent · ${data.metrics.conversionRate ?? 0}% conversion`} icon={TrendingUp} tone={data.metrics.urgentReferrals ? "risk" : ""} />
+          <StatCard label="Active patients" value={data.metrics.activePatients ?? "--"} trend={(data.metrics.newPatientsThisMonth ?? 0) + " new this month"} icon={UsersRound} />
+          <StatCard label="Appointments today" value={data.metrics.appointmentsToday ?? "--"} trend={(data.metrics.checkedInToday ?? 0) + " checked in · " + (data.metrics.noShowsToday ?? 0) + " no-show"} icon={CalendarClock} />
+          <StatCard label="Open referrals" value={data.metrics.referrals ?? "--"} trend={(data.metrics.urgentReferrals ?? 0) + " urgent · " + (data.metrics.conversionRate ?? 0) + "% conversion"} icon={TrendingUp} tone={data.metrics.urgentReferrals ? "risk" : ""} />
           {isDirector ? (
-            <StatCard label="Collections" value={INR.format(data.metrics.revenueThisMonth || 0)} trend={`${INR.format(data.metrics.outstanding || 0)} outstanding`} icon={IndianRupee} tone={data.metrics.outstanding ? "risk" : ""} />
+            <StatCard label="Collections" value={INR.format(data.metrics.revenueThisMonth || 0)} trend={INR.format(data.metrics.outstanding || 0) + " outstanding"} icon={IndianRupee} tone={data.metrics.outstanding ? "risk" : ""} />
           ) : (
-            <StatCard label="Pending tasks" value={(data.openTasks || []).length} trend={`${data.metrics.overdueTasks || 0} overdue`} icon={ListChecks} tone={data.metrics.overdueTasks ? "risk" : ""} />
+            <StatCard label="Pending tasks" value={(data.openTasks || []).length} trend={(data.metrics.overdueTasks || 0) + " overdue"} icon={ListChecks} tone={data.metrics.overdueTasks ? "risk" : ""} />
           )}
-        </div>
-        <div className="operational-risk-strip">
+        </div>        <div className="operational-risk-strip">
           <span><AlertTriangle size={16} /><strong>Operational risks</strong></span>
           <span>{data.metrics.lowStockCount || 0} low-stock items</span>
           <span>{data.metrics.overdueTasks || 0} overdue tasks</span>
