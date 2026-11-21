@@ -30,14 +30,18 @@ export function countRemainingAppointments(totalAppointments = 0, statusCounts =
 }
 
 export function getTaskDeadlineRanges(todayStart, tomorrow) {
-  const upcomingStart = new Date(tomorrow);
-  const upcomingEnd = new Date(tomorrow);
-  upcomingEnd.setDate(upcomingEnd.getDate() + 7);
+  const indiaOffsetMs = 330 * 60 * 1000;
+  // Task due dates are date-only values stored at UTC midnight, so use
+  // UTC-midnight calendar boundaries rather than centre-day UTC instants.
+  const dueTodayStart = new Date(todayStart.getTime() + indiaOffsetMs);
+  const dueTodayEnd = new Date(tomorrow.getTime() + indiaOffsetMs);
+  const upcomingEnd = new Date(dueTodayEnd);
+  upcomingEnd.setUTCDate(upcomingEnd.getUTCDate() + 7);
   return {
-    overdueBefore: todayStart,
-    dueTodayStart: todayStart,
-    dueTodayEnd: tomorrow,
-    upcomingStart,
+    overdueBefore: dueTodayStart,
+    dueTodayStart,
+    dueTodayEnd,
+    upcomingStart: dueTodayEnd,
     upcomingEnd
   };
 }
