@@ -34,7 +34,8 @@ export async function getPractitionerDashboard(req, res, next) {
       activeTreatmentPlans,
       recentNotes,
       activePrescriptions,
-      assignedTasks
+      assignedTasks,
+      allCheckedInAppointmentIds
     ] = await Promise.all([
       Appointment.find({ ...appointmentScope, startsAt: { $gte: todayStart, $lt: tomorrow }, status: { $nin: ["cancelled"] } })
         .populate("patient", "fullName mrn status")
@@ -61,13 +62,15 @@ export async function getPractitionerDashboard(req, res, next) {
       Task.find({ assignedTo: req.user._id, status: { $ne: "done" } })
         .sort({ dueDate: 1 })
         .limit(8)
-        .lean()
+        .lean(),
+      Appointment.find({ ...appointmentScope, startsAt: { $gte: todayStart, $lt: tomorrow }, status: "checked-in" }).select("_id").lean()
     ]);
 
-    const checkedInIds = todaysAppointments.filter((appointment) => appointment.status === "checked-in").map((appointment) => appointment._id);
+    const checkedInIds = allCheckedInAppointmentIds.map((appointment) => appointment._id);
     const documentedAppointmentIds = await ProgressNote.distinct("appointment", { appointment: { $in: checkedInIds }, noteType: "session" });
     const documentedSet = new Set(documentedAppointmentIds.map(String));
     const documentationPending = todaysAppointments.filter((appointment) => appointment.status === "checked-in" && !documentedSet.has(String(appointment._id)));
+    const documentationPendingCount = Math.max(checkedInIds.length - documentedAppointmentIds.length, 0);
     const patientCount = await Patient.countDocuments({ _id: { $in: assignedPatientIds } });
 
     return res.json({
@@ -81,7 +84,8 @@ export async function getPractitionerDashboard(req, res, next) {
         pendingAssessments,
         activeTreatmentPlans,
         activePrescriptions,
-        openTasks: assignedTasks.length
+        openTasks: assignedTasks.length,
+        documentationPending: documentationPendingCount
       },
       todaysAppointments,
       documentationPending,
