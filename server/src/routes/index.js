@@ -436,7 +436,28 @@ router.get("/task-assignees", permit("director", "admin", "reception", "coordina
   } catch (error) { return next(error); }
 });
 
-router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo", "patient"], {
+router.post("/tasks/:id/complete", permit("director","admin","reception","coordinator","doctor","therapist","accounts"), async (req, res, next) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(400).json({ message: "A valid task ID is required" });
+    const payload = req.body && typeof req.body === "object" && !Array.isArray(req.body) ? req.body : {};
+    if (Object.keys(payload).some((key) => key !== "note")) return res.status(400).json({ message: "Only a completion note is accepted" });
+    if (payload.note !== undefined && (typeof payload.note !== "string" || payload.note.trim().length > 1000)) return res.status(400).json({ message: "Completion note must be 1000 characters or fewer" });
+    const task = await Task.findOne({ _id: req.params.id, ...taskScope(req) });
+    if (!task) return res.status(404).json({ message: "Task not found" });
+    if (task.status === "done") return res.status(409).json({ message: "This task is already completed" });
+    const completedAt = new Date();
+    task.status = "done";
+    task.completedAt = completedAt;
+    task.completedBy = req.user._id;
+    task.completionNote = (payload.note || "").trim();
+    task.activity.push({ type: "completed", actor: req.user._id, occurredAt: completedAt, note: task.completionNote });
+    await task.save();
+    await task.populate(["assignedTo", "patient", "completedBy", "activity.actor"]);
+    return res.json(task);
+  } catch (error) { return next(error); }
+});
+
+router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo", "patient", "completedBy", "activity.actor"], {
   createFields: ["title","patient","department","assignedTo","dueDate","priority","status"],
   updateFields: ["title","patient","department","assignedTo","dueDate","priority","status"],
   updateFieldsByRole: { doctor: ["status"], therapist: ["status"], accounts: ["status"] },
@@ -462,6 +483,7 @@ router.use("/tasks", crudRoutes(makeCrudController(Task, ["assignedTo", "patient
     if (error) return { statusCode: 400, message: error };
     const current = await Task.findOne({ _id: req.params.id, ...taskScope(req) }).select("status");
     if (!current) return { statusCode: 404, message: "Task not found" };
+    if (payload.status === "done") return { statusCode: 409, message: "Use the task completion action to record completion and accountability" };
     if (payload.status && !canTransitionTask(current.status, payload.status)) {
       return { statusCode: 409, message: "Task cannot move from " + current.status + " to " + payload.status };
     }
