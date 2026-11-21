@@ -28,3 +28,16 @@ export function countRemainingAppointments(totalAppointments = 0, statusCounts =
   const terminal = ["completed", "cancelled", "no-show"].reduce((sum, status) => sum + (Number(statusCounts[status]) || 0), 0);
   return Math.max(total - terminal, 0);
 }
+
+export function getTaskDeadlineRanges(todayStart, tomorrow) {
+  const upcomingStart = new Date(tomorrow);
+  const upcomingEnd = new Date(tomorrow);
+  upcomingEnd.setDate(upcomingEnd.getDate() + 7);
+  return {
+    overdueBefore: todayStart,
+    dueTodayStart: todayStart,
+    dueTodayEnd: tomorrow,
+    upcomingStart,
+    upcomingEnd
+  };
+}
