@@ -1136,6 +1136,7 @@ function ReferralNotesEditor({ record, onSave, saving, token, owners, onFollowUp
 
 function ResourceBoard({ activeView, data, state, onRecordAction, actionId, actionError, userRole, token, onRefreshRecords, onCreateAppointment }) {
   const [referralOwners, setReferralOwners] = useState([]);
+  const [referralFilter, setReferralFilter] = useState("all");
   const [taskPatients, setTaskPatients] = useState([]);
   const [taskAssignees, setTaskAssignees] = useState([]);
   const [showTaskCreate, setShowTaskCreate] = useState(false);
@@ -1204,6 +1205,34 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
   }
 
   const records = state.records || [];
+  const referralOpenStatuses = ["new", "contacted", "scheduled"];
+  const referralTodayKey = new Date().toLocaleDateString("en-CA");
+  const referralClassify = (record) => {
+    const open = referralOpenStatuses.includes(record.status);
+    const date = toValidDate(record.followUpDate);
+    const dateKey = date ? date.toLocaleDateString("en-CA") : "";
+    if (!open) return "closed";
+    if (record.urgency === "urgent" && dateKey && dateKey <= referralTodayKey) return "urgent-overdue";
+    if (dateKey && dateKey < referralTodayKey) return "overdue";
+    if (record.urgency === "urgent" && dateKey === referralTodayKey) return "urgent-today";
+    if (dateKey === referralTodayKey) return "due-today";
+    if (!record.assignedTo) return "unassigned";
+    if (!date) return "unscheduled";
+    return "upcoming";
+  };
+  const referralCounts = activeView === "referrals" ? records.reduce((counts, record) => {
+    const classification = referralClassify(record);
+    counts[classification] = (counts[classification] || 0) + 1;
+    return counts;
+  }, {}) : {};
+  const referralWorklist = activeView === "referrals" ? [...records].sort((a, b) => {
+    const rank = { "urgent-overdue": 0, overdue: 1, "urgent-today": 2, "due-today": 3, unassigned: 4, unscheduled: 5, upcoming: 6, closed: 7 };
+    const diff = (rank[referralClassify(a)] ?? 8) - (rank[referralClassify(b)] ?? 8);
+    if (diff) return diff;
+    const dateA = toValidDate(a.followUpDate)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+    const dateB = toValidDate(b.followUpDate)?.getTime() ?? Number.MAX_SAFE_INTEGER;
+    return dateA - dateB;
+  }).filter((record) => referralFilter === "all" || referralClassify(record) === referralFilter) : records;
   const taskBoardRecords = activeView === "tasks"
     ? [...records].sort((a, b) => {
         const isDoneA = a.status === "done";
@@ -1241,6 +1270,19 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
           <button className="primary-button compact-button" type="button" onClick={onCreateAppointment}><Plus size={15} /> New appointment</button>
         )}
       </div>
+      {activeView === "referrals" && !state.loading && !state.error && (
+        <section className="referral-worklist" aria-label="Referral follow-up worklist">
+          <div className="referral-worklist-summary">
+            <button type="button" className={referralFilter === "urgent-overdue" ? "is-active is-danger" : "is-danger"} onClick={() => setReferralFilter(referralFilter === "urgent-overdue" ? "all" : "urgent-overdue")}><strong>{referralCounts["urgent-overdue"] || 0}</strong><span>Urgent overdue</span></button>
+            <button type="button" className={referralFilter === "overdue" ? "is-active is-danger" : "is-danger"} onClick={() => setReferralFilter(referralFilter === "overdue" ? "all" : "overdue")}><strong>{referralCounts.overdue || 0}</strong><span>Overdue</span></button>
+            <button type="button" className={referralFilter === "due-today" || referralFilter === "urgent-today" ? "is-active is-warning" : "is-warning"} onClick={() => setReferralFilter(["due-today","urgent-today"].includes(referralFilter) ? "all" : "due-today")}><strong>{(referralCounts["due-today"] || 0) + (referralCounts["urgent-today"] || 0)}</strong><span>Due today</span></button>
+            <button type="button" className={referralFilter === "unassigned" ? "is-active" : ""} onClick={() => setReferralFilter(referralFilter === "unassigned" ? "all" : "unassigned")}><strong>{referralCounts.unassigned || 0}</strong><span>Unassigned</span></button>
+            <button type="button" className={referralFilter === "unscheduled" ? "is-active" : ""} onClick={() => setReferralFilter(referralFilter === "unscheduled" ? "all" : "unscheduled")}><strong>{referralCounts.unscheduled || 0}</strong><span>Needs scheduling</span></button>
+            <button type="button" className={referralFilter === "upcoming" ? "is-active is-positive" : "is-positive"} onClick={() => setReferralFilter(referralFilter === "upcoming" ? "all" : "upcoming")}><strong>{referralCounts.upcoming || 0}</strong><span>Upcoming</span></button>
+          </div>
+          <div className="referral-worklist-toolbar"><strong>Prioritized follow-up worklist</strong><div className="referral-worklist-filters"><button type="button" className={referralFilter === "all" ? "is-active" : ""} onClick={() => setReferralFilter("all")}>All referrals</button><span>{referralWorklist.length} shown</span></div></div>
+        </section>
+      )}
       {state.loading && <p className="empty-state">Loading {config.label.toLowerCase()}...</p>}
       {state.error && <p className="form-status error-status" role="alert" aria-live="assertive">{state.error}</p>}
       {activeView === "tasks" && showTaskCreate && (
@@ -1294,7 +1336,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
         <AnimatePresence mode="popLayout">
           {records.length ? (
             <div className={`record-grid management-record-grid management-record-grid-${activeView}`}>
-              {taskBoardRecords.map((record, index) => {
+              {(activeView === "referrals" ? referralWorklist : taskBoardRecords).map((record, index) => {
                 const summary = describeRecord(activeView, record);
                 const actions = recordActions(activeView, record, userRole);
                 return (
