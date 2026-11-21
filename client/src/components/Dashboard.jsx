@@ -1265,6 +1265,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
     const dateB = toValidDate(b.followUpDate)?.getTime() ?? Number.MAX_SAFE_INTEGER;
     return dateA - dateB;
   }).filter((record) => referralFilter === "all" || (referralFilter === "today" ? ["due-today", "urgent-today"].includes(referralClassify(record)) : referralClassify(record) === referralFilter)) : records;
+  const taskTodayKey = new Date().toLocaleDateString("en-CA");
   const taskBoardRecords = activeView === "tasks"
     ? [...records].sort((a, b) => {
         const isDoneA = a.status === "done";
