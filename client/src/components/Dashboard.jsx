@@ -589,7 +589,7 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate }) {
               {priorities.map((item) => (
                 <li key={item.id} className={`operational-priority-item tone-${item.tone}`}>
                   <div><strong>{item.title}</strong><span>{item.detail}</span></div>
-                  <button type="button" onClick={() => onNavigate(item.destination)} aria-label={`Open ${item.destination} workspace}>Open <span aria-hidden="true">→</span></button>
+                  <button type="button" onClick={() => onNavigate(item.destination)} aria-label={`Open ${item.destination} workspace`}>Open <span aria-hidden="true">→</span></button>
                 </li>
               ))}
             </ul>
