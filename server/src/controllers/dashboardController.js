@@ -1,4 +1,5 @@
 import { Appointment } from "../models/Appointment.js";
+import { ProgressNote } from "../models/ProgressNote.js";
 import { Invoice } from "../models/Invoice.js";
 import { InventoryItem } from "../models/InventoryItem.js";
 import { Patient } from "../models/Patient.js";
@@ -65,6 +66,8 @@ export async function getDashboard(req, res, next) {
       convertedReferrals,
       referralRecords,
       todaysAppointments,
+      documentationPending,
+      billingPending,
       appointmentsTodayCount,
       completedAppointmentsThisMonth,
       lowStock,
@@ -78,7 +81,10 @@ export async function getDashboard(req, res, next) {
       todaysAppointmentStatus,
       overdueTasks,
       urgentReferrals,
-      lowStockCount
+      lowStockCount,
+      checkedInAppointments,
+      completedAppointmentsForBilling,
+      linkedAppointmentInvoices
     ] = await Promise.all([
       Patient.countDocuments(),
       Patient.countDocuments({ status: "active" }),
@@ -124,9 +130,31 @@ export async function getDashboard(req, res, next) {
       Referral.find({ status: { $in: ["new", "contacted"] }, urgency: "urgent" })
         .sort({ createdAt: 1 })
         .limit(8),
-      InventoryItem.countDocuments({ $expr: { $lte: ["$quantity", "$reorderLevel"] } })
+      InventoryItem.countDocuments({ $expr: { $lte: ["$quantity", "$reorderLevel"] } }),
+      Appointment.find({ startsAt: { $gte: todayStart, $lt: todayEnd }, status: "checked-in" })
+        .populate("patient", "fullName mrn")
+        .populate("practitioner", "name discipline")
+        .sort({ startsAt: 1 })
+        .limit(20),
+      Appointment.find({ startsAt: { $gte: todayStart, $lt: todayEnd }, status: "completed" })
+        .populate("patient", "fullName mrn")
+        .populate("practitioner", "name discipline")
+        .sort({ startsAt: 1 })
+        .limit(20),
+      Invoice.find({ status: { $ne: "void" }, "items.appointment": { $exists: true } }).select("items.appointment")
     ]);
 
+    const checkedInIds = checkedInAppointments.map((appointment) => appointment._id);
+    const completedIds = completedAppointmentsForBilling.map((appointment) => appointment._id);
+    const [documentedAppointmentIds, completedNoteIds] = await Promise.all([
+      ProgressNote.distinct("appointment", { appointment: { $in: checkedInIds }, noteType: "session" }),
+      ProgressNote.distinct("appointment", { appointment: { $in: completedIds }, noteType: "session" })
+    ]);
+    const documentedSet = new Set(documentedAppointmentIds.map(String));
+    const completedNoteSet = new Set(completedNoteIds.map(String));
+    const billedAppointmentSet = new Set(linkedAppointmentInvoices.flatMap((invoice) => invoice.items || []).map((item) => item.appointment).filter(Boolean).map(String));
+    const documentationPending = checkedInAppointments.filter((appointment) => !documentedSet.has(String(appointment._id)));
+    const billingPending = completedAppointmentsForBilling.filter((appointment) => completedNoteSet.has(String(appointment._id)) && !billedAppointmentSet.has(String(appointment._id)));
     const revenueThisMonth = sumPaymentAggregation(paymentsReceivedThisMonth);
     const billedThisMonth = sumInvoiceTotal(invoicesThisMonth);
     const outstanding = unpaidInvoices.reduce((sum, invoice) => {
@@ -166,7 +194,9 @@ export async function getDashboard(req, res, next) {
         overdueTasks: overdueTasks.length,
         urgentReferrals: urgentReferrals.length,
         conversionRate,
-        completedAppointmentsThisMonth
+        completedAppointmentsThisMonth,
+        documentationPendingCount: documentationPending.length,
+        billingPendingCount: billingPending.length
       },
       todaysAppointments,
       lowStock,
