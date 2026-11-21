@@ -2370,3 +2370,28 @@
 @media (max-width: 1000px) { .operational-action-grid { grid-template-columns: minmax(0, 1fr); } .operational-quick-action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 620px) { .operational-home { gap: 14px; } .operational-home-intro { align-items: flex-start; flex-direction: column; gap: 10px; } .operational-date { padding: 7px 10px; } .operational-action-card, .operational-quick-actions, .operational-centre-pulse { padding: 13px; border-radius: 13px; } .operational-schedule-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); } .operational-quick-action-grid { grid-template-columns: minmax(0, 1fr); } .operational-quick-action { padding: 10px; } .operational-priority-item { align-items: flex-start; } .operational-priority-item button { padding: 4px 0; } }
 @media (max-width: 380px) { .operational-card-heading { align-items: flex-start; } .operational-priority-item { flex-direction: column; } .operational-priority-item button { align-self: flex-end; } .operational-schedule-summary > div { padding: 8px 5px; } }
+
+
+/* Batch 4.12 — Patient Journey Timeline */
+.patient-journey-timeline { margin: 12px 0 16px; padding: 16px; border: 1px solid var(--workspace-panel-border, #e2e9ed); border-radius: 15px; background: var(--surface, #fff); }
+.patient-journey-timeline-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.patient-journey-timeline-header > div { min-width: 0; }
+.patient-journey-timeline-eyebrow { display: block; margin-bottom: 4px; color: #6c8a96; font-size: .65rem; font-weight: 800; letter-spacing: .12em; }
+.patient-journey-timeline-header h4 { margin: 0; color: #31566a; font-size: 1rem; font-weight: 750; }
+.patient-journey-timeline-header p { margin: 4px 0 0; color: #7b8d97; font-size: .75rem; line-height: 1.5; }
+.patient-journey-timeline-count { flex: 0 0 auto; padding: 5px 9px; border-radius: 99px; background: #edf4f5; color: #557684; font-size: .68rem; font-weight: 750; }
+.patient-journey-timeline-list { position: relative; display: grid; gap: 12px; margin: 0; padding: 0 0 0 7px; list-style: none; }
+.patient-journey-timeline-list::before { position: absolute; top: 8px; bottom: 10px; left: 17px; width: 1px; background: #dce8eb; content: ""; }
+.patient-journey-timeline-event { position: relative; display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; min-width: 0; }
+.patient-journey-timeline-marker { z-index: 1; display: grid; place-items: center; width: 22px; height: 22px; border: 1px solid #d6e5e8; border-radius: 50%; background: #f5fafb; color: #537d8c; }
+.patient-journey-timeline-entry { display: grid; gap: 5px; min-width: 0; padding: 10px 11px; border: 1px solid #e7eef0; border-radius: 10px; background: #fbfcfd; text-align: left; cursor: pointer; transition: border-color .15s, background .15s; }
+.patient-journey-timeline-entry:hover, .patient-journey-timeline-entry:focus-visible { border-color: #b9d3da; background: #f4f9fa; outline: none; }
+.patient-journey-timeline-entry-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; min-width: 0; }
+.patient-journey-timeline-entry-top strong { color: #35596b; font-size: .78rem; line-height: 1.4; overflow-wrap: anywhere; }
+.patient-journey-timeline-entry time { color: #7c909b; font-size: .68rem; flex: 0 0 auto; }
+.patient-journey-timeline-description { color: #718590; font-size: .72rem; line-height: 1.5; overflow-wrap: anywhere; }
+.patient-journey-timeline-status { justify-self: start; padding: 3px 7px; border-radius: 99px; background: #edf3f4; color: #587987; font-size: .64rem; text-transform: capitalize; }
+.patient-journey-timeline-open { display: inline-flex; align-items: center; gap: 4px; justify-self: end; color: #4c7888; font-size: .66rem; font-weight: 750; }
+.patient-journey-timeline-empty { padding: 15px; border-radius: 10px; background: #f8fbfc; color: #7a8d97; font-size: .75rem; }
+.patient-journey-timeline-footnote { margin: 12px 0 0; color: #8797a0; font-size: .65rem; line-height: 1.5; }
+@media (max-width: 600px) { .patient-journey-timeline { padding: 12px; border-radius: 12px; } .patient-journey-timeline-entry { padding: 9px; } .patient-journey-timeline-entry-top { flex-direction: column; gap: 2px; } .patient-journey-timeline-entry time { font-size: .64rem; } }
