@@ -1232,7 +1232,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
     const dateA = toValidDate(a.followUpDate)?.getTime() ?? Number.MAX_SAFE_INTEGER;
     const dateB = toValidDate(b.followUpDate)?.getTime() ?? Number.MAX_SAFE_INTEGER;
     return dateA - dateB;
-  }).filter((record) => referralFilter === "all" || referralClassify(record) === referralFilter) : records;
+  }).filter((record) => referralFilter === "all" || (referralFilter === "today" ? ["due-today", "urgent-today"].includes(referralClassify(record)) : referralClassify(record) === referralFilter)) : records;
   const taskBoardRecords = activeView === "tasks"
     ? [...records].sort((a, b) => {
         const isDoneA = a.status === "done";
@@ -1275,7 +1275,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
           <div className="referral-worklist-summary">
             <button type="button" className={referralFilter === "urgent-overdue" ? "is-active is-danger" : "is-danger"} onClick={() => setReferralFilter(referralFilter === "urgent-overdue" ? "all" : "urgent-overdue")}><strong>{referralCounts["urgent-overdue"] || 0}</strong><span>Urgent overdue</span></button>
             <button type="button" className={referralFilter === "overdue" ? "is-active is-danger" : "is-danger"} onClick={() => setReferralFilter(referralFilter === "overdue" ? "all" : "overdue")}><strong>{referralCounts.overdue || 0}</strong><span>Overdue</span></button>
-            <button type="button" className={referralFilter === "due-today" || referralFilter === "urgent-today" ? "is-active is-warning" : "is-warning"} onClick={() => setReferralFilter(["due-today","urgent-today"].includes(referralFilter) ? "all" : "due-today")}><strong>{(referralCounts["due-today"] || 0) + (referralCounts["urgent-today"] || 0)}</strong><span>Due today</span></button>
+            <button type="button" className={referralFilter === "due-today" || referralFilter === "urgent-today" ? "is-active is-warning" : "is-warning"} onClick={() => setReferralFilter(referralFilter === "today" ? "all" : "today")}><strong>{(referralCounts["due-today"] || 0) + (referralCounts["urgent-today"] || 0)}</strong><span>Due today</span></button>
             <button type="button" className={referralFilter === "unassigned" ? "is-active" : ""} onClick={() => setReferralFilter(referralFilter === "unassigned" ? "all" : "unassigned")}><strong>{referralCounts.unassigned || 0}</strong><span>Unassigned</span></button>
             <button type="button" className={referralFilter === "unscheduled" ? "is-active" : ""} onClick={() => setReferralFilter(referralFilter === "unscheduled" ? "all" : "unscheduled")}><strong>{referralCounts.unscheduled || 0}</strong><span>Needs scheduling</span></button>
             <button type="button" className={referralFilter === "upcoming" ? "is-active is-positive" : "is-positive"} onClick={() => setReferralFilter(referralFilter === "upcoming" ? "all" : "upcoming")}><strong>{referralCounts.upcoming || 0}</strong><span>Upcoming</span></button>
