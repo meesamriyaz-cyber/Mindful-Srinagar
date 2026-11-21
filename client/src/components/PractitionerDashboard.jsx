@@ -196,7 +196,20 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
         </div> : <EmptyState>All checked-in sessions have documentation recorded.</EmptyState>}
       </SectionCard>
 
-  <section className="practitioner-metrics-grid" aria-label="My clinical activity">
+  <SectionCard icon={ListChecks} title="My open tasks" description={`Tasks assigned to your account · ${metrics.openTasks ?? assignedTasks.length} open${metrics.overdueTasks ? ` · ${metrics.overdueTasks} overdue` : ""}${metrics.tasksDueToday ? ` · ${metrics.tasksDueToday} due today` : ""}${metrics.tasksDueSoon ? ` · ${metrics.tasksDueSoon} due in the next 7 days` : ""}`}>
+          {metrics.openTasks > assignedTasks.length && <p className="practitioner-worklist-overflow">Showing {assignedTasks.length} of {metrics.openTasks} open tasks. {metrics.overdueTasks || 0} overdue, {metrics.tasksDueToday || 0} due today and {metrics.tasksDueSoon || 0} due in the next 7 days across your complete workload. Review Tasks for the full list.</p>}
+          {assignedTasks.length ? <div className="practitioner-list">
+            {assignedTasks.map((task) => (
+              <article className="practitioner-list-row" key={task._id}>
+                <div className="practitioner-row-main"><strong>{task.title}</strong><span>{task.department || "General"} · {task.dueDate ? `Due ${formatDateTime(task.dueDate, { day: "2-digit", month: "short" })}` : "No due date"}</span></div>
+                <Badge variant={statusVariant(task.priority)}>{task.priority || "normal"}</Badge>
+              </article>
+            ))}
+          </div> : <EmptyState>No open tasks assigned to you.</EmptyState>}
+        </SectionCard>
+      </section>
+
+      <section className="practitioner-metrics-grid" aria-label="My clinical activity">
         <Metric label="Patients under my care" value={metrics.patientsUnderCare} icon={UsersRound} description="Linked patient records" />
         <Metric label="Appointments today" value={metrics.appointmentsToday} icon={CalendarClock} description="Today's schedule" />
         <Metric label="Completed sessions" value={metrics.completedSessionsThisMonth} icon={CheckCircle2} description="This month" />
@@ -219,17 +232,4 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
       </section>
     </div>
   );
-}        <SectionCard icon={ListChecks} title="My open tasks" description={`Tasks assigned to your account · ${metrics.openTasks ?? assignedTasks.length} open${metrics.overdueTasks ? ` · ${metrics.overdueTasks} overdue` : ""}${metrics.tasksDueToday ? ` · ${metrics.tasksDueToday} due today` : ""}${metrics.tasksDueSoon ? ` · ${metrics.tasksDueSoon} due in the next 7 days` : ""}`}>
-          {metrics.openTasks > assignedTasks.length && <p className="practitioner-worklist-overflow">Showing {assignedTasks.length} of {metrics.openTasks} open tasks. {metrics.overdueTasks || 0} overdue, {metrics.tasksDueToday || 0} due today and {metrics.tasksDueSoon || 0} due in the next 7 days across your complete workload. Review Tasks for the full list.</p>}
-          {assignedTasks.length ? <div className="practitioner-list">
-            {assignedTasks.map((task) => (
-              <article className="practitioner-list-row" key={task._id}>
-                <div className="practitioner-row-main"><strong>{task.title}</strong><span>{task.department || "General"} · {task.dueDate ? `Due ${formatDateTime(task.dueDate, { day: "2-digit", month: "short" })}` : "No due date"}</span></div>
-                <Badge variant={statusVariant(task.priority)}>{task.priority || "normal"}</Badge>
-              </article>
-            ))}
-          </div> : <EmptyState>No open tasks assigned to you.</EmptyState>}
-        </SectionCard>
-      </section>
-
-
+}
