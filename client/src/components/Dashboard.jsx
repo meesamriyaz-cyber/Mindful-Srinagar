@@ -1380,7 +1380,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
           </div>
         </form>
       )}
-      {actionError && <p className="form-status error-status" role="alert" aria-live="assertive">{actionError}</p>
+      {actionError && <p className="form-status error-status" role="alert" aria-live="assertive">{actionError}</p>}
       {!state.loading && !state.error && (
         <AnimatePresence mode="popLayout">
           {records.length ? (
