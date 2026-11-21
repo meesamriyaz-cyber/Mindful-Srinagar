@@ -7,7 +7,7 @@ import { Prescription } from "../models/Prescription.js";
 import { Task } from "../models/Task.js";
 import { TreatmentPlan } from "../models/TreatmentPlan.js";
 import { getCentreDayBounds } from "../security/centreTime.js";
-import { countDocumentationPendingAppointments } from "./dashboardMetrics.js";
+import { countDocumentationPendingAppointments, getTaskDeadlineRanges } from "./dashboardMetrics.js";
 
 export async function getPractitionerDashboard(req, res, next) {
   try {
@@ -24,9 +24,7 @@ export async function getPractitionerDashboard(req, res, next) {
 
     const now = new Date();
     const { start: todayStart, end: tomorrow, monthStart } = getCentreDayBounds(now);
-    const tasksDueSoonStart = new Date(tomorrow);
-    const tasksDueSoonEnd = new Date(tomorrow);
-    tasksDueSoonEnd.setDate(tasksDueSoonEnd.getDate() + 7);
+    const taskDeadlineRanges = getTaskDeadlineRanges(todayStart, tomorrow);
 
     const appointmentScope = { practitioner: practitioner._id };
     const patientAssignmentScope = { ...appointmentScope, status: { $nin: ["cancelled", "no-show"] } };
@@ -51,9 +49,9 @@ export async function getPractitionerDashboard(req, res, next) {
       Appointment.countDocuments({ ...appointmentScope, startsAt: { $gte: todayStart, $lt: tomorrow }, status: { $nin: ["cancelled"] } }),
       Appointment.countDocuments({ ...appointmentScope, startsAt: { $gte: tomorrow }, status: "scheduled" }),
       Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" } }),
-      Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" }, dueDate: { $lt: todayStart } }),
-      Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" }, dueDate: { $gte: todayStart, $lt: tomorrow } }),
-      Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" }, dueDate: { $gte: tasksDueSoonStart, $lte: tasksDueSoonEnd } }),
+      Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" }, dueDate: { $lt: taskDeadlineRanges.overdueBefore } }),
+      Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" }, dueDate: { $gte: taskDeadlineRanges.dueTodayStart, $lt: taskDeadlineRanges.dueTodayEnd } }),
+      Task.countDocuments({ assignedTo: req.user._id, status: { $ne: "done" }, dueDate: { $gte: taskDeadlineRanges.upcomingStart, $lte: taskDeadlineRanges.upcomingEnd } }),
       Appointment.find({ ...appointmentScope, startsAt: { $gte: todayStart, $lt: tomorrow }, status: { $nin: ["cancelled"] } })
         .populate("patient", "fullName mrn status")
         .sort({ startsAt: 1 })
