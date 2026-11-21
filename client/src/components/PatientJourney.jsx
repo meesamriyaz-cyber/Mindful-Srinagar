@@ -331,10 +331,11 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
     }
   }
 
-  function openCreate() {
-    setCreateForm({ patient: patient._id, ...(activeStep === "assessments" ? { assessmentType: "initial" } : {}), ...(activeStep === "treatment-plans" ? { status: "planned" } : {}), ...(activeStep === "progress-notes" ? { noteType: "session", ...(initialAppointmentId ? { appointment: initialAppointmentId } : {}) } : {}) });
+  function openCreate(step = activeStep) {
+    setActiveStep(step);
+    setCreateForm({ patient: patient._id, ...(step === "assessments" ? { assessmentType: "initial" } : {}), ...(step === "treatment-plans" ? { status: "planned" } : {}), ...(step === "progress-notes" ? { noteType: "session", ...(initialAppointmentId ? { appointment: initialAppointmentId } : {}) } : {}) });
     setCreateError("");
-    setCreateStep(activeStep);
+    setCreateStep(step);
   }
 
   async function handleCreateSubmit(e) {
@@ -595,7 +596,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
                   <button
                     className="journey-new-btn"
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); openCreate(); }}
+                    onClick={(e) => { e.stopPropagation(); openCreate(step); }}
                     title={`New ${STEP_LABELS[step]}`}
                   >
                     <Plus size={14} />
@@ -698,7 +699,7 @@ export function PatientJourney({ patient, token, userRole, onClose, onDischarge,
             <div className="patient-journey-empty-state">
               <p className="empty-state">No {STEP_LABELS[activeStep].toLowerCase()} recorded yet.</p>
               {canCreate && (
-                <button className="primary-button" type="button" onClick={openCreate}>
+                <button className="primary-button" type="button" onClick={() => openCreate(activeStep)}>
                   <Plus size={16} /> Create {STEP_LABELS[activeStep]}
                 </button>
               )}
