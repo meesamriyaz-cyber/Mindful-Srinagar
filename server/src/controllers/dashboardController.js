@@ -214,7 +214,7 @@ export async function getDashboard(req, res, next) {
         outstanding,
         lowStockCount,
         overdueTasksCount,
-        urgentReferralsCount: urgentReferrals.length,
+        urgentReferralsCount,
         serviceDemand
       }),
       analytics: {
