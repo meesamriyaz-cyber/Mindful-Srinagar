@@ -576,13 +576,15 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }
     visibleViews.has("inventory") ? Number(data.metrics?.lowStockCount || 0) : 0
   ].reduce((sum, count) => sum + count, 0);
   const quickActions = [
-    { label: "Appointments", description: "Manage today's schedule", destination: "appointments", icon: CalendarClock },
-    { label: "Patients", description: "Open patient records", destination: "patients", icon: UsersRound },
-    { label: "Referrals", description: "Review incoming referrals", destination: "referrals", icon: TrendingUp },
-    { label: "Tasks", description: "Manage follow-up work", destination: "tasks", icon: ListChecks },
-    { label: "Billing", description: "Invoices and payments", destination: "billing", icon: WalletCards },
-    { label: "Inventory", description: "Stock and reorder levels", destination: "inventory", icon: PackageOpen }
+    { label: "Appointments", description: "Review today's appointments", destination: "appointments", icon: CalendarClock },
+    { label: "Patients", description: "Find or review patient records", destination: "patients", icon: UsersRound },
+    { label: "Tasks", description: "Review follow-up work", destination: "tasks", icon: ListChecks },
+    { label: "Referrals", description: "Follow up incoming enquiries", destination: "referrals", icon: TrendingUp },
+    { label: "Billing", description: "Manage invoices and collections", destination: "billing", icon: WalletCards },
+    { label: "Inventory", description: "Review stock and replenishment", destination: "inventory", icon: PackageOpen }
   ].filter((action) => visibleViews.has(action.destination));
+  const primaryQuickActions = quickActions.filter((action) => ["appointments", "patients", "tasks"].includes(action.destination));
+  const secondaryQuickActions = quickActions.filter((action) => !["appointments", "patients", "tasks"].includes(action.destination));
   const appointments = data.todaysAppointments || [];
   const scheduleMetrics = data.analytics?.appointmentStatusToday || {};
   const scheduleTotal = Number(data.metrics?.appointmentsToday || 0);
@@ -646,13 +648,30 @@ function OverviewWorkspace({ data, isDirector, role, onNavigate, onOpenBilling }
 
       <section className="operational-quick-actions" aria-label="Quick access workspaces">
         <header className="operational-card-heading"><div><Plus size={19} /><h3>Quick access</h3></div><span>Jump into common work</span></header>
-        <div className="operational-quick-action-grid">
-          {quickActions.map(({ label, description, destination, icon: Icon }) => (
-            <button type="button" className="operational-quick-action" key={destination} onClick={() => onNavigate(destination)}>
-              <span className="operational-quick-icon"><Icon size={18} /></span><span><strong>{label}</strong><small>{description}</small></span><span className="operational-quick-arrow" aria-hidden="true">→</span>
-            </button>
-          ))}
-        </div>
+        {primaryQuickActions.length > 0 && (
+          <div className="operational-quick-group">
+            <p className="operational-quick-group-label">Frequently used</p>
+            <div className="operational-quick-action-grid operational-quick-primary-grid">
+              {primaryQuickActions.map(({ label, description, destination, icon: Icon }) => (
+                <button type="button" className="operational-quick-action operational-quick-action-primary" key={destination} onClick={() => onNavigate(destination)}>
+                  <span className="operational-quick-icon"><Icon size={18} /></span><span><strong>{label}</strong><small>{description}</small></span><span className="operational-quick-arrow" aria-hidden="true">→</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+        {secondaryQuickActions.length > 0 && (
+          <div className="operational-quick-group">
+            <p className="operational-quick-group-label">Other workspaces</p>
+            <div className="operational-quick-action-grid operational-quick-secondary-grid">
+              {secondaryQuickActions.map(({ label, description, destination, icon: Icon }) => (
+                <button type="button" className="operational-quick-action" key={destination} onClick={() => onNavigate(destination)}>
+                  <span className="operational-quick-icon"><Icon size={18} /></span><span><strong>{label}</strong><small>{description}</small></span><span className="operational-quick-arrow" aria-hidden="true">→</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </section>
 
       <section className="operational-centre-pulse">
