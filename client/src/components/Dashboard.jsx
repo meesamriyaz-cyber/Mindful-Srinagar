@@ -808,7 +808,7 @@ function recordActions(viewId, record, userRole) {
   }
 
   if (viewId === "tasks" && record.status !== "done") {
-    return [{ label: "Done", updates: { status: "done" } }];
+    return [{ label: "Complete task", action: "complete" }];
   }
 
   return [];
@@ -1142,6 +1142,10 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
   const [showTaskCreate, setShowTaskCreate] = useState(false);
   const [taskSaving, setTaskSaving] = useState(false);
   const [taskError, setTaskError] = useState("");
+  const [completionTask, setCompletionTask] = useState(null);
+  const [completionNote, setCompletionNote] = useState("");
+  const [completionSaving, setCompletionSaving] = useState(false);
+  const [completionError, setCompletionError] = useState("");
   const [taskForm, setTaskForm] = useState({ title: "", patient: "", department: "clinical", priority: "medium", dueDate: "", assignedTo: "" });
   useEffect(() => {
     if (activeView !== "referrals" || !token) { setReferralOwners([]); return undefined; }
@@ -1331,7 +1335,37 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
           </div>
         </form>
       )}
-      {actionError && <p className="form-status error-status" role="alert" aria-live="assertive">{actionError}</p>}
+      {activeView === "tasks" && completionTask && (
+        <form className="task-completion-form" onSubmit={async (event) => {
+          event.preventDefault();
+          setCompletionSaving(true);
+          setCompletionError("");
+          try {
+            const response = await fetch(`${API_BASE_URL}/tasks/${completionTask._id}/complete`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+              body: JSON.stringify({ note: completionNote.trim() })
+            });
+            const body = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(body.message || "Task could not be completed");
+            setCompletionTask(null);
+            setCompletionNote("");
+            onRefreshRecords?.();
+          } catch (error) { setCompletionError(error.message); }
+          finally { setCompletionSaving(false); }
+        }}>
+          <div><strong>Complete task</strong><p>{completionTask.title}</p></div>
+          <label>Completion outcome (optional)
+            <textarea value={completionNote} maxLength={1000} rows={3} placeholder="Briefly record what was done or the outcome..." onChange={(event) => setCompletionNote(event.target.value)} />
+          </label>
+          {completionError && <p className="form-status error-status" role="alert">{completionError}</p>}
+          <div className="modal-actions">
+            <button className="primary-button" type="submit" disabled={completionSaving}>{completionSaving ? "Saving..." : "Confirm completion"}</button>
+            <button className="secondary-button" type="button" disabled={completionSaving} onClick={() => { setCompletionTask(null); setCompletionNote(""); setCompletionError(""); }}>Cancel</button>
+          </div>
+        </form>
+      )}
+      {actionError && <p className="form-status error-status" role="alert" aria-live="assertive">{actionError}</p>
       {!state.loading && !state.error && (
         <AnimatePresence mode="popLayout">
           {records.length ? (
@@ -1370,6 +1404,16 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                         {record.status === "done" && <span className="task-completed-indicator">COMPLETED</span>}
                       </div>
                     )}
+                    {activeView === "tasks" && record.activity?.length > 0 && (
+                      <div className="task-activity-list" aria-label="Task completion history">
+                        {record.activity.slice(-2).reverse().map((entry) => (
+                          <div className="task-activity-entry" key={entry._id}>
+                            <span><strong>{entry.actor?.name || "Staff"}</strong> completed · {formatDateTime(entry.occurredAt)}</span>
+                            {entry.note && <p>{entry.note}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                     {activeView === "referrals" && (
                       <ReferralNotesEditor
                         record={record}
@@ -1388,7 +1432,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                             type="button"
                             key={action.label}
                             disabled={actionId === record._id}
-                            onClick={() => onRecordAction(config.resource, record._id, action.updates, action)}
+                            onClick={() => action.action === "complete" ? (setCompletionTask(record), setCompletionNote(""), setCompletionError("")) : onRecordAction(config.resource, record._id, action.updates, action)}
                           >
                             {actionId === record._id ? "Saving..." : action.label}
                           </button>
