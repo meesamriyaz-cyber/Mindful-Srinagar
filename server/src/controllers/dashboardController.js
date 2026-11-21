@@ -146,12 +146,8 @@ export async function getDashboard(req, res, next) {
 
     const checkedInIds = checkedInAppointments.map((appointment) => appointment._id);
     const completedIds = completedAppointmentsForBilling.map((appointment) => appointment._id);
-    const [documentedAppointmentIds, completedNoteIds] = await Promise.all([
-      ProgressNote.distinct("appointment", { appointment: { $in: checkedInIds }, noteType: "session" }),
-      ProgressNote.distinct("appointment", { appointment: { $in: completedIds }, noteType: "session" })
-    ]);
+    const documentedAppointmentIds = await ProgressNote.distinct("appointment", { appointment: { $in: checkedInIds }, noteType: "session" });
     const documentedSet = new Set(documentedAppointmentIds.map(String));
-    const completedNoteSet = new Set(completedNoteIds.map(String));
     const billedAppointmentSet = new Set(linkedAppointmentInvoices.flatMap((invoice) => invoice.items || []).map((item) => item.appointment).filter(Boolean).map(String));
     const documentationPending = checkedInAppointments.filter((appointment) => !documentedSet.has(String(appointment._id)));
     const billingPending = completedAppointmentsForBilling.filter((appointment) => !billedAppointmentSet.has(String(appointment._id)));
