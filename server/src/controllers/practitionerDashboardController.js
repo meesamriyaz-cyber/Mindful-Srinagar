@@ -27,6 +27,10 @@ export async function getPractitionerDashboard(req, res, next) {
     const appointmentScope = { practitioner: practitioner._id };
     const patientAssignmentScope = { ...appointmentScope, status: { $nin: ["cancelled", "no-show"] } };
     const [
+      appointmentsTodayCount,
+      upcomingAppointmentsCount,
+      openTasksCount,
+      overdueTasksCount,
       todaysAppointments,
       upcomingAppointments,
       assignedPatientIds,
@@ -36,10 +40,6 @@ export async function getPractitionerDashboard(req, res, next) {
       recentNotes,
       activePrescriptions,
       assignedTasks,
-      appointmentsTodayCount,
-      upcomingAppointmentsCount,
-      openTasksCount,
-      overdueTasksCount,
       allCheckedInAppointmentIds
     ] = await Promise.all([
       Appointment.countDocuments({ ...appointmentScope, startsAt: { $gte: todayStart, $lt: tomorrow }, status: { $nin: ["cancelled"] } }),
