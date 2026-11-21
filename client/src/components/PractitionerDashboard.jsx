@@ -110,6 +110,7 @@ export function PractitionerDashboard({ token, onNavigate, onOpenPatient }) {
     role,
     metrics = {},
     todaysAppointments = [],
+    documentationPending = [],
     upcomingAppointments = [],
     recentNotes = [],
     assignedTasks = []
