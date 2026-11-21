@@ -4072,7 +4072,7 @@ html {
   min-height: 0;
 }
 
-.management-journey-modal > * {
+.management-journey-modal > :not(.journey-content) {
   min-width: 0;
   flex-shrink: 0;
 }
