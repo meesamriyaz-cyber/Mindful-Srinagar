@@ -1470,6 +1470,7 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
             <div className={`record-grid management-record-grid management-record-grid-${activeView}`}>
               {(activeView === "referrals" ? referralWorklist : taskBoardRecords).map((record, index) => {
                 const summary = describeRecord(activeView, record);
+                const fieldGroups = getRecordFieldGroups(activeView, record);
                 const actions = recordActions(activeView, record, userRole);
                 return (
                   <React.Fragment key={record._id}>
@@ -1501,9 +1502,9 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                             <span><strong>Time</strong> {formatTime(record.startsAt)}</span>
                             <span><strong>Room</strong> {record.room || "Not assigned"}</span>
                           </div>
-                        ) : getRecordFieldGroups(activeView, record) ? (
+                        ) : fieldGroups ? (
                           <div className={`management-record-meta management-record-fields management-record-fields-${activeView}`}>
-                            {getRecordFieldGroups(activeView, record)[0].map((field) => (
+                            {fieldGroups[0].map((field) => (
                               <span className="management-record-field" key={field.label}><strong>{field.label}</strong><span>{field.value}</span></span>
                             ))}
                           </div>
@@ -1524,9 +1525,9 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                         <div><strong>Service</strong><span>{record.service || "Not specified"}</span></div>
                         <div><strong>Practitioner</strong><span>{formatPractitioner(record)}</span></div>
                       </div>
-                    ) : getRecordFieldGroups(activeView, record) ? (
+                    ) : fieldGroups ? (
                       <div className={`management-record-detail management-record-fields management-record-fields-secondary management-record-fields-${activeView}`}>
-                        {getRecordFieldGroups(activeView, record)[1].map((field) => (
+                        {fieldGroups[1].map((field) => (
                           <div className="management-record-field" key={field.label}><strong>{field.label}</strong><span>{field.value}</span></div>
                         ))}
                       </div>
