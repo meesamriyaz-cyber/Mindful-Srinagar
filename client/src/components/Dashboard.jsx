@@ -1680,10 +1680,10 @@ export function Dashboard() {
   const activeConfig = getViewConfig(activeView);
 
   const syncLabel = useMemo(() => {
-    if (refreshing) return "Syncing";
-    if (error) return "Needs attention";
-    if (updatedAt) return `Live ${formatTime(updatedAt)}`;
-    return "Waiting";
+    if (refreshing) return "Updating data…";
+    if (error) return "Update failed";
+    if (updatedAt) return `Last updated: ${formatTime(updatedAt)}`;
+    return "Data not loaded yet";
   }, [error, refreshing, updatedAt]);
 
   async function handleOperationSubmit(event) {
@@ -1981,23 +1981,25 @@ export function Dashboard() {
               </div>
             </div>
             <div className="console-tools">
-              <span className={`sync-pill ${error ? "sync-error" : ""} ${refreshing ? "is-syncing" : ""}`}>
+              <span className={`sync-pill ${error ? "sync-error" : ""} ${refreshing ? "is-syncing" : ""}`} role="status" aria-live="polite">
                 {syncLabel}
               </span>
               <label className="search-box">
                 <Search size={18} />
                 <input
-                  placeholder={activeConfig.resource ? `Search ${activeConfig.label.toLowerCase()}` : "Board search"}
+                  placeholder={activeConfig.resource ? `Search ${activeConfig.label.toLowerCase()}…` : "Search unavailable in this view"}
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   disabled={!activeConfig.resource}
                 />
               </label>
-              <button className="icon-button console-refresh-button" type="button" onClick={handleRefresh} aria-label="Refresh dashboard">
-                <RefreshCw size={18} />
+              <button className="icon-button console-refresh-button" type="button" onClick={handleRefresh}>
+                <RefreshCw size={18} aria-hidden="true" />
+                <span>Refresh data</span>
               </button>
-              <button className="icon-button console-logout-button" type="button" onClick={handleLogout} aria-label="Sign out">
-                <LogOut size={18} />
+              <button className="icon-button console-logout-button" type="button" onClick={handleLogout}>
+                <LogOut size={18} aria-hidden="true" />
+                <span>Sign out</span>
               </button>
             </div>
           </div>
