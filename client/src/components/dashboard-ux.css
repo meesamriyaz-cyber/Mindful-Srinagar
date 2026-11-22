@@ -2510,3 +2510,64 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+/* Batch 2 — patient and appointment information is separated into labeled fields */
+.dashboard-section .patient-record-meta,
+.dashboard-section .appointment-record-meta,
+.dashboard-section .patient-record-detail,
+.dashboard-section .appointment-record-detail {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 14px;
+  min-width: 0;
+}
+
+.dashboard-section .patient-record-meta > span,
+.dashboard-section .appointment-record-meta > span,
+.dashboard-section .patient-record-detail > div,
+.dashboard-section .appointment-record-detail > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-section .patient-record-meta > span,
+.dashboard-section .appointment-record-meta > span {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: baseline;
+}
+
+.dashboard-section .patient-record-meta strong,
+.dashboard-section .appointment-record-meta strong,
+.dashboard-section .patient-record-detail > div > strong,
+.dashboard-section .appointment-record-detail > div > strong {
+  color: #526d79;
+  font-size: .7rem;
+  font-weight: 750;
+  letter-spacing: .02em;
+}
+
+.dashboard-section .patient-record-detail > div,
+.dashboard-section .appointment-record-detail > div {
+  display: grid;
+  gap: 3px;
+}
+
+.dashboard-section .patient-record-detail > div > span,
+.dashboard-section .appointment-record-detail > div > span {
+  color: #637b87;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 620px) {
+  .dashboard-section .patient-record-meta,
+  .dashboard-section .appointment-record-meta,
+  .dashboard-section .patient-record-detail,
+  .dashboard-section .appointment-record-detail {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 7px;
+  }
+}
