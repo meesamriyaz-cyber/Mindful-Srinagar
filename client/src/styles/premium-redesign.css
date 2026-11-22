@@ -3572,3 +3572,16 @@ body:has(.premium-staff-header) {
   outline: 2px solid #6eaa91;
   outline-offset: 2px;
 }
+
+
+/* Batch 1A — enforce contrast on sign-out hover against global button rules */
+.dashboard-section .dashboard-shell .console-tools .console-logout-button:hover,
+.dashboard-section .dashboard-shell .console-tools .console-logout-button:hover span,
+.dashboard-section .dashboard-shell .console-tools .console-logout-button:hover svg {
+  color: #ffffff !important;
+}
+
+.dashboard-section .dashboard-shell .console-tools .console-logout-button:hover {
+  background: #245b49 !important;
+  border-color: #245b49 !important;
+}
