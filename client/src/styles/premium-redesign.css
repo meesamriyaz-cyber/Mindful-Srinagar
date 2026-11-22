@@ -3182,3 +3182,172 @@ body:has(.premium-staff-header) {
 @media (max-width: 820px) {
   .dashboard-section .premium-staff-navigation.premium-sidebar-collapsed { grid-template-columns: minmax(0,1fr); }
 }
+
+
+/* Batch 1A — Shared dashboard toolbar visual foundation */
+.dashboard-section .dashboard-shell .console-tools {
+  gap: 10px;
+}
+
+.dashboard-section .dashboard-shell .sync-pill {
+  min-height: 38px;
+  padding-inline: 13px;
+  border-color: #c9ded2;
+  background: #edf6f0;
+  color: #245b45;
+  font-size: .76rem;
+  font-weight: 800;
+  letter-spacing: .015em;
+}
+
+.dashboard-section .dashboard-shell .sync-pill::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #26966b;
+  box-shadow: 0 0 0 3px rgba(38, 150, 107, .12);
+}
+
+.dashboard-section .dashboard-shell .sync-pill.is-syncing {
+  border-color: #e5d4a3;
+  background: #fff7e2;
+  color: #755814;
+}
+
+.dashboard-section .dashboard-shell .sync-pill.is-syncing::before {
+  background: #d69a23;
+  box-shadow: 0 0 0 3px rgba(214, 154, 35, .14);
+}
+
+.dashboard-section .dashboard-shell .sync-pill.sync-error {
+  border-color: #e8c7c2;
+  background: #fff1ee;
+  color: #9b3e32;
+}
+
+.dashboard-section .dashboard-shell .sync-pill.sync-error::before {
+  background: #c65346;
+  box-shadow: 0 0 0 3px rgba(198, 83, 70, .12);
+}
+
+.dashboard-section .dashboard-shell .console-tools .search-box {
+  min-height: 46px;
+  border: 1px solid #cfded6;
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 2px 7px rgba(27, 65, 48, .035);
+  color: #315d4b;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+
+.dashboard-section .dashboard-shell .console-tools .search-box > svg {
+  color: #315d4b;
+  flex: 0 0 auto;
+}
+
+.dashboard-section .dashboard-shell .console-tools .search-box input {
+  color: #213f33;
+}
+
+.dashboard-section .dashboard-shell .console-tools .search-box input::placeholder {
+  color: #82938a;
+  opacity: 1;
+}
+
+.dashboard-section .dashboard-shell .console-tools .search-box:focus-within {
+  border-color: #4c8b70;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(65, 132, 99, .15), 0 3px 12px rgba(27, 65, 48, .06);
+}
+
+.dashboard-section .dashboard-shell .console-tools .icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid #cfded6;
+  border-radius: 13px;
+  background: #fff;
+  color: #315d4b;
+  box-shadow: 0 2px 7px rgba(27, 65, 48, .035);
+  transition: border-color .18s ease, background .18s ease, color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.dashboard-section .dashboard-shell .console-tools .console-refresh-button:hover {
+  border-color: #9fc5ae;
+  background: #edf6f0;
+  color: #1f694c;
+  box-shadow: 0 4px 12px rgba(27, 65, 48, .08);
+}
+
+.dashboard-section .dashboard-shell .console-tools .console-logout-button:hover {
+  border-color: #e3b8b2;
+  background: #fff2f0;
+  color: #a34035;
+  box-shadow: 0 4px 12px rgba(132, 49, 39, .07);
+}
+
+.dashboard-section .dashboard-shell .console-tools .icon-button:active {
+  transform: translateY(1px);
+}
+
+.dashboard-section .dashboard-shell .console-tools .icon-button:focus-visible,
+.dashboard-section .dashboard-shell .console-tools .search-box:focus-within {
+  outline: none;
+}
+
+.dashboard-section .dashboard-shell .console-tools .icon-button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(65, 132, 99, .18);
+}
+
+@media (max-width: 680px) {
+  .dashboard-section .dashboard-shell .console-tools {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px 44px;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .sync-pill {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    order: 0;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .console-refresh-button {
+    grid-column: 2;
+    grid-row: 1;
+    order: 0;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .console-logout-button {
+    grid-column: 3;
+    grid-row: 1;
+    order: 0;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .search-box {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    order: 0;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-section .dashboard-shell .console-tools .icon-button,
+  .dashboard-section .dashboard-shell .console-tools .search-box {
+    transition: none;
+  }
+}
