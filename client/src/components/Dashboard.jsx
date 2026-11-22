@@ -1682,7 +1682,7 @@ export function Dashboard() {
   const syncLabel = useMemo(() => {
     if (refreshing) return "Updating data…";
     if (error) return "Update failed";
-    if (updatedAt) return `Last updated: ${formatTime(updatedAt)}`;
+    if (updatedAt) return `Updated ${formatTime(updatedAt)}`;
     return "Data not loaded yet";
   }, [error, refreshing, updatedAt]);
 
@@ -1984,15 +1984,16 @@ export function Dashboard() {
               <span className={`sync-pill ${error ? "sync-error" : ""} ${refreshing ? "is-syncing" : ""}`} role="status" aria-live="polite">
                 {syncLabel}
               </span>
-              <label className="search-box">
-                <Search size={18} />
-                <input
-                  placeholder={activeConfig.resource ? `Search ${activeConfig.label.toLowerCase()}…` : "Search unavailable in this view"}
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  disabled={!activeConfig.resource}
-                />
-              </label>
+              {activeConfig.resource && (
+                <label className="search-box">
+                  <Search size={18} aria-hidden="true" />
+                  <input
+                    placeholder={`Search ${activeConfig.label.toLowerCase()}…`}
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                  />
+                </label>
+              )}
               <button className="icon-button console-refresh-button" type="button" onClick={handleRefresh}>
                 <RefreshCw size={18} aria-hidden="true" />
                 <span>Refresh data</span>
