@@ -2613,3 +2613,59 @@
     gap: 4px;
   }
 }
+
+
+/* Final workspace usability pass — labeled, scannable operational and clinical fields */
+.dashboard-section .management-record-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 14px;
+  min-width: 0;
+}
+
+.dashboard-section .management-record-fields .management-record-field {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-section .management-record-fields .management-record-field > strong {
+  color: #68818c;
+  font-size: .69rem;
+  font-weight: 650;
+  letter-spacing: .015em;
+  line-height: 1.35;
+}
+
+.dashboard-section .management-record-fields .management-record-field > span {
+  color: #355565;
+  font-size: .9rem;
+  line-height: 1.5;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-section .management-record-fields-secondary {
+  padding: 12px 14px;
+  border-left: 3px solid #c1e1dc;
+  border-radius: 0 9px 9px 0;
+  background: #f4f8f8;
+}
+
+.dashboard-section .management-record-fields-referrals .management-record-field:first-child span,
+.dashboard-section .management-record-fields-billing .management-record-field:last-child span {
+  font-weight: 650;
+}
+
+@media (max-width: 620px) {
+  .dashboard-section .management-record-fields {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .dashboard-section .management-record-fields-secondary {
+    padding: 10px 12px;
+  }
+}
