@@ -2571,3 +2571,45 @@
     gap: 7px;
   }
 }
+
+
+/* Batch 2 validation refinement — keep appointment metadata balanced */
+.dashboard-section .appointment-record-meta {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px 12px;
+  align-items: start;
+}
+
+.dashboard-section .appointment-record-meta > span {
+  display: block;
+  line-height: 1.45;
+}
+
+.dashboard-section .appointment-record-meta strong,
+.dashboard-section .appointment-record-detail > div > strong {
+  color: #66808b;
+  font-size: .68rem;
+  font-weight: 650;
+  letter-spacing: .01em;
+}
+
+.dashboard-section .appointment-record-detail {
+  gap: 10px 16px;
+}
+
+.dashboard-section .appointment-record-detail > div {
+  gap: 4px;
+}
+
+@media (max-width: 620px) {
+  .dashboard-section .appointment-record-meta {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .dashboard-section .appointment-record-meta > span {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+}
