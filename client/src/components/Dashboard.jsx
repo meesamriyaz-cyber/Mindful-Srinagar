@@ -1442,12 +1442,37 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                     <div className="record-main management-record-main">
                       <div>
                         <strong>{summary.title || "Untitled record"}</strong>
-                        <span className="management-record-meta">{summary.meta}</span>
+                        {activeView === "patients" ? (
+                          <div className="management-record-meta patient-record-meta">
+                            <span><strong>MRN</strong> {record.mrn || "Not assigned"}</span>
+                            <span><strong>Phone</strong> {record.phone || "Not provided"}</span>
+                          </div>
+                        ) : activeView === "appointments" ? (
+                          <div className="management-record-meta appointment-record-meta">
+                            <span><strong>Date</strong> {formatDate(record.startsAt)}</span>
+                            <span><strong>Time</strong> {formatTime(record.startsAt)}</span>
+                            <span><strong>Room</strong> {record.room || "Not assigned"}</span>
+                          </div>
+                        ) : (
+                          <span className="management-record-meta">{summary.meta}</span>
+                        )}
                       </div>
                       <mark className={statusClass(summary.status)}>{summary.status || "open"}</mark>
                       {activeView === "referrals" && <span className={`referral-worklist-badge referral-worklist-badge-${referralClassify(record)}`}>{({ "urgent-overdue": "Urgent · overdue", overdue: "Overdue", "urgent-today": "Urgent · today", "due-today": "Due today", unassigned: "Unassigned", unscheduled: "Needs scheduling", upcoming: "Upcoming", closed: "Closed" })[referralClassify(record)]}</span>}
                     </div>
-                    <p className="management-record-detail">{summary.detail}</p>
+                    {activeView === "patients" ? (
+                      <div className="management-record-detail patient-record-detail">
+                        <div><strong>Guardian</strong><span>{record.guardianName || "Not listed"}</span></div>
+                        <div><strong>Services</strong><span>{(record.services || []).join(", ") || record.primaryConcern || "Not specified"}</span></div>
+                      </div>
+                    ) : activeView === "appointments" ? (
+                      <div className="management-record-detail appointment-record-detail">
+                        <div><strong>Service</strong><span>{record.service || "Not specified"}</span></div>
+                        <div><strong>Practitioner</strong><span>{formatPractitioner(record)}</span></div>
+                      </div>
+                    ) : (
+                      <p className="management-record-detail">{summary.detail}</p>
+                    )}
                     {activeView === "tasks" && (
                       <div className="task-card-indicators" aria-label="Task priority">
                         <span className={`task-priority task-priority-${record.priority || "medium"}`}>{(record.priority || "medium").toUpperCase()} PRIORITY</span>
