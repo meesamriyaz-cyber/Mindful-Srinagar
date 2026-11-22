@@ -3444,3 +3444,106 @@ body:has(.premium-staff-header) {
     font-size: .78rem;
   }
 }
+
+
+/* Batch 1A layout correction — prevent labels from overflowing their controls */
+.dashboard-section .dashboard-shell .console-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: 8px;
+}
+
+.dashboard-section .dashboard-shell .console-tools .sync-pill {
+  min-height: 36px;
+  padding: 7px 10px;
+  font-size: .75rem;
+}
+
+.dashboard-section .dashboard-shell .console-tools .icon-button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: auto !important;
+  min-width: max-content;
+  height: 42px;
+  min-height: 42px;
+  padding: 0 12px;
+  gap: 7px;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.dashboard-section .dashboard-shell .console-tools .icon-button span {
+  display: inline-block;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.dashboard-section .dashboard-shell .console-tools .search-box {
+  flex: 1 1 220px;
+  width: auto;
+  min-width: 180px;
+  max-width: 340px;
+}
+
+.dashboard-section .dashboard-shell .console-tools .search-box input {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .dashboard-section .dashboard-shell .console-tools {
+    justify-content: flex-start;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .search-box {
+    flex-basis: 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .dashboard-section .dashboard-shell .console-tools {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: 8px;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .sync-pill {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: start;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .search-box {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .console-refresh-button {
+    grid-column: 1;
+    grid-row: 3;
+    width: 100% !important;
+    justify-content: center;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .console-logout-button {
+    grid-column: 2;
+    grid-row: 3;
+    width: 100% !important;
+    justify-content: center;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .icon-button {
+    min-width: 0;
+    padding-inline: 8px;
+    gap: 6px;
+    font-size: .8rem;
+  }
+}
