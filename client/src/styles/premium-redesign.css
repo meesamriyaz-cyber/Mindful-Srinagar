@@ -3351,3 +3351,96 @@ body:has(.premium-staff-header) {
     transition: none;
   }
 }
+
+
+/* Batch 1A revision — controls communicate their purpose in plain language */
+.dashboard-section .dashboard-shell .console-tools .sync-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 8px 12px;
+  white-space: nowrap;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.dashboard-section .dashboard-shell .console-tools .sync-pill::before {
+  margin: 0;
+}
+
+.dashboard-section .dashboard-shell .console-tools .icon-button {
+  width: auto;
+  min-width: 44px;
+  padding: 0 13px;
+  gap: 8px;
+  font-size: .84rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dashboard-section .dashboard-shell .console-tools .icon-button span {
+  display: inline;
+}
+
+.dashboard-section .dashboard-shell .console-tools .console-logout-button {
+  border-color: #cfded6;
+  background: #f7faf8;
+  color: #315d4b;
+}
+
+.dashboard-section .dashboard-shell .console-tools .console-logout-button:hover {
+  border-color: #d9aaa4;
+  background: #fff2f0;
+  color: #943d32;
+}
+
+.dashboard-section .dashboard-shell .console-tools .search-box input:disabled {
+  cursor: not-allowed;
+  color: #84928b;
+}
+
+@media (max-width: 680px) {
+  .dashboard-section .dashboard-shell .console-tools {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    width: 100%;
+    gap: 8px;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .sync-pill {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-self: start;
+    max-width: 100%;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .search-box {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .console-refresh-button {
+    grid-column: 1;
+    grid-row: 3;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dashboard-section .dashboard-shell .console-tools .console-logout-button {
+    grid-column: 2;
+    grid-row: 3;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 380px) {
+  .dashboard-section .dashboard-shell .console-tools .icon-button {
+    padding-inline: 9px;
+    gap: 6px;
+    font-size: .78rem;
+  }
+}
