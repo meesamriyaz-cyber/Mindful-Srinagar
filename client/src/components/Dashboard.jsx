@@ -1993,10 +1993,10 @@ export function Dashboard() {
                   disabled={!activeConfig.resource}
                 />
               </label>
-              <button className="icon-button" type="button" onClick={handleRefresh} aria-label="Refresh dashboard">
+              <button className="icon-button console-refresh-button" type="button" onClick={handleRefresh} aria-label="Refresh dashboard">
                 <RefreshCw size={18} />
               </button>
-              <button className="icon-button" type="button" onClick={handleLogout} aria-label="Sign out">
+              <button className="icon-button console-logout-button" type="button" onClick={handleLogout} aria-label="Sign out">
                 <LogOut size={18} />
               </button>
             </div>
