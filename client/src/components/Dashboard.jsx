@@ -819,6 +819,54 @@ function describeRecord(viewId, record) {
   };
 }
 
+function getRecordFieldGroups(viewId, record) {
+  const date = (value) => {
+    const parsed = toValidDate(value);
+    return parsed ? formatDate(parsed) : "Not set";
+  };
+  const text = (value, fallback = "Not provided") => {
+    const normalized = String(value ?? "").trim();
+    return normalized || fallback;
+  };
+  if (viewId === "referrals") return [
+    [{ label: "Source", value: text(record.sourceName || record.sourceType, "Not recorded") }, { label: "Phone", value: text(record.phone) }],
+    [{ label: "Concern", value: text(record.concern) }, { label: "Preferred contact", value: text(record.preferredContact, "Phone") }, { label: "Assigned to", value: record.assignedTo?.name || "Unassigned" }, { label: "Follow-up", value: record.followUpDate ? formatDateTime(record.followUpDate) : "No follow-up set" }]
+  ];
+  if (viewId === "billing") {
+    const total = invoiceTotal(record);
+    const paid = Number(record.paidAmount || 0);
+    return [
+      [{ label: "Patient", value: record.patient?.fullName || "Not linked" }, { label: "Invoice total", value: INR.format(total) }],
+      [{ label: "Paid", value: INR.format(paid) }, { label: "Outstanding", value: INR.format(Math.max(total - paid, 0)) }]
+    ];
+  }
+  if (viewId === "inventory") return [
+    [{ label: "Category", value: text(record.category, "Uncategorised") }, { label: "Available", value: `${record.quantity ?? "--"} ${record.unit || "pcs"}` }],
+    [{ label: "Reorder at", value: text(record.reorderLevel, "Not set") }, { label: "Vendor", value: text(record.vendor, "Not listed") }]
+  ];
+  if (viewId === "tasks") return [
+    [{ label: "Patient", value: record.patient?.fullName || "General task" }, { label: "Department", value: text(record.department, "Unassigned") }],
+    [{ label: "Assigned to", value: record.assignedTo?.name || "Unassigned" }, { label: "Due", value: date(record.dueDate) }]
+  ];
+  if (viewId === "assessments") return [
+    [{ label: "Domains", value: (record.domains || []).join(", ") || "General" }],
+    [{ label: "Findings", value: text(record.findings) }]
+  ];
+  if (viewId === "treatment-plans") return [
+    [{ label: "Frequency", value: text(record.frequency, "Not set") }, { label: "Duration", value: text(record.duration, "Not set") }],
+    [{ label: "Goals", value: text(record.goals) }, { label: "Interventions", value: text(record.interventions) }]
+  ];
+  if (viewId === "progress-notes") return [
+    [{ label: "Note type", value: text(record.noteType, "General") }, { label: "Session", value: record.appointment ? formatDateTime(record.appointment.startsAt || record.appointment) : "Not linked" }],
+    [{ label: "Objective", value: text(record.objective) }, { label: "Assessment", value: text(record.assessment) }]
+  ];
+  if (viewId === "prescriptions") return [
+    [{ label: "Prescribed", value: date(record.prescribedAt) }, { label: "Status", value: text(record.status) }],
+    [{ label: "Medication", value: (record.medications || []).map((m) => m.name).filter(Boolean).join(", ") || "No medications listed" }, { label: "Notes", value: text(record.notes) }]
+  ];
+  return null;
+}
+
 function recordActions(viewId, record, userRole) {
   if (viewId === "patients") {
     const actions = [{ label: "View Journey", action: "journey" }];
@@ -1453,6 +1501,12 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                             <span><strong>Time</strong> {formatTime(record.startsAt)}</span>
                             <span><strong>Room</strong> {record.room || "Not assigned"}</span>
                           </div>
+                        ) : getRecordFieldGroups(activeView, record) ? (
+                          <div className={`management-record-meta management-record-fields management-record-fields-${activeView}`}>
+                            {getRecordFieldGroups(activeView, record)[0].map((field) => (
+                              <span className="management-record-field" key={field.label}><strong>{field.label}</strong><span>{field.value}</span></span>
+                            ))}
+                          </div>
                         ) : (
                           <span className="management-record-meta">{summary.meta}</span>
                         )}
@@ -1469,6 +1523,12 @@ function ResourceBoard({ activeView, data, state, onRecordAction, actionId, acti
                       <div className="management-record-detail appointment-record-detail">
                         <div><strong>Service</strong><span>{record.service || "Not specified"}</span></div>
                         <div><strong>Practitioner</strong><span>{formatPractitioner(record)}</span></div>
+                      </div>
+                    ) : getRecordFieldGroups(activeView, record) ? (
+                      <div className={`management-record-detail management-record-fields management-record-fields-secondary management-record-fields-${activeView}`}>
+                        {getRecordFieldGroups(activeView, record)[1].map((field) => (
+                          <div className="management-record-field" key={field.label}><strong>{field.label}</strong><span>{field.value}</span></div>
+                        ))}
                       </div>
                     ) : (
                       <p className="management-record-detail">{summary.detail}</p>
